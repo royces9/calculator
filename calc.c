@@ -271,19 +271,23 @@ double sya(char inp[], double *ans){
 
     case ')':
       cREP++;
-      while(oper.stk[oper.top] != LEP && oper.occ != 0){
-	//	printf("%c\n", inp[length]);
+      while(oper.stk[oper.top] != LEP && oper.occ == 1){
 	exec(&out, popch(&oper));
       }
       popch(&oper);
       break;
+
+      /*    case '!':
+      pushch (ch ,&oper);
+      exec(&out, popch(&oper));
+      break;*/
       
     case 'a': break;
     case 'b': break;
     case 'c': break;
     case 'd': break;
     case 'e':
-      if(strchr("+-*/()^", ach) != NULL && strchr("+-*/()^", bch) != NULL){
+      if(strchr("+-*/()^\n", ach) != NULL && strchr("+-*/()^", bch) != NULL){
 	pushn(E, &out);
       }
       break;
@@ -295,7 +299,7 @@ double sya(char inp[], double *ans){
       break;
     case 'h': break;
     case 'i':
-      if(strchr("+-*/^()", ach) && bch == p){
+      if(strchr("+-*/^()\n", ach) && bch == p){
 	pushn(PI, &out);
       }	
       break;
@@ -348,6 +352,7 @@ double sya(char inp[], double *ans){
   }
   if(cLEP != cREP){
     error = 1;
+    printf("\nMismatched parenthesis\n\n");
   }
   if(error == 0){
     printf("\n%lf\n\n", out.stk[0]);
@@ -368,9 +373,10 @@ int main(){
   while(input != "q"){
     printf(">>"); // separator to know when to put input
 
-    scanf("%s", &input);
+    fgets(input, 1024, stdin);
+    printf("%s\n", input);
 
-    if(input[0] == q && input[1] == '\0'){ //break when input is 'q'
+    if(input[0] == q && input[1] == '\n'){ //break when input is 'q'
       break;
     }
     else{
