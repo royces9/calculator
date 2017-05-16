@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+//05/15/2017
+
 //zero and nine
 #define zero 48
 #define nine 57
@@ -52,6 +54,7 @@
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442
 
 #define E 2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427427466391932003059921817413596629043572900334295260595630738132328627943490763233829880753195251019011573
+
 
 //STRUCTS
 typedef struct{
@@ -193,8 +196,7 @@ double sya(char inp[], double *ans){
   //
 
 
-  for(length = 0; inp[length]; ++length){
-  }
+  for(length = 0; inp[length]; ++length){}
   
   //reset all the variables
   out.top = 0;
@@ -247,7 +249,7 @@ double sya(char inp[], double *ans){
       
     case '*':
     case '/':
-      while(strchr("*^/", oper.stk[oper.top]) != NULL && oper.stk[oper.top] != '\0' && oper.occ ==1){
+      while(strchr("*^/~!@#$%", oper.stk[oper.top]) != NULL && oper.stk[oper.top] != '\0' && oper.occ ==1){
 	exec(&out, popch(&oper));
       }
       pushch(ch, &oper);
