@@ -374,7 +374,6 @@ int main(){
     printf(">>"); // separator to know when to put input
 
     fgets(input, 1024, stdin);
-    printf("%s\n", input);
 
     if(input[0] == q && input[1] == '\n'){ //break when input is 'q'
       break;
