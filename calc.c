@@ -351,17 +351,14 @@ double sya(char inp[], double *ans){
     exec(&out, popch(&oper));
   }
   if(cLEP != cREP){
-    error = 1;
+    error = -1;
     printf("\nMismatched parenthesis\n\n");
+    return error;
   }
   if(error == 0){
     printf("\n%lf\n\n", out.stk[0]);
     *ans = out.stk[0];
-    return 0;
-  }
-  else{
-    printf("\nError\n\n");
-    return -1;
+    return error;
   }
 }
 //
