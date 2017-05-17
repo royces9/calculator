@@ -3,11 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//05/15/2017
-
-//zero and nine
-#define zero 48
-#define nine 57
+//05/16/2017
 
 //four basic operations
 #define A 43
@@ -20,35 +16,6 @@
 #define REP 41
 #define EXP 94
 #define DEC 46
-
-//letters
-#define a 97
-#define b 98
-#define c 99
-#define d 100
-#define e 101
-#define f 102
-#define g 103
-#define h 104
-#define i 105
-#define j 106
-#define k 107
-#define l 108
-#define m 109
-#define n 110
-#define o 111
-#define p 112
-#define q 113
-#define r 114
-#define s 115
-#define t 116
-#define u 117
-#define v 118
-#define w 119
-#define x 120
-#define y 121
-#define z 122
-
 
 //constants
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442
@@ -75,8 +42,7 @@ typedef struct{
 //numbers
 void pushn(double inp, stint* st){
   if(st->occ == 1){
-    st->top++;
-    st->stk[st->top] = inp;
+    st->stk[++st->top] = inp;
   }
   else{
     st->stk[0] = inp;
@@ -87,8 +53,7 @@ void pushn(double inp, stint* st){
 double popn(stint* st){
   double out;
   if(st->occ == 1){
-    out = st->stk[st->top];
-    st->top--;
+    out = st->stk[(st->top)--];
     if(st->top == -1){
       st->occ = 0;
       st->top = 0;
@@ -102,8 +67,7 @@ double popn(stint* st){
 //characters
 void pushch(char inp, stchar* st){
   if(st->occ == 1){
-    st->top++;
-    st->stk[st->top] = inp;
+    st->stk[++(st->top)] = inp;
   }
   else{
     st->stk[0] = inp;
@@ -114,8 +78,7 @@ void pushch(char inp, stchar* st){
 char popch(stchar* st){
   char out;
   if(st->occ == 1){
-    out = st->stk[st->top];
-    st->top--;
+    out = st->stk[(st->top)--];
     if(st->top == -1){
       st->stk[0] == '\0';
       st->occ = 0;
@@ -129,33 +92,31 @@ char popch(stchar* st){
 }
 //
 
-
 //Function for operators
-double op(double aa, double bb, char O){
+double op(double a, double b, char O){
   switch(O){
-  case '+': return aa + bb;
-  case '-': return aa - bb;
-  case '*': return aa * bb;
-  case '/': return aa / bb;
-  case '^': return pow(aa, bb);
+  case '+': return a + b;
+  case '-': return a - b;
+  case '*': return a * b;
+  case '/': return a / b;
+  case '^': return pow(a, b);
   }
 }
 
-double ops(double aa, char O){
+double ops(double a, char O){
   switch(O){
-  case '~' : return sin(aa);
-  case '!' : return cos(aa);
-  case '@' : return tan(aa);
-  case '#' : return log(aa);
-  case '$' : return log10(aa);
-  case '%' : return sqrt(aa);
+  case '~' : return sin(a);
+  case '!' : return cos(a);
+  case '@' : return tan(a);
+  case '#' : return log(a);
+  case '$' : return log10(a);
+  case '%' : return sqrt(a);
   }
 }
 //
 
-
-//EXEC function
-void exec(stint* ninp, char ch){
+//execute function
+void exec_num(stint* ninp, char ch){
   double nA, nB;
   switch(ch){
   case '+':
@@ -190,8 +151,8 @@ double sya(char inp[], double *ans){
   //Variables
   stint out; //output stack
   stchar oper; //operator stack
-  int ii = 0, jj = 0, error = 0, cLEP = 0, cREP = 0, length = 0;
-  char inter[1024], *str2d, ch, bch, bbch, bbbch, ach, asdf[1024];
+  int i = 0, j = 0, error = 0, cLEP = 0, cREP = 0, length = 0;
+  char inter[1024], *str2d, ch;
   double num = 0;
   //
 
@@ -206,13 +167,8 @@ double sya(char inp[], double *ans){
   memset(out.stk, 0, sizeof(out.stk));
   //
   
-  for(ii = 0; inp[ii]; ++ii){
-    bbbch = inp[ii-3];
-    bbch = inp[ii-2];
-    bch = inp[ii-1];
-    ch = inp[ii];
-    ach = inp[ii+1];
-
+  for(i = 0; inp[i]; ++i){
+    ch = inp[i];
     switch(ch){      
     case '0':
     case '1':
@@ -225,20 +181,20 @@ double sya(char inp[], double *ans){
     case '8':
     case '9':
     case '.':
-      inter[jj] = ch;
-      ++jj;
-      if(ach < zero && ach != DEC || ach > nine || !ach){
+      inter[j] = ch;
+      ++j;
+      if(inp[i+1] < '0' && inp[i+1] != DEC || inp[i+1] > '9' || !inp[i+1]){
 	num = strtod(inter, &str2d);
 	pushn(num, &out);
-	jj = 0;
+	j = 0;
 	memset(inter, '\0', sizeof(inter));
 	num = 0;
       }
       break;
       
     case '^':
-      if(strchr("~!@#$%", oper.stk[oper.top]) != NULL){
-	exec(&out, popch(&oper));
+      if(strchr("~!@#$%", oper.stk[oper.top])){
+	exec_num(&out, popch(&oper));
       }
       pushch(ch, &oper);
       break;
@@ -249,22 +205,22 @@ double sya(char inp[], double *ans){
       
     case '*':
     case '/':
-      while(strchr("*^/~!@#$%", oper.stk[oper.top]) != NULL && oper.stk[oper.top] != '\0' && oper.occ ==1){
-	exec(&out, popch(&oper));
+      while(strchr("*^/~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
+	exec_num(&out, popch(&oper));
       }
       pushch(ch, &oper);
       break;
       
     case '-':
-      if(bch < zero || bch > nine){
+      if(inp[i-1] < '0' || inp[i-1] > '9'){
 	pushn(-1, &out);
 	pushch('*', &oper);
 	break;
       }
     case '+':
-      while(strchr("+-/*^~!@#$%", oper.stk[oper.top]) != NULL && oper.stk[oper.top] != '\0' && oper.occ == 1){
+      while(strchr("+-/*^~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
      	//printf("test2\n");
-	exec(&out, popch(&oper));
+	exec_num(&out, popch(&oper));
       }
       pushch(ch, &oper);
       break;
@@ -272,14 +228,14 @@ double sya(char inp[], double *ans){
     case ')':
       cREP++;
       while(oper.stk[oper.top] != LEP && oper.occ == 1){
-	exec(&out, popch(&oper));
+	exec_num(&out, popch(&oper));
       }
       popch(&oper);
       break;
 
       /*    case '!':
       pushch (ch ,&oper);
-      exec(&out, popch(&oper));
+      exec_num(&out, popch(&oper));
       break;*/
       
     case 'a': break;
@@ -287,19 +243,19 @@ double sya(char inp[], double *ans){
     case 'c': break;
     case 'd': break;
     case 'e':
-      if(strchr("+-*/()^\n", ach) != NULL && strchr("+-*/()^", bch) != NULL){
+      if(strchr("+-*/()^\n", inp[i+1]) && strchr("+-*/()^", inp[i-1])){
 	pushn(E, &out);
       }
       break;
     case 'f': break;
     case 'g':
-      if(ach == LEP && bch == o && bbch ==l){
+      if(inp[i+1] == LEP && inp[i-1] == 'o' && inp[i-2] =='l'){
 	pushch('$', &oper);
       }
       break;
     case 'h': break;
     case 'i':
-      if(strchr("+-*/^()\n", ach) && bch == p){
+      if(strchr("+-*/^()\n", inp[i+1]) && inp[i-1] == 'p'){
 	pushn(PI, &out);
       }	
       break;
@@ -308,13 +264,13 @@ double sya(char inp[], double *ans){
     case 'l': break;
     case 'm': break;
     case 'n':
-      if(ach == LEP && bch == i && bbch == s){
+      if(inp[i+1] == LEP && inp[i-1] == 'i' && inp[i-2] == 's'){
 	pushch('~', &oper);
       }
-      if(ach == LEP && bch == a && bbch == t){
+      if(inp[i+1] == LEP && inp[i-1] == 'a' && inp[i-2] == 't'){
 	pushch('@', &oper);
       }
-      if(ach == LEP && bch == l){
+      if(inp[i+1] == LEP && inp[i-1] == 'l'){
 	pushch('#', &oper);
       }
       break;
@@ -323,15 +279,15 @@ double sya(char inp[], double *ans){
     case 'q': break;
     case 'r': break;
     case 's':
-      if(ach == LEP && bch == o && bbch == c){
+      if(inp[i+1] == LEP && inp[i-1] == 'o' && inp[i-2] == 'c'){
 	pushch('!', &oper);
       }
-      if(strchr("+-/*()^", ach) != NULL && bch == n && bbch == a){
+      if(strchr("+-/*()^\n", inp[i+1]) && inp[i-1] == 'n' && inp[i-2] == 'a'){
 	pushn(*ans, &out);
       }
       break;
     case 't':
-      if(ach == LEP && bch == r && bbch == q && bbbch == s){
+      if(inp[i+1] == LEP && inp[i-1] == 'r' && inp[i-2] == 'q' && inp[i-3] == 's'){
 	pushch('%', &oper);
       }
       break;
@@ -345,10 +301,14 @@ double sya(char inp[], double *ans){
     default:
       break;
     }
+    if(error == -1){
+      printf("Error");
+      return error;
+    }
   }
 
-  while(out.top > -1 && out.occ ==1 && oper.occ ==1){
-    exec(&out, popch(&oper));
+  while(out.top > -1 && out.occ == 1 && oper.occ == 1){
+    exec_num(&out, popch(&oper));
   }
   if(cLEP != cREP){
     error = -1;
@@ -368,12 +328,14 @@ int main(){
   char input[1024];
   double ans = 0;
   while(input != "q"){
-    printf(">>"); // separator to know when to put input
-
+    printf(">>"); // separator to know when to put input    
     fgets(input, 1024, stdin);
-
-    if(input[0] == q && input[1] == '\n'){ //break when input is 'q'
+    
+    if((input[0] == 'q' && input[1] == '\n')){ //break when input is 'q'
       break;
+    }
+    else if(input[0] == '\n'){
+      continue;
     }
     else{
       sya(input, &ans);
