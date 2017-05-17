@@ -5,18 +5,6 @@
 
 //05/16/2017
 
-//four basic operations
-#define A 43
-#define S 45
-#define M 42
-#define D 47
-
-//other
-#define LEP 40
-#define REP 41
-#define EXP 94
-#define DEC 46
-
 //constants
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442
 
@@ -53,7 +41,7 @@ void pushn(double inp, stint* st){
 double popn(stint* st){
   double out;
   if(st->occ == 1){
-    out = st->stk[(st->top)--];
+    out = st->stk[st->top--];
     if(st->top == -1){
       st->occ = 0;
       st->top = 0;
@@ -67,7 +55,7 @@ double popn(stint* st){
 //characters
 void pushch(char inp, stchar* st){
   if(st->occ == 1){
-    st->stk[++(st->top)] = inp;
+    st->stk[++st->top] = inp;
   }
   else{
     st->stk[0] = inp;
@@ -78,7 +66,7 @@ void pushch(char inp, stchar* st){
 char popch(stchar* st){
   char out;
   if(st->occ == 1){
-    out = st->stk[(st->top)--];
+    out = st->stk[st->top--];
     if(st->top == -1){
       st->stk[0] == '\0';
       st->occ = 0;
@@ -105,12 +93,12 @@ double op(double a, double b, char O){
 
 double ops(double a, char O){
   switch(O){
-  case '~' : return sin(a);
-  case '!' : return cos(a);
-  case '@' : return tan(a);
-  case '#' : return log(a);
-  case '$' : return log10(a);
-  case '%' : return sqrt(a);
+  case '~': return sin(a);
+  case '!': return cos(a);
+  case '@': return tan(a);
+  case '#': return log(a);
+  case '$': return log10(a);
+  case '%': return sqrt(a);
   }
 }
 //
@@ -127,7 +115,8 @@ void exec_num(stint* ninp, char ch){
     nB = popn(ninp);
     nA = popn(ninp);
     pushn(op(nA, nB, ch), ninp);
-  break;
+    break;
+    
   case '~':
   case '!':
   case '@':
@@ -137,6 +126,7 @@ void exec_num(stint* ninp, char ch){
     nA = popn(ninp);
     pushn(ops(nA, ch), ninp);
     break;
+    
   default:
     break;
   }
@@ -157,7 +147,7 @@ double sya(char inp[], double *ans){
   //
 
 
-  for(length = 0; inp[length]; ++length){}
+  //  for(length = 0; inp[length]; ++length){}
   
   //reset all the variables
   out.top = 0;
@@ -183,7 +173,7 @@ double sya(char inp[], double *ans){
     case '.':
       inter[j] = ch;
       ++j;
-      if(inp[i+1] < '0' && inp[i+1] != DEC || inp[i+1] > '9' || !inp[i+1]){
+      if(inp[i+1] < '0' && inp[i+1] != '.' || inp[i+1] > '9' || !inp[i+1]){
 	num = strtod(inter, &str2d);
 	pushn(num, &out);
 	j = 0;
@@ -198,6 +188,7 @@ double sya(char inp[], double *ans){
       }
       pushch(ch, &oper);
       break;
+      
     case '(':
       cLEP++;
       pushch(ch, &oper);
@@ -227,7 +218,7 @@ double sya(char inp[], double *ans){
 
     case ')':
       cREP++;
-      while(oper.stk[oper.top] != LEP && oper.occ == 1){
+      while(oper.stk[oper.top] != '(' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
       popch(&oper);
@@ -249,7 +240,7 @@ double sya(char inp[], double *ans){
       break;
     case 'f': break;
     case 'g':
-      if(inp[i+1] == LEP && inp[i-1] == 'o' && inp[i-2] =='l'){
+      if(inp[i+1] == '(' && inp[i-1] == 'o' && inp[i-2] =='l'){
 	pushch('$', &oper);
       }
       break;
@@ -264,13 +255,13 @@ double sya(char inp[], double *ans){
     case 'l': break;
     case 'm': break;
     case 'n':
-      if(inp[i+1] == LEP && inp[i-1] == 'i' && inp[i-2] == 's'){
+      if(inp[i+1] == '(' && inp[i-1] == 'i' && inp[i-2] == 's'){
 	pushch('~', &oper);
       }
-      if(inp[i+1] == LEP && inp[i-1] == 'a' && inp[i-2] == 't'){
+      if(inp[i+1] == '(' && inp[i-1] == 'a' && inp[i-2] == 't'){
 	pushch('@', &oper);
       }
-      if(inp[i+1] == LEP && inp[i-1] == 'l'){
+      if(inp[i+1] == '(' && inp[i-1] == 'l'){
 	pushch('#', &oper);
       }
       break;
@@ -279,7 +270,7 @@ double sya(char inp[], double *ans){
     case 'q': break;
     case 'r': break;
     case 's':
-      if(inp[i+1] == LEP && inp[i-1] == 'o' && inp[i-2] == 'c'){
+      if(inp[i+1] == '(' && inp[i-1] == 'o' && inp[i-2] == 'c'){
 	pushch('!', &oper);
       }
       if(strchr("+-/*()^\n", inp[i+1]) && inp[i-1] == 'n' && inp[i-2] == 'a'){
@@ -287,7 +278,7 @@ double sya(char inp[], double *ans){
       }
       break;
     case 't':
-      if(inp[i+1] == LEP && inp[i-1] == 'r' && inp[i-2] == 'q' && inp[i-3] == 's'){
+      if(inp[i+1] == '(' && inp[i-1] == 'r' && inp[i-2] == 'q' && inp[i-3] == 's'){
 	pushch('%', &oper);
       }
       break;
