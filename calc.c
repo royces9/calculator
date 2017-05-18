@@ -104,7 +104,7 @@ double ops(double a, char O){
 //
 
 //execute function
-void exec_num(stint* ninp, char ch){
+void exec_num(stint* num, char ch){
   double nA, nB;
   switch(ch){
   case '+':
@@ -112,9 +112,9 @@ void exec_num(stint* ninp, char ch){
   case '*':
   case '/':
   case '^':
-    nB = popn(ninp);
-    nA = popn(ninp);
-    pushn(op(nA, nB, ch), ninp);
+    nB = popn(num);
+    nA = popn(num);
+    pushn(op(nA, nB, ch), num);
     break;
     
   case '~':
@@ -123,8 +123,8 @@ void exec_num(stint* ninp, char ch){
   case '#':
   case '$':
   case '%':
-    nA = popn(ninp);
-    pushn(ops(nA, ch), ninp);
+    nA = popn(num);
+    pushn(ops(nA, ch), num);
     break;
     
   default:
@@ -134,6 +134,48 @@ void exec_num(stint* ninp, char ch){
 
 //
 
+//Char find
+int charfind(char buffer[], stint* num, stchar* ch, double ans){
+  if (!strcmp(buffer, "pi\0")){
+    pushn(PI, num);
+    return 0;
+  }
+  else if(!strcmp(buffer, "e\0")){
+    pushn(E, num);
+    return 0;
+  }
+  else if(!strcmp(buffer, "ans\0")){
+    pushn(ans, num);
+    return 0;
+  }
+  else if(!strcmp(buffer, "sin\0")){
+    pushch('~', ch);
+    return 0;
+  }
+  else if(!strcmp(buffer, "cos\0")){
+    pushch('!', ch);
+    return 0;
+  }
+  else if(!strcmp(buffer, "tan\0")){
+    pushch('@', ch);
+    return 0;
+  }
+  else if(!strcmp(buffer, "ln\0")){
+    pushch('#', ch);
+    return 0;
+  }
+  else if(!strcmp(buffer, "log\0")){
+    pushch('$', ch);
+    return 0;
+  }
+  else if(!strcmp(buffer, "sqrt\0")){
+    pushch('%', ch);
+    return 0;
+  }
+  else{
+    return -1;
+  }
+}
 
 //Shunting-Yard Algorithm
 double sya(char inp[], double *ans){
@@ -141,8 +183,8 @@ double sya(char inp[], double *ans){
   //Variables
   stint out; //output stack
   stchar oper; //operator stack
-  int i = 0, j = 0, error = 0, cLEP = 0, cREP = 0, length = 0;
-  char inter[1024], *str2d, ch;
+  int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0;
+  char inter[1024], *str2d, ch, buffer[1024];
   double num = 0;
   //
 
@@ -155,6 +197,7 @@ double sya(char inp[], double *ans){
   oper.top = 0;
   memset(oper.stk, '\0', sizeof(oper.stk));
   memset(out.stk, 0, sizeof(out.stk));
+  memset(buffer, '\0', sizeof(buffer));
   //
   
   for(i = 0; inp[i]; ++i){
@@ -229,65 +272,41 @@ double sya(char inp[], double *ans){
       exec_num(&out, popch(&oper));
       break;*/
       
-    case 'a': break;
-    case 'b': break;
-    case 'c': break;
-    case 'd': break;
+    case 'a':
+    case 'b':
+    case 'c':
+    case 'd':
     case 'e':
-      if(strchr("+-*/()^\n", inp[i+1]) && strchr("+-*/()^", inp[i-1])){
-	pushn(E, &out);
-      }
-      break;
-    case 'f': break;
+    case 'f':
     case 'g':
-      if(inp[i+1] == '(' && inp[i-1] == 'o' && inp[i-2] =='l'){
-	pushch('$', &oper);
-      }
-      break;
-    case 'h': break;
+    case 'h':
     case 'i':
-      if(strchr("+-*/^()\n", inp[i+1]) && inp[i-1] == 'p'){
-	pushn(PI, &out);
-      }	
-      break;
-    case 'j': break;
-    case 'k': break;
-    case 'l': break;
-    case 'm': break;
+    case 'j':
+    case 'k':
+    case 'l':
+    case 'm':
     case 'n':
-      if(inp[i+1] == '(' && inp[i-1] == 'i' && inp[i-2] == 's'){
-	pushch('~', &oper);
-      }
-      if(inp[i+1] == '(' && inp[i-1] == 'a' && inp[i-2] == 't'){
-	pushch('@', &oper);
-      }
-      if(inp[i+1] == '(' && inp[i-1] == 'l'){
-	pushch('#', &oper);
-      }
-      break;
-    case 'o': break;
-    case 'p': break;
-    case 'q': break;
-    case 'r': break;
+    case 'o':
+    case 'p':
+    case 'q':
+    case 'r':
     case 's':
-      if(inp[i+1] == '(' && inp[i-1] == 'o' && inp[i-2] == 'c'){
-	pushch('!', &oper);
-      }
-      if(strchr("+-/*()^\n", inp[i+1]) && inp[i-1] == 'n' && inp[i-2] == 'a'){
-	pushn(*ans, &out);
-      }
-      break;
     case 't':
-      if(inp[i+1] == '(' && inp[i-1] == 'r' && inp[i-2] == 'q' && inp[i-3] == 's'){
-	pushch('%', &oper);
+    case 'u':
+    case 'v':
+    case 'w':
+    case 'x':
+    case 'y':
+    case 'z':
+      buffer[k++] = inp[i];
+      if(strchr("+-/*()^\n", inp[i+1])){
+	buffer[k] = '\0';
+	error = charfind(buffer, &out, &oper, *ans);
+	memset(buffer, '\0', sizeof(buffer));
+	k = 0;
       }
+
       break;
-    case 'u': break;
-    case 'v': break;
-    case 'w': break;
-    case 'x': break;
-    case 'y': break;
-    case 'z': break;
 
     default:
       break;
