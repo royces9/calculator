@@ -5,6 +5,7 @@
 
 //05/16/2017
 
+
 //constants
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442
 
@@ -23,6 +24,13 @@ typedef struct{
   int top; //The index for the top of the stack
   int occ;
 } stchar;
+
+typedef struct{
+  char name[256][256];
+  double value[256];
+  int occ;
+  int count;
+} vari;
 //
 
 
@@ -134,8 +142,10 @@ void exec_num(stint* num, char ch){
 
 //
 
-//Char find
-int charfind(char buffer[], stint* num, stchar* ch, double ans){
+//for alphabet
+int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var){
+  int i = 0;
+  //  printf("test\n");
   if (!strcmp(buffer, "pi\0")){
     pushn(PI, num);
     return 0;
@@ -173,18 +183,40 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans){
     return 0;
   }
   else{
-    return -1;
+    for(i = 0; i <= var->count; i++){
+      if(!strcmp(buffer, var->name[i])){
+	pushn(var->value[i], num);
+	return 0;
+      }
+    }
   }
+  return -1;
+}
+
+int varcheck(vari* list, char inp[]){
+  int i = 0;
+  
+  for(i = 0; i<=list->count; i++){
+    if(list->occ == 0){
+	return -1;
+    }
+    
+    else if(!strcmp(inp, list->name[i])){
+      printf("%d\n", i);
+      return i;
+    }
+  }
+  return -2;
 }
 
 //Shunting-Yard Algorithm
-double sya(char inp[], double *ans){
+double sya(char inp[], double *ans, vari* var){
 
   //Variables
   stint out; //output stack
   stchar oper; //operator stack
-  int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0;
-  char inter[1024], *str2d, ch, buffer[1024];
+  int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0, check = 0, varset = 0;
+  char inter[1024], buffer[256], ch,  *str2d;
   double num = 0;
   //
 
@@ -201,6 +233,7 @@ double sya(char inp[], double *ans){
   //
   
   for(i = 0; inp[i]; ++i){
+
     ch = inp[i];
     switch(ch){      
     case '0':
@@ -231,7 +264,7 @@ double sya(char inp[], double *ans){
       }
       pushch(ch, &oper);
       break;
-      
+
     case '(':
       cLEP++;
       pushch(ch, &oper);
@@ -253,7 +286,6 @@ double sya(char inp[], double *ans){
       }
     case '+':
       while(strchr("+-/*^~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
-     	//printf("test2\n");
 	exec_num(&out, popch(&oper));
       }
       pushch(ch, &oper);
@@ -266,7 +298,7 @@ double sya(char inp[], double *ans){
       }
       popch(&oper);
       break;
-
+      
       /*    case '!':
       pushch (ch ,&oper);
       exec_num(&out, popch(&oper));
@@ -298,36 +330,106 @@ double sya(char inp[], double *ans){
     case 'x':
     case 'y':
     case 'z':
+      
+    case 'A':
+    case 'B':
+    case 'C':
+    case 'D':
+    case 'E':
+    case 'F':
+    case 'G':
+    case 'H':
+    case 'I':
+    case 'J':
+    case 'K':
+    case 'L':
+    case 'M':
+    case 'N':
+    case 'O':
+    case 'P':
+    case 'Q':
+    case 'R':
+    case 'S':
+    case 'T':
+    case 'U':
+    case 'V':
+    case 'W':
+    case 'X':
+    case 'Y':
+    case 'Z':
+      
       buffer[k++] = inp[i];
+      //printf("%s\n", buffer);      
       if(strchr("+-/*()^\n", inp[i+1])){
 	buffer[k] = '\0';
-	error = charfind(buffer, &out, &oper, *ans);
+	//	printf("%s\n", buffer);
+	error = charfind(buffer, &out, &oper, *ans, var);
 	memset(buffer, '\0', sizeof(buffer));
 	k = 0;
       }
-
+      
+      else if(strchr("=", inp[i+1]) && inp[i+1] != '\0'){
+	check = varcheck(var, buffer);
+	varset = 1;
+	
+	if(check >= 0){
+	  buffer[k] = '\0';
+	  //	  printf("fuck\n");
+	  strcpy(var->name[check], buffer);
+	  //	  printf("%d\n", var->count);
+	}
+	
+	else if(check == -1){
+	  strcpy(var->name[0], buffer);
+	  var->occ = 1;
+	  var->count = 0;
+	  check = 0;
+	}
+	
+	else if(check == -2){
+	  var->count++;
+	  if(var->count > 256){
+	    var->count = 0;
+	  }
+	  strcpy(var->name[var->count], buffer);
+	  check = var->count;
+	}
+	k = 0;
+      }
       break;
 
     default:
       break;
-    }
+    }//end of switch
+    
     if(error == -1){
-      printf("Error");
+      printf("Error\n");
       return error;
-    }
-  }
+    }//end of if
+    
+  }//end of for
 
   while(out.top > -1 && out.occ == 1 && oper.occ == 1){
     exec_num(&out, popch(&oper));
   }
+
+  
   if(cLEP != cREP){
     error = -1;
     printf("\nMismatched parenthesis\n\n");
     return error;
   }
+  
   if(error == 0){
     printf("\n%lf\n\n", out.stk[0]);
     *ans = out.stk[0];
+    if(varset == 1){
+      var->value[check] = out.stk[0];
+    }
+    /*    for(int a = 0; a<=10; a++){
+      printf("%s = %lf\n", var->name[a], var->value[a]);
+      }*/
+
     return error;
   }
 }
@@ -337,6 +439,10 @@ double sya(char inp[], double *ans){
 int main(){
   char input[1024];
   double ans = 0;
+  vari var;
+  var.count = 0;
+  var.occ = 0;
+  
   while(input != "q"){
     printf(">>"); // separator to know when to put input    
     fgets(input, 1024, stdin);
@@ -348,7 +454,7 @@ int main(){
       continue;
     }
     else{
-      sya(input, &ans);
+      sya(input, &ans, &var);
     }
   }
   return 0;
