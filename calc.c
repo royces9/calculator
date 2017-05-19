@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//05/18/2017
+//05/16/2017
 
 
 //constants
@@ -50,6 +50,7 @@ double popn(stint* st){
   double out;
   if(st->occ == 1){
     out = st->stk[st->top--];
+    
     if(st->top == -1){
       st->occ = 0;
       st->top = 0;
@@ -65,6 +66,7 @@ void pushch(char inp, stchar* st){
   if(st->occ == 1){
     st->stk[++st->top] = inp;
   }
+  
   else{
     st->stk[0] = inp;
     st->occ= 1;
@@ -75,11 +77,13 @@ char popch(stchar* st){
   char out;
   if(st->occ == 1){
     out = st->stk[st->top--];
+    
     if(st->top == -1){
       st->stk[0] == '\0';
       st->occ = 0;
       st->top = 0;
     }
+    
     return out;
   }
   else{
@@ -145,43 +149,61 @@ void exec_num(stint* num, char ch){
 //for alphabet
 int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var){
   int i = 0;
-  //  printf("test\n");
-  if (!strcmp(buffer, "pi\0")){
+
+  if (!strcmp(buffer, "pi")){
     pushn(PI, num);
     return 0;
   }
-  else if(!strcmp(buffer, "e\0")){
+  
+  else if(!strcmp(buffer, "e")){
     pushn(E, num);
     return 0;
   }
-  else if(!strcmp(buffer, "ans\0")){
+  
+  else if(!strcmp(buffer, "ans")){
     pushn(ans, num);
     return 0;
   }
-  else if(!strcmp(buffer, "sin\0")){
+  
+  else if(!strcmp(buffer, "sin")){
     pushch('~', ch);
     return 0;
   }
-  else if(!strcmp(buffer, "cos\0")){
+  
+  else if(!strcmp(buffer, "cos")){
     pushch('!', ch);
     return 0;
   }
-  else if(!strcmp(buffer, "tan\0")){
+  
+  else if(!strcmp(buffer, "tan")){
     pushch('@', ch);
     return 0;
   }
-  else if(!strcmp(buffer, "ln\0")){
+  
+  else if(!strcmp(buffer, "ln")){
     pushch('#', ch);
     return 0;
   }
-  else if(!strcmp(buffer, "log\0")){
+  
+  else if(!strcmp(buffer, "log")){
     pushch('$', ch);
     return 0;
   }
-  else if(!strcmp(buffer, "sqrt\0")){
+  
+  else if(!strcmp(buffer, "sqrt")){
     pushch('%', ch);
     return 0;
   }
+  
+  else if(!strcmp(buffer, "clear")){
+    memset(var->name, '\0', sizeof(var->name));
+    memset(var->value, 0, sizeof(var->value));
+    var->occ = 0;
+    var->count = 0;
+    printf("\nAll variables cleared\n");
+    return 0;
+  }
+  
   else{
     for(i = 0; i <= var->count; i++){
       if(!strcmp(buffer, var->name[i])){
@@ -190,7 +212,7 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var){
       }
     }
   }
-  return -1;
+  return -2;
 }
 
 int varcheck(vari* list, char inp[]){
@@ -205,7 +227,9 @@ int varcheck(vari* list, char inp[]){
       printf("%d\n", i);
       return i;
     }
+    
   }
+  
   return -2;
 }
 
@@ -220,8 +244,7 @@ double sya(char inp[], double *ans, vari* var){
   double num = 0;
   //
 
-
-  //  for(length = 0; inp[length]; ++length){}
+  for(length = 0; inp[length]; length++){}
   
   //reset all the variables
   out.top = 0;
@@ -235,6 +258,7 @@ double sya(char inp[], double *ans, vari* var){
   for(i = 0; inp[i]; ++i){
 
     ch = inp[i];
+    
     switch(ch){      
     case '0':
     case '1':
@@ -247,8 +271,10 @@ double sya(char inp[], double *ans, vari* var){
     case '8':
     case '9':
     case '.':
+      
       inter[j] = ch;
       ++j;
+      
       if(inp[i+1] < '0' && inp[i+1] != '.' || inp[i+1] > '9' || !inp[i+1]){
 	num = strtod(inter, &str2d);
 	pushn(num, &out);
@@ -256,12 +282,14 @@ double sya(char inp[], double *ans, vari* var){
 	memset(inter, '\0', sizeof(inter));
 	num = 0;
       }
+      
       break;
       
     case '^':
       if(strchr("~!@#$%", oper.stk[oper.top])){
 	exec_num(&out, popch(&oper));
       }
+      
       pushch(ch, &oper);
       break;
 
@@ -284,18 +312,22 @@ double sya(char inp[], double *ans, vari* var){
 	pushch('*', &oper);
 	break;
       }
+      
     case '+':
       while(strchr("+-/*^~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
+    
       pushch(ch, &oper);
       break;
 
     case ')':
       cREP++;
+      
       while(oper.stk[oper.top] != '(' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
+      
       popch(&oper);
       break;
       
@@ -359,10 +391,9 @@ double sya(char inp[], double *ans, vari* var){
     case 'Z':
       
       buffer[k++] = inp[i];
-      //printf("%s\n", buffer);      
-      if(strchr("+-/*()^\n", inp[i+1])){
+      
+      if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\0'){
 	buffer[k] = '\0';
-	//	printf("%s\n", buffer);
 	error = charfind(buffer, &out, &oper, *ans, var);
 	memset(buffer, '\0', sizeof(buffer));
 	k = 0;
@@ -374,9 +405,7 @@ double sya(char inp[], double *ans, vari* var){
 	
 	if(check >= 0){
 	  buffer[k] = '\0';
-	  //	  printf("fuck\n");
 	  strcpy(var->name[check], buffer);
-	  //	  printf("%d\n", var->count);
 	}
 	
 	else if(check == -1){
@@ -388,48 +417,57 @@ double sya(char inp[], double *ans, vari* var){
 	
 	else if(check == -2){
 	  var->count++;
+	  
 	  if(var->count > 256){
 	    var->count = 0;
 	  }
+	  
 	  strcpy(var->name[var->count], buffer);
 	  check = var->count;
 	}
 	k = 0;
-      }
-      break;
-
-    default:
-      break;
+	break;
+      }//end of if
+      
+    default: break;
     }//end of switch
+    if(i == length-1){
+      if(cLEP != cREP){
+	error = -1;
+      }
+    }
     
-    if(error == -1){
-      printf("Error\n");
-      return error;
-    }//end of if
-    
+    if(error != 0){
+      printf("\nError:\n");
+      break;
+    }
+
   }//end of for
 
   while(out.top > -1 && out.occ == 1 && oper.occ == 1){
     exec_num(&out, popch(&oper));
   }
-
-  
-  if(cLEP != cREP){
-    error = -1;
-    printf("\nMismatched parenthesis\n\n");
-    return error;
-  }
   
   if(error == 0){
     printf("\n%lf\n\n", out.stk[0]);
     *ans = out.stk[0];
+    
     if(varset == 1){
       var->value[check] = out.stk[0];
     }
-    /*    for(int a = 0; a<=10; a++){
-      printf("%s = %lf\n", var->name[a], var->value[a]);
-      }*/
-
+    
+    return error;
+  }
+  else if(error == -1){
+    printf("Mismatched parenthesis\n\n");   
+  }
+  else if(error == -2){
+    printf("Invalid function or variable name\n\n");
+    return error;
+  }
+  
+  else if(error == -3){
+    printf("No function arguments\n\n");
     return error;
   }
 }
@@ -450,9 +488,11 @@ int main(){
     if((input[0] == 'q' && input[1] == '\n')){ //break when input is 'q'
       break;
     }
+    
     else if(input[0] == '\n'){
       continue;
     }
+    
     else{
       sya(input, &ans, &var);
     }
