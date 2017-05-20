@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//05/16/2017
+//05/20/2017
 
 
 //constants
@@ -200,8 +200,20 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var){
     memset(var->value, 0, sizeof(var->value));
     var->occ = 0;
     var->count = 0;
-    printf("\nAll variables cleared\n");
-    return 0;
+    printf("\nAll variables cleared\n\n");
+    return -1;
+  }
+  else if(!strcmp(buffer, "list")){
+    if(var->occ != 0){
+      printf("\nVariable List:");
+      for(int j = 0; j <= var->count; j++){
+	printf("%s = %lf\n", var->name[j], var->value[j]);
+      }
+    }
+    else{
+      printf("\nNo variables set\n\n");
+    }
+    return -1;
   }
   
   else{
@@ -224,7 +236,6 @@ int varcheck(vari* list, char inp[]){
     }
     
     else if(!strcmp(inp, list->name[i])){
-      printf("%d\n", i);
       return i;
     }
     
@@ -433,11 +444,11 @@ double sya(char inp[], double *ans, vari* var){
     }//end of switch
     if(i == length-1){
       if(cLEP != cREP){
-	error = -1;
+	error = -4;
       }
     }
     
-    if(error != 0){
+    if(error <= -2){
       printf("\nError:\n");
       break;
     }
@@ -459,8 +470,9 @@ double sya(char inp[], double *ans, vari* var){
     return error;
   }
   else if(error == -1){
-    printf("Mismatched parenthesis\n\n");   
+    return error -1;
   }
+  
   else if(error == -2){
     printf("Invalid function or variable name\n\n");
     return error;
@@ -468,6 +480,11 @@ double sya(char inp[], double *ans, vari* var){
   
   else if(error == -3){
     printf("No function arguments\n\n");
+    return error;
+  }
+  
+  else if(error == -4){
+    printf("Mismatched parenthesis\n\n");
     return error;
   }
 }
