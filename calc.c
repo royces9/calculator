@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//05/20/2017
+//05/22/2017
 
 
 //constants
@@ -205,10 +205,11 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var){
   }
   else if(!strcmp(buffer, "list")){
     if(var->occ != 0){
-      printf("\nVariable List:");
+      printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; j++){
 	printf("%s = %lf\n", var->name[j], var->value[j]);
       }
+      printf("\n");
     }
     else{
       printf("\nNo variables set\n\n");
