@@ -5,7 +5,6 @@
 
 //05/22/2017
 
-
 //constants
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442
 
@@ -499,11 +498,11 @@ int main(){
   var.count = 0;
   var.occ = 0;
   
-  while(input != "q"){
+  while(1){
     printf(">>"); // separator to know when to put input    
     fgets(input, 1024, stdin);
     
-    if((input[0] == 'q' && input[1] == '\n')){ //break when input is 'q'
+    if(!strcmp(input,"quit\n")){ //break when input is "quit"
       break;
     }
     
