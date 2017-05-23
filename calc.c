@@ -3,13 +3,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-//05/22/2017
+//05/23/2017
+
 
 //constants
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442
 
 #define E 2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427427466391932003059921817413596629043572900334295260595630738132328627943490763233829880753195251019011573
 
+# define NF 11 //Number of functions+constants
 
 //STRUCTS
 typedef struct{
@@ -145,64 +147,77 @@ void exec_num(stint* num, char ch){
 
 //
 
-//for alphabet
-int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var){
-  int i = 0;
+int funcfind(char buffer[]){
+  char functions[NF][10]= {"pi", "e", "ans", "sin(", "cos(", "tan(", "log(", "ln(", "sqrt", "clear", "list"};
+  for(int i = 0; i < NF; i++){
+    if(!strcmp(functions[i], buffer)){
+      return i;
+    }
+  }
+  return NF;
+}
 
-  if (!strcmp(buffer, "pi")){
+//for alphabet
+int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* tok){
+  int i;
+  
+  i = funcfind(buffer);
+  
+  switch(i){
+  case 0:
     pushn(PI, num);
+    *tok = 1;
     return 0;
-  }
-  
-  else if(!strcmp(buffer, "e")){
+
+  case 1:
     pushn(E, num);
+    *tok = 1;
     return 0;
-  }
-  
-  else if(!strcmp(buffer, "ans")){
+
+  case 2:
     pushn(ans, num);
+    *tok = 1;
     return 0;
-  }
-  
-  else if(!strcmp(buffer, "sin")){
+
+  case 3:
     pushch('~', ch);
+    *tok = 2;
     return 0;
-  }
-  
-  else if(!strcmp(buffer, "cos")){
+
+  case 4:
     pushch('!', ch);
+    *tok = 2;
     return 0;
-  }
-  
-  else if(!strcmp(buffer, "tan")){
+
+  case 5:
     pushch('@', ch);
+    *tok = 2;
     return 0;
-  }
-  
-  else if(!strcmp(buffer, "ln")){
+
+  case 6:
     pushch('#', ch);
+    *tok = 2;
     return 0;
-  }
-  
-  else if(!strcmp(buffer, "log")){
+
+  case 7:
     pushch('$', ch);
+    *tok = 2;
     return 0;
-  }
-  
-  else if(!strcmp(buffer, "sqrt")){
+
+  case 8:
     pushch('%', ch);
+    *tok = 2;
     return 0;
-  }
-  
-  else if(!strcmp(buffer, "clear")){
+    
+  case 9:
     memset(var->name, '\0', sizeof(var->name));
     memset(var->value, 0, sizeof(var->value));
     var->occ = 0;
     var->count = 0;
     printf("\nAll variables cleared\n\n");
     return -1;
-  }
-  else if(!strcmp(buffer, "list")){
+    
+  case 10:
     if(var->occ != 0){
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; j++){
@@ -214,17 +229,21 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var){
       printf("\nNo variables set\n\n");
     }
     return -1;
-  }
-  
-  else{
+
+  case NF:
     for(i = 0; i <= var->count; i++){
-      if(!strcmp(buffer, var->name[i])){
-	pushn(var->value[i], num);
-	return 0;
-      }
+    if(!strcmp(buffer, var->name[i])){
+      pushn(var->value[i], num);
+      return 0;
     }
+    *tok = 1;
   }
-  return -2;
+
+  default:
+    break;
+  }//end of switch
+
+return -2;
 }
 
 int varcheck(vari* list, char inp[]){
@@ -232,7 +251,7 @@ int varcheck(vari* list, char inp[]){
   
   for(i = 0; i<=list->count; i++){
     if(list->occ == 0){
-	return -1;
+      return -1;
     }
     
     else if(!strcmp(inp, list->name[i])){
@@ -250,7 +269,7 @@ double sya(char inp[], double *ans, vari* var){
   //Variables
   stint out; //output stack
   stchar oper; //operator stack
-  int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0, check = 0, varset = 0;
+  int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0, check = 0, varset = 0, tok = 0;
   char inter[1024], buffer[256], ch,  *str2d;
   double num = 0;
   //
@@ -283,9 +302,8 @@ double sya(char inp[], double *ans, vari* var){
     case '9':
     case '.':
       
-      inter[j] = ch;
-      ++j;
-      
+      inter[j++] = ch;
+
       if(inp[i+1] < '0' && inp[i+1] != '.' || inp[i+1] > '9' || !inp[i+1]){
 	num = strtod(inter, &str2d);
 	pushn(num, &out);
@@ -293,19 +311,20 @@ double sya(char inp[], double *ans, vari* var){
 	memset(inter, '\0', sizeof(inter));
 	num = 0;
       }
-      
+      tok = 1;
       break;
       
     case '^':
       if(strchr("~!@#$%", oper.stk[oper.top])){
 	exec_num(&out, popch(&oper));
       }
-      
+      tok = 2;
       pushch(ch, &oper);
       break;
 
     case '(':
       cLEP++;
+      tok = 2;
       pushch(ch, &oper);
       break;
       
@@ -314,13 +333,15 @@ double sya(char inp[], double *ans, vari* var){
       while(strchr("*^/~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
+      tok = 2;
       pushch(ch, &oper);
       break;
       
     case '-':
-      if(inp[i-1] < '0' || inp[i-1] > '9'){
+      if(tok == 2){
 	pushn(-1, &out);
 	pushch('*', &oper);
+	tok = 1;
 	break;
       }
       
@@ -328,7 +349,7 @@ double sya(char inp[], double *ans, vari* var){
       while(strchr("+-/*^~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
-    
+      tok = 2;
       pushch(ch, &oper);
       break;
 
@@ -338,7 +359,7 @@ double sya(char inp[], double *ans, vari* var){
       while(oper.stk[oper.top] != '(' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
-      
+      tok = 2;
       popch(&oper);
       break;
       
@@ -400,12 +421,16 @@ double sya(char inp[], double *ans, vari* var){
     case 'X':
     case 'Y':
     case 'Z':
-      
+
+
       buffer[k++] = inp[i];
-      
+      //      if(inp[i] == '(' && (inp[i+1] > '9' || inp[i+1] <'0')){
       if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\0'){
+	if(inp[i+1] == '('){
+	  buffer[k++] = '(';
+	}
 	buffer[k] = '\0';
-	error = charfind(buffer, &out, &oper, *ans, var);
+	error = charfind(buffer, &out, &oper, *ans, var, &tok);
 	memset(buffer, '\0', sizeof(buffer));
 	k = 0;
       }
@@ -427,9 +452,9 @@ double sya(char inp[], double *ans, vari* var){
 	}
 	
 	else if(check == -2){
-	  var->count++;
+	  //var->count++;
 	  
-	  if(var->count > 256){
+	  if(++var->count > 256){
 	    var->count = 0;
 	  }
 	  
@@ -441,6 +466,7 @@ double sya(char inp[], double *ans, vari* var){
       }//end of if
       
     default: break;
+      
     }//end of switch
     if(i == length-1){
       if(cLEP != cREP){
@@ -502,7 +528,7 @@ int main(){
     printf(">>"); // separator to know when to put input    
     fgets(input, 1024, stdin);
     
-    if(!strcmp(input,"quit\n")){ //break when input is "quit"
+    if(!strcmp(input,"quit\n")){ //break when input is 'q'
       break;
     }
     
