@@ -148,7 +148,7 @@ void exec_num(stint* num, char ch){
 //
 
 int funcfind(char buffer[]){
-  char functions[NF][10]= {"pi", "e", "ans", "sin(", "cos(", "tan(", "log(", "ln(", "sqrt", "clear", "list"};
+  char functions[NF][10]= {"pi", "e", "ans", "sin(", "cos(", "tan(", "ln(", "log(", "sqrt(", "clear", "list"};
   for(int i = 0; i < NF; i++){
     if(!strcmp(functions[i], buffer)){
       return i;
