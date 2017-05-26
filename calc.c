@@ -359,7 +359,7 @@ double sya(char inp[], double *ans, vari* var){
       while(oper.stk[oper.top] != '(' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
-      tok = 2;
+      tok = 1;
       popch(&oper);
       break;
       
