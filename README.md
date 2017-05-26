@@ -16,3 +16,10 @@ Ex.
 
     >>1r3+5q335
       6.00000
+
+
+Subtraction before parenthesis does not work
+Ex. 
+
+    >>(2)-1
+      2
