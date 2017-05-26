@@ -18,7 +18,7 @@ Ex.
       6.00000
 
 
-Subtraction before parenthesis does not work
+Subtraction after parenthesis does not work
 Ex. 
 
     >>(2)-1
