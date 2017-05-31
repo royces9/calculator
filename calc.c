@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//05/23/2017
+//05/30/2017
 
 
 //constants
@@ -232,13 +232,14 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
 
   case NF:
     for(i = 0; i <= var->count; i++){
-    if(!strcmp(buffer, var->name[i])){
-      pushn(var->value[i], num);
-      return 0;
+      if(!strcmp(buffer, var->name[i])){
+	pushn(var->value[i], num);
+	*tok = 1;
+	return 0;	
+      }
     }
-    *tok = 1;
-  }
-
+    break;
+    
   default:
     break;
   }//end of switch
@@ -274,7 +275,7 @@ double sya(char inp[], double *ans, vari* var){
   double num = 0;
   //
 
-  for(length = 0; inp[length]; length++){}
+  for(length = 0; inp[length]; length++);
   
   //reset all the variables
   out.top = 0;
@@ -284,6 +285,10 @@ double sya(char inp[], double *ans, vari* var){
   memset(out.stk, 0, sizeof(out.stk));
   memset(buffer, '\0', sizeof(buffer));
   //
+
+  if(strchr("+-/*^(=",inp[length-2])){
+    return error = -5;
+  }
   
   for(i = 0; inp[i]; ++i){
 
@@ -452,7 +457,6 @@ double sya(char inp[], double *ans, vari* var){
 	}
 	
 	else if(check == -2){
-	  //var->count++;
 	  
 	  if(++var->count > 256){
 	    var->count = 0;
@@ -495,32 +499,15 @@ double sya(char inp[], double *ans, vari* var){
     
     return error;
   }
-  else if(error == -1){
-    return error -1;
-  }
-  
-  else if(error == -2){
-    printf("Invalid function or variable name\n\n");
-    return error;
-  }
-  
-  else if(error == -3){
-    printf("No function arguments\n\n");
-    return error;
-  }
-  
-  else if(error == -4){
-    printf("Mismatched parenthesis\n\n");
-    return error;
-  }
 }
 //
 
 
 int main(){
   char input[1024];
+  int error = 0;
   double ans = 0;
-  vari var;
+  vari var;  
   var.count = 0;
   var.occ = 0;
   
@@ -537,8 +524,30 @@ int main(){
     }
     
     else{
-      sya(input, &ans, &var);
+      error = sya(input, &ans, &var);
     }
+
+    if(error != 0){
+      
+      printf("\nError:\n");
+      
+      if(error == -2){	
+	printf("Invalid function or variable name\n\n");
+      }
+
+      else if(error == -3){
+	printf("No function arguments\n\n");
+      }
+
+      else if(error == -4){
+	printf("Mismatched parenthesis\n\n");
+      }
+
+      else if(error == -5){
+	printf("Invalid expression\n\n");
+      }
+    }
+
   }
   return 0;
 }
