@@ -9,10 +9,3 @@ Currently implemented functions
 sin(), cos(), tan(), log(), ln(), sqrt()
 
 Current known bugs:
-
-Random letters inbetween numbers are allowed
-
-Ex.
-
-    >>1r3+5q335
-      6.00000
