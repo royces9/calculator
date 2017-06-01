@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//05/30/2017
+//05/31/2017
 
 
 //constants
@@ -316,6 +316,11 @@ double sya(char inp[], double *ans, vari* var){
 	memset(inter, '\0', sizeof(inter));
 	num = 0;
       }
+      
+      else if((inp[i+1] >= 'a' && inp[i+1] <= 'z') || (inp[i+1] >= 'A' && inp[i+1] <= 'Z')){
+	return error = -5;
+      }
+      
       tok = 1;
       break;
       
@@ -429,13 +434,16 @@ double sya(char inp[], double *ans, vari* var){
 
 
       buffer[k++] = inp[i];
-      //      if(inp[i] == '(' && (inp[i+1] > '9' || inp[i+1] <'0')){
       if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\0'){
 	if(inp[i+1] == '('){
 	  buffer[k++] = '(';
 	}
 	buffer[k] = '\0';
 	error = charfind(buffer, &out, &oper, *ans, var, &tok);
+	if(error == -2){
+	  return error;
+	}
+	//	printf("%d\n",error);
 	memset(buffer, '\0', sizeof(buffer));
 	k = 0;
       }
@@ -477,12 +485,6 @@ double sya(char inp[], double *ans, vari* var){
 	error = -4;
       }
     }
-    
-    if(error <= -2){
-      printf("\nError:\n");
-      break;
-    }
-
   }//end of for
 
   while(out.top > -1 && out.occ == 1 && oper.occ == 1){
@@ -526,7 +528,7 @@ int main(){
     else{
       error = sya(input, &ans, &var);
     }
-
+    //    printf("%d\n", error);
     if(error != 0){
       
       printf("\nError:\n");
