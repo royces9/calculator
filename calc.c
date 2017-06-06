@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//05/31/2017
+//06/05/2017
 
 
 //constants
@@ -11,7 +11,15 @@
 
 #define E 2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427427466391932003059921817413596629043572900334295260595630738132328627943490763233829880753195251019011573
 
-# define NF 11 //Number of functions+constants
+# define NF 12 //Number of functions+constants
+
+#define SIN '~'
+#define COS '!'
+#define TAN '@'
+#define LN '#'
+#define LOG '$'
+#define SQRT '%'
+
 
 //STRUCTS
 typedef struct{
@@ -94,8 +102,8 @@ char popch(stchar* st){
 //
 
 //Function for operators
-double op(double a, double b, char O){
-  switch(O){
+double op(double a, double b, char o){
+  switch(o){
   case '+': return a + b;
   case '-': return a - b;
   case '*': return a * b;
@@ -104,40 +112,40 @@ double op(double a, double b, char O){
   }
 }
 
-double ops(double a, char O){
-  switch(O){
-  case '~': return sin(a);
-  case '!': return cos(a);
-  case '@': return tan(a);
-  case '#': return log(a);
-  case '$': return log10(a);
-  case '%': return sqrt(a);
+double ops(double a, char o){
+  switch(o){
+  case SIN: return sin(a);
+  case COS: return cos(a);
+  case TAN: return tan(a);
+  case LN: return log(a);
+  case LOG: return log10(a);
+  case SQRT: return sqrt(a);
   }
 }
 //
 
 //execute function
 void exec_num(stint* num, char ch){
-  double nA, nB;
+  double a, b;
   switch(ch){
   case '+':
   case '-':
   case '*':
   case '/':
   case '^':
-    nB = popn(num);
-    nA = popn(num);
-    pushn(op(nA, nB, ch), num);
+    b = popn(num);
+    a = popn(num);
+    pushn(op(a, b, ch), num);
     break;
     
-  case '~':
-  case '!':
-  case '@':
-  case '#':
-  case '$':
-  case '%':
-    nA = popn(num);
-    pushn(ops(nA, ch), num);
+  case SIN:
+  case COS:
+  case TAN:
+  case LN:
+  case LOG:
+  case SQRT:
+    a = popn(num);
+    pushn(ops(a, ch), num);
     break;
     
   default:
@@ -148,7 +156,7 @@ void exec_num(stint* num, char ch){
 //
 
 int funcfind(char buffer[]){
-  char functions[NF][10]= {"pi", "e", "ans", "sin(", "cos(", "tan(", "ln(", "log(", "sqrt(", "clear", "list"};
+char functions[NF][10]= {"pi", "e", "ans", "sin(", "cos(", "tan(", "ln(", "log(", "sqrt(", "clear", "list", "help"};
   for(int i = 0; i < NF; i++){
     if(!strcmp(functions[i], buffer)){
       return i;
@@ -158,11 +166,11 @@ int funcfind(char buffer[]){
 }
 
 //for alphabet
+
 int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* tok){
-  int i;
-  
-  i = funcfind(buffer);
-  
+
+int i = funcfind(buffer);
+
   switch(i){
   case 0:
     pushn(PI, num);
@@ -180,36 +188,36 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
     return 0;
 
   case 3:
-    pushch('~', ch);
+    pushch(SIN, ch);
     *tok = 2;
     return 0;
 
   case 4:
-    pushch('!', ch);
+    pushch(COS, ch);
     *tok = 2;
     return 0;
 
   case 5:
-    pushch('@', ch);
+    pushch(TAN, ch);
     *tok = 2;
     return 0;
 
   case 6:
-    pushch('#', ch);
+    pushch(LN, ch);
     *tok = 2;
     return 0;
 
   case 7:
-    pushch('$', ch);
+    pushch(LOG, ch);
     *tok = 2;
     return 0;
 
   case 8:
-    pushch('%', ch);
+    pushch(SQRT, ch);
     *tok = 2;
     return 0;
     
-  case 9:
+  case NF - 3:
     memset(var->name, '\0', sizeof(var->name));
     memset(var->value, 0, sizeof(var->value));
     var->occ = 0;
@@ -217,7 +225,7 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
     printf("\nAll variables cleared\n\n");
     return -1;
     
-  case 10:
+  case NF - 2:
     if(var->occ != 0){
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; j++){
@@ -228,6 +236,10 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
     else{
       printf("\nNo variables set\n\n");
     }
+    return -1;
+
+  case NF - 1:
+    printf("quit - quit program\nlist - list variables\nclear - clear variables\n\n");
     return -1;
 
   case NF:
@@ -242,12 +254,14 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
     
   default:
     break;
+
   }//end of switch
 
 return -2;
 }
 
 int varcheck(vari* list, char inp[]){
+
   int i = 0;
   
   for(i = 0; i<=list->count; i++){
@@ -257,25 +271,21 @@ int varcheck(vari* list, char inp[]){
     
     else if(!strcmp(inp, list->name[i])){
       return i;
-    }
-    
+    }    
   }
   
   return -2;
 }
 
 //Shunting-Yard Algorithm
-double sya(char inp[], double *ans, vari* var){
+int sya(char inp[], double *ans, vari* var){
 
   //Variables
   stint out; //output stack
   stchar oper; //operator stack
   int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0, check = 0, varset = 0, tok = 0;
   char inter[1024], buffer[256], ch,  *str2d;
-  double num = 0;
   //
-
-  for(length = 0; inp[length]; length++);
   
   //reset all the variables
   out.top = 0;
@@ -286,9 +296,24 @@ double sya(char inp[], double *ans, vari* var){
   memset(buffer, '\0', sizeof(buffer));
   //
 
+  //Error checking
+  for(length = 0; inp[length]; length++){
+    if(inp[length] == '('){
+      cLEP++;
+    }
+    else if(inp[length] == ')'){
+      cREP++;
+    }	   
+  }
+  
+  if(cLEP != cREP){
+    return error = -4;
+  }
+
   if(strchr("+-/*^(=",inp[length-2])){
     return error = -5;
   }
+  //
   
   for(i = 0; inp[i]; ++i){
 
@@ -310,11 +335,9 @@ double sya(char inp[], double *ans, vari* var){
       inter[j++] = ch;
 
       if(inp[i+1] < '0' && inp[i+1] != '.' || inp[i+1] > '9' || !inp[i+1]){
-	num = strtod(inter, &str2d);
-	pushn(num, &out);
+	pushn(strtod(inter, &str2d), &out);
 	j = 0;
 	memset(inter, '\0', sizeof(inter));
-	num = 0;
       }
       
       else if((inp[i+1] >= 'a' && inp[i+1] <= 'z') || (inp[i+1] >= 'A' && inp[i+1] <= 'Z')){
@@ -333,7 +356,6 @@ double sya(char inp[], double *ans, vari* var){
       break;
 
     case '(':
-      cLEP++;
       tok = 2;
       pushch(ch, &oper);
       break;
@@ -364,7 +386,6 @@ double sya(char inp[], double *ans, vari* var){
       break;
 
     case ')':
-      cREP++;
       
       while(oper.stk[oper.top] != '(' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
@@ -373,10 +394,11 @@ double sya(char inp[], double *ans, vari* var){
       popch(&oper);
       break;
       
-      /*    case '!':
-      pushch (ch ,&oper);
-      exec_num(&out, popch(&oper));
-      break;*/
+    case '=':      
+      if(varset == 0){
+	return -5;
+      }
+      break;
       
     case 'a':
     case 'b':
@@ -432,7 +454,6 @@ double sya(char inp[], double *ans, vari* var){
     case 'Y':
     case 'Z':
 
-
       buffer[k++] = inp[i];
       if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\0'){
 	if(inp[i+1] == '('){
@@ -443,7 +464,7 @@ double sya(char inp[], double *ans, vari* var){
 	if(error == -2){
 	  return error;
 	}
-	//	printf("%d\n",error);
+
 	memset(buffer, '\0', sizeof(buffer));
 	k = 0;
       }
@@ -480,14 +501,10 @@ double sya(char inp[], double *ans, vari* var){
     default: break;
       
     }//end of switch
-    if(i == length-1){
-      if(cLEP != cREP){
-	error = -4;
-      }
-    }
+
   }//end of for
 
-  while(out.top > -1 && out.occ == 1 && oper.occ == 1){
+  while(out.occ == 1 && oper.occ == 1){ //out.top > -1 
     exec_num(&out, popch(&oper));
   }
   
@@ -504,32 +521,8 @@ double sya(char inp[], double *ans, vari* var){
 }
 //
 
-
-int main(){
-  char input[1024];
-  int error = 0;
-  double ans = 0;
-  vari var;  
-  var.count = 0;
-  var.occ = 0;
-  
-  while(1){
-    printf(">>"); // separator to know when to put input    
-    fgets(input, 1024, stdin);
-    
-    if(!strcmp(input,"quit\n")){ //break when input is 'q'
-      break;
-    }
-    
-    else if(input[0] == '\n'){
-      continue;
-    }
-    
-    else{
-      error = sya(input, &ans, &var);
-    }
-    //    printf("%d\n", error);
-    if(error != 0){
+void errorrep(int error){
+  if(error != 0){
       
       printf("\nError:\n");
       
@@ -550,6 +543,33 @@ int main(){
       }
     }
 
+}
+
+int main(int argc, char* argv){
+  char input[1024];
+  int error = 0;
+  double ans = 0;
+  vari var;  
+  var.count = 0;
+  var.occ = 0;
+
+  while(1){
+    printf(">>"); // separator to know when to put input    
+    fgets(input, 1024, stdin);
+    
+    if(!strcmp(input,"quit\n")){ //break when input is 'q'
+      break;
+    }
+    
+    else if(input[0] == '\n'){
+      continue;
+    }
+    
+    else{
+      error = sya(input, &ans, &var);
+    }
+
+    errorrep(error);
   }
   return 0;
 }
