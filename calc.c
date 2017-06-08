@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//06/05/2017
+//06/07/2017
 
 
 //constants
@@ -11,15 +11,17 @@
 
 #define E 2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427427466391932003059921817413596629043572900334295260595630738132328627943490763233829880753195251019011573
 
-# define NF 12 //Number of functions+constants
+# define NF 15 //Number of functions+constants
 
-#define SIN '~'
-#define COS '!'
-#define TAN '@'
-#define LN '#'
-#define LOG '$'
-#define SQRT '%'
-
+#define SIN 'a'
+#define COS 'b'
+#define TAN 'c'
+#define LN 'd'
+#define LOG 'e'
+#define SQRT 'f'
+#define ASIN 'g'
+#define ACOS 'h'
+#define ATAN 'i'
 
 //STRUCTS
 typedef struct{
@@ -46,6 +48,7 @@ typedef struct{
 ////Stack stuff
 //numbers
 void pushn(double inp, stint* st){
+
   if(st->occ == 1){
     st->stk[++st->top] = inp;
   }
@@ -56,6 +59,7 @@ void pushn(double inp, stint* st){
 }
 
 double popn(stint* st){
+
   double out;
   if(st->occ == 1){
     out = st->stk[st->top--];
@@ -72,6 +76,7 @@ double popn(stint* st){
 }
 //characters
 void pushch(char inp, stchar* st){
+
   if(st->occ == 1){
     st->stk[++st->top] = inp;
   }
@@ -83,6 +88,7 @@ void pushch(char inp, stchar* st){
 }
 
 char popch(stchar* st){
+
   char out;
   if(st->occ == 1){
     out = st->stk[st->top--];
@@ -103,6 +109,7 @@ char popch(stchar* st){
 
 //Function for operators
 double op(double a, double b, char o){
+
   switch(o){
   case '+': return a + b;
   case '-': return a - b;
@@ -113,6 +120,7 @@ double op(double a, double b, char o){
 }
 
 double ops(double a, char o){
+
   switch(o){
   case SIN: return sin(a);
   case COS: return cos(a);
@@ -120,14 +128,20 @@ double ops(double a, char o){
   case LN: return log(a);
   case LOG: return log10(a);
   case SQRT: return sqrt(a);
+  case ASIN: return asin(a);
+  case ACOS: return acos(a);
+  case ATAN: return atan(a);
   }
 }
 //
 
 //execute function
 void exec_num(stint* num, char ch){
+
   double a, b;
+
   switch(ch){
+
   case '+':
   case '-':
   case '*':
@@ -137,13 +151,9 @@ void exec_num(stint* num, char ch){
     a = popn(num);
     pushn(op(a, b, ch), num);
     break;
-    
-  case SIN:
-  case COS:
-  case TAN:
-  case LN:
-  case LOG:
-  case SQRT:
+      
+  case 'a' ... 'z':
+  case 'A' ... 'Z':
     a = popn(num);
     pushn(ops(a, ch), num);
     break;
@@ -156,7 +166,8 @@ void exec_num(stint* num, char ch){
 //
 
 int funcfind(char buffer[]){
-char functions[NF][10]= {"pi", "e", "ans", "sin(", "cos(", "tan(", "ln(", "log(", "sqrt(", "clear", "list", "help"};
+  char functions[NF][10] = {"pi", "e", "ans", "sin(", "cos(", "tan(", "ln(", "log(", "sqrt(", "asin(", "acos(", "atan(", "clear", "list", "help"};
+
   for(int i = 0; i < NF; i++){
     if(!strcmp(functions[i], buffer)){
       return i;
@@ -169,7 +180,7 @@ char functions[NF][10]= {"pi", "e", "ans", "sin(", "cos(", "tan(", "ln(", "log("
 
 int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* tok){
 
-int i = funcfind(buffer);
+  int i = funcfind(buffer);
 
   switch(i){
   case 0:
@@ -217,7 +228,22 @@ int i = funcfind(buffer);
     *tok = 2;
     return 0;
     
-  case NF - 3:
+  case 9:
+    pushch(ASIN, ch);
+    *tok = 2;
+    return 0;
+    
+  case 10:
+    pushch(ACOS, ch);
+    *tok = 2;
+    return 0;
+    
+  case 11:
+    pushch(ATAN, ch);
+    *tok = 2;
+    return 0;    
+    
+  case NF - 3: //clear
     memset(var->name, '\0', sizeof(var->name));
     memset(var->value, 0, sizeof(var->value));
     var->occ = 0;
@@ -225,7 +251,7 @@ int i = funcfind(buffer);
     printf("\nAll variables cleared\n\n");
     return -1;
     
-  case NF - 2:
+  case NF - 2: //list
     if(var->occ != 0){
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; j++){
@@ -238,11 +264,11 @@ int i = funcfind(buffer);
     }
     return -1;
 
-  case NF - 1:
+  case NF - 1: //help
     printf("quit - quit program\nlist - list variables\nclear - clear variables\n\n");
     return -1;
-
-  case NF:
+    
+  case NF: //variables
     for(i = 0; i <= var->count; i++){
       if(!strcmp(buffer, var->name[i])){
 	pushn(var->value[i], num);
@@ -263,13 +289,13 @@ return -2;
 int varcheck(vari* list, char inp[]){
 
   int i = 0;
-  
+
+  if(list->occ == 0){
+    return -1;
+  }
+
   for(i = 0; i<=list->count; i++){
-    if(list->occ == 0){
-      return -1;
-    }
-    
-    else if(!strcmp(inp, list->name[i])){
+    if(!strcmp(inp, list->name[i])){
       return i;
     }    
   }
@@ -320,16 +346,8 @@ int sya(char inp[], double *ans, vari* var){
     ch = inp[i];
     
     switch(ch){      
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
+
+    case '0' ... '9':
     case '.':
       
       inter[j++] = ch;
@@ -348,9 +366,11 @@ int sya(char inp[], double *ans, vari* var){
       break;
       
     case '^':
+
       if(strchr("~!@#$%", oper.stk[oper.top])){
 	exec_num(&out, popch(&oper));
       }
+
       tok = 2;
       pushch(ch, &oper);
       break;
@@ -362,14 +382,17 @@ int sya(char inp[], double *ans, vari* var){
       
     case '*':
     case '/':
+
       while(strchr("*^/~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
+
       tok = 2;
       pushch(ch, &oper);
       break;
       
     case '-':
+
       if(tok == 2){
 	pushn(-1, &out);
 	pushch('*', &oper);
@@ -378,11 +401,14 @@ int sya(char inp[], double *ans, vari* var){
       }
       
     case '+':
+
       while(strchr("+-/*^~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
+
       tok = 2;
       pushch(ch, &oper);
+
       break;
 
     case ')':
@@ -395,72 +421,26 @@ int sya(char inp[], double *ans, vari* var){
       break;
       
     case '=':      
+
       if(varset == 0){
-	return -5;
+	return error = -5;
       }
       break;
       
-    case 'a':
-    case 'b':
-    case 'c':
-    case 'd':
-    case 'e':
-    case 'f':
-    case 'g':
-    case 'h':
-    case 'i':
-    case 'j':
-    case 'k':
-    case 'l':
-    case 'm':
-    case 'n':
-    case 'o':
-    case 'p':
-    case 'q':
-    case 'r':
-    case 's':
-    case 't':
-    case 'u':
-    case 'v':
-    case 'w':
-    case 'x':
-    case 'y':
-    case 'z':
-      
-    case 'A':
-    case 'B':
-    case 'C':
-    case 'D':
-    case 'E':
-    case 'F':
-    case 'G':
-    case 'H':
-    case 'I':
-    case 'J':
-    case 'K':
-    case 'L':
-    case 'M':
-    case 'N':
-    case 'O':
-    case 'P':
-    case 'Q':
-    case 'R':
-    case 'S':
-    case 'T':
-    case 'U':
-    case 'V':
-    case 'W':
-    case 'X':
-    case 'Y':
-    case 'Z':
+    case 'a' ... 'z':      
+    case 'A' ... 'Z':
 
       buffer[k++] = inp[i];
+      
       if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\0'){
+
 	if(inp[i+1] == '('){
 	  buffer[k++] = '(';
 	}
+
 	buffer[k] = '\0';
 	error = charfind(buffer, &out, &oper, *ans, var, &tok);
+
 	if(error == -2){
 	  return error;
 	}
@@ -470,6 +450,7 @@ int sya(char inp[], double *ans, vari* var){
       }
       
       else if(strchr("=", inp[i+1]) && inp[i+1] != '\0'){
+
 	check = varcheck(var, buffer);
 	varset = 1;
 	
@@ -489,11 +470,13 @@ int sya(char inp[], double *ans, vari* var){
 	  
 	  if(++var->count > 256){
 	    var->count = 0;
+	    printf("\nMaximum number of variables, please clear\n\n");
 	  }
 	  
 	  strcpy(var->name[var->count], buffer);
 	  check = var->count;
 	}
+
 	k = 0;
 	break;
       }//end of if
@@ -504,7 +487,7 @@ int sya(char inp[], double *ans, vari* var){
 
   }//end of for
 
-  while(out.occ == 1 && oper.occ == 1){ //out.top > -1 
+  while(out.occ == 1 && oper.occ == 1){
     exec_num(&out, popch(&oper));
   }
   
