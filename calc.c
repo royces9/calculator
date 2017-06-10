@@ -2,8 +2,10 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
-//06/07/2017
+//06/10/2017
 
 
 //constants
@@ -304,7 +306,7 @@ int varcheck(vari* list, char inp[]){
 }
 
 //Shunting-Yard Algorithm
-int sya(char inp[], double *ans, vari* var){
+int sya(char *inp, double *ans, vari* var){
 
   //Variables
   stint out; //output stack
@@ -336,7 +338,7 @@ int sya(char inp[], double *ans, vari* var){
     return error = -4;
   }
 
-  if(strchr("+-/*^(=",inp[length-2])){
+  if(strchr("+-/*^(=",inp[length-1])){
     return error = -5;
   }
   //
@@ -432,7 +434,7 @@ int sya(char inp[], double *ans, vari* var){
 
       buffer[k++] = inp[i];
       
-      if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\0'){
+      if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\n'){
 
 	if(inp[i+1] == '('){
 	  buffer[k++] = '(';
@@ -449,7 +451,7 @@ int sya(char inp[], double *ans, vari* var){
 	k = 0;
       }
       
-      else if(strchr("=", inp[i+1]) && inp[i+1] != '\0'){
+      else if(strchr("=", inp[i+1]) && inp[i+1] != '\n'){
 
 	check = varcheck(var, buffer);
 	varset = 1;
@@ -525,26 +527,26 @@ void errorrep(int error){
 	printf("Invalid expression\n\n");
       }
     }
-
 }
 
 int main(int argc, char* argv){
-  char input[1024];
+  char* input;
   int error = 0;
   double ans = 0;
-  vari var;  
+  vari var;
+
   var.count = 0;
   var.occ = 0;
 
   while(1){
-    printf(">>"); // separator to know when to put input    
-    fgets(input, 1024, stdin);
+    input = readline(">>");
+    add_history(input);
     
-    if(!strcmp(input,"quit\n")){ //break when input is 'q'
+    if(!strcmp(input,"quit\0")){ //break when input is 'q'
       break;
     }
     
-    else if(input[0] == '\n'){
+    else if( *input == 0){
       continue;
     }
     
