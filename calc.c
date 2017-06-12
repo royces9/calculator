@@ -13,7 +13,7 @@
 
 #define E 2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427427466391932003059921817413596629043572900334295260595630738132328627943490763233829880753195251019011573
 
-# define NF 15 //Number of functions+constants
+# define NF 16 //Number of functions+constants
 
 #define SIN 'a'
 #define COS 'b'
@@ -24,6 +24,8 @@
 #define ASIN 'g'
 #define ACOS 'h'
 #define ATAN 'i'
+
+const char FUNCTIONS[NF][10] = {"pi", "e", "ans", "sin(", "cos(", "tan(", "ln(", "log(", "sqrt(", "asin(", "acos(", "atan(", "quit", "clear", "list", "help"};
 
 //STRUCTS
 typedef struct{
@@ -168,10 +170,9 @@ void exec_num(stint* num, char ch){
 //
 
 int funcfind(char buffer[]){
-  char functions[NF][10] = {"pi", "e", "ans", "sin(", "cos(", "tan(", "ln(", "log(", "sqrt(", "asin(", "acos(", "atan(", "clear", "list", "help"};
 
   for(int i = 0; i < NF; i++){
-    if(!strcmp(functions[i], buffer)){
+    if(!strcmp(FUNCTIONS[i], buffer)){
       return i;
     }
   }
@@ -243,7 +244,10 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
   case 11:
     pushch(ATAN, ch);
     *tok = 2;
-    return 0;    
+    return 0;
+    
+  case NF - 4: //quit
+    return 2;
     
   case NF - 3: //clear
     memset(var->name, '\0', sizeof(var->name));
@@ -251,7 +255,7 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
     var->occ = 0;
     var->count = 0;
     printf("\nAll variables cleared\n\n");
-    return -1;
+    return 1;
     
   case NF - 2: //list
     if(var->occ != 0){
@@ -264,11 +268,11 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
     else{
       printf("\nNo variables set\n\n");
     }
-    return -1;
+    return 1;
 
   case NF - 1: //help
     printf("quit - quit program\nlist - list variables\nclear - clear variables\n\n");
-    return -1;
+    return 1;
     
   case NF: //variables
     for(i = 0; i <= var->count; i++){
@@ -285,7 +289,7 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
 
   }//end of switch
 
-return -2;
+return -1;
 }
 
 int varcheck(vari* list, char inp[]){
@@ -335,11 +339,11 @@ int sya(char *inp, double *ans, vari* var){
   }
   
   if(cLEP != cREP){
-    return error = -4;
+    return error = -3;
   }
 
   if(strchr("+-/*^(=",inp[length-1])){
-    return error = -5;
+    return error = -4;
   }
   //
   
@@ -355,15 +359,17 @@ int sya(char *inp, double *ans, vari* var){
       inter[j++] = ch;
 
       if(inp[i+1] < '0' && inp[i+1] != '.' || inp[i+1] > '9' || !inp[i+1]){
+
 	pushn(strtod(inter, &str2d), &out);
 	j = 0;
 	memset(inter, '\0', sizeof(inter));
       }
       
       else if((inp[i+1] >= 'a' && inp[i+1] <= 'z') || (inp[i+1] >= 'A' && inp[i+1] <= 'Z')){
-	return error = -5;
+	return error = -4;
       }
-      
+
+
       tok = 1;
       break;
       
@@ -425,7 +431,7 @@ int sya(char *inp, double *ans, vari* var){
     case '=':      
 
       if(varset == 0){
-	return error = -5;
+	return error = -4;
       }
       break;
       
@@ -443,7 +449,7 @@ int sya(char *inp, double *ans, vari* var){
 	buffer[k] = '\0';
 	error = charfind(buffer, &out, &oper, *ans, var, &tok);
 
-	if(error == -2){
+	if(error != 0){	  
 	  return error;
 	}
 
@@ -451,7 +457,7 @@ int sya(char *inp, double *ans, vari* var){
 	k = 0;
       }
       
-      else if(strchr("=", inp[i+1]) && inp[i+1] != '\n'){
+      else if('=' ==  inp[i+1] && inp[i+1] != '\n'){
 
 	check = varcheck(var, buffer);
 	varset = 1;
@@ -507,26 +513,26 @@ int sya(char *inp, double *ans, vari* var){
 //
 
 void errorrep(int error){
-  if(error != 0){
-      
-      printf("\nError:\n");
-      
-      if(error == -2){	
-	printf("Invalid function or variable name\n\n");
-      }
+  if(error < 0){
 
-      else if(error == -3){
-	printf("No function arguments\n\n");
-      }
+    printf("\nError:\n");
 
-      else if(error == -4){
-	printf("Mismatched parenthesis\n\n");
-      }
-
-      else if(error == -5){
-	printf("Invalid expression\n\n");
-      }
+    if(error == -1){
+      printf("Invalid function or variable name\n\n");
     }
+
+    else if(error == -2){
+      printf("No function arguments\n\n");
+    }
+
+    else if(error == -3){
+      printf("Mismatched parenthesis\n\n");
+    }
+
+    else if(error == -4){
+      printf("Invalid expression\n\n");
+    }
+  }
 }
 
 int main(int argc, char* argv){
@@ -538,15 +544,11 @@ int main(int argc, char* argv){
   var.count = 0;
   var.occ = 0;
 
-  while(1){
+  while(error <= 1){
     input = readline(">>");
     add_history(input);
     
-    if(!strcmp(input,"quit\0")){ //break when input is 'q'
-      break;
-    }
-    
-    else if( *input == 0){
+    if( *input == 0){
       continue;
     }
     
