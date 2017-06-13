@@ -77,7 +77,8 @@ int sya(char *inp, double *ans, vari* var){
       
     case '^':
 
-      if(strchr("~!@#$%", oper.stk[oper.top])){
+      //      if(strchr("abcdefghi", oper.stk[oper.top])){
+      if(oper.stk[oper.top] >= 'a' && oper.stk[oper.top] <= 'z'){
 	exec_num(&out, popch(&oper));
       }
 
@@ -93,7 +94,7 @@ int sya(char *inp, double *ans, vari* var){
     case '*':
     case '/':
 
-      while(strchr("*^/~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
+      while(strchr("*^/abcdefghi", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
 
@@ -112,7 +113,7 @@ int sya(char *inp, double *ans, vari* var){
       
     case '+':
 
-      while(strchr("+-/*^~!@#$%", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
+      while(strchr("+-/*^abcdefghi", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
 
@@ -246,7 +247,7 @@ int main(int argc, char* argv){
   var.count = 0;
   var.occ = 0;
 
-  while(error <= 1){
+  while(error <= 100){
     input = readline(">>");
     add_history(input);
     

@@ -21,7 +21,12 @@
 
 # define NF 16 //Number of functions+constants
 
-const char FUNCTIONS[NF][10] = {
+const char FUNCTIONS[NF][20] = {
+  "quit",
+  "clear",
+  "list",
+  "help",
+  
   "pi",
   "e",
   "ans",
@@ -34,12 +39,8 @@ const char FUNCTIONS[NF][10] = {
   "sqrt(",
   "asin(",
   "acos(",
-  "atan(",
-  
-  "quit",
-  "clear",
-  "list",
-  "help"};
+  "atan("};
+
 
 double op(double a, double b, char o){
 
@@ -66,6 +67,7 @@ double ops(double a, char o){
   case ATAN: return atan(a);
   }
 }
+
 
 void exec_num(stint* num, char ch){
 
@@ -94,7 +96,6 @@ void exec_num(stint* num, char ch){
   }
 }
 
-//
 
 int funcfind(char buffer[]){
 
@@ -106,76 +107,14 @@ int funcfind(char buffer[]){
   return NF;
 }
 
-
 int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* tok){
 
-  int i = funcfind(buffer);
+  switch(funcfind(buffer)){
 
-  switch(i){
-  case 0:
-    pushn(PI, num);
-    *tok = 1;
-    return 0;
+  case 0: //quit
+    return 101;
 
-  case 1:
-    pushn(E, num);
-    *tok = 1;
-    return 0;
-
-  case 2:
-    pushn(ans, num);
-    *tok = 1;
-    return 0;
-
-  case 3:
-    pushch(SIN, ch);
-    *tok = 2;
-    return 0;
-
-  case 4:
-    pushch(COS, ch);
-    *tok = 2;
-    return 0;
-
-  case 5:
-    pushch(TAN, ch);
-    *tok = 2;
-    return 0;
-
-  case 6:
-    pushch(LN, ch);
-    *tok = 2;
-    return 0;
-
-  case 7:
-    pushch(LOG, ch);
-    *tok = 2;
-    return 0;
-
-  case 8:
-    pushch(SQRT, ch);
-    *tok = 2;
-    return 0;
-
-  case 9:
-    pushch(ASIN, ch);
-    *tok = 2;
-    return 0;
-
-  case 10:
-    pushch(ACOS, ch);
-    *tok = 2;
-    return 0;
-
-  case 11:
-    pushch(ATAN, ch);
-    *tok = 2;
-    return 0;
-
-  case NF - 4: //quit
-    return 2;
-
-  case NF - 3: //clear
+  case 1: //clear
     memset(var->name, '\0', sizeof(var->name));
     memset(var->value, 0, sizeof(var->value));
     var->occ = 0;
@@ -183,7 +122,7 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
     printf("\nAll variables cleared\n\n");
     return 1;
 
-  case NF - 2: //list
+  case 2: //list
     if(var->occ != 0){
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; j++){
@@ -196,13 +135,72 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
     }
     return 1;
 
-  case NF - 1: //help
-    printf("quit - quit program\nlist - list variables\nclear - clear variable\
-s\n\n");
+  case 3: //help
+    printf("quit - quit program\nlist - list variables\nclear - clear variables\n\n");
     return 1;
 
+  case 4:
+    pushn(PI, num);
+    *tok = 1;
+    return 0;
+
+  case 5:
+    pushn(E, num);
+    *tok = 1;
+    return 0;
+
+  case 6:
+    pushn(ans, num);
+    *tok = 1;
+    return 0;
+
+  case 7:
+    pushch(SIN, ch);
+    *tok = 2;
+    return 0;
+
+  case 8:
+    pushch(COS, ch);
+    *tok = 2;
+    return 0;
+
+  case 9:
+    pushch(TAN, ch);
+    *tok = 2;
+    return 0;
+
+  case 10:
+    pushch(LN, ch);
+    *tok = 2;
+    return 0;
+
+  case 11:
+    pushch(LOG, ch);
+    *tok = 2;
+    return 0;
+
+  case 12:
+    pushch(SQRT, ch);
+    *tok = 2;
+    return 0;
+
+  case 13:
+    pushch(ASIN, ch);
+    *tok = 2;
+    return 0;
+
+  case 14:
+    pushch(ACOS, ch);
+    *tok = 2;
+    return 0;
+
+  case 15:
+    pushch(ATAN, ch);
+    *tok = 2;
+    return 0;
+
   case NF: //variables
-    for(i = 0; i <= var->count; i++){
+    for(int i = 0; i <= var->count; i++){
       if(!strcmp(buffer, var->name[i])){
 	pushn(var->value[i], num);
 	*tok = 1;
@@ -221,13 +219,11 @@ s\n\n");
 
 int varcheck(vari* list, char inp[]){
 
-  int i = 0;
-
   if(list->occ == 0){
     return -1;
   }
 
-  for(i = 0; i<=list->count; i++){
+  for(int i = 0; i<=list->count; i++){
     if(!strcmp(inp, list->name[i])){
       return i;
     }
