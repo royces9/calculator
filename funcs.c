@@ -4,6 +4,7 @@
 
 #include "stack.h"
 #include "funcs.h"
+#include "multi.h"
 
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442
 
@@ -19,7 +20,7 @@
 #define ACOS 'h'
 #define ATAN 'i'
 
-# define NF 16 //Number of functions+constants
+# define NF 18 //Number of functions+constants
 
 const char FUNCTIONS[NF][20] = {
   "quit",
@@ -39,7 +40,10 @@ const char FUNCTIONS[NF][20] = {
   "sqrt(",
   "asin(",
   "acos(",
-  "atan("};
+  "atan(",
+
+  "integral(",
+  "derivative"};
 
 
 double op(double a, double b, char o){
@@ -96,7 +100,6 @@ void exec_num(stint* num, char ch){
   }
 }
 
-
 int funcfind(char buffer[]){
 
   for(int i = 0; i < NF; i++){
@@ -107,9 +110,11 @@ int funcfind(char buffer[]){
   return NF;
 }
 
-int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* tok){
+int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* tok, int* start, char input){
 
-  switch(funcfind(buffer)){
+  int i = funcfind(buffer);
+
+  switch(i){
 
   case 0: //quit
     return 101;
@@ -199,10 +204,17 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
     *tok = 2;
     return 0;
 
+  case 16:
+  case 17:
+
+    pushn(multifunc(i,input,&start), num);
+    *tok = 2;
+    return 0;
+
   case NF: //variables
-    for(int i = 0; i <= var->count; i++){
-      if(!strcmp(buffer, var->name[i])){
-	pushn(var->value[i], num);
+    for(int k = 0; k <= var->count; k++){
+      if(!strcmp(buffer, var->name[k])){
+	pushn(var->value[k], num);
 	*tok = 1;
 	return 0;
       }

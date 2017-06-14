@@ -142,7 +142,7 @@ int sya(char *inp, double *ans, vari* var){
     case 'A' ... 'Z':
 
       buffer[k++] = inp[i];
-      
+      k++;
       if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\n'){
 
 	if(inp[i+1] == '('){
@@ -150,7 +150,9 @@ int sya(char *inp, double *ans, vari* var){
 	}
 
 	buffer[k] = '\0';
-	error = charfind(buffer, &out, &oper, *ans, var, &tok);
+
+	
+	error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, inp);
 
 	if(error != 0){	  
 	  return error;
