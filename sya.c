@@ -2,19 +2,13 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 
-#include "sya.h"
 #include "strucon.h"
 #include "stack.h"
 #include "funcs.h"
+#include "sya.h"
 
-//06/15/2017
-
-
-//Shunting-Yard Algorithm
-int sya(char *inp, double *ans, vari* var){
+int sya(char *inp, double *ans, vari *var){
 
   //Variables
   stint out; //output stack
@@ -240,30 +234,4 @@ void errorrep(int error){
       printf("Invalid expression\n\n");
     }
   }
-}
-
-int main(int argc, char* argv){
-  char* input;
-  int error = 0;
-  double ans = 0;
-  vari var;
-
-  var.count = 0;
-  var.occ = 0;
-  
-  while(error <= 100){
-    input = readline(">>");
-    add_history(input);
-    
-    if( *input == 0){
-      continue;
-    }
-    
-    else{
-      error = sya(input, &ans, &var);
-    }
-
-    errorrep(error);
-  }
-  return 0;
 }

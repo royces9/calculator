@@ -1,9 +1,9 @@
 #ifndef MULTI
 #define MULTI
 
-double deri(char* inp, char var, double range[], double delta);
-double inte(char* inp, char var, double range[], double delta);
-char* sep(char* inp, int* start);
-double multifunc(int type, char inp[], int* i);
+double deri(char* inp, vari* var);
+double inte(char* inp, vari* var);
+void sep(char* inp, int* start, char sepa[10][1024]);
+double multifunc(int type, char inp[], int* i, vari* var);
 
 #endif //MULTI

@@ -1,3 +1,4 @@
+#include "strucon.h"
 #include "stack.h"
 
 void pushn(double inp, stint* st){

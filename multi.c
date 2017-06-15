@@ -2,17 +2,26 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-double deri(char* inp, char var, double range[], double delta){
+#include "strucon.h"
+#include "sya.h"
+#include "funcs.h"
+
+double deri(char inp[10][1024], vari* var){
+  double *ans;
+  
+  sya(inp[1], ans, var);
 }
 
-double inte(char* inp, char var, double range[], double delta){
+double inte(char inp[10][1024], vari* var){
+  double *ans;
+
+  
 }
 
-char** sep(char* inp, int* start){
+void sep(char* inp, int* start, char sepa[10][1024]){
 
-  char sepa[10][1024];
   char *tok;
-  int cLEP = 0, cREP = 0, length = 0;
+  int cLEP = 0, cREP = 0, length = 0, i = 0;
   inp += *start;
 
   for(length = 0; inp[length]; length++){
@@ -28,28 +37,30 @@ char** sep(char* inp, int* start){
     }
 
   }
+
   inp[length+1] = 0;
 
   tok = strtok(inp, ",");
-  for(int i = 0; tok != NULL; i++){
+  for(i = 0; tok != NULL; i++){
     strcpy(sepa[i], tok);
     tok = strtok(NULL, ",");
+    i++;
   }
-
-  return sepa;
+  strcpy(sepa[i], "");
 }
 
 
-double multifunc(int type, char inp[], int* i){
+ double multifunc(int type, char inp[], int* i, vari* var){
   int swi = *i;
-  char** a;
+  char sepa[10][1024];
+
   switch(swi){
   case 16:
-    a = sep(inp, i);
-    return deri();
+    sep(inp, i, sepa);
+    return deri(sepa, var); 
   case 17:
-    sep(inp, i);
-    return inte();
+    sep(inp, i, sepa);
+    return inte(sepa, var);
   default: break;
   }
 }
