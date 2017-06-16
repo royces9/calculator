@@ -26,7 +26,6 @@ int sya(char *inp, double *ans, vari *var){
   memset(buffer, '\0', sizeof(buffer));
   //
 
-
   //Error checking
   for(length = 0; inp[length]; length++){
     if(inp[length] == '('){
@@ -66,7 +65,6 @@ int sya(char *inp, double *ans, vari *var){
       else if((inp[i+1] >= 'a' && inp[i+1] <= 'z') || (inp[i+1] >= 'A' && inp[i+1] <= 'Z')){
 	return error = -4;
       }
-
 
       tok = 1;
 

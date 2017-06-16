@@ -6,7 +6,7 @@
 #include "sya.h"
 #include "funcs.h"
 
-double deri(char inp[10][1024], vari *var){
+double deri(char inp[10][256], vari *var){
   char *str2d;
   double out = 0, inter = 0, point = strtod(inp[2], &str2d), h = strtod(inp[3], &str2d);
   vari dvar = *var;
@@ -36,23 +36,20 @@ double deri(char inp[10][1024], vari *var){
   return out/h;
 }
 
-double inte(char inp[10][1024], vari *var){
-  double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0;
+double inte(char inp[10][256], vari *var){
+  double out = 0, inter = 0, step = 0, number = strtod(inp[4], &str2d), a = strtod(inp[2], &str2d), b = strtod(inp[3], &str2d);
   vari dvar = *var;
   char *str2d;
-  int i = 0, varc = 0;
+  int i = 0, varc = varcheck(&dvar, inp[1]);
 
   //get number of steps, and step size
-  number = strtod(inp[4], &str2d);
-  a = strtod(inp[2], &str2d);
-  b = strtod(inp[3], &str2d);
   step = (b-a)/number;
 
-  varc = varcheck(&dvar, inp[1]);
   if(varc == -1){
     varc = 0;
     dvar.occ = 1;
   }
+
   strcpy(dvar.name[varc],inp[1]);
   dvar.value[varc] = a;
   sya(inp[0], &out, &dvar);
@@ -109,7 +106,7 @@ void sep(char inp[], int *start, char sepa[10][1024]){
 
 
 double multifunc(int type, char inp[], int *start, vari *var){
-  char sepa[10][1024];
+  char sepa[10][256];
 
   switch(type){
   case 16:
