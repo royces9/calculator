@@ -16,7 +16,7 @@ int sya(char *inp, double *ans, vari *var){
   int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0, check = 0, varset = 0, tok = 0;
   char inter[1024], buffer[256], ch,  *str2d;
   //
-  
+
   //reset all the variables
   out.top = 0;
   out.occ = 0;
@@ -25,6 +25,7 @@ int sya(char *inp, double *ans, vari *var){
   memset(out.stk, 0, sizeof(out.stk));
   memset(buffer, '\0', sizeof(buffer));
   //
+
 
   //Error checking
   for(length = 0; inp[length]; length++){
@@ -44,16 +45,15 @@ int sya(char *inp, double *ans, vari *var){
     return error = -4;
   }
   //
-  
-  for(i = 0; inp[i]; ++i){
 
+  for(i = 0; inp[i]; ++i){
     ch = inp[i];
-    
+
     switch(ch){      
 
     case '0' ... '9':
     case '.':
-      
+
       inter[j++] = ch;
 
       if(inp[i+1] < '0' && inp[i+1] != '.' || inp[i+1] > '9' || !inp[i+1]){
@@ -69,11 +69,11 @@ int sya(char *inp, double *ans, vari *var){
 
 
       tok = 1;
+
       break;
       
     case '^':
 
-      //      if(strchr("abcdefghi", oper.stk[oper.top])){
       if(oper.stk[oper.top] >= 'a' && oper.stk[oper.top] <= 'z'){
 	exec_num(&out, popch(&oper));
       }
@@ -112,7 +112,6 @@ int sya(char *inp, double *ans, vari *var){
       while(strchr("+-/*^abcdefghi", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
-
       tok = 2;
       pushch(ch, &oper);
 
@@ -147,10 +146,11 @@ int sya(char *inp, double *ans, vari *var){
 
 	buffer[k] = '\0';
 
-	
+	//	printf("%d\n", i);
 	error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, inp);
-
-	if(error != 0){	  
+	//	printf("%d\n", i);
+	
+	if(error != 0){
 	  return error;
 	}
 
@@ -187,8 +187,8 @@ int sya(char *inp, double *ans, vari *var){
 	}
 
 	k = 0;
-	break;
       }//end of if
+      break;
       
     default: break;
       
@@ -201,13 +201,14 @@ int sya(char *inp, double *ans, vari *var){
   }
   
   if(error == 0){
-    printf("\n%lf\n\n", out.stk[0]);
+
     *ans = out.stk[0];
-    
+
     if(varset == 1){
+
       var->value[check] = out.stk[0];
     }
-    
+
     return error;
   }
 }

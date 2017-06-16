@@ -7,14 +7,13 @@
 
 #include "strucon.h"
 #include "sya.h"
-
 #include "stack.h"
 #include "funcs.h"
 
 //06/15/2017
 
-int main(int argc, char* argv){
-  char* input;
+int main(int argc, char *argv){
+  char *input;
   int error = 0;
   double ans = 0;
   vari var;
@@ -33,8 +32,12 @@ int main(int argc, char* argv){
     else{
       error = sya(input, &ans, &var);
     }
-
-    errorrep(error);
+    if(error == 0){
+      printf("\n%lf\n\n", ans);
+    }
+    else{
+      errorrep(error);
+    }
   }
   return 0;
 }

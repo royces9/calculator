@@ -34,7 +34,7 @@ double ops(double a, char o){
 }
 
 
-void exec_num(stint* num, char ch){
+void exec_num(stint *num, char ch){
 
   double a, b;
 
@@ -71,7 +71,7 @@ int funcfind(char buffer[]){
   return NF;
 }
 
-int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* tok, int* start, char input[]){
+int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char inp[]){
 
   int i = funcfind(buffer);
   //  printf("%s\n", buffer);
@@ -167,7 +167,7 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
 
   case 16:
   case 17:
-    pushn(multifunc(i,input,start, var), num);
+    pushn(multifunc(i,inp,start, var), num);
     *tok = 2;
     return 0;
 
@@ -189,7 +189,7 @@ int charfind(char buffer[], stint* num, stchar* ch, double ans, vari* var, int* 
   return -1;
 }
 
-int varcheck(vari* list, char inp[]){
+int varcheck(vari *list, char inp[]){
 
   if(list->occ == 0){
     return -1;

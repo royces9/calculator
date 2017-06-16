@@ -16,7 +16,32 @@
 #define ATAN 'i'
 
 # define NF 18 //Number of functions+constants       
-/*
+
+static const char FUNCTIONS[NF][20] = {
+  "quit",
+  "clear",
+  "list",
+  "help",
+
+  "pi",
+  "e",
+  "ans",
+
+  "sin(",
+  "cos(",
+  "tan(",
+  "ln(",
+  "log(",
+  "sqrt(",
+  "asin(",
+  "acos(",
+  "atan(",
+
+  "derivative(",
+  "integral(",
+};
+
+
 typedef struct{
   double stk[1024];
   int top;
@@ -34,6 +59,6 @@ typedef struct{
   double value[256];
   int occ;
   int count;
-  } vari;*/
+} vari;
 
 #endif //STRUCON
