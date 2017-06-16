@@ -6,14 +6,6 @@
 #include "sya.h"
 #include "funcs.h"
 
-
-
-void set_var(char set[], char name[], char value[]){
-  strcpy(set, name);
-  strcat(set, "=");
-  strcat(set, value);
-}
-
 double deri(char inp[10][1024], vari *var){
   char *str2d;
   double out = 0, inter = 0, point = strtod(inp[2], &str2d), h = strtod(inp[3], &str2d);
