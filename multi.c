@@ -6,6 +6,12 @@
 #include "sya.h"
 #include "funcs.h"
 
+char* mystrcat(char *dest, char *src){
+  while (*dest) dest++; 
+  while (*dest++ = *src++);
+  return --dest;
+}
+
 void set_var(char set[], char name[], char value[]){
   strcpy(set, name);
   strcat(set, "=");
@@ -72,14 +78,14 @@ double inte(char inp[10][1024], vari *var){
   sya("n = 0", &inter, &dvar);  
   for(i = 0; i <= number; i++){
     strcpy(setvar2, inp[2]); 
-    strcat(setvar2, "+n*((");
-    strcat(setvar2, inp[3]);
-    strcat(setvar2, "-");
-    strcat(setvar2, inp[2]);
-    strcat(setvar2, ")/");
-    strcat(setvar2, inp[4]);
-    strcat(setvar2, ")");
-    set_var(setvar, inp[1],setvar2);
+    setvarp2 = mystrcat(setvar2, "+n*((");
+    mystrcat(setvarp2, inp[3]);
+    mystrcat(setvarp2, "-");
+    mystrcat(setvarp2, inp[2]);
+    mystrcat(setvarp2, ")/");
+    mystrcat(setvarp2, inp[4]);
+    mystrcat(setvarp2, ")");
+    set_var(setvar, inp[1], setvar2);
     sya(setvarp, &inter, &dvar);
     sya(inp[0], &inter, &dvar);
     out += inter;
