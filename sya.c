@@ -173,19 +173,7 @@ int sya(char *inp, double *ans, vari *var){
 	  var->occ = 1;
 	  var->count = 0;
 	  check = 0;
-	}
-	
-	else if(check == -2){
-	  
-	  if(++var->count > 256){
-	    var->count = 0;
-	    printf("\nMaximum number of variables, please clear\n\n");
-	  }
-	  
-	  strcpy(var->name[var->count], buffer);
-	  check = var->count;
-	}
-
+	}	
 	k = 0;
       }//end of if
       break;

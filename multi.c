@@ -6,11 +6,7 @@
 #include "sya.h"
 #include "funcs.h"
 
-char* mystrcat(char *dest, char *src){
-  while (*dest) dest++; 
-  while (*dest++ = *src++);
-  return --dest;
-}
+
 
 void set_var(char set[], char name[], char value[]){
   strcpy(set, name);
@@ -19,78 +15,66 @@ void set_var(char set[], char name[], char value[]){
 }
 
 double deri(char inp[10][1024], vari *var){
-  double out = 0, inter = 0;
+  char *str2d;
+  double out = 0, inter = 0, point = strtod(inp[2], &str2d), h = strtod(inp[3], &str2d);
   vari dvar = *var;
-  char setvar[1024], *setvarp, *inpp;
-
-  // set up pointers for the rest
-  setvarp = &setvar[0];
-  inpp = &inp[0][0];
+  int varc = varcheck(&dvar, inp[1]);;
 
   //set up a dummy variable specified by user
-  set_var(setvar, inp[1], inp[2]);
-  sya(setvarp, &out, &dvar);
-
-  //does f(x)/h
-  strcat(inp[0], "/");
-  strcat(inp[0], inp[3]);  
-  sya(inpp, &out, &dvar);
+  if(varc == -1){
+    varc = 0;
+    dvar.occ = 1;
+  }
+  strcpy(dvar.name[varc], inp[1]);
+  dvar.value[varc] = point;
+  
+  //does f(x)
+  sya(inp[0], &out, &dvar);
 
   //sets the dummy variable equal to x-h
-  strcat(inp[2], "-");
-  strcat(inp[2], inp[3]);
-  set_var(setvar, inp[1], inp[2]);
-  sya(setvarp, &inter, &dvar);
+  dvar.value[varc] = point - h;
 
-  //does f(x-h)/h
-  sya(inpp, &inter, &dvar);
+  //does f(x-h)
+  sya(inp[0], &inter, &dvar);
 
-  //this is (f(x)/h) - (f(x-h)/h)
+  //this is f(x) - f(x-h)
   out -= inter;
 
-  return out;
+  //return (f(x)- f(x-h))/h
+  return out/h;
 }
 
 double inte(char inp[10][1024], vari *var){
-  double out = 0, inter = 0, step= 0, number = 0;
+  double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0;
   vari dvar = *var;
-  char setvar[1024], setvar2[1024], *setvarp, *inpp, *setvarp2, *str2d;
-  int i = 0;
-  //set up pointers
-  setvarp2 = &setvar2[0];
-  setvarp = &setvar[0];
-  inpp = &inp[0][0];
+  char *str2d;
+  int i = 0, varc = 0;
 
   //get number of steps, and step size
   number = strtod(inp[4], &str2d);
-  step = strtod(inp[3], &str2d);
-  step -= strtod(inp[2], &str2d);
-  step /= number;
+  a = strtod(inp[2], &str2d);
+  b = strtod(inp[3], &str2d);
+  step = (b-a)/number;
 
-  set_var(setvar, inp[1], inp[2]);
-  sya(setvarp, &out, &dvar);
-  
-  set_var(setvar, inp[1], inp[3]);
-  sya(setvarp, &inter, &dvar);
+  varc = varcheck(&dvar, inp[1]);
+  if(varc == -1){
+    varc = 0;
+    dvar.occ = 1;
+  }
+  strcpy(dvar.name[varc],inp[1]);
+  dvar.value[varc] = a;
+  sya(inp[0], &out, &dvar);
+  dvar.value[varc] = b;
+  sya(inp[0], &inter, &dvar);
 
   out += inter;
   out /= 2;
-  sya("n = 0", &inter, &dvar);  
+  
   for(i = 0; i <= number; i++){
-    strcpy(setvar2, inp[2]); 
-    setvarp2 = mystrcat(setvar2, "+n*((");
-    mystrcat(setvarp2, inp[3]);
-    mystrcat(setvarp2, "-");
-    mystrcat(setvarp2, inp[2]);
-    mystrcat(setvarp2, ")/");
-    mystrcat(setvarp2, inp[4]);
-    mystrcat(setvarp2, ")");
-    set_var(setvar, inp[1], setvar2);
-    sya(setvarp, &inter, &dvar);
+    dvar.value[varc] = step*i+a;    
     sya(inp[0], &inter, &dvar);
     out += inter;
-
-    sya("n=n+1", &inter, &dvar);
+    dvar.value[varc]++;
   }
   return out * step;    
 }
