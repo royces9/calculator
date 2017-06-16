@@ -37,9 +37,9 @@ double deri(char inp[10][256], vari *var){
 }
 
 double inte(char inp[10][256], vari *var){
+  char *str2d;
   double out = 0, inter = 0, step = 0, number = strtod(inp[4], &str2d), a = strtod(inp[2], &str2d), b = strtod(inp[3], &str2d);
   vari dvar = *var;
-  char *str2d;
   int i = 0, varc = varcheck(&dvar, inp[1]);
 
   //get number of steps, and step size
@@ -68,8 +68,7 @@ double inte(char inp[10][256], vari *var){
   return out * step;    
 }
 
-void sep(char inp[], int *start, char sepa[10][1024]){
-
+void sep(char inp[], int *start, char sepa[10][256]){
   char *tok, inp2[1024];
   int cLEP = 0, cREP = 0, length = 0, i = 0;
 
