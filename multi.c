@@ -17,10 +17,13 @@ double deri(char inp[10][256], vari *var){
     varc = 0;
     dvar.occ = 1;
   }
+
   strcpy(dvar.name[varc], inp[1]);
-  dvar.value[varc] = point;
+
+  //sets the dummy variable equal to x+h
+  dvar.value[varc] = point + h;
   
-  //does f(x)
+  //does f(x+h)
   sya(inp[0], &out, &dvar);
 
   //sets the dummy variable equal to x-h
@@ -29,11 +32,11 @@ double deri(char inp[10][256], vari *var){
   //does f(x-h)
   sya(inp[0], &inter, &dvar);
 
-  //this is f(x) - f(x-h)
+  //this is f(x+h) - f(x-h)
   out -= inter;
 
-  //return (f(x)- f(x-h))/h
-  return out/h;
+  //return (f(x)- f(x-h))/(2*h)
+  return out/(2*h);
 }
 
 double inte(char inp[10][256], vari *var){
@@ -50,6 +53,7 @@ double inte(char inp[10][256], vari *var){
     dvar.occ = 1;
   }
 
+  //get the value of (f(a)+f(b))/2
   strcpy(dvar.name[varc],inp[1]);
   dvar.value[varc] = a;
   sya(inp[0], &out, &dvar);
@@ -58,13 +62,16 @@ double inte(char inp[10][256], vari *var){
 
   out += inter;
   out /= 2;
-  
+
+  //get the sum of f(a+n*delta)
   for(i = 0; i <= number; i++){
     dvar.value[varc] = step*i+a;    
     sya(inp[0], &inter, &dvar);
     out += inter;
     dvar.value[varc]++;
   }
+
+  //returns the integral
   return out * step;    
 }
 
@@ -87,18 +94,20 @@ void sep(char inp[], int *start, char sepa[10][256]){
       break;
     }
   }
-  *start += (length+1);
+ 
+ *start += (length+1);
   inp2[length+1] = 0;
 
   tok = strtok(inp2, ",");
-  tok += 1;
+  ++tok;
+
   for(i = 0; tok != NULL; i++){
     strcpy(sepa[i], tok);
     tok = strtok(NULL, ",");
   }
+
   if(tok == NULL){
-    length=strlen(sepa[i-1]);
-    sepa[i-1][length-1] = '\0';
+    sepa[i-1][strlen(sepa[i-1])-1] = '\0';
   }
   strcpy(sepa[i], "");
 }

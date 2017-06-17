@@ -14,7 +14,7 @@ int sya(char *inp, double *ans, vari *var){
   stint out; //output stack
   stchar oper; //operator stack
   int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0, check = 0, varset = 0, tok = 0;
-  char inter[1024], buffer[256], ch,  *str2d;
+  char inter[256], buffer[256], ch,  *str2d;
   //
 
   //reset all the variables
@@ -45,6 +45,7 @@ int sya(char *inp, double *ans, vari *var){
   }
   //
 
+  
   for(i = 0; inp[i]; ++i){
     ch = inp[i];
 
@@ -56,10 +57,9 @@ int sya(char *inp, double *ans, vari *var){
       inter[j++] = ch;
 
       if(inp[i+1] < '0' && inp[i+1] != '.' || inp[i+1] > '9' || !inp[i+1]){
-
+	inter[j] = '\0';
 	pushn(strtod(inter, &str2d), &out);
 	j = 0;
-	memset(inter, '\0', sizeof(inter));
       }
       
       else if((inp[i+1] >= 'a' && inp[i+1] <= 'z') || (inp[i+1] >= 'A' && inp[i+1] <= 'Z')){
@@ -88,7 +88,7 @@ int sya(char *inp, double *ans, vari *var){
     case '*':
     case '/':
 
-      while(strchr("*^/abcdefghi", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
+      while(strchr("*^/abcdefghi", oper.stk[oper.top]) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
 
@@ -107,7 +107,7 @@ int sya(char *inp, double *ans, vari *var){
       
     case '+':
 
-      while(strchr("+-/*^abcdefghi", oper.stk[oper.top]) && oper.stk[oper.top] != '\0' && oper.occ == 1){
+      while(strchr("+-/*^abcdefghi", oper.stk[oper.top]) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
       tok = 2;
@@ -134,7 +134,7 @@ int sya(char *inp, double *ans, vari *var){
     case 'a' ... 'z':      
     case 'A' ... 'Z':
 
-      buffer[k++] = inp[i];
+      buffer[k++] = ch;
 
       if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\n'){
 
@@ -144,15 +144,11 @@ int sya(char *inp, double *ans, vari *var){
 
 	buffer[k] = '\0';
 
-	//	printf("%d\n", i);
 	error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, inp);
-	//	printf("%d\n", i);
 	
 	if(error != 0){
 	  return error;
 	}
-
-	memset(buffer, '\0', sizeof(buffer));
 	k = 0;
       }
       
@@ -171,15 +167,14 @@ int sya(char *inp, double *ans, vari *var){
 	  var->occ = 1;
 	  var->count = 0;
 	  check = 0;
-	}	
+	}
 	k = 0;
       }//end of if
-      break;
-      
+      break;      
+
     default: break;
       
     }//end of switch
-
   }//end of for
 
   while(out.occ == 1 && oper.occ == 1){
