@@ -8,11 +8,11 @@
 #include "strucon.h"
 #include "sya.h"
 #include "stack.h"
-#include "funcs.h"
+
 
 //06/15/2017
 
-int main(int argc, char *argv){
+int main(int argc, char *argv[]){
   char *input;
   int error = 0;
   double ans = 0;
@@ -20,7 +20,17 @@ int main(int argc, char *argv){
 
   var.count = 0;
   var.occ = 0;
-  
+  if(argc > 1){
+    printf(">>%s\n", *(argv+1));
+    error = sya(argv[1], &ans, &var);
+  }
+  if(error == 0){
+    printf("\n%lf\n\n",ans);
+  }
+  else{
+    errorrep(error);
+  }
+   
   while(error <= 100){
     input = readline(">>");
     add_history(input);

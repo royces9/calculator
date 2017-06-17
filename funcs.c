@@ -70,19 +70,6 @@ int funcfind(char buffer[]){
   }
   return NF;
 }
-/*
-int varfind(char buffer[], vari *var, stint *num, int *tok){
-  for(int k = 0; k <= var->count; k++){
-    if(!strcmp(buffer, var->name[k])){
-	pushn(var->value[k], num);
-	*tok = 1;
-	return 0;
-      }
-    }
-}
-    }*/
-
-
 
 int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char inp[]){
 
