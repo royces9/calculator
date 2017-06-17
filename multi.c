@@ -6,16 +6,35 @@
 #include "sya.h"
 #include "funcs.h"
 
-double deri(char inp[10][256], vari *var){
+double vartypeset(vari *var, char inp[]){
   char *str2d;
-  double out = 0, inter = 0, point = strtod(inp[2], &str2d), h = strtod(inp[3], &str2d);
-  vari dvar = *var;
-  int varc = varcheck(&dvar, inp[1]);;
+  int varc = varcheck(var, inp);
 
+  if(varc <= -1){
+    return strtod(inp, &str2d);
+  }
+  else{
+    return var->value[varc];
+  }
+}
+
+double deri(char inp[10][256], vari *var, int *error){
+  char *str2d;
+  double out = 0, inter = 0, point = 0, h = 0;
+  vari dvar = *var;
+  int varc = 0;
+
+  point = vartypeset(&dvar, inp[2]);
+  h = vartypeset(&dvar, inp[3]);
+  
+  varc = varcheck(&dvar, inp[1]);
   //set up a dummy variable specified by user
   if(varc == -1){
     varc = 0;
     dvar.occ = 1;
+  }
+  else if(varc == -2){
+    varc = ++dvar.count;
   }
 
   strcpy(dvar.name[varc], inp[1]);
@@ -39,18 +58,27 @@ double deri(char inp[10][256], vari *var){
   return out/(2*h);
 }
 
-double inte(char inp[10][256], vari *var){
+double inte(char inp[10][256], vari *var, int *error){
   char *str2d;
-  double out = 0, inter = 0, step = 0, number = strtod(inp[4], &str2d), a = strtod(inp[2], &str2d), b = strtod(inp[3], &str2d);
+  double out = 0, inter = 0, step = 0, number = strtod(inp[4], &str2d), a = 0, b = 0;
   vari dvar = *var;
-  int i = 0, varc = varcheck(&dvar, inp[1]);
+  int i = 0, varc = 0, vara = 0;
 
   //get number of steps, and step size
   step = (b-a)/number;
 
+  a = vartypeset(&dvar, inp[2]);
+  b = vartypeset(&dvar, inp[3]);
+  number = vartypeset(&dvar, inp[4]);
+
+  varc = varcheck(&dvar, inp[1]);
+    
   if(varc == -1){
     varc = 0;
     dvar.occ = 1;
+  }
+  else if(varc == -2){
+    varc == ++dvar.count;
   }
 
   //get the value of (f(a)+f(b))/2
@@ -113,16 +141,16 @@ void sep(char inp[], int *start, char sepa[10][256]){
 }
 
 
-double multifunc(int type, char inp[], int *start, vari *var){
+double multifunc(int type, char inp[], int *start, vari *var, int *error){
   char sepa[10][256];
 
   switch(type){
   case 16:
     sep(inp, start, sepa);
-    return deri(sepa, var); 
+    return deri(sepa, var, error); 
   case 17:
     sep(inp, start, sepa);
-    return inte(sepa, var);
+    return inte(sepa, var, error);
   default: break;
   }
 }

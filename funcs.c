@@ -71,7 +71,7 @@ int funcfind(char buffer[]){
   return NF;
 }
 
-int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char inp[]){
+int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char inp[], int *error){
 
   int i = funcfind(buffer);
   //  printf("%s\n", buffer);
@@ -167,7 +167,7 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
 
   case 16:
   case 17:
-    pushn(multifunc(i,inp,start, var), num);
+    pushn(multifunc(i,inp,start, var, error), num);
     *tok = 2;
     return 0;
 
@@ -202,5 +202,5 @@ int varcheck(vari *list, char inp[]){
     }
   }
 
-  return ++list->count;
+  return -2;
 }

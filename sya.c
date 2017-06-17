@@ -144,7 +144,7 @@ int sya(char *inp, double *ans, vari *var){
 
 	buffer[k] = '\0';
 
-	error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, inp);
+	error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, inp, &error);
 	
 	if(error != 0){
 	  return error;
@@ -160,13 +160,16 @@ int sya(char *inp, double *ans, vari *var){
 	if(check >= 0){
 	  buffer[k] = '\0';
 	  strcpy(var->name[check], buffer);
-	}
-	
+	}	
 	else if(check == -1){
 	  strcpy(var->name[0], buffer);
 	  var->occ = 1;
 	  var->count = 0;
 	  check = 0;
+	}
+	else if(check == -2){
+	  check = ++var->count;
+	  strcpy(var->name[check], buffer);
 	}
 	k = 0;
       }//end of if
@@ -175,6 +178,9 @@ int sya(char *inp, double *ans, vari *var){
     default: break;
       
     }//end of switch
+    if(error != 0){
+      return error;
+    }
   }//end of for
 
   while(out.occ == 1 && oper.occ == 1){
