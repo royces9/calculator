@@ -23,14 +23,14 @@ int main(int argc, char *argv[]){
   if(argc > 1){
     printf(">>%s\n", *(argv+1));
     error = sya(argv[1], &ans, &var);
-  }
-  if(error == 0){
-    printf("\n%lf\n\n",ans);
-  }
-  else{
-    errorrep(error);
-  }
-   
+
+    if(error == 0){
+      printf("\n%lf\n\n",ans);
+    }
+    else{
+      errorrep(error);
+    }
+  } 
   while(error <= 100){
     input = readline(">>");
     add_history(input);
