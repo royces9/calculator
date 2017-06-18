@@ -15,7 +15,7 @@
 #define ACOS 'h'
 #define ATAN 'i'
 
-# define NF 18 //Number of functions+constants       
+# define NF 19 //Number of functions+constants       
 
 static const char FUNCTIONS[NF][20] = {
   "quit",
@@ -39,6 +39,7 @@ static const char FUNCTIONS[NF][20] = {
 
   "derivative(",
   "integral(",
+  "solve("
 };
 
 

@@ -102,7 +102,7 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
     return 1;
 
   case 3: //help
-    printf("quit - quit program\nlist - list variables\nclear - clear variables\n\nderivative(f(x), x, c, delta)\n   f(x) - function\n   x - variable used in function\n   c - point of the tangent line\n   delta - the difference used (finite difference)\n\nintegral(f(x), x, a, b, n)\n   f(x) - function\n   x - variable used in function\n   a - starting point\n   b - ending point\n   n - number of partitions (trapezoidal rule)\n\n");
+    printf("quit - quit program\nlist - list variables\nclear - clear variables\n\nderivative(f(x), x, c, delta)\n   f(x) - function\n   x - variable used in function\n   c - point of the tangent line\n   delta - the difference used (finite difference)\n\nintegral(f(x), x, a, b, n)\n   f(x) - function\n   x - variable used in function\n   a - starting point\n   b - ending point\n   n - number of partitions (trapezoidal rule)\n\nsolve(f(x), x, guess, delta)\n   f(x) - function\n   x - variable used in function\n   guess - initial guess (Newton's Method)\n   delta - largest difference allowed between x_n+1 and x_n\n\n");
     return 1;
 
   case 4:
@@ -167,6 +167,7 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
 
   case 16:
   case 17:
+  case 18:   
     pushn(multifunc(i,inp,start, var, error), num);
     *tok = 2;
     return 0;
