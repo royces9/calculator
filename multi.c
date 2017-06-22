@@ -171,21 +171,3 @@ void sep(char inp[], int *start, char sepa[10][256]){
   }
   strcpy(sepa[i], "");
 }
-
-
-double multifunc(int type, char inp[], int *start, vari *var, int *error){
-  char sepa[10][256];
-
-  sep(inp, start, sepa);
-  switch(type){
-  case 16:
-    return deri(sepa, var, error); 
-  case 17:
-    return inte(sepa, var, error);
-  case 18:
-    return solve(sepa, var, error);
-  default: break;
-  }
-}
-
-

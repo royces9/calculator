@@ -42,7 +42,6 @@ static const char FUNCTIONS[NF][20] = {
   "solve("
 };
 
-
 typedef struct{
   double stk[1024];
   int top;
