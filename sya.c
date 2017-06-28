@@ -211,7 +211,7 @@ void errorrep(int error){
     }
 
     else if(error == -2){
-      printf("No function arguments\n\n");
+      printf("Deficient number of function arguments\n\n");
     }
 
     else if(error == -3){
