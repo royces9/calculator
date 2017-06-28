@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "strucon.h"
 #include "sya.h"
@@ -124,7 +125,7 @@ double solve(char inp[10][256], vari *var, int *error){
   dvar.value[varc] = vartypeset(&dvar, inp[2]);
   h = vartypeset(&dvar, inp[3]);
   test = h + 1;
-  while(test > h){
+  while(fabs(test) > h){
     sya(inp[0],&out, &dvar);
     dvar.value[varc] -= delta;
     sya(inp[0],&inter, &dvar);

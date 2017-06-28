@@ -9,9 +9,6 @@
 #include "sya.h"
 #include "stack.h"
 
-
-//06/15/2017
-
 int main(int argc, char *argv[]){
   char *input;
   int error = 0;
