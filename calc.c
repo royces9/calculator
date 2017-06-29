@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
       errorrep(error);
     }
   } 
-  while(error <= 100){
+  while(error <= 0){
     input = readline(">>");
     add_history(input);
     
