@@ -207,7 +207,7 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
 
   }//end of switch
 
-  return -1;
+  return -5;
 }
 
 int varcheck(vari *list, char inp[]){

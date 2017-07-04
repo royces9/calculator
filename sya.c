@@ -15,7 +15,6 @@ int sya(char *inp, double *ans, vari *var){
   stchar oper; //operator stack
   int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0, check = 0, varset = 0, tok = 0;
   char inter[256], buffer[256], ch,  *str2d;
-  //
 
   //reset all the variables
   out.top = 0;
@@ -24,7 +23,6 @@ int sya(char *inp, double *ans, vari *var){
   memset(oper.stk, '\0', sizeof(oper.stk));
   memset(out.stk, 0, sizeof(out.stk));
   memset(buffer, '\0', sizeof(buffer));
-  //
 
   //Error checking
   for(length = 0; inp[length]; length++){
@@ -43,8 +41,6 @@ int sya(char *inp, double *ans, vari *var){
   if(strchr("+-/*^(=",inp[length-1])){
     return error = -4;
   }
-  //
-
   
   for(i = 0; inp[i]; ++i){
     ch = inp[i];
@@ -203,27 +199,16 @@ int sya(char *inp, double *ans, vari *var){
     return error;
   }
 }
-//
 
 void errorrep(int error){
   if(error < 0){
 
     printf("\nError:\n");
-
-    if(error == -1){
-      printf("Invalid function or variable name\n\n");
-    }
-
-    else if(error == -2){
-      printf("Deficient number of function arguments\n\n");
-    }
-
-    else if(error == -3){
-      printf("Mismatched parenthesis\n\n");
-    }
-
-    else if(error == -4){
-      printf("Invalid expression\n\n");
+    switch(error){
+    case -2: printf("Deficient number of function arguments\n\n");
+    case -3: printf("Mismatched parenthesis\n\n");
+    case -4:printf("Invalid expression\n\n");
+    case -5: printf("Invalid function or variable name\n\n");
     }
   }
 }
