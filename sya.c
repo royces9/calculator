@@ -130,6 +130,10 @@ int sya(char *inp, double *ans, vari *var){
 	return error = -4;
       }
       break;
+
+    case '!':
+      pushn(factorial(popn(&out), &error), &out);
+      break;
       
     case 'a' ... 'z':      
     case 'A' ... 'Z':

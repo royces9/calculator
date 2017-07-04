@@ -33,6 +33,13 @@ double ops(double a, char o){
   }
 }
 
+double factorial(double a, int *error){
+  if(a - floor(a) > 0){
+    *error = - 4;
+    return 0;
+  }
+  return a == 1 ? 1 : a*factorial(a-1, error);
+}
 
 void exec_num(stint *num, char ch){
 
