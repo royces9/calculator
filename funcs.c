@@ -78,10 +78,11 @@ int funcfind(char buffer[]){
   return NF;
 }
 
-int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char inp[], int *error){
+int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char inp[]){
 
   char sepa[10][256];
   int i = funcfind(buffer);
+  int error = 0;
   //  printf("%s\n", buffer);
   switch(i){
 
@@ -175,21 +176,21 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
 
   case 16:
     sep(inp, start, sepa);
-    pushn(deri(sepa, var, error), num);
+    pushn(deri(sepa, var, &error), num);
     *tok = 2;
-    return 0;
+    return error;
     
   case 17:
     sep(inp, start, sepa);
-    pushn(inte(sepa, var, error), num);
+    pushn(inte(sepa, var, &error), num);
     *tok = 2;
-    return 0;
+    return error;
     
   case 18:
     sep(inp, start, sepa);
-    pushn(solve(sepa, var, error), num);
+    pushn(solve(sepa, var, &error), num);
     *tok = 2;
-    return 0;
+    return error;
 
   case NF: //variables
 

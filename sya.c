@@ -144,7 +144,7 @@ int sya(char *inp, double *ans, vari *var){
 
 	buffer[k] = '\0';
 
-	error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, inp, &error);
+	error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, inp);
 	
 	if(error != 0){
 	  return error;
@@ -205,10 +205,11 @@ void errorrep(int error){
 
     printf("\nError:\n");
     switch(error){
-    case -2: printf("Deficient number of function arguments\n\n");
-    case -3: printf("Mismatched parenthesis\n\n");
-    case -4: printf("Invalid expression\n\n");
-    case -5: printf("Invalid function or variable name\n\n");
+    case -2: printf("Deficient number of function arguments\n\n"); break;
+    case -3: printf("Mismatched parenthesis\n\n"); break;
+    case -4: printf("Invalid expression\n\n"); break;
+    case -5: printf("Invalid function or variable name\n\n"); break;
+    default: break;
     }
   }
 }

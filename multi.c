@@ -25,6 +25,14 @@ double deri(char inp[10][256], vari *var, int *error){
   vari dvar = *var;
   int varc = 0;
 
+  //check the number of inputs is correct
+  for(int i = 0; i <= 3; i++){
+    if(strcmp(inp[i], "") == 0){
+      *error = -2;
+      return 0;
+    }
+  }
+
   point = vartypeset(&dvar, inp[2]);
   h = vartypeset(&dvar, inp[3]);
   
@@ -65,6 +73,13 @@ double inte(char inp[10][256], vari *var, int *error){
   double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0;
   vari dvar = *var;
   int i = 0, varc = 0;
+
+    for(int i = 0; i <= 3; i++){
+    if(strcmp(inp[i], "") == 0){
+      *error = -2;
+      return 0;
+    }
+  }
 
   //get number of steps, and step size
   a = vartypeset(&dvar, inp[2]);
@@ -111,6 +126,13 @@ double solve(char inp[10][256], vari *var, int *error){
   double out = 0, inter = 0, h = 0, test = 0, delta = 0.000001;
   int varc = 0;
 
+  for(int i = 0; i <= 3; i++){
+    if(strcmp(inp[i], "") == 0){
+      *error = -2;
+      return 0;
+    }
+  }
+    
   varc = varcheck(&dvar, inp[1]);
 
   if(varc == -1){
@@ -155,8 +177,8 @@ void sep(char inp[], int *start, char sepa[10][256]){
       break;
     }
   }
- 
- *start += (length+1);
+
+  *start += (length+1);
   inp2[length+1] = 0;
 
   tok = strtok(inp2, ",");
