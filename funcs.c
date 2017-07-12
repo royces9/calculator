@@ -86,7 +86,7 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
   switch(i){
 
   case 0: //quit
-    return 101;
+    return 1;
 
   case 1: //clear
     memset(var->name, '\0', sizeof(var->name));
@@ -94,7 +94,7 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
     var->occ = 0;
     var->count = 0;
     printf("\nAll variables cleared\n\n");
-    return 1;
+    return -1;
 
   case 2: //list
     if(var->occ != 0){
@@ -107,11 +107,11 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
     else{
       printf("\nNo variables set\n\n");
     }
-    return 1;
+    return -1;
 
   case 3: //help
     printf("quit - quit program\nlist - list variables\nclear - clear variables\n\nderivative(f(x), x, c, delta)\n   f(x) - function\n   x - variable used in function\n   c - point of the tangent line\n   delta - the difference used (finite difference)\n\nintegral(f(x), x, a, b, n)\n   f(x) - function\n   x - variable used in function\n   a - starting point\n   b - ending point\n   n - number of partitions (trapezoidal rule)\n\nsolve(f(x), x, guess, delta)\n   f(x) - function\n   x - variable used in function\n   guess - initial guess (Newton's Method)\n   delta - largest difference allowed between x_n+1 and x_n\n\n");
-    return 1;
+    return -1;
 
   case 4:
     pushn(PI, num);

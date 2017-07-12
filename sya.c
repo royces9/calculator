@@ -201,13 +201,13 @@ int sya(char *inp, double *ans, vari *var){
 }
 
 void errorrep(int error){
-  if(error < 0){
+  if(error < -1){
 
     printf("\nError:\n");
     switch(error){
     case -2: printf("Deficient number of function arguments\n\n");
     case -3: printf("Mismatched parenthesis\n\n");
-    case -4:printf("Invalid expression\n\n");
+    case -4: printf("Invalid expression\n\n");
     case -5: printf("Invalid function or variable name\n\n");
     }
   }
