@@ -2,7 +2,6 @@
 #include "stack.h"
 
 void pushn(double inp, stint *st){
-
   if(st->occ == 1){
     st->stk[++st->top] = inp;
   }
@@ -13,7 +12,6 @@ void pushn(double inp, stint *st){
 }
 
 double popn(stint *st){
-
   double out;
   if(st->occ == 1){
     out = st->stk[st->top--];
@@ -30,7 +28,6 @@ double popn(stint *st){
 }
 //characters
 void pushch(char inp, stchar *st){
-
   if(st->occ == 1){
     st->stk[++st->top] = inp;
   }
@@ -42,7 +39,6 @@ void pushch(char inp, stchar *st){
 }
 
 char popch(stchar *st){
-
   char out;
   if(st->occ == 1){
     out = st->stk[st->top--];

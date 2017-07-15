@@ -1,10 +1,10 @@
 #ifndef MULTI
 #define MULTI
 
-double vartypeset(vari *var, char inp[]);
-double deri(char inp[10][256], vari *var, int *error);
-double inte(char inp[10][256], vari *var, int *error);
-double solve(char inp[10][256], vari *var, int *error);
-void sep(char *inp, int *start, char sepa[10][256]);
+double vartypeset(vari *var, char input[]);
+double deri(char **input, vari *var, int *error);
+double inte(char **input, vari *var, int *error);
+double solve(char **input, vari *var, int *error);
+char **separateString(char *input, int *start);
 
 #endif //MULTI

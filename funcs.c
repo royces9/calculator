@@ -8,7 +8,6 @@
 #include "funcs.h"
 
 double op(double a, double b, char o){
-
   switch(o){
   case '+': return a + b;
   case '-': return a - b;
@@ -19,7 +18,6 @@ double op(double a, double b, char o){
 }
 
 double ops(double a, char o){
-
   switch(o){
   case SIN: return sin(a);
   case COS: return cos(a);
@@ -42,7 +40,6 @@ double factorial(double a, int *error){
 }
 
 void exec_num(stint *num, char ch){
-
   double a, b;
 
   switch(ch){
@@ -69,7 +66,6 @@ void exec_num(stint *num, char ch){
 }
 
 int funcfind(char buffer[]){
-
   for(int i = 0; i < NF; i++){
     if(!strcmp(FUNCTIONS[i], buffer)){
       return i;
@@ -78,14 +74,12 @@ int funcfind(char buffer[]){
   return NF;
 }
 
-int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char inp[]){
-
-  char sepa[10][256];
+int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char input[]){
+  char **separatedString;
   int i = funcfind(buffer);
   int error = 0;
-  //  printf("%s\n", buffer);
-  switch(i){
 
+  switch(i){
   case 0: //quit
     return 1;
 
@@ -175,25 +169,24 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
     return 0;
 
   case 16:
-    sep(inp, start, sepa);
-    pushn(deri(sepa, var, &error), num);
+    separatedString = separateString(input, start);
+    pushn(deri((char **)separatedString, var, &error), num);
     *tok = 2;
     return error;
     
   case 17:
-    sep(inp, start, sepa);
-    pushn(inte(sepa, var, &error), num);
+    separatedString = separateString(input, start);
+    pushn(inte((char **)separatedString, var, &error), num);
     *tok = 2;
     return error;
     
   case 18:
-    sep(inp, start, sepa);
-    pushn(solve(sepa, var, &error), num);
+    separatedString = separateString(input, start);
+    pushn(solve((char **)separatedString, var, &error), num);
     *tok = 2;
     return error;
 
   case NF: //variables
-
     for(int k = 0; k <= var->count; k++){
       if(!strcmp(buffer, var->name[k])){
 	pushn(var->value[k], num);
@@ -211,14 +204,13 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
   return -5;
 }
 
-int varcheck(vari *list, char inp[]){
-
+int varcheck(vari *list, char input[]){
   if(list->occ == 0){
     return -1;
   }
 
   for(int i = 0; i<=list->count; i++){
-    if(!strcmp(inp, list->name[i])){
+    if(!strcmp(input, list->name[i])){
       return i;
     }
   }

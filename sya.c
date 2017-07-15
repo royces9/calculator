@@ -9,12 +9,10 @@
 #include "sya.h"
 
 int sya(char *inp, double *ans, vari *var){
-
-  //Variables
   stint out; //output stack
   stchar oper; //operator stack
-  int i = 0, j = 0, k = 0, error = 0, cLEP = 0, cREP = 0, length = 0, check = 0, varset = 0, tok = 0;
-  char inter[256], buffer[256], ch,  *str2d;
+  int i = 0, j = 0, k = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, tok = 0;
+  char *str2d;
 
   //reset all the variables
   out.top = 0;
@@ -22,35 +20,34 @@ int sya(char *inp, double *ans, vari *var){
   oper.top = 0;
   memset(oper.stk, '\0', sizeof(oper.stk));
   memset(out.stk, 0, sizeof(out.stk));
-  memset(buffer, '\0', sizeof(buffer));
 
   //Error checking
   for(length = 0; inp[length]; length++){
     if(inp[length] == '('){
-      cLEP++;
+      leftParenthesisCount++;
     }
     else if(inp[length] == ')'){
-      cREP++;
+      rightParenthesisCount++;
     }	   
   }
   
-  if(cLEP != cREP){
+  if(leftParenthesisCount != rightParenthesisCount){
     return error = -3;
   }
 
   if(strchr("+-/*^(=",inp[length-1])){
     return error = -4;
   }
-  
-  for(i = 0; inp[i]; ++i){
-    ch = inp[i];
 
-    switch(ch){      
+  char *inter = (char *) malloc(length * sizeof(char)), *buffer = (char *) malloc(length * sizeof(char));
+  for(i = 0; inp[i]; ++i){
+    //    ch = inp[i];
+
+    switch(inp[i]){
 
     case '0' ... '9':
     case '.':
-
-      inter[j++] = ch;
+      inter[j++] = inp[i];
 
       if(inp[i+1] < '0' && inp[i+1] != '.' || inp[i+1] > '9' || !inp[i+1]){
 	inter[j] = '\0';
@@ -67,33 +64,30 @@ int sya(char *inp, double *ans, vari *var){
       break;
       
     case '^':
-
       if(oper.stk[oper.top] >= 'a' && oper.stk[oper.top] <= 'z'){
 	exec_num(&out, popch(&oper));
       }
 
       tok = 2;
-      pushch(ch, &oper);
+      pushch(inp[i], &oper);
       break;
 
     case '(':
       tok = 2;
-      pushch(ch, &oper);
+      pushch(inp[i], &oper);
       break;
       
     case '*':
     case '/':
-
       while(strchr("*^/abcdefghi", oper.stk[oper.top]) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
 
       tok = 2;
-      pushch(ch, &oper);
+      pushch(inp[i], &oper);
       break;
       
     case '-':
-
       if(tok == 2){
 	pushn(-1, &out);
 	pushch('*', &oper);
@@ -102,17 +96,15 @@ int sya(char *inp, double *ans, vari *var){
       }
       
     case '+':
-
       while(strchr("+-/*^abcdefghi", oper.stk[oper.top]) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
       tok = 2;
-      pushch(ch, &oper);
+      pushch(inp[i], &oper);
 
       break;
 
-    case ')':
-      
+    case ')':      
       while(oper.stk[oper.top] != '(' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
@@ -120,8 +112,7 @@ int sya(char *inp, double *ans, vari *var){
       popch(&oper);
       break;
       
-    case '=':      
-
+    case '=':
       if(varset == 0){
 	return error = -4;
       }
@@ -134,7 +125,7 @@ int sya(char *inp, double *ans, vari *var){
     case 'a' ... 'z':      
     case 'A' ... 'Z':
 
-      buffer[k++] = ch;
+      buffer[k++] = inp[i];
 
       if(strchr("+-/*()^\n", inp[i+1]) && inp[i+1] != '\n'){
 
@@ -186,18 +177,13 @@ int sya(char *inp, double *ans, vari *var){
   while(out.occ == 1 && oper.occ == 1){
     exec_num(&out, popch(&oper));
   }
-  
-  if(error == 0){
 
-    *ans = out.stk[0];
-
-    if(varset == 1){
-
-      var->value[check] = out.stk[0];
-    }
-
-    return error;
+  *ans = out.stk[0];
+  if(varset == 1){
+    var->value[check] = out.stk[0];
   }
+
+  return error;
 }
 
 void errorrep(int error){
