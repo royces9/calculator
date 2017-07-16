@@ -40,7 +40,8 @@ int sya(char *input, double *ans, vari *var){
   }
 
   char *numberBuffer = (char *) malloc(length * sizeof(char)), *letterBuffer = (char *) malloc(length * sizeof(char));
-  
+  memset(letterBuffer, '\0', sizeof(letterBuffer));
+
   for(i = 0; input[i]; ++i){
 
     switch(input[i]){
@@ -134,7 +135,6 @@ int sya(char *input, double *ans, vari *var){
 	}
 
 	letterBuffer[k] = '\0';
-
 	error = charfind(letterBuffer, &out, &oper, *ans, var, &tok, &i, input);
 	
 	if(error != 0){
