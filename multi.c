@@ -159,20 +159,19 @@ double solve(char **input, vari *var, int *error){
 
 
 char **separateString(char input[], int *start){
-  char *tok, *input2 = (char *) malloc(strlen(input) * sizeof(char));
+  char *tok;
   int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, commaCount = 0, i = 0;  
 
   input += (*start+1);
-  strcpy(input2,input);  
 
-  for(length = 0; input2[length]; length++){
-    if(input2[length] == '('){
+  for(length = 0; input[length]; length++){
+    if(input[length] == '('){
       leftParenthesisCount++;
     }
-    else if(input2[length] == ')'){
+    else if(input[length] == ')'){
       rightParenthesisCount++;
     }
-    if(input2[length] == ','){
+    if(input[length] == ','){
       commaCount++;
     }
     if(leftParenthesisCount == rightParenthesisCount){
@@ -180,6 +179,9 @@ char **separateString(char input[], int *start){
     }
   }
 
+  char *input2 = (char *) malloc(length * sizeof(char));
+  strcpy(input2,input);
+  
   //allocate double array output
   char **separatedString = (char **) malloc((commaCount + 2) * sizeof(int *));
   for(int j = 0; j < (commaCount + 2); j++){
