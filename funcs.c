@@ -110,12 +110,12 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
     return -1;
 
   case 4:
-    pushn(PI, num);
+    pushn(M_PI, num);
     *tok = 1;
     return 0;
 
   case 5:
-    pushn(E, num);
+    pushn(M_E, num);
     *tok = 1;
     return 0;
 
