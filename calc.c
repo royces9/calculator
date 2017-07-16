@@ -17,6 +17,7 @@ int main(int argc, char *argv[]){
 
   var.count = 0;
   var.occ = 0;
+  
   if(argc > 1){
     printf(">>%s\n", *(argv+1));
     error = sya(argv[1], &ans, &var);
