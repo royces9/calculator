@@ -201,6 +201,8 @@ char **separateString(char input[], int *start){
     separatedString[i-1][strlen(separatedString[i-1])-1] = '\0';
   }
   strcpy(separatedString[i], "");
+
+  free(input2);
   
   return separatedString;
 }

@@ -1,6 +1,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "strucon.h"
 #include "multi.h"
@@ -171,18 +172,21 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
   case 16:
     separatedString = separateString(input, start);
     pushn(deri((char **)separatedString, var, &error), num);
+    free(separatedString);
     *tok = 2;
     return error;
     
   case 17:
     separatedString = separateString(input, start);
     pushn(inte((char **)separatedString, var, &error), num);
+    free(separatedString);
     *tok = 2;
     return error;
     
   case 18:
     separatedString = separateString(input, start);
     pushn(solve((char **)separatedString, var, &error), num);
+    free(separatedString);
     *tok = 2;
     return error;
 
