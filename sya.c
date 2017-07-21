@@ -39,7 +39,7 @@ int sya(char *input, double *ans, vari *var){
     return error = -4;
   }
 
-  char *numberBuffer = (char *) malloc(length * sizeof(char)), *letterBuffer = (char *) malloc(length * sizeof(char));
+  char *numberBuffer = malloc(length * sizeof(*numberBuffer)), *letterBuffer = malloc(length * sizeof(*letterBuffer));
   memset(letterBuffer, '\0', sizeof(letterBuffer));
 
   for(i = 0; input[i]; ++i){
