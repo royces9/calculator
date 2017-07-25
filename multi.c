@@ -18,6 +18,11 @@ double vartypeset(vari *var, char input[]){
     return var->value[varc];
   }
 }
+int numberOfArgs(char **input){
+  int i = 0;
+  for(i = 0; strcmp(input[i], "\0"); i++);
+  return i;
+}
 
 double deri(char **input, vari *var, int *error){
   char *str2d;
@@ -26,11 +31,9 @@ double deri(char **input, vari *var, int *error){
   int varc = 0;
 
   //check the number of inputs is correct
-  for(int i = 0; i <= 3; i++){
-    if(strcmp(input[i], "") == 0){
-      *error = -2;
-      return 0;
-    }
+  if(numberOfArgs(input) != 4){
+    *error = -2;
+    return 0;
   }
 
   point = vartypeset(&dvar, input[2]);
@@ -74,12 +77,11 @@ double inte(char **input, vari *var, int *error){
   vari dvar = *var;
   int varc = 0;
 
-  for(int i = 0; i <= 3; i++){
-    if(strcmp(input[i], "") == 0){
-      *error = -2;
-      return 0;
-    }
+  if(numberOfArgs(input) != 5){
+    *error = -2;
+    return 0;
   }
+
 
   //get number of steps, and step size
   a = vartypeset(&dvar, input[2]);
@@ -126,11 +128,9 @@ double solve(char **input, vari *var, int *error){
   double out = 0, inter = 0, h = 0, test = 0, delta = 0.000001;
   int varc = 0;
 
-  for(int i = 0; i <= 3; i++){
-    if(strcmp(input[i], "") == 0){
-      *error = -2;
-      return 0;
-    }
+  if(numberOfArgs(input) != 4){
+    *error = -2;
+    return 0;
   }
     
   varc = varcheck(&dvar, input[1]);
@@ -179,13 +179,14 @@ char **separateString(char input[], int *start){
     }
   }
 
-  char *input2 = malloc(length * sizeof(*input2));
+  char *input2 = malloc(length * sizeof(input2));
   strcpy(input2,input);
   
   //allocate double array output
-  char **separatedString = malloc((commaCount + 2) * sizeof(**separatedString));
+  char **separatedString = malloc((commaCount + 2) * sizeof(*separatedString));
+
   for(int j = 0; j < (commaCount + 2); j++){
-    separatedString[j] = malloc(length * sizeof(*separatedString));
+    separatedString[j] = malloc(length * sizeof(separatedString));
   }
 
   *start += (length+1);
@@ -199,11 +200,9 @@ char **separateString(char input[], int *start){
     tok = strtok(NULL, ",");
   }
 
-  if(tok == NULL){
-    separatedString[i-1][strlen(separatedString[i-1])-1] = '\0';
-  }
-  strcpy(separatedString[i], "");
+  separatedString[i-1][strlen(separatedString[i-1])-1] = '\0';
 
+  strcpy(separatedString[i], "");
   free(input2);
   
   return separatedString;

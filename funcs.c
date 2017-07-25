@@ -77,14 +77,14 @@ int funcfind(char buffer[]){
 
 int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char input[]){
   char **separatedString;
-  int i = funcfind(buffer);
-  int error = 0;
+  int i = funcfind(buffer), error = 0;
 
+  //  enum functionEnums functionEnum;
   switch(i){
-  case 0: //quit
+  case eQuit: //quit
     return 1;
 
-  case 1: //clear
+  case eClear: //clear
     memset(var->name, '\0', sizeof(var->name));
     memset(var->value, 0, sizeof(var->value));
     var->occ = 0;
@@ -92,7 +92,7 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
     printf("\nAll variables cleared\n\n");
     return -1;
 
-  case 2: //list
+  case eList: //list
     if(var->occ != 0){
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; j++){
@@ -105,87 +105,92 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
     }
     return -1;
 
-  case 3: //help
-    printf("quit - quit program\nlist - list variables\nclear - clear variables\n\nderivative(f(x), x, c, delta)\n   f(x) - function\n   x - variable used in function\n   c - point of the tangent line\n   delta - the difference used (finite difference)\n\nintegral(f(x), x, a, b, n)\n   f(x) - function\n   x - variable used in function\n   a - starting point\n   b - ending point\n   n - number of partitions (trapezoidal rule)\n\nsolve(f(x), x, guess, delta)\n   f(x) - function\n   x - variable used in function\n   guess - initial guess (Newton's Method)\n   delta - largest difference allowed between x_n+1 and x_n\n\n");
+  case eHelp: //help
+    printf("quit - quit program\n");
+    printf("list - list variables\n");
+    printf("clear - clear variables\n\n");
+    printf("derivative(f(x), x, c, delta)\n   f(x) - function\n   x - variable used in function\n   c - point of the tangent line\n   delta - the difference used (finite difference)\n\n");
+    printf("integral(f(x), x, a, b, n)\n   f(x) - function\n   x - variable used in function\n   a - starting point\n   b - ending point\n   n - number of partitions (trapezoidal rule)\n\n");
+    printf("solve(f(x), x, guess, delta)\n   f(x) - function\n   x - variable used in function\n   guess - initial guess (Newton's Method)\n   delta - largest difference allowed between x_n+1 and x_n\n\n");
     return -1;
 
-  case 4:
+  case ePi:
     pushn(M_PI, num);
     *tok = 1;
     return 0;
 
-  case 5:
+  case eE:
     pushn(M_E, num);
     *tok = 1;
     return 0;
 
-  case 6:
+  case eAns:
     pushn(ans, num);
     *tok = 1;
     return 0;
 
-  case 7:
+  case eSin:
     pushch(SIN, ch);
     *tok = 2;
     return 0;
 
-  case 8:
+  case eCos:
     pushch(COS, ch);
     *tok = 2;
     return 0;
 
-  case 9:
+  case eTan:
     pushch(TAN, ch);
     *tok = 2;
     return 0;
 
-  case 10:
+  case eLn:
     pushch(LN, ch);
     *tok = 2;
     return 0;
 
-  case 11:
+  case eLog:
     pushch(LOG, ch);
     *tok = 2;
     return 0;
 
-  case 12:
+  case eSqrt:
     pushch(SQRT, ch);
     *tok = 2;
     return 0;
 
-  case 13:
+  case eAsin:
     pushch(ASIN, ch);
     *tok = 2;
     return 0;
 
-  case 14:
+  case eAcos:
     pushch(ACOS, ch);
     *tok = 2;
     return 0;
 
-  case 15:
+  case eAtan:
     pushch(ATAN, ch);
     *tok = 2;
     return 0;
 
-  case 16:
+  case eDeri:
     separatedString = separateString(input, start);
-    pushn(deri((char **)separatedString, var, &error), num);
+    pushn(deri(separatedString, var, &error), num);
     free(separatedString);
     *tok = 2;
     return error;
     
-  case 17:
+  case eInte:
     separatedString = separateString(input, start);
-    pushn(inte((char **)separatedString, var, &error), num);
+    pushn(inte(separatedString, var, &error), num);
     free(separatedString);
     *tok = 2;
     return error;
     
-  case 18:
+  case eSolve:
     separatedString = separateString(input, start);
-    pushn(solve((char **)separatedString, var, &error), num);
+    pushn(solve(separatedString, var, &error), num);
     free(separatedString);
     *tok = 2;
     return error;

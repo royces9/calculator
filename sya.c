@@ -39,7 +39,7 @@ int sya(char *input, double *ans, vari *var){
     return error = -4;
   }
 
-  char *numberBuffer = malloc(length * sizeof(*numberBuffer)), *letterBuffer = malloc(length * sizeof(*letterBuffer));
+  char *numberBuffer = malloc(length * sizeof(numberBuffer)), *letterBuffer = malloc(length * sizeof(letterBuffer));
   memset(letterBuffer, '\0', sizeof(letterBuffer));
 
   for(i = 0; input[i]; ++i){
@@ -195,7 +195,7 @@ void errorrep(int error){
 
     printf("\nError:\n");
     switch(error){
-    case -2: printf("Deficient number of function arguments\n\n"); break;
+    case -2: printf("Incorrect number of function arguments\n\n"); break;
     case -3: printf("Mismatched parenthesis\n\n"); break;
     case -4: printf("Invalid expression\n\n"); break;
     case -5: printf("Invalid function or variable name\n\n"); break;

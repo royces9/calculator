@@ -38,6 +38,28 @@ static const char FUNCTIONS[NF][20] = {
   "solve("
 };
 
+enum functionEnums{
+  eQuit,
+  eClear,
+  eList,
+  eHelp,
+  ePi,
+  eE,
+  eAns,
+  eSin,
+  eCos,
+  eTan,
+  eLn,
+  eLog,
+  eSqrt,
+  eAsin,
+  eAcos,
+  eAtan,
+  eDeri,
+  eInte,
+  eSolve
+};
+
 typedef struct{
   double stk[1024];
   int top;
