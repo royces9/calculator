@@ -1,7 +1,7 @@
 #include "strucon.h"
 #include "stack.h"
 
-void pushn(double inp, stint *st){
+void pushn(double inp, numberStack *st){
   if(st->occ == 1){
     st->stk[++st->top] = inp;
   }
@@ -11,7 +11,7 @@ void pushn(double inp, stint *st){
   }
 }
 
-double popn(stint *st){
+double popn(numberStack *st){
   double out;
   if(st->occ == 1){
     out = st->stk[st->top--];
@@ -27,7 +27,7 @@ double popn(stint *st){
   }
 }
 //characters
-void pushch(char inp, stchar *st){
+void pushch(operatorStruct inp, operatorStack *st){
   if(st->occ == 1){
     st->stk[++st->top] = inp;
   }
@@ -38,13 +38,14 @@ void pushch(char inp, stchar *st){
   }
 }
 
-char popch(stchar *st){
-  char out;
+operatorStruct popch(operatorStack *st){
+  operatorStruct out;
   if(st->occ == 1){
     out = st->stk[st->top--];
 
     if(st->top == -1){
-      st->stk[0] == '\0';
+      st->stk[0].operator = '\0';
+      st->stk[0].argNo = 0;
       st->occ = 0;
       st->top = 0;
     }
@@ -52,6 +53,8 @@ char popch(stchar *st){
     return out;
   }
   else{
-    return 0;
+    out.operator = '\0';
+    out.argNo = 0;
+    return out;
   }
 }

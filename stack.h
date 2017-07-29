@@ -1,9 +1,9 @@
 #ifndef STACK
 #define STACK
 
-void pushn(double inp, stint *st);
-double popn(stint *st);
-void pushch(char inp, stchar *st);
-char popch(stchar *st);
+void pushn(double inp, numberStack *st);
+double popn(numberStack *st);
+void pushch(operatorStruct inp, operatorStack *st);
+operatorStruct popch(operatorStack *st);
 
 #endif //STACK

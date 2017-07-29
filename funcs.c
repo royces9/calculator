@@ -8,7 +8,13 @@
 #include "stack.h"
 #include "funcs.h"
 
-double op(double a, double b, char o){
+operatorStruct setOpStack(char operator, int argNo){
+  operatorStruct out;
+  out.operator = operator;
+  out.argNo = argNo;
+  return out;
+}
+double twoArg(double a, double b, char o){
   switch(o){
   case '+': return a + b;
   case '-': return a - b;
@@ -18,7 +24,7 @@ double op(double a, double b, char o){
   }
 }
 
-double ops(double a, char o){
+double oneArg(double a, char o){
   switch(o){
   case SIN: return sin(a);
   case COS: return cos(a);
@@ -29,6 +35,9 @@ double ops(double a, char o){
   case ASIN: return asin(a);
   case ACOS: return acos(a);
   case ATAN: return atan(a);
+  case FLOOR: return floor(a);
+  case CEIL: return ceil(a);
+  case ROUND: return round(a);    
   }
 }
 
@@ -43,25 +52,18 @@ double factorial(double a, int *error){
   return a == 1 ? 1 : a*factorial(a-1, error);
 }
 
-void exec_num(stint *num, char ch){
+void exec_num(numberStack *num, operatorStruct ch){
   double a, b;
-  
-  switch(ch){
-
-  case '+':
-  case '-':
-  case '*':
-  case '/':
-  case '^':
-    b = popn(num);
+  switch(ch.argNo){
+  case 1:
     a = popn(num);
-    pushn(op(a, b, ch), num);
+    pushn(oneArg(a, ch.operator), num);
     break;
 
-  case 'a' ... 'z':
-  case 'A' ... 'Z':
+  case 2:
+    b = popn(num);
     a = popn(num);
-    pushn(ops(a, ch), num);
+    pushn(twoArg(a, b, ch.operator), num);
     break;
 
   default:
@@ -78,11 +80,11 @@ int funcfind(char buffer[]){
   return NF;
 }
 
-int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *tok, int *start, char input[]){
+int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, vari *var, int *tok, int *start, char input[]){
   char **separatedString;
   int i = funcfind(buffer), error = 0;
-
-  //  enum functionEnums functionEnum;
+  operatorStruct operator;
+  
   switch(i){
   case eQuit: //quit
     return 1;
@@ -133,50 +135,86 @@ int charfind(char buffer[], stint *num, stchar *ch, double ans, vari *var, int *
     return 0;
 
   case eSin:
-    pushch(SIN, ch);
+    pushch(setOpStack(SIN, 1), ch);
     *tok = 2;
     return 0;
 
   case eCos:
-    pushch(COS, ch);
+    pushch(setOpStack(COS, 1), ch);
     *tok = 2;
     return 0;
 
   case eTan:
-    pushch(TAN, ch);
+    pushch(setOpStack(TAN, 1), ch);
     *tok = 2;
     return 0;
 
   case eLn:
-    pushch(LN, ch);
+    pushch(setOpStack(LN, 1), ch);
     *tok = 2;
     return 0;
 
   case eLog:
-    pushch(LOG, ch);
+    pushch(setOpStack(LOG, 1), ch);
     *tok = 2;
     return 0;
 
   case eSqrt:
-    pushch(SQRT, ch);
+    pushch(setOpStack(SQRT, 1), ch);
     *tok = 2;
     return 0;
 
   case eAsin:
-    pushch(ASIN, ch);
+    pushch(setOpStack(ASIN, 1), ch);
     *tok = 2;
     return 0;
 
   case eAcos:
-    pushch(ACOS, ch);
+    pushch(setOpStack(ACOS, 1), ch);
     *tok = 2;
     return 0;
 
   case eAtan:
-    pushch(ATAN, ch);
+    pushch(setOpStack(ATAN, 1), ch);
     *tok = 2;
     return 0;
 
+  case eFloor:
+    pushch(setOpStack(FLOOR, 1), ch);
+    *tok = 2;
+    return 0;
+    
+  case eCeil:
+    pushch(setOpStack(CEIL, 1), ch);
+    *tok = 2;
+    return 0;
+
+  case eRound:
+    pushch(setOpStack(ROUND, 1), ch);
+    *tok = 2;
+    return 0;
+
+  case eMin:
+    separatedString = separateString(input, start);
+    pushn(min(separatedString, var, &error), num);
+    free(separatedString);
+    *tok = 2;
+    return error;
+
+  case eMax:
+    separatedString = separateString(input, start);
+    pushn(max(separatedString, var, &error), num);
+    free(separatedString);
+    *tok = 2;
+    return error;    
+    
+  case eAvg:
+    separatedString = separateString(input, start);
+    pushn(avg(separatedString, var, &error), num);
+    free(separatedString);
+    *tok = 2;
+    return error;    
+    
   case eDeri:
     separatedString = separateString(input, start);
     pushn(deri(separatedString, var, &error), num);

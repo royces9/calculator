@@ -7,6 +7,12 @@
 #include "sya.h"
 #include "funcs.h"
 
+int numberOfArgs(char **input){
+  int i = 0;
+  for(i = 0; strcmp(input[i], "\0"); i++);
+  return i;
+}
+
 double vartypeset(vari *var, char input[]){
   char *str2d;
   int varc = varcheck(var, input);
@@ -18,10 +24,45 @@ double vartypeset(vari *var, char input[]){
     return var->value[varc];
   }
 }
-int numberOfArgs(char **input){
-  int i = 0;
-  for(i = 0; strcmp(input[i], "\0"); i++);
-  return i;
+
+double min(char **input, vari *var, int *error){
+  char *str2d, *str2d2;
+  double out, inter;
+  int argNo = numberOfArgs(input);
+  
+  out = vartypeset(var, input[0]);
+  inter = vartypeset(var, input[1]);
+
+  out = fmin(out, inter);
+  for(int i = 2; i < argNo; i++){
+    inter = vartypeset(var, input[i]);
+    out = fmin(out, inter);
+  }
+  return out;
+}
+
+double max(char **input, vari *var, int *error){
+  double out, inter;
+  int argNo = numberOfArgs(input);
+  
+  out = vartypeset(var, input[0]);
+  inter = vartypeset(var, input[1]);
+
+  out = fmax(out, inter);
+  for(int i = 2; i < argNo; i++){
+    inter = vartypeset(var, input[i]);
+    out = fmax(out, inter);
+  }
+  return out;
+}
+
+double avg(char **input, vari *var, int *error){
+  double sum = 0;
+  int argNo = numberOfArgs(input);
+  for(int i = 0; i < argNo; i++){
+    sum += vartypeset(var, input[i]);
+  }
+  return sum/argNo;
 }
 
 double deri(char **input, vari *var, int *error){

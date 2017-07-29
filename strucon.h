@@ -10,8 +10,14 @@
 #define ASIN 'g'
 #define ACOS 'h'
 #define ATAN 'i'
+#define FLOOR 'j'
+#define CEIL 'k'
+#define ROUND 'l'
+#define MIN 'm'
+#define MAX 'n'
+#define AVG 'o'
 
-# define NF 19 //Number of functions+constants       
+# define NF 25 //Number of functions+constants       
 
 static const char FUNCTIONS[NF][20] = {
   "quit",
@@ -32,6 +38,12 @@ static const char FUNCTIONS[NF][20] = {
   "asin(",
   "acos(",
   "atan(",
+  "floor(",
+  "ceil(",
+  "round(",
+  "min(",
+  "max(",
+  "avg(",
 
   "derivative(",
   "integral(",
@@ -43,9 +55,11 @@ enum functionEnums{
   eClear,
   eList,
   eHelp,
+
   ePi,
   eE,
   eAns,
+
   eSin,
   eCos,
   eTan,
@@ -55,22 +69,34 @@ enum functionEnums{
   eAsin,
   eAcos,
   eAtan,
+  eFloor,
+  eCeil,
+  eRound,
+  eMin,
+  eMax,
+  eAvg,
+  
   eDeri,
   eInte,
   eSolve
 };
 
 typedef struct{
+  char operator;
+  int argNo;
+} operatorStruct;
+
+typedef struct{
   double stk[1024];
   int top;
   int occ;
-} stint;
+} numberStack;
 
 typedef struct{
-  char stk[1024];
+  operatorStruct stk[1024];
   int top;
   int occ;
-} stchar;
+} operatorStack;
 
 typedef struct{
   char name[256][256];

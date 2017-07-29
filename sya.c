@@ -9,8 +9,8 @@
 #include "sya.h"
 
 int sya(char *input, double *ans, vari *var){
-  stint out; //output stack
-  stchar oper; //operator stack
+  numberStack out; //number stack
+  operatorStack oper;
   int i = 0, j = 0, k = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, tok = 0;
   char *str2d;
 
@@ -65,48 +65,48 @@ int sya(char *input, double *ans, vari *var){
       break;
       
     case '^':
-      if(oper.stk[oper.top] >= 'a' && oper.stk[oper.top] <= 'z'){
+      if(oper.stk[oper.top].operator >= 'a' && oper.stk[oper.top].operator <= 'z'){
 	exec_num(&out, popch(&oper));
       }
 
       tok = 2;
-      pushch(input[i], &oper);
+      pushch(setOpStack(input[i], 2), &oper);
       break;
 
     case '(':
       tok = 2;
-      pushch(input[i], &oper);
+      pushch(setOpStack(input[i], 2), &oper);
       break;
       
     case '*':
     case '/':
-      while(strchr("*^/abcdefghi", oper.stk[oper.top]) && oper.occ == 1){
+      while(strchr("*^/abcdefghi", oper.stk[oper.top].operator) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
 
       tok = 2;
-      pushch(input[i], &oper);
+      pushch(setOpStack(input[i], 2), &oper);
       break;
       
     case '-':
       if(tok == 2){
 	pushn(-1, &out);
-	pushch('*', &oper);
+	pushch(setOpStack('*', 2), &oper);
 	tok = 1;
 	break;
       }
       
     case '+':
-      while(strchr("+-/*^abcdefghi", oper.stk[oper.top]) && oper.occ == 1){
+      while(strchr("+-/*^abcdefghi", oper.stk[oper.top].operator) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
       tok = 2;
-      pushch(input[i], &oper);
+      pushch(setOpStack(input[i], 2), &oper);
 
       break;
 
     case ')':      
-      while(oper.stk[oper.top] != '(' && oper.occ == 1){
+      while(oper.stk[oper.top].operator != '(' && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
       tok = 1;
