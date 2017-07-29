@@ -33,7 +33,10 @@ double ops(double a, char o){
 }
 
 double factorial(double a, int *error){
-  if(a - floor(a) > 0){
+  if(a - floor(a) > 0 || a <= 0){
+    if(a == 0){
+      return 1;
+    }
     *error = - 4;
     return 0;
   }
@@ -42,7 +45,7 @@ double factorial(double a, int *error){
 
 void exec_num(stint *num, char ch){
   double a, b;
-
+  
   switch(ch){
 
   case '+':

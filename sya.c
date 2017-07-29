@@ -39,7 +39,7 @@ int sya(char *input, double *ans, vari *var){
     return error = -4;
   }
 
-  char *numberBuffer = malloc(length * sizeof(numberBuffer)), *letterBuffer = malloc(length * sizeof(letterBuffer));
+  char *numberBuffer = malloc(length * sizeof(*numberBuffer)), *letterBuffer = malloc(length * sizeof(*letterBuffer));
   memset(letterBuffer, '\0', sizeof(letterBuffer));
 
   for(i = 0; input[i]; ++i){
@@ -152,12 +152,14 @@ int sya(char *input, double *ans, vari *var){
 	  letterBuffer[k] = '\0';
 	  strcpy(var->name[check], letterBuffer);
 	}	
+
 	else if(check == -1){
 	  strcpy(var->name[0], letterBuffer);
 	  var->occ = 1;
 	  var->count = 0;
 	  check = 0;
 	}
+
 	else if(check == -2){
 	  check = ++var->count;
 	  strcpy(var->name[check], letterBuffer);

@@ -179,14 +179,14 @@ char **separateString(char input[], int *start){
     }
   }
 
-  char *input2 = malloc(length * sizeof(input2));
+  char *input2 = malloc(length * sizeof(*input2));
   strcpy(input2,input);
   
   //allocate double array output
   char **separatedString = malloc((commaCount + 2) * sizeof(*separatedString));
 
   for(int j = 0; j < (commaCount + 2); j++){
-    separatedString[j] = malloc(length * sizeof(separatedString));
+    separatedString[j] = malloc(length * sizeof(**separatedString));
   }
 
   *start += (length+1);
