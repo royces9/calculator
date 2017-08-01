@@ -1,11 +1,11 @@
-#include <stdio.h>
 #include <math.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "strucon.h"
-#include "stack.h"
 #include "funcs.h"
+#include "stack.h"
 #include "sya.h"
 
 int sya(char *input, double *ans, vari *var){

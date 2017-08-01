@@ -1,11 +1,12 @@
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "strucon.h"
-#include "sya.h"
 #include "funcs.h"
+#include "multi.h"
+#include "sya.h"
 
 int numberOfArgs(char **input){
   int i = 0;
