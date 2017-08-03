@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = -lm -lreadline -I.
+FLAGS = -lm -lreadline -I. -flto
 HEADERS = strucon.h sya.h stack.h multi.h funcs.h
 CFILES = strucon.c sya.c stack.c multi.c funcs.c calc.c
 
