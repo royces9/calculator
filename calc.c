@@ -29,7 +29,8 @@ int main(int argc, char *argv[]){
   while(error <= 0){
     input = readline(">>");
     add_history(input);
-    
+
+    removeSpaces(input);
     if( *input == 0){
       continue;
     }

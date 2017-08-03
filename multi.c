@@ -71,7 +71,7 @@ double deri(char **input, vari *var, int *error){
   double out = 0, inter = 0, point = 0, h = 0;
   vari dvar = *var;
   int varc = 0;
-
+  //  int startTime = clock()/CLOCKS_PER_SEC;
   //check the number of inputs is correct
   if(numberOfArgs(input) != 4){
     *error = -2;
@@ -110,6 +110,9 @@ double deri(char **input, vari *var, int *error){
   out -= inter;
 
   //return (f(x)- f(x-h))/(2*h)
+  //  int endTime = clock()/CLOCKS_PER_SEC;
+
+  //  printf("time: %d", endTime-startTime);
   return out/(2*h);
 }
 
@@ -118,12 +121,11 @@ double inte(char **input, vari *var, int *error){
   double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0;
   vari dvar = *var;
   int varc = 0;
-
+  //  double startTime = clock()/(double)CLOCKS_PER_SEC;
   if(numberOfArgs(input) != 5){
     *error = -2;
     return 0;
   }
-
 
   //get number of steps, and step size
   a = vartypeset(&dvar, input[2]);
@@ -161,6 +163,8 @@ double inte(char **input, vari *var, int *error){
   }
 
   //returns the integral
+  //  double endTime = clock() / (double)CLOCKS_PER_SEC;
+  //  printf("time: %lf", endTime-startTime);
   return out * step;    
 }
 

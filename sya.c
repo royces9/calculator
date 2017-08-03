@@ -204,3 +204,15 @@ void errorrep(int error){
     }
   }
 }
+
+void removeSpaces(char *input){
+  char *a = input;
+  char *b = input;
+  while(*b != 0){
+    *a = *b++;
+    if(*a != ' '){
+      a++;
+    }
+  }
+  *a = 0;
+}
