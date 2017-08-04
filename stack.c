@@ -1,4 +1,4 @@
-#include "strucon.h"
+//#include "structs.h"
 #include "stack.h"
 
 void pushn(double inp, numberStack *st){

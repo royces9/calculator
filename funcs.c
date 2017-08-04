@@ -3,10 +3,89 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "strucon.h"
-#include "multi.h"
 #include "stack.h"
+#include "multi.h"
 #include "funcs.h"
+
+#define SIN 'a'
+#define COS 'b'
+#define TAN 'c'
+#define LN 'd'
+#define LOG 'e'
+#define SQRT 'f'
+#define ASIN 'g'
+#define ACOS 'h'
+#define ATAN 'i'
+#define FLOOR 'j'
+#define CEIL 'k'
+#define ROUND 'l'
+#define MIN 'm'
+#define MAX 'n'
+#define AVG 'o'
+
+#define NF 25
+
+const char FUNCTIONS[NF][20] = {
+  "quit",
+  "clear",
+  "list",
+  "help",
+
+  "pi",
+  "e",
+  "ans",
+
+  "sin(",
+  "cos(",
+  "tan(",
+  "ln(",
+  "log(",
+  "sqrt(",
+  "asin(",
+  "acos(",
+  "atan(",
+  "floor(",
+  "ceil(",
+  "round(",
+  "min(",
+  "max(",
+  "avg(",
+
+  "derivative(",
+  "integral(",
+  "solve("  
+};
+
+enum functionEnums{
+  eQuit,
+  eClear,
+  eList,
+  eHelp,
+
+  ePi,
+  eE,
+  eAns,
+
+  eSin,
+  eCos,
+  eTan,
+  eLn,
+  eLog,
+  eSqrt,
+  eAsin,
+  eAcos,
+  eAtan,
+  eFloor,
+  eCeil,
+  eRound,
+  eMin,
+  eMax,
+  eAvg,
+
+  eDeri,
+  eInte,
+  eSolve  
+};
 
 operatorStruct setOpStack(char operator, int argNo){
   operatorStruct out;
@@ -14,6 +93,7 @@ operatorStruct setOpStack(char operator, int argNo){
   out.argNo = argNo;
   return out;
 }
+
 double twoArg(double a, double b, char o){
   switch(o){
   case '+': return a + b;

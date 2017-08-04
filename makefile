@@ -1,7 +1,7 @@
 CC = gcc
 FLAGS = -lm -lreadline -I. -flto
-HEADERS = strucon.h sya.h stack.h multi.h funcs.h
-CFILES = strucon.c sya.c stack.c multi.c funcs.c calc.c
+HEADERS = sya.h stack.h multi.h funcs.h
+CFILES = sya.c stack.c multi.c funcs.c calc.c
 
 calc2: $(HEADERS) $(CFILES)
 	$(CC) -o calc2 $(CFILES) $(FLAGS)

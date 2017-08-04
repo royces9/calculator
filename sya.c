@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "strucon.h"
-#include "funcs.h"
 #include "stack.h"
+#include "funcs.h"
 #include "sya.h"
 
 int sya(char *input, double *ans, vari *var){

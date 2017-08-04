@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "strucon.h"
+#include "stack.h"
 #include "funcs.h"
 #include "multi.h"
 #include "sya.h"
