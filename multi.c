@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "stack.h"
 #include "funcs.h"
@@ -69,138 +70,144 @@ double avg(char **input, vari *var, int *error){
 double deri(char **input, vari *var, int *error){
   char *str2d;
   double out = 0, inter = 0, point = 0, h = 0;
-  vari dvar = *var;
-  int varc = 0;
+  vari varTemp = *var;
+  int varIndex = 0;
   //  int startTime = clock()/CLOCKS_PER_SEC;
+
   //check the number of inputs is correct
   if(numberOfArgs(input) != 4){
     *error = -2;
     return 0;
   }
 
-  point = vartypeset(&dvar, input[2]);
-  h = vartypeset(&dvar, input[3]);
+  point = vartypeset(&varTemp, input[2]);
+  h = vartypeset(&varTemp, input[3]);
   
   //set up a dummy variable specified by user  
-  varc = varcheck(&dvar, input[1]);
+  varIndex = varcheck(&varTemp, input[1]);
 
-  if(varc == -1){
-    varc = 0;
-    dvar.occ = 1;
+  if(varIndex == -1){
+    varIndex = 0;
+    varTemp.occ = 1;
   }
-  else if(varc == -2){
-    varc = ++dvar.count;
+  else if(varIndex == -2){
+    varIndex = ++varTemp.count;
   }
 
-  strcpy(dvar.name[varc], input[1]);
+  strcpy(varTemp.name[varIndex], input[1]);
 
   //sets the dummy variable equal to x+h
-  dvar.value[varc] = point + h;
+  varTemp.value[varIndex] = point + h;
   
   //does f(x+h)
-  sya(input[0], &out, &dvar);
+  sya(input[0], &out, &varTemp);
 
   //sets the dummy variable equal to x-h
-  dvar.value[varc] = point - h;
+  varTemp.value[varIndex] = point - h;
 
   //does f(x-h)
-  sya(input[0], &inter, &dvar);
+  sya(input[0], &inter, &varTemp);
 
   //this is f(x+h) - f(x-h)
   out -= inter;
 
-  //return (f(x)- f(x-h))/(2*h)
   //  int endTime = clock()/CLOCKS_PER_SEC;
-
   //  printf("time: %d", endTime-startTime);
   return out/(2*h);
 }
 
 double inte(char **input, vari *var, int *error){
   char *str2d;
-  double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0;
-  vari dvar = *var;
-  int varc = 0;
+  double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0, sum = 0, halfnumber = 0;
+  vari varTemp = *var;
+  int varIndex = 0;
   //  double startTime = clock()/(double)CLOCKS_PER_SEC;
+  //check number of arguments
   if(numberOfArgs(input) != 5){
     *error = -2;
     return 0;
   }
 
   //get number of steps, and step size
-  a = vartypeset(&dvar, input[2]);
-  b = vartypeset(&dvar, input[3]);
-  number = vartypeset(&dvar, input[4]);
+  a = vartypeset(&varTemp, input[2]);
+  b = vartypeset(&varTemp, input[3]);
+  number = vartypeset(&varTemp, input[4]);
   step = (b-a)/number;
 
   //set dummy variable
-  varc = varcheck(&dvar, input[1]);
-    
-  if(varc == -1){
-    varc = 0;
-    dvar.occ = 1;
+  varIndex = varcheck(&varTemp, input[1]); //checks if variable exists or not, return value used as index
+  
+  if(varIndex == -1){
+    varIndex = 0;
+    varTemp.occ = 1;
   }
-  else if(varc == -2){
-    varc == ++dvar.count;
+  else if(varIndex == -2){
+    varIndex == ++varTemp.count;
   }
+  strcpy(varTemp.name[varIndex],input[1]); //copy the dummy variable into struct
 
-  //get the value of (f(a)+f(b))/2
-  strcpy(dvar.name[varc],input[1]);
-  dvar.value[varc] = a;
-  sya(input[0], &out, &dvar);
-  dvar.value[varc] = b;
-  sya(input[0], &inter, &dvar);
-
-  out += inter;
-  out /= 2;
-
-  //get the sum of f(a+n*delta)
-  for(int i = 0; i <= number; i++){
-    dvar.value[varc] = step*i+a;
-    sya(input[0], &inter, &dvar);
-    out += inter;
-    dvar.value[varc]++;
+  //calculate integral using composite Simpson's
+  if(fmod(number,2)){
+    number++;
   }
+  halfnumber = number/2;
 
-  //returns the integral
+  for(int i = 1; i <= halfnumber; i++){
+    varTemp.value[varIndex] = a + (((2 * i) - 2) * step);
+    sya(input[0], &out, &varTemp);
+    sum += out;
+
+    varTemp.value[varIndex] = a + (((2 * i) - 1) * step);
+    sya(input[0], &inter, &varTemp);
+    sum += (4 * inter);
+
+    varTemp.value[varIndex] = a + ((2 * i) * step);
+    sya(input[0], &out, &varTemp);
+    sum += out;
+  }
   //  double endTime = clock() / (double)CLOCKS_PER_SEC;
   //  printf("time: %lf", endTime-startTime);
-  return out * step;    
+
+  //return integral
+  return sum * (step / 3);
 }
 
 double solve(char **input, vari *var, int *error){
   char *str2d;
-  vari dvar = *var;
+  vari varTemp = *var;
   double out = 0, inter = 0, h = 0, test = 0, delta = 0.000001;
   int varc = 0;
 
+  //check number of arguments
   if(numberOfArgs(input) != 4){
     *error = -2;
     return 0;
   }
-    
-  varc = varcheck(&dvar, input[1]);
+
+  //set dummy variable
+  varc = varcheck(&varTemp, input[1]);
 
   if(varc == -1){
     varc = 0;
-    dvar.occ = 1;
+    varTemp.occ = 1;
   }
   else if(varc == -2){
-    varc = ++dvar.count;
+    varc = ++varTemp.count;
   }
+  strcpy(varTemp.name[varc],input[1]);
+  varTemp.value[varc] = vartypeset(&varTemp, input[2]);
 
-  strcpy(dvar.name[varc],input[1]);
-  dvar.value[varc] = vartypeset(&dvar, input[2]);
-  h = vartypeset(&dvar, input[3]);
-  test = h + 1;
+  h = vartypeset(&varTemp, input[3]);
+  test = h + 1; //ensure test is always greater than h
+
   while(fabs(test) > h){
-    sya(input[0],&out, &dvar);
-    dvar.value[varc] -= delta;
-    sya(input[0],&inter, &dvar);
+    sya(input[0],&out, &varTemp);
+    varTemp.value[varc] -= delta;
+    sya(input[0],&inter, &varTemp);
     test = (delta*out)/(out-inter);
-    dvar.value[varc] -= test;
+    varTemp.value[varc] -= test;
   }
-  return dvar.value[varc];
+  return varTemp.value[varc];
 }
 
 
