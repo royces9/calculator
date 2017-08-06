@@ -89,6 +89,12 @@ double deri(char **input, vari *var, int *error){
   int varIndex = 0;
   //  int startTime = clock()/CLOCKS_PER_SEC;
 
+  /*
+  input[0] = function
+  input[1] = variable
+  input[2] = point
+  input[3] = tolerance 
+   */
   //check the number of inputs is correct
   if(numberOfArgs(input) != 4){
     *error = -2;
@@ -127,7 +133,6 @@ double deri(char **input, vari *var, int *error){
     return 0;
   }
 
-
   //sets the dummy variable equal to x-h
   varTemp.value[varIndex] = point - h;
 
@@ -151,6 +156,14 @@ double inte(char **input, vari *var, int *error){
   vari varTemp = *var;
   int varIndex = 0;
   //  double startTime = clock()/(double)CLOCKS_PER_SEC;
+
+  /*
+  input[0] = function
+  input[1] = variable
+  input[2] = left bound
+  input[3] = right bound
+  input[4] = partition count
+   */
   //check number of arguments
   if(numberOfArgs(input) != 5){
     *error = -2;
@@ -231,6 +244,12 @@ double solve(char **input, vari *var, int *error){
   double out = 0, inter = 0, h = 0, test = 0, delta = 0.000001;
   int varc = 0;
 
+  /*
+  input[0] = function
+  input[1] = variable
+  input[2] = initial guess
+  input[3] = tolerance
+   */
   //check number of arguments
   if(numberOfArgs(input) != 4){
     *error = -2;
