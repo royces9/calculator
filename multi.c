@@ -15,29 +15,27 @@ int numberOfArgs(char **input){
   return i;
 }
 
-double vartypeset(vari *var, char input[]){
-  char *str2d;
-  int varc = varcheck(var, input);
-
-  if(varc <= -1){
-    return strtod(input, &str2d);
-  }
-  else{
-    return var->value[varc];
-  }
-}
-
 double min(char **input, vari *var, int *error){
   char *str2d, *str2d2;
   double out, inter;
   int argNo = numberOfArgs(input);
-  
-  out = vartypeset(var, input[0]);
-  inter = vartypeset(var, input[1]);
+
+  *error = sya(input[0], &out, var);
+  if(*error){
+    return 0;
+  }
+
+  *error = sya(input[1], &inter, var);
+  if(*error){
+    return 0;
+  }
 
   out = fmin(out, inter);
   for(int i = 2; i < argNo; i++){
-    inter = vartypeset(var, input[i]);
+    sya(input[i], &inter, var);
+    if(*error){
+      return 0;
+    }
     out = fmin(out, inter);
   }
   return out;
@@ -46,13 +44,23 @@ double min(char **input, vari *var, int *error){
 double max(char **input, vari *var, int *error){
   double out, inter;
   int argNo = numberOfArgs(input);
-  
-  out = vartypeset(var, input[0]);
-  inter = vartypeset(var, input[1]);
+
+  *error = sya(input[0], &out, var);
+  if(*error){
+    return 0;
+  }
+  *error = sya(input[1], &inter, var);
+  if(*error){
+    return 0;
+  }
 
   out = fmax(out, inter);
   for(int i = 2; i < argNo; i++){
-    inter = vartypeset(var, input[i]);
+    *error = sya(input[i], &inter, var);
+
+    if(*error){
+      return 0;
+    }
     out = fmax(out, inter);
   }
   return out;
@@ -60,9 +68,16 @@ double max(char **input, vari *var, int *error){
 
 double avg(char **input, vari *var, int *error){
   double sum = 0;
+  double partSum = 0;
   int argNo = numberOfArgs(input);
   for(int i = 0; i < argNo; i++){
-    sum += vartypeset(var, input[i]);
+    sya(input[i], &partSum, var);
+    if(*error){
+      return 0;
+    }
+
+
+    sum += partSum;
   }
   return sum/argNo;
 }
@@ -80,8 +95,15 @@ double deri(char **input, vari *var, int *error){
     return 0;
   }
 
-  point = vartypeset(&varTemp, input[2]);
-  h = vartypeset(&varTemp, input[3]);
+  *error = sya(input[2], &point, &varTemp);
+  if(*error){
+    return 0;
+  }
+
+  *error = sya(input[3], &h, &varTemp);
+  if(*error){
+    return 0;
+  }
   
   //set up a dummy variable specified by user  
   varIndex = varcheck(&varTemp, input[1]);
@@ -100,13 +122,20 @@ double deri(char **input, vari *var, int *error){
   varTemp.value[varIndex] = point + h;
   
   //does f(x+h)
-  sya(input[0], &out, &varTemp);
+  *error = sya(input[0], &out, &varTemp);
+  if(*error){
+    return 0;
+  }
+
 
   //sets the dummy variable equal to x-h
   varTemp.value[varIndex] = point - h;
 
   //does f(x-h)
-  sya(input[0], &inter, &varTemp);
+  *error = sya(input[0], &inter, &varTemp);
+  if(*error){
+    return 0;
+  }
 
   //this is f(x+h) - f(x-h)
   out -= inter;
@@ -129,9 +158,21 @@ double inte(char **input, vari *var, int *error){
   }
 
   //get number of steps, and step size
-  a = vartypeset(&varTemp, input[2]);
-  b = vartypeset(&varTemp, input[3]);
-  number = vartypeset(&varTemp, input[4]);
+  *error = sya(input[2], &a, &varTemp);
+  if(*error){
+    return 0;
+  }
+
+  *error = sya(input[3], &b, &varTemp);
+  if(*error){
+    return 0;
+  }
+
+  *error = sya(input[4], &number, &varTemp);
+  if(*error){
+    return 0;
+  }
+
   step = (b-a)/number;
 
   //set dummy variable
@@ -154,15 +195,27 @@ double inte(char **input, vari *var, int *error){
 
   for(int i = 1; i <= halfnumber; i++){
     varTemp.value[varIndex] = a + (((2 * i) - 2) * step);
-    sya(input[0], &out, &varTemp);
+    *error = sya(input[0], &out, &varTemp);
+    if(*error){
+      return 0;
+    }
+
     sum += out;
 
     varTemp.value[varIndex] = a + (((2 * i) - 1) * step);
-    sya(input[0], &inter, &varTemp);
+    *error = sya(input[0], &inter, &varTemp);
+    if(*error){
+      return 0;
+    }
+
     sum += (4 * inter);
 
     varTemp.value[varIndex] = a + ((2 * i) * step);
-    sya(input[0], &out, &varTemp);
+    *error = sya(input[0], &out, &varTemp);
+    if(*error){
+      return 0;
+    }
+
     sum += out;
   }
   //  double endTime = clock() / (double)CLOCKS_PER_SEC;
@@ -195,15 +248,31 @@ double solve(char **input, vari *var, int *error){
     varc = ++varTemp.count;
   }
   strcpy(varTemp.name[varc],input[1]);
-  varTemp.value[varc] = vartypeset(&varTemp, input[2]);
 
-  h = vartypeset(&varTemp, input[3]);
+  *error = sya(input[2], &varTemp.value[varc], &varTemp);
+  if(*error){
+    return 0;
+  }
+
+  *error = sya(input[3], &h, &varTemp);
+  if(*error){
+    return 0;
+  }
+
   test = h + 1; //ensure test is always greater than h
 
   while(fabs(test) > h){
-    sya(input[0],&out, &varTemp);
+    *error = sya(input[0],&out, &varTemp);
+    if(*error){
+      return 0;
+    }
+
     varTemp.value[varc] -= delta;
-    sya(input[0],&inter, &varTemp);
+    *error = sya(input[0],&inter, &varTemp);
+    if(*error){
+      return 0;
+    }
+
     test = (delta*out)/(out-inter);
     varTemp.value[varc] -= test;
   }
