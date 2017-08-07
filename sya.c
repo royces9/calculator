@@ -48,14 +48,14 @@ int sya(char *input, double *ans, vari *var){
     case '.':
       numberBuffer[j++] = input[i];
 
-      if(input[i+1] < '0' && input[i+1] != '.' || input[i+1] > '9' || !input[i+1]){
+      if(((input[i+1] >= 'a') && (input[i+1] <= 'z')) || ((input[i+1] >= 'A') && (input[i+1] <= 'Z'))){
+	return error = -4;
+      }
+
+      else if(input[i+1] < '0' && input[i+1] != '.' || input[i+1] > '9' || !input[i+1]){
 	numberBuffer[j] = '\0';
 	pushn(strtod(numberBuffer, &str2d), &out);
 	j = 0;
-      }
-      
-      else if((input[i+1] >= 'a' && input[i+1] <= 'z') || (input[i+1] >= 'A' && input[i+1] <= 'Z')){
-	return error = -4;
       }
 
       tok = 1;
@@ -164,7 +164,9 @@ int sya(char *input, double *ans, vari *var){
 	}
 	
 	k = 0;
-      }//end of if
+      }
+
+      //end of if
       break;      
 
     default: break;
