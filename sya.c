@@ -7,9 +7,9 @@
 #include "sya.h"
 
 int sya(char *input, double *ans, vari *var){
-  numberStack out; //number stack
-  operatorStack oper;
-  int i = 0, j = 0, k = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, tok = 0;
+  numberStack out; //stack for output numbers
+  operatorStack oper; //stack for operators
+  int i = 0, j = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, tok = 0;
   char *str2d;
 
   //reset all the variables
@@ -96,69 +96,6 @@ int sya(char *input, double *ans, vari *var){
       }
       tok = 1;
       break;
-      //end new stuff
-      /*
-      //numbers
-      numberBuffer[j++] = input[i];
-
-      if(input[i+1] < '0' && input[i+1] != '.' || input[i+1] > '9' || !input[i+1]){
-      numberBuffer[j] = '\0';
-      pushn(strtod(numberBuffer, &str2d), &out);
-      j = 0;
-      }
-      
-      else if((input[i+1] >= 'a' && input[i+1] <= 'z') || (input[i+1] >= 'A' && input[i+1] <= 'Z')){
-      return error = -4;
-      }
-
-      tok = 1;
-
-
-      //end numbers
-      
-      //beginning of alpha check
-      letterBuffer[k++] = input[i];
-
-      if(strchr("+-/*()^\n", input[i+1]) && input[i+1] != '\n'){
-
-      if(input[i+1] == '('){
-      letterBuffer[k++] = '(';
-      }
-
-      letterBuffer[k] = '\0';
-      error = charfind(letterBuffer, &out, &oper, *ans, var, &tok, &i, input);
-	
-      if(error != 0){
-      return error;
-      }
-      k = 0;
-      }
-      
-      else if('=' ==  input[i+1] && input[i+1] != '\n'){
-
-      check = varcheck(var, letterBuffer);
-      varset = 1;
-	
-      if(check >= 0){
-      letterBuffer[k] = '\0';
-      strcpy(var->name[check], letterBuffer);
-      }	
-
-      else if(check == -1){
-      strcpy(var->name[0], letterBuffer);
-      var->occ = 1;
-      var->count = 0;
-      check = 0;
-      }
-
-      else if(check == -2){
-      check = ++var->count;
-      strcpy(var->name[check], letterBuffer);
-      }
-	
-      k = 0;
-      //end of alpha check
-      */
 
     case '^':
       if(oper.stk[oper.top].operator >= 'a' && oper.stk[oper.top].operator <= 'z'){
