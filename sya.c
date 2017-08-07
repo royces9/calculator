@@ -37,31 +37,129 @@ int sya(char *input, double *ans, vari *var){
     return error = -4;
   }
 
-  char *numberBuffer = malloc(length * sizeof(*numberBuffer)), *letterBuffer = malloc(length * sizeof(*letterBuffer));
-  memset(letterBuffer, '\0', sizeof(letterBuffer));
+  char *buffer = malloc(length * sizeof(*buffer));
 
   for(i = 0; input[i]; ++i){
-
     switch(input[i]){
 
     case '0' ... '9':
     case '.':
+    case 'a' ... 'z':
+    case 'A' ... 'Z':
+      buffer[j++] = input[i];
+
+      if(strchr("=+-/*()^\n", input[i+1]) && input[i+1] != '\n'){
+	buffer[j] = '\0';
+	if(checkNumbers(buffer)){
+	  pushn(strtod(buffer, &str2d), &out);
+	  j = 0;
+	}
+	else{
+	  switch(input[i+1]){
+	  case '(':
+	    buffer[j++] = '(';
+	    buffer[j] = '\0';
+	    error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, input);
+	    j = 0;
+	    break;
+
+	  case '=':
+	    buffer[j] = '\0';
+	    check = varcheck(var, buffer);
+	    varset = 1;
+
+	    if(check >= 0){
+	      strcpy(var->name[check], buffer);
+	    }	
+
+	    else if(check == -1){
+	      strcpy(var->name[0], buffer);
+	      var->occ = 1;
+	      var->count = 0;
+	      check = 0;
+	    }
+	    else if(check == -2){
+	      check = ++var->count;
+	      strcpy(var->name[check], buffer);
+	    }
+
+	    j = 0;
+	    break;
+
+	  default:
+	    buffer[j] = '\0';
+	    error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, input);
+	    j = 0;
+	    break;
+	  }
+	}
+      }
+      tok = 1;
+      break;
+      //end new stuff
+      /*
+      //numbers
       numberBuffer[j++] = input[i];
 
-      if(((input[i+1] >= 'a') && (input[i+1] <= 'z')) || ((input[i+1] >= 'A') && (input[i+1] <= 'Z'))){
-	return error = -4;
+      if(input[i+1] < '0' && input[i+1] != '.' || input[i+1] > '9' || !input[i+1]){
+      numberBuffer[j] = '\0';
+      pushn(strtod(numberBuffer, &str2d), &out);
+      j = 0;
       }
-
-      else if(input[i+1] < '0' && input[i+1] != '.' || input[i+1] > '9' || !input[i+1]){
-	numberBuffer[j] = '\0';
-	pushn(strtod(numberBuffer, &str2d), &out);
-	j = 0;
+      
+      else if((input[i+1] >= 'a' && input[i+1] <= 'z') || (input[i+1] >= 'A' && input[i+1] <= 'Z')){
+      return error = -4;
       }
 
       tok = 1;
 
-      break;
+
+      //end numbers
       
+      //beginning of alpha check
+      letterBuffer[k++] = input[i];
+
+      if(strchr("+-/*()^\n", input[i+1]) && input[i+1] != '\n'){
+
+      if(input[i+1] == '('){
+      letterBuffer[k++] = '(';
+      }
+
+      letterBuffer[k] = '\0';
+      error = charfind(letterBuffer, &out, &oper, *ans, var, &tok, &i, input);
+	
+      if(error != 0){
+      return error;
+      }
+      k = 0;
+      }
+      
+      else if('=' ==  input[i+1] && input[i+1] != '\n'){
+
+      check = varcheck(var, letterBuffer);
+      varset = 1;
+	
+      if(check >= 0){
+      letterBuffer[k] = '\0';
+      strcpy(var->name[check], letterBuffer);
+      }	
+
+      else if(check == -1){
+      strcpy(var->name[0], letterBuffer);
+      var->occ = 1;
+      var->count = 0;
+      check = 0;
+      }
+
+      else if(check == -2){
+      check = ++var->count;
+      strcpy(var->name[check], letterBuffer);
+      }
+	
+      k = 0;
+      //end of alpha check
+      */
+
     case '^':
       if(oper.stk[oper.top].operator >= 'a' && oper.stk[oper.top].operator <= 'z'){
 	exec_num(&out, popch(&oper));
@@ -120,54 +218,6 @@ int sya(char *input, double *ans, vari *var){
     case '!':
       pushn(factorial(popn(&out), &error), &out);
       break;
-      
-    case 'a' ... 'z':      
-    case 'A' ... 'Z':
-
-      letterBuffer[k++] = input[i];
-
-      if(strchr("+-/*()^\n", input[i+1]) && input[i+1] != '\n'){
-
-	if(input[i+1] == '('){
-	  letterBuffer[k++] = '(';
-	}
-
-	letterBuffer[k] = '\0';
-	error = charfind(letterBuffer, &out, &oper, *ans, var, &tok, &i, input);
-	
-	if(error != 0){
-	  return error;
-	}
-	k = 0;
-      }
-      
-      else if('=' ==  input[i+1] && input[i+1] != '\n'){
-
-	check = varcheck(var, letterBuffer);
-	varset = 1;
-	
-	if(check >= 0){
-	  letterBuffer[k] = '\0';
-	  strcpy(var->name[check], letterBuffer);
-	}	
-
-	else if(check == -1){
-	  strcpy(var->name[0], letterBuffer);
-	  var->occ = 1;
-	  var->count = 0;
-	  check = 0;
-	}
-
-	else if(check == -2){
-	  check = ++var->count;
-	  strcpy(var->name[check], letterBuffer);
-	}
-	
-	k = 0;
-      }
-
-      //end of if
-      break;      
 
     default: break;
       
@@ -177,8 +227,7 @@ int sya(char *input, double *ans, vari *var){
     }
   }//end of for
   
-  free(numberBuffer);
-  free(letterBuffer);
+  free(buffer);
 
   while(out.occ == 1 && oper.occ == 1){
     exec_num(&out, popch(&oper));
@@ -216,4 +265,13 @@ void removeSpaces(char *input){
     }
   }
   *a = 0;
+}
+
+int checkNumbers(char *input){
+  for(int i = 0; i  < strlen(input); i++){
+    if(input[i] < '0' && input[i] != '.' || input[i] > '9' || !input[i]){
+      return 0;
+    }
+  }
+  return 1;
 }
