@@ -274,42 +274,42 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
     return 0;
 
   case eMin:
-    separatedString = separateString(input, start);
+    separatedString = separateString(input, start, &error);
     pushn(min(separatedString, var, &error), num);
     free(separatedString);
     *tok = 2;
     return error;
 
   case eMax:
-    separatedString = separateString(input, start);
+    separatedString = separateString(input, start, &error);
     pushn(max(separatedString, var, &error), num);
     free(separatedString);
     *tok = 2;
     return error;    
     
   case eAvg:
-    separatedString = separateString(input, start);
+    separatedString = separateString(input, start, &error);
     pushn(avg(separatedString, var, &error), num);
     free(separatedString);
     *tok = 2;
     return error;    
     
   case eDeri:
-    separatedString = separateString(input, start);
+    separatedString = separateString(input, start, &error);
     pushn(deri(separatedString, var, &error), num);
     free(separatedString);
     *tok = 2;
     return error;
     
   case eInte:
-    separatedString = separateString(input, start);
+    separatedString = separateString(input, start, &error);
     pushn(inte(separatedString, var, &error), num);
     free(separatedString);
     *tok = 2;
     return error;
     
   case eSolve:
-    separatedString = separateString(input, start);
+    separatedString = separateString(input, start, &error);
     pushn(solve(separatedString, var, &error), num);
     free(separatedString);
     *tok = 2;

@@ -38,6 +38,7 @@ int sya(char *input, double *ans, vari *var){
   }
 
   char *buffer = malloc(length * sizeof(*buffer));
+  __MALLOC_CHECK(buffer, error);
 
   for(i = 0; input[i]; ++i){
     switch(input[i]){
@@ -187,6 +188,7 @@ void errorrep(int error){
     case -3: printf("Mismatched parenthesis\n\n"); break;
     case -4: printf("Invalid expression\n\n"); break;
     case -5: printf("Invalid function or variable name\n\n"); break;
+    case -6: printf("Malloc error.\n\n"); break;
     default: break;
     }
   }

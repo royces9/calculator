@@ -1,6 +1,12 @@
 #ifndef FUNCS
 #define FUNCS
 
+#define __MALLOC_CHECK(pointer, error)	\
+  if(pointer == NULL){\
+  error = -6; \
+  return 0; \
+  }
+
 operatorStruct setOpStack(char oeprator, int argNo);
 double op(double a, double b, char o);
 double ops(double a, char o);
