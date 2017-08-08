@@ -284,17 +284,16 @@ char **separateString(char input[], int *start, int *error){
   }
 
   char *input2 = malloc(length * sizeof(*input2));
-  //  if(input2 == NULL){ return *error = -6};
   __MALLOC_CHECK(input2, *error);
   strcpy(input2,input);
-  
+
   //allocate double array output
   char **separatedString = malloc((commaCount + 2) * sizeof(*separatedString));
-    __MALLOC_CHECK(*separatedString, *error);
+  __MALLOC_CHECK(separatedString, *error);
 
   for(int j = 0; j < (commaCount + 2); j++){
     separatedString[j] = malloc(length * sizeof(**separatedString));
-      __MALLOC_CHECK(separatedString, *error);
+    __MALLOC_CHECK(*separatedString, *error);
   }
 
   *start += (length+1);
@@ -312,6 +311,6 @@ char **separateString(char input[], int *start, int *error){
 
   strcpy(separatedString[i], "");
   free(input2);
-  
+
   return separatedString;
 }
