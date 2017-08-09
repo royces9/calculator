@@ -32,7 +32,7 @@ double min(char **input, vari *var, int *error){
   out = fmin(out, inter);
   for(int i = 2; i < argNo; i++){
     sya(input[i], &inter, var);
-  __SYA_ERROR(*error);
+    __SYA_ERROR(*error);
     out = fmin(out, inter);
   }
   return out;
