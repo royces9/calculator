@@ -169,6 +169,7 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
   char **separatedString;
   int i = funcfind(buffer), error = 0;
   operatorStruct operator;
+  double out;
 
   switch(i){
   case eQuit: //quit
@@ -323,7 +324,8 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
 
   case eRun:
     separatedString = separateString(input, '\0', start, &error);
-    error = runFile(separatedString, var);
+    error = runFile(separatedString, var, &out);
+    pushn(out, num);
     return error;
 
   case NF: //variables
