@@ -262,10 +262,15 @@ double solve(char **input, vari *var, int *error){
 }
 
 
-char **separateString(char input[], int *start, int *error){
-  char *tok;
-  int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, commaCount = 0, i = 0;  
+char **separateString(char input[], char delimiter, int *start, int *error){
 
+  char *tok;
+  int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, delimiterCount = 0, i = 0;  
+
+  char strDelimiter[2];
+  strDelimiter[0] = delimiter;
+  strDelimiter[1] = '\0';
+  
   input += (*start+1);
 
   for(length = 0; input[length]; length++){
@@ -275,8 +280,8 @@ char **separateString(char input[], int *start, int *error){
     else if(input[length] == ')'){
       rightParenthesisCount++;
     }
-    if(input[length] == ','){
-      commaCount++;
+    if(input[length] == delimiter){
+      delimiterCount++;
     }
     if(leftParenthesisCount == rightParenthesisCount){
       break;
@@ -288,10 +293,10 @@ char **separateString(char input[], int *start, int *error){
   strcpy(input2,input);
 
   //allocate double array output
-  char **separatedString = malloc((commaCount + 2) * sizeof(*separatedString));
+  char **separatedString = malloc((delimiterCount + 2) * sizeof(*separatedString));
   __MALLOC_CHECK(separatedString, *error);
 
-  for(int j = 0; j < (commaCount + 2); j++){
+  for(int j = 0; j < (delimiterCount + 2); j++){
     separatedString[j] = malloc(length * sizeof(**separatedString));
     __MALLOC_CHECK(*separatedString, *error);
   }
@@ -299,12 +304,12 @@ char **separateString(char input[], int *start, int *error){
   *start += (length+1);
   input2[length+1] = 0;
 
-  tok = strtok(input2, ",");
+  tok = strtok(input2, strDelimiter);
   ++tok;
 
   for(i = 0; tok != NULL; i++){
     strcpy(separatedString[i], tok);
-    tok = strtok(NULL, ",");
+    tok = strtok(NULL, strDelimiter);
   }
 
   separatedString[i-1][strlen(separatedString[i-1])-1] = '\0';

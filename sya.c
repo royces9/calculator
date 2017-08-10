@@ -114,7 +114,7 @@ int sya(char *input, double *ans, vari *var){
       
     case '*':
     case '/':
-      while(strchr("*^/abcdefghi", oper.stk[oper.top].operator)){
+      while(strchr("*^/abcdefghi", oper.stk[oper.top].operator) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
 
@@ -131,7 +131,7 @@ int sya(char *input, double *ans, vari *var){
       }
       
     case '+':
-      while(strchr("+-/*^abcdefghi", oper.stk[oper.top].operator)){
+      while(strchr("+-/*^abcdefghi", oper.stk[oper.top].operator) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
       tok = 2;
@@ -157,7 +157,16 @@ int sya(char *input, double *ans, vari *var){
       pushn(factorial(popn(&out), &error), &out);
       break;
 
-    default: break;
+    case ';':
+      if(input[i+1] == '\0'){
+	continue;
+      }
+      else{
+	return error = -4;
+      }
+      break;
+
+    default: return error = -4; break;
       
     }//end of switch
     if(error != 0){
@@ -189,6 +198,7 @@ void errorrep(int error){
     case -4: printf("Invalid expression\n\n"); break;
     case -5: printf("Invalid function or variable name\n\n"); break;
     case -6: printf("Malloc error.\n\n"); break;
+    case -7: printf("File does not exist\n\n"); break;
     default: break;
     }
   }
