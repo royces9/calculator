@@ -109,12 +109,12 @@ int sya(char *input, double *ans, vari *var){
 
     case '(':
       tok = 2;
-      pushch(setOpStack(input[i], 2), &oper);
+      pushch(setOpStack(input[i], 1), &oper);
       break;
       
     case '*':
     case '/':
-      while(strchr("*^/abcdefghi", oper.stk[oper.top].operator) && oper.occ == 1){
+      while(strchr("*^/abcdefghi", oper.stk[oper.top].operator)){
 	exec_num(&out, popch(&oper));
       }
 
@@ -131,7 +131,7 @@ int sya(char *input, double *ans, vari *var){
       }
       
     case '+':
-      while(strchr("+-/*^abcdefghi", oper.stk[oper.top].operator) && oper.occ == 1){
+      while(strchr("+-/*^abcdefghi", oper.stk[oper.top].operator)){
 	exec_num(&out, popch(&oper));
       }
       tok = 2;
@@ -140,9 +140,9 @@ int sya(char *input, double *ans, vari *var){
       break;
 
     case ')':      
-      while(oper.stk[oper.top].operator != '(' && oper.occ == 1){
+      do{
 	exec_num(&out, popch(&oper));
-      }
+      } while(oper.stk[oper.top].operator != '(' && oper.occ == 1);
       tok = 1;
       popch(&oper);
       break;

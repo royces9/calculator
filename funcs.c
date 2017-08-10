@@ -164,6 +164,7 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
   char **separatedString;
   int i = funcfind(buffer), error = 0;
   operatorStruct operator;
+
   switch(i){
   case eQuit: //quit
     return 1;
