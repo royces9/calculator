@@ -24,12 +24,11 @@ int runFile(char **input, vari *var, double *ans){
     }
     printf("> %s\n", buffer);
     error = sya(buffer, ans, var);
-    printf(">    %lf\n\n", *ans);
     if(error){
       fclose(inputFile);
       return error;
     }
-
+    printf(">    %lf\n\n", *ans);
   }
   fclose(inputFile);
   return 0;
