@@ -10,4 +10,4 @@ sin(), cos(), tan(), log(), ln(), sqrt(), avg(), min(), max(), floor(), ceil(), 
 
 Current known bugs:
 
-sometimes gives memory corruption errors with free/malloc, not consistent, solved by having malloc checks probably
+copy pasting integral causes free() failure. ex. "integral((x^2+123),x,0,9,100000)", typing out will give the correct answer, pasting will cause an error: free(): invalid next size (fast)

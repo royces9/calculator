@@ -326,6 +326,7 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
     separatedString = separateString(input, '\0', start, &error);
     error = runFile(separatedString, var, &out);
     pushn(out, num);
+    *tok = 2;
     return error;
 
   case NF: //variables

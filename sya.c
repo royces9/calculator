@@ -42,7 +42,6 @@ int sya(char *input, double *ans, vari *var){
 
   for(i = 0; input[i]; ++i){
     switch(input[i]){
-
     case '0' ... '9':
     case '.':
     case 'a' ... 'z':
@@ -65,6 +64,7 @@ int sya(char *input, double *ans, vari *var){
 	    break;
 
 	  case '=':
+
 	    buffer[j] = '\0';
 	    check = varcheck(var, buffer);
 	    varset = 1;

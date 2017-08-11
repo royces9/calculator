@@ -30,7 +30,7 @@ int main(int argc, char *argv[]){
     add_history(input);
 
     removeSpaces(input);
-    if( *input == 0){
+    if(*input == 0){
       continue;
     }
     

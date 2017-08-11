@@ -22,13 +22,19 @@ int runFile(char **input, vari *var, double *ans){
 	buffer[i+1] = '\0';
       }
     }
-    printf("> %s\n", buffer);
-    error = sya(buffer, ans, var);
-    if(error){
-      fclose(inputFile);
-      return error;
+    if(!strcmp(buffer, "\n")){
+      continue;
     }
-    printf(">    %lf\n\n", *ans);
+    else{
+      printf("> %s\n", buffer);
+      removeSpaces(buffer);
+      error = sya(buffer, ans, var);
+      if(error){
+	fclose(inputFile);
+	return error;
+      }
+      printf(">    %lf\n\n", *ans);
+    }
   }
   fclose(inputFile);
   return 0;
