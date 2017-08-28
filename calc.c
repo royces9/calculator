@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -9,6 +10,7 @@ int main(int argc, char *argv[]){
   char *input;
   int error = 0;
   double ans = 0;
+
   vari var;
 
   var.count = 0;
@@ -42,6 +44,8 @@ int main(int argc, char *argv[]){
     else{
       errorrep(error);
     }
+
+    free(input); //readline mallocs the input line
   }
   return 0;
 }
