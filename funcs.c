@@ -30,7 +30,7 @@ const char FUNCTIONS[NF][20] = {
   "clear",
   "list",
   "help",
-
+  
   "pi",
   "e",
   "ans",
