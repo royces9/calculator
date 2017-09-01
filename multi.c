@@ -296,7 +296,7 @@ char **separateString(char input[], char delimiter, int *start, int *error){
   strcpy(input2,input);
 
   //allocate double array output
-  char **separatedString = malloc((delimiterCount + 2) * sizeof(*separatedString));
+  char **separatedString = malloc((delimiterCount + 1) * sizeof(*separatedString));
   __MALLOC_CHECK(separatedString, *error);
 
   for(int j = 0; j < (delimiterCount + 2); j++){

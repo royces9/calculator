@@ -7,7 +7,7 @@
 #include "sya.h"
 
 int main(int argc, char *argv[]){
-  char *input;
+  char *input = NULL;
   int error = 0;
   double ans = 0;
 

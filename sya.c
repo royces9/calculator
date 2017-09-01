@@ -10,7 +10,7 @@ int sya(char *input, double *ans, vari *var){
   numberStack out; //stack for output numbers
   operatorStack oper; //stack for operators
   int i = 0, j = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, tok = 0;
-  char *str2d;
+  char *str2d = NULL;
 
   removeSpaces(input);
   
@@ -100,7 +100,6 @@ int sya(char *input, double *ans, vari *var){
 
     case '^':
       exec_num(&out, popch(&oper));
-
       tok = 2;
       pushch(setOpStack(input[i], 2), &oper);
       break;
@@ -134,7 +133,6 @@ int sya(char *input, double *ans, vari *var){
       }
       tok = 2;
       pushch(setOpStack(input[i], 2), &oper);
-
       break;
 
     case ')':      

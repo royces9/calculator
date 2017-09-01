@@ -278,42 +278,42 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
   case eMin:
     separatedString = separateString(input, ',', start, &error);
     pushn(min(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;
 
   case eMax:
     separatedString = separateString(input, ',', start, &error);
     pushn(max(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;    
     
   case eAvg:
     separatedString = separateString(input, ',', start, &error);
     pushn(avg(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;    
     
   case eDeri:
     separatedString = separateString(input, ',', start, &error);
     pushn(deri(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;
     
   case eInte:
     separatedString = separateString(input, ',', start, &error);
     pushn(inte(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;
     
   case eSolve:
     separatedString = separateString(input, ',', start, &error);
     pushn(solve(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;
 
@@ -347,4 +347,13 @@ int varcheck(vari *list, char input[]){
   }
 
   return -2;
+}
+
+void freeDoubleArray(char **input){
+  int i = 0;
+  for(i = 0; strcmp(input[i], ""); i++){
+    free(input[i]);
+  }
+  free(input[i]);
+  free(input);
 }
