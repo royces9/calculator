@@ -6,7 +6,6 @@
 #include "stack.h"
 #include "multi.h"
 #include "funcs.h"
-#include "file.h"
 
 #define SIN 'a'
 #define COS 'b'
@@ -24,14 +23,14 @@
 #define MAX 'n'
 #define AVG 'o'
 
-#define NF 26
+#define NF 25
 
 const char FUNCTIONS[NF][20] = {
   "quit",
   "clear",
   "list",
   "help",
-
+  
   "pi",
   "e",
   "ans",
@@ -55,8 +54,6 @@ const char FUNCTIONS[NF][20] = {
   "derivative(",
   "integral(",
   "solve(",
-
-  "run("
 };
 
 enum functionEnums{
@@ -87,9 +84,7 @@ enum functionEnums{
 
   eDeri,
   eInte,
-  eSolve,
-
-  eRun
+  eSolve
 };
 
 operatorStruct setOpStack(char operator, int argNo){
@@ -283,49 +278,42 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
   case eMin:
     separatedString = separateString(input, ',', start, &error);
     pushn(min(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;
 
   case eMax:
     separatedString = separateString(input, ',', start, &error);
     pushn(max(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;    
     
   case eAvg:
     separatedString = separateString(input, ',', start, &error);
     pushn(avg(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;    
     
   case eDeri:
     separatedString = separateString(input, ',', start, &error);
     pushn(deri(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;
     
   case eInte:
     separatedString = separateString(input, ',', start, &error);
     pushn(inte(separatedString, var, &error), num);
-    free(separatedString);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;
     
   case eSolve:
     separatedString = separateString(input, ',', start, &error);
     pushn(solve(separatedString, var, &error), num);
-    free(separatedString);
-    *tok = 2;
-    return error;
-
-  case eRun:
-    separatedString = separateString(input, '\0', start, &error);
-    error = runFile(separatedString, var, &out);
-    pushn(out, num);
+    freeDoubleArray(separatedString);
     *tok = 2;
     return error;
 
@@ -359,4 +347,13 @@ int varcheck(vari *list, char input[]){
   }
 
   return -2;
+}
+
+void freeDoubleArray(char **input){
+  int i = 0;
+  for(i = 0; strcmp(input[i], ""); i++){
+    free(input[i]);
+  }
+  free(input[i]);
+  free(input);
 }

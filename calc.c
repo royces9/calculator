@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -6,13 +7,16 @@
 #include "sya.h"
 
 int main(int argc, char *argv[]){
-  char *input;
+  char *input = NULL;
   int error = 0;
   double ans = 0;
+
   vari var;
 
   var.count = 0;
   var.occ = 0;
+  memset(var.name, '\0', sizeof(var.name));
+  memset(var.value, 0, sizeof(var.value));
   
   if(argc > 1){
     printf(">>%s\n", *(argv+1));
@@ -29,7 +33,6 @@ int main(int argc, char *argv[]){
     input = readline(">>");
     add_history(input);
 
-    removeSpaces(input);
     if(*input == 0){
       continue;
     }
@@ -43,6 +46,8 @@ int main(int argc, char *argv[]){
     else{
       errorrep(error);
     }
+
+    free(input); //readline mallocs the input line
   }
   return 0;
 }

@@ -74,7 +74,6 @@ double deri(char **input, vari *var, int *error){
   double out = 0, inter = 0, point = 0, h = 0;
   vari varTemp = *var;
   int varIndex = 0;
-  //  int startTime = clock()/CLOCKS_PER_SEC;
 
   /*
   input[0] = function
@@ -82,6 +81,7 @@ double deri(char **input, vari *var, int *error){
   input[2] = point
   input[3] = tolerance 
    */
+
   //check the number of inputs is correct
   if(numberOfArgs(input) != 4){
     *error = -2;
@@ -128,8 +128,6 @@ double deri(char **input, vari *var, int *error){
   //this is f(x+h) - f(x-h)
   out -= inter;
 
-  //  int endTime = clock()/CLOCKS_PER_SEC;
-  //  printf("time: %d", endTime-startTime);
   return out/(2*h);
 }
 
@@ -138,7 +136,6 @@ double inte(char **input, vari *var, int *error){
   double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0, sum = 0, halfnumber = 0;
   vari varTemp = *var;
   int varIndex = 0;
-  //  double startTime = clock()/(double)CLOCKS_PER_SEC;
 
   /*
   input[0] = function
@@ -147,11 +144,13 @@ double inte(char **input, vari *var, int *error){
   input[3] = right bound
   input[4] = partition count
    */
+  
   //check number of arguments
   if(numberOfArgs(input) != 5){
     *error = -2;
     return 0;
   }
+  int iter = 0;
 
   //get number of steps, and step size
   *error = sya(input[2], &a, &varTemp);
@@ -167,18 +166,18 @@ double inte(char **input, vari *var, int *error){
 
   //set dummy variable
   varIndex = varcheck(&varTemp, input[1]); //checks if variable exists or not, return value used as index
-  
+    
   if(varIndex == -1){
     varIndex = 0;
     varTemp.occ = 1;
   }
   else if(varIndex == -2){
-    varIndex == ++varTemp.count;
+    varIndex = ++varTemp.count;
   }
   strcpy(varTemp.name[varIndex],input[1]); //copy the dummy variable into struct
 
   //calculate integral using composite Simpson's
-  if(fmod(number,2)){
+  if(fmod(number,2)){ //if the number of steps is odd, change it to be even
     number++;
   }
   halfnumber = number/2;
@@ -187,23 +186,18 @@ double inte(char **input, vari *var, int *error){
     varTemp.value[varIndex] = a + (((2 * i) - 2) * step);
     *error = sya(input[0], &out, &varTemp);
     __SYA_ERROR(*error);
-
     sum += out;
 
     varTemp.value[varIndex] = a + (((2 * i) - 1) * step);
     *error = sya(input[0], &inter, &varTemp);
     __SYA_ERROR(*error);
-
     sum += (4 * inter);
 
     varTemp.value[varIndex] = a + ((2 * i) * step);
     *error = sya(input[0], &out, &varTemp);
     __SYA_ERROR(*error);
-
     sum += out;
   }
-  //  double endTime = clock() / (double)CLOCKS_PER_SEC;
-  //  printf("time: %lf", endTime-startTime);
 
   //return integral
   return sum * (step / 3);
@@ -221,6 +215,7 @@ double solve(char **input, vari *var, int *error){
   input[2] = initial guess
   input[3] = tolerance
    */
+
   //check number of arguments
   if(numberOfArgs(input) != 4){
     *error = -2;
@@ -263,7 +258,6 @@ double solve(char **input, vari *var, int *error){
 
 
 char **separateString(char input[], char delimiter, int *start, int *error){
-
   char *tok;
   int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, delimiterCount = 0, i = 0;  
 
@@ -273,6 +267,7 @@ char **separateString(char input[], char delimiter, int *start, int *error){
   
   input += (*start+1);
 
+  
   for(length = 0; input[length]; length++){
     if(input[length] == '('){
       leftParenthesisCount++;
@@ -290,32 +285,34 @@ char **separateString(char input[], char delimiter, int *start, int *error){
 
   char *input2 = malloc((length + 2)* sizeof(*input2));
   __MALLOC_CHECK(input2, *error);
+
   strcpy(input2,input);
+  input2[length] = 0;
 
   //allocate double array output
   char **separatedString = malloc((delimiterCount + 2) * sizeof(*separatedString));
   __MALLOC_CHECK(separatedString, *error);
 
-  for(int j = 0; j < (delimiterCount + 2); j++){
-    separatedString[j] = malloc(length * sizeof(**separatedString));
-    __MALLOC_CHECK(*separatedString, *error);
-  }
-
   *start += (length+1);
-  input2[length+1] = 0;
-
   tok = strtok(input2, strDelimiter);
-  ++tok;
 
-  for(i = 0; tok != NULL; i++){
+  separatedString[0] = malloc((strlen(tok) + 1) * sizeof(**separatedString));
+  __MALLOC_CHECK(*separatedString, *error);
+  ++tok;
+  strcpy(separatedString[0], tok);
+
+  tok = strtok(NULL, strDelimiter);
+
+  for(i = 1; tok != NULL; i++){
+    separatedString[i] = malloc((strlen(tok) + 1) * sizeof(**separatedString));
+    __MALLOC_CHECK(*separatedString, *error);
     strcpy(separatedString[i], tok);
     tok = strtok(NULL, strDelimiter);
   }
 
-  separatedString[i-1][strlen(separatedString[i-1])-1] = '\0';
+  separatedString[i] = malloc(sizeof(**separatedString));
+  separatedString[i][0]= '\0';
 
-  strcpy(separatedString[i], "");
   free(input2);
-
   return separatedString;
 }
