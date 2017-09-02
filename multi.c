@@ -151,6 +151,7 @@ double inte(char **input, vari *var, int *error){
     return 0;
   }
   int iter = 0;
+
   //get number of steps, and step size
   *error = sya(input[2], &a, &varTemp);
   __SYA_ERROR(*error);
@@ -171,12 +172,12 @@ double inte(char **input, vari *var, int *error){
     varTemp.occ = 1;
   }
   else if(varIndex == -2){
-    varIndex == ++varTemp.count;
+    varIndex = ++varTemp.count;
   }
   strcpy(varTemp.name[varIndex],input[1]); //copy the dummy variable into struct
 
   //calculate integral using composite Simpson's
-  if(fmod(number,2)){
+  if(fmod(number,2)){ //if the number of steps is odd, change it to be even
     number++;
   }
   halfnumber = number/2;

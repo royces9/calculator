@@ -15,6 +15,8 @@ int main(int argc, char *argv[]){
 
   var.count = 0;
   var.occ = 0;
+  memset(var.name, '\0', sizeof(var.name));
+  memset(var.value, 0, sizeof(var.value));
   
   if(argc > 1){
     printf(">>%s\n", *(argv+1));

@@ -17,10 +17,12 @@ int sya(char *input, double *ans, vari *var){
   //reset stack variables
   out.top = 0;
   out.occ = 0;
+  memset(out.stk, 0, sizeof(out.stk));
+  
   oper.top = 0;
   oper.occ = 0;
   memset(oper.stk, '\0', sizeof(oper.stk));
-  memset(out.stk, 0, sizeof(out.stk));
+
 
   //Error checking
   for(length = 0; input[length]; length++){
@@ -57,7 +59,6 @@ int sya(char *input, double *ans, vari *var){
 	  j = 0;
 	}
 	else{
-
 	  switch(input[i+1]){
 	  case '(':
 	    buffer[j++] = '(';
@@ -91,7 +92,6 @@ int sya(char *input, double *ans, vari *var){
 	  default:
 	    buffer[j] = '\0';
 	    error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, input);
-	    //	    printf("%s\n", buffer);
 	    j = 0;
 	    break;
 	  }
