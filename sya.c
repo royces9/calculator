@@ -51,6 +51,7 @@ int sya(char *input, double *ans, vari *var){
     case '.':
     case 'a' ... 'z':
     case 'A' ... 'Z':
+    case '_':
       buffer[j++] = input[i];
       if(strchr("=+-/*()^!;\n", input[i+1]) && input[i+1] != '\n'){
 	buffer[j] = '\0';
@@ -156,8 +157,11 @@ int sya(char *input, double *ans, vari *var){
       pushn(factorial(popn(&out), &error), &out);
       break;
 
-    default: //return error = -4;
+    case '\n':
       break;
+    default:
+      free(buffer);
+      return error = -4;
       
     }//end of switch
     if(error < 0){

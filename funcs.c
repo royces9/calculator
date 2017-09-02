@@ -6,6 +6,7 @@
 #include "stack.h"
 #include "multi.h"
 #include "funcs.h"
+#include "file.h"
 
 #define SIN 'a'
 #define COS 'b'
@@ -23,7 +24,7 @@
 #define MAX 'n'
 #define AVG 'o'
 
-#define NF 25
+#define NF 26
 
 const char FUNCTIONS[NF][20] = {
   "quit",
@@ -54,6 +55,8 @@ const char FUNCTIONS[NF][20] = {
   "derivative(",
   "integral(",
   "solve(",
+
+  "run("
 };
 
 enum functionEnums{
@@ -84,7 +87,9 @@ enum functionEnums{
 
   eDeri,
   eInte,
-  eSolve
+  eSolve,
+
+  eRun
 };
 
 operatorStruct setOpStack(char operator, int argNo){
@@ -313,6 +318,14 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
   case eSolve:
     separatedString = separateString(input, ',', start, &error);
     pushn(solve(separatedString, var, &error), num);
+    freeDoubleArray(separatedString);
+    *tok = 2;
+    return error;
+
+  case eRun:
+    separatedString = separateString(input, '\0', start, &error);
+    error = runFile(separatedString, var, &out);
+    pushn(out, num);
     freeDoubleArray(separatedString);
     *tok = 2;
     return error;
