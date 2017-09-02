@@ -158,7 +158,9 @@ int sya(char *input, double *ans, vari *var){
       break;
 
     case '\n':
+    case ';':
       break;
+
     default:
       free(buffer);
       return error = -4;

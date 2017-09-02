@@ -16,5 +16,5 @@ int funcfind(char buffer[]);
 int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, vari *var, int *tok, int *start, char input[]);
 int varcheck(vari *list, char inp[]);
 void freeDoubleArray(char **input);
-
+void helpPrint();
 #endif //FUNCS
