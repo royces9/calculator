@@ -2,12 +2,28 @@
 
 Basic calculator to do calculations
 
-Currently implemented functions
+##Currently implemented functions
 
-+ - * / ^ 
+###Arithmetic operators
+addition \+
+subtraction \-
+multiplication \*
+division \/
+exponentitation \^
 
-sin(), cos(), tan(), log(), ln(), sqrt(), avg(), min(), max(), floor(), ceil(), round(), numerical derivation, integration, solver
+###Trigonometry
+sin(), cos(), tan(), asin(), acos(), atan(), pi
 
-Current known bugs:
+###Logarithms and powers
+log(), ln(), sqrt(), e
 
-when running a script, if integral is done in the script, "clear" must be run before the script can be run again or integral is given as an unknown function
+###Miscellaneou functions
+avg(), min(), max(), floor(), ceil(), round()
+
+###Numerical functions
+derivate(), integral(), solve()
+
+###Scripts
+run()
+
+###Current known bugs:
