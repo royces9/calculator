@@ -6,9 +6,13 @@ Basic calculator to do calculations
 
 ### Arithmetic operators
 addition \+
+
 subtraction \-
+
 multiplication \*
+
 division \/
+
 exponentitation \^
 
 ### Trigonometry
@@ -17,7 +21,7 @@ sin(), cos(), tan(), asin(), acos(), atan(), pi
 ### Logarithms and powers
 log(), ln(), sqrt(), e
 
-### Miscellaneou functions
+### Miscellaneous functions
 avg(), min(), max(), floor(), ceil(), round()
 
 ### Numerical functions
