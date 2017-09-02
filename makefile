@@ -2,10 +2,7 @@ CC = gcc
 FLAGS = -lm -lreadline -I. -flto
 HEADERS = sya.h stack.h multi.h funcs.h
 CFILES = sya.c stack.c multi.c funcs.c calc.c
-<<<<<<< HEAD
-=======
 OFILES = sya.o stack.o multi.o funcs.o calc.o
->>>>>>> master
 
 calc2: $(OFILES)
 	$(CC) $(OFILES) -o calc2 $(FLAGS)
