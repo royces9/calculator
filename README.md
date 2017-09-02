@@ -2,28 +2,28 @@
 
 Basic calculator to do calculations
 
-##Currently implemented functions
+## Currently implemented functions
 
-###Arithmetic operators
+### Arithmetic operators
 addition \+
 subtraction \-
 multiplication \*
 division \/
 exponentitation \^
 
-###Trigonometry
+### Trigonometry
 sin(), cos(), tan(), asin(), acos(), atan(), pi
 
-###Logarithms and powers
+### Logarithms and powers
 log(), ln(), sqrt(), e
 
-###Miscellaneou functions
+### Miscellaneou functions
 avg(), min(), max(), floor(), ceil(), round()
 
-###Numerical functions
+### Numerical functions
 derivate(), integral(), solve()
 
-###Scripts
+### Scripts
 run()
 
-###Current known bugs:
+### Current known bugs:
