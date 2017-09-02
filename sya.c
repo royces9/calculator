@@ -39,7 +39,7 @@ int sya(char *input, double *ans, vari *var){
     return error = -4;
   }
 
-  char *buffer = malloc(length * sizeof(*buffer));
+  char *buffer = malloc((length+1) * sizeof(*buffer));
   __MALLOC_CHECK(buffer, error);
 
   for(i = 0; input[i]; ++i){
@@ -90,6 +90,7 @@ int sya(char *input, double *ans, vari *var){
 	  default:
 	    buffer[j] = '\0';
 	    error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, input);
+	    //	    printf("%s\n", buffer);
 	    j = 0;
 	    break;
 	  }
@@ -145,6 +146,7 @@ int sya(char *input, double *ans, vari *var){
       
     case '=':
       if(varset == 0){
+	free(buffer);
 	return error = -4;
       }
       break;
@@ -158,6 +160,7 @@ int sya(char *input, double *ans, vari *var){
       
     }//end of switch
     if(error < 0){
+      free(buffer);
       return error;
     }
   }//end of for

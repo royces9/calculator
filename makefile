@@ -7,6 +7,9 @@ OFILES = sya.o stack.o multi.o funcs.o calc.o
 calc2: $(OFILES)
 	$(CC) $(OFILES) -o calc2 $(FLAGS)
 
+debug: $(OFILES)
+	$(CC) -g $(OFILES) -o calc2 $(FLAGS)
+
 stack.o: stack.c stack.h
 	$(CC) -c stack.c
 
