@@ -282,7 +282,7 @@ char **separateString(char input[], char delimiter, int *start, int *error){
     }
   }
 
-  char *input2 = malloc((length + 1)* sizeof(*input2));
+  char *input2 = malloc((length + 2)* sizeof(*input2));
   __MALLOC_CHECK(input2, *error);
 
   strcpy(input2,input);

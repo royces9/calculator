@@ -14,10 +14,11 @@ int sya(char *input, double *ans, vari *var){
 
   removeSpaces(input);
   
-  //reset all the variables
+  //reset stack variables
   out.top = 0;
   out.occ = 0;
   oper.top = 0;
+  oper.occ = 0;
   memset(oper.stk, '\0', sizeof(oper.stk));
   memset(out.stk, 0, sizeof(out.stk));
 
@@ -49,7 +50,6 @@ int sya(char *input, double *ans, vari *var){
     case 'a' ... 'z':
     case 'A' ... 'Z':
       buffer[j++] = input[i];
-
       if(strchr("=+-/*()^!;\n", input[i+1]) && input[i+1] != '\n'){
 	buffer[j] = '\0';
 	if(checkNumbers(buffer)){
@@ -57,6 +57,7 @@ int sya(char *input, double *ans, vari *var){
 	  j = 0;
 	}
 	else{
+
 	  switch(input[i+1]){
 	  case '(':
 	    buffer[j++] = '(';
@@ -166,12 +167,12 @@ int sya(char *input, double *ans, vari *var){
   }//end of for
   
   free(buffer);
-
   while(out.occ == 1 && oper.occ == 1){
     exec_num(&out, popch(&oper));
   }
 
   *ans = out.stk[0];
+  
   if(varset == 1){
     var->value[check] = out.stk[0];
   }
