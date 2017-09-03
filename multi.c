@@ -257,7 +257,7 @@ double solve(char **input, vari *var, int *error){
 }
 
 
-char **separateString(char input[], char delimiter, int *start, int *error){
+char **separateString(char *input, char delimiter, int *start, int *error){
   char *tok;
   int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, delimiterCount = 0, i = 0;  
 
@@ -266,7 +266,6 @@ char **separateString(char input[], char delimiter, int *start, int *error){
   strDelimiter[1] = '\0';
   
   input += (*start+1);
-
   
   for(length = 0; input[length]; length++){
     if(input[length] == '('){
@@ -289,7 +288,7 @@ char **separateString(char input[], char delimiter, int *start, int *error){
   strcpy(input2,input);
   input2[length] = 0;
 
-  //allocate double array output
+  //allocate double array output and populate it the strings
   char **separatedString = malloc((delimiterCount + 2) * sizeof(*separatedString));
   __MALLOC_CHECK(separatedString, *error);
 
@@ -310,8 +309,8 @@ char **separateString(char input[], char delimiter, int *start, int *error){
     tok = strtok(NULL, strDelimiter);
   }
 
-  separatedString[i] = malloc(sizeof(**separatedString));
-  separatedString[i][0]= '\0';
+  separatedString[i] = malloc(sizeof(**separatedString)); //allocate an end string that is just a string
+  separatedString[i][0]= '\0'; //end string
 
   free(input2);
   return separatedString;
