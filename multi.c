@@ -309,7 +309,7 @@ char **separateString(char *input, char delimiter, int *start, int *error){
     tok = strtok(NULL, strDelimiter);
   }
 
-  separatedString[i] = malloc(sizeof(**separatedString)); //allocate an end string that is just a string
+  separatedString[i] = malloc(sizeof(**separatedString)); //allocate an end string that is just a char
   separatedString[i][0]= '\0'; //end string
 
   free(input2);
