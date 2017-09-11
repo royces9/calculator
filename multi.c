@@ -296,7 +296,7 @@ char **separateString(char *input, char delimiter, int *start, int *error){
   tok = strtok(input2, strDelimiter);
 
   separatedString[0] = malloc((strlen(tok) + 1) * sizeof(**separatedString));
-  __MALLOC_CHECK(*separatedString, *error);
+  __MALLOC_CHECK(separatedString[0], *error);
   ++tok;
   strcpy(separatedString[0], tok);
 
@@ -304,12 +304,14 @@ char **separateString(char *input, char delimiter, int *start, int *error){
 
   for(i = 1; tok != NULL; i++){
     separatedString[i] = malloc((strlen(tok) + 1) * sizeof(**separatedString));
-    __MALLOC_CHECK(*separatedString, *error);
+    __MALLOC_CHECK(separatedString[i], *error);
     strcpy(separatedString[i], tok);
     tok = strtok(NULL, strDelimiter);
   }
 
   separatedString[i] = malloc(sizeof(**separatedString)); //allocate an end string that is just a char
+  __MALLOC_CHECK(separatedString[i], *error);
+
   separatedString[i][0]= '\0'; //end string
 
   free(input2);
