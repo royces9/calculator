@@ -12,6 +12,8 @@ int sya(char *input, double *ans, vari *var){
   int i = 0, j = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, tok = 0;
   char *str2d = NULL;
 
+  char *operators = "+-*^/abcdefghijklmno";
+
   removeSpaces(input);
   
   //reset stack variables
@@ -114,7 +116,7 @@ int sya(char *input, double *ans, vari *var){
       
     case '*':
     case '/':
-      while(strchr("*^/", oper.stk[oper.top].operator) && oper.occ == 1){
+      while(strchr(operators, oper.stk[oper.top].operator) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
 
@@ -131,7 +133,7 @@ int sya(char *input, double *ans, vari *var){
       }
       
     case '+':
-      while(strchr("+-/*^", oper.stk[oper.top].operator) && oper.occ == 1){
+      while(strchr(operators + 2, oper.stk[oper.top].operator) && oper.occ == 1){
 	exec_num(&out, popch(&oper));
       }
       tok = 2;
