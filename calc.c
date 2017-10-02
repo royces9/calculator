@@ -19,14 +19,16 @@ int main(int argc, char *argv[]){
   memset(var.value, 0, sizeof(var.value));
   
   if(argc > 1){
-    printf(">>%s\n", *(argv+1));
-    error = sya(argv[1], &ans, &var);
+    for(int i = 1; i < argc; i++){
+      printf(">>%s\n", *(argv+i));
+      error = sya(argv[i], &ans, &var);
 
-    if(error == 0){
-      printf("\n%lf\n\n",ans);
-    }
-    else{
-      errorrep(error);
+      if(error == 0){
+	printf("\n%lf\n\n",ans);
+      }
+      else{
+	errorrep(error);
+      }
     }
   } 
   while(error <= 0){
