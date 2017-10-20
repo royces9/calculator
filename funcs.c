@@ -7,7 +7,7 @@
 #include "multi.h"
 #include "funcs.h"
 #include "file.h"
-
+/*
 #define SIN 'a'
 #define COS 'b'
 #define TAN 'c'
@@ -23,7 +23,7 @@
 #define MIN 'm'
 #define MAX 'n'
 #define AVG 'o'
-
+*/
 #define NF 26
 
 const char FUNCTIONS[NF][20] = {
@@ -92,6 +92,24 @@ enum functionEnums{
   eRun
 };
 
+enum operations{
+  opSin = 'a',
+  opCos,
+  opTan,
+  opLn,
+  opLog,
+  opSqrt,
+  opAsin,
+  opAcos,
+  opAtan,
+  opFloor,
+  opCeil,
+  opRound,
+  opMin,
+  opMax,
+  opAvg
+};
+
 operatorStruct setOpStack(char operator, int argNo){
   operatorStruct out;
   out.operator = operator;
@@ -111,18 +129,18 @@ double twoArg(double a, double b, char o){
 
 double oneArg(double a, char o){
   switch(o){
-  case SIN: return sin(a);
-  case COS: return cos(a);
-  case TAN: return tan(a);
-  case LN: return log(a);
-  case LOG: return log10(a);
-  case SQRT: return sqrt(a);
-  case ASIN: return asin(a);
-  case ACOS: return acos(a);
-  case ATAN: return atan(a);
-  case FLOOR: return floor(a);
-  case CEIL: return ceil(a);
-  case ROUND: return round(a);    
+  case opSin: return sin(a);
+  case opCos: return cos(a);
+  case opTan: return tan(a);
+  case opLn: return log(a);
+  case opLog: return log10(a);
+  case opSqrt: return sqrt(a);
+  case opAsin: return asin(a);
+  case opAcos: return acos(a);
+  case opAtan: return atan(a);
+  case opFloor: return floor(a);
+  case opCeil: return ceil(a);
+  case opRound: return round(a);    
   }
 }
 
@@ -222,62 +240,62 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
     return 0;
 
   case eSin:
-    pushch(setOpStack(SIN, 1), ch);
+    pushch(setOpStack(opSin, 1), ch);
     *tok = 2;
     return 0;
 
   case eCos:
-    pushch(setOpStack(COS, 1), ch);
+    pushch(setOpStack(opCos, 1), ch);
     *tok = 2;
     return 0;
 
   case eTan:
-    pushch(setOpStack(TAN, 1), ch);
+    pushch(setOpStack(opTan, 1), ch);
     *tok = 2;
     return 0;
 
   case eLn:
-    pushch(setOpStack(LN, 1), ch);
+    pushch(setOpStack(opLn, 1), ch);
     *tok = 2;
     return 0;
 
   case eLog:
-    pushch(setOpStack(LOG, 1), ch);
+    pushch(setOpStack(opLog, 1), ch);
     *tok = 2;
     return 0;
 
   case eSqrt:
-    pushch(setOpStack(SQRT, 1), ch);
+    pushch(setOpStack(opSqrt, 1), ch);
     *tok = 2;
     return 0;
 
   case eAsin:
-    pushch(setOpStack(ASIN, 1), ch);
+    pushch(setOpStack(opAsin, 1), ch);
     *tok = 2;
     return 0;
 
   case eAcos:
-    pushch(setOpStack(ACOS, 1), ch);
+    pushch(setOpStack(opAcos, 1), ch);
     *tok = 2;
     return 0;
 
   case eAtan:
-    pushch(setOpStack(ATAN, 1), ch);
+    pushch(setOpStack(opAtan, 1), ch);
     *tok = 2;
     return 0;
 
   case eFloor:
-    pushch(setOpStack(FLOOR, 1), ch);
+    pushch(setOpStack(opFloor, 1), ch);
     *tok = 2;
     return 0;
     
   case eCeil:
-    pushch(setOpStack(CEIL, 1), ch);
+    pushch(setOpStack(opCeil, 1), ch);
     *tok = 2;
     return 0;
 
   case eRound:
-    pushch(setOpStack(ROUND, 1), ch);
+    pushch(setOpStack(opRound, 1), ch);
     *tok = 2;
     return 0;
 
