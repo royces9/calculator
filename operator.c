@@ -56,7 +56,11 @@ const char __OPERATORS__[NO][5] = {
   ">=",
 
   "!=",
-  "=="
+  "==",
+
+  "&&",
+  "||",
+  "~"
 };
 
 int searchFunctionArray(char *buffer){
@@ -78,27 +82,27 @@ int searchOperatorArray(char *buffer){
 }
 
 
-operatorStruct setOpStack(const char *operator, int argNo, int precedence){
+operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration){
   operatorStruct out;
   strcpy(out.operator, operator);
   out.precedence = precedence;
   out.argNo = argNo;
+  out.enumeration = enumeration;
   return out;
 }
 
 void execNum(numberStack *num, operatorStruct ch){
   double a, b;
-
   switch(ch.argNo){
   case 1:
     a = popn(num);
-    pushn(oneArg(a, ch.operator), num);
+    pushn(oneArg(a, ch.enumeration), num);
     break;
 
   case 2:
     b = popn(num);
     a = popn(num);
-    pushn(twoArg(a, b, ch.operator), num);
+    pushn(twoArg(a, b, ch.enumeration), num);
     break;
 
   default:
@@ -106,9 +110,8 @@ void execNum(numberStack *num, operatorStruct ch){
   }
 }
 
-double oneArg(double a, char *o){
-  int i = searchFunctionArray(o);
-  switch(i){
+double oneArg(double a, int o){
+  switch(o){
   case eSin: return sin(a);
   case eCos: return cos(a);
   case eTan: return tan(a);
@@ -125,14 +128,22 @@ double oneArg(double a, char *o){
   }
 }
 
-double twoArg(double a, double b, char *o){
-  int i = searchOperatorArray(o);
-  switch(i){
+double twoArg(double a, double b, int o){
+  //  int i = searchOperatorArray(o);
+  switch(o){
   case eAdd: return a + b;
   case eSubtract: return a - b;
   case eMultiply: return a * b;
   case eDivide: return a / b;
   case eExponent: return pow(a, b);
+  case eLess: return a < b;
+  case eGreater: return a > b;
+  case eLessEqual: return a <= b;
+  case eGreaterEqual: return a >= b;
+  case eNotEqual: return a != b;
+  case eEqual: return a == b;
+  case eAnd: return a && b;
+  case eOr: return a || b;
   }
 }
 

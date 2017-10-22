@@ -9,17 +9,6 @@
 #include "onearg.h"
 #include "file.h"
 
-double factorial(double a, int *error){
-  if(a - floor(a) > 0 || a <= 0){
-    if(a == 0){
-      return 1;
-    }
-    *error = - 4;
-    return 0;
-  }
-  return a == 1 ? 1 : a*factorial(a-1, error);
-}
-
 int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, vari *var, int *tok, int *start, char input[]){
   char **separatedString;
   int i = searchFunctionArray(buffer), error = 0;
@@ -77,62 +66,62 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
     return 0;
 
   case eSin:
-    pushch(setOpStack(__FUNCTIONS__[eSin], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eSin], 1, 2, eSin), ch);
     *tok = 2;
     return 0;
 
   case eCos:
-    pushch(setOpStack(__FUNCTIONS__[eCos], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eCos], 1, 2, eCos), ch);
     *tok = 2;
     return 0;
 
   case eTan:
-    pushch(setOpStack(__FUNCTIONS__[eTan], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eTan], 1, 2, eTan), ch);
     *tok = 2;
     return 0;
 
   case eLn:
-    pushch(setOpStack(__FUNCTIONS__[eLn], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eLn], 1, 2, eLn), ch);
     *tok = 2;
     return 0;
 
   case eLog:
-    pushch(setOpStack(__FUNCTIONS__[eLog], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eLog], 1, 2, eLog), ch);
     *tok = 2;
     return 0;
 
   case eSqrt:
-    pushch(setOpStack(__FUNCTIONS__[eSqrt], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eSqrt], 1, 2, eSqrt), ch);
     *tok = 2;
     return 0;
 
   case eAsin:
-    pushch(setOpStack(__FUNCTIONS__[eAsin], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eAsin], 1, 2, eAsin), ch);
     *tok = 2;
     return 0;
 
   case eAcos:
-    pushch(setOpStack(__FUNCTIONS__[eAcos], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eAcos], 1, 2, eAcos), ch);
     *tok = 2;
     return 0;
 
   case eAtan:
-    pushch(setOpStack(__FUNCTIONS__[eAtan], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eAtan], 1, 2, eAtan), ch);
     *tok = 2;
     return 0;
 
   case eFloor:
-    pushch(setOpStack(__FUNCTIONS__[eFloor], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eFloor], 1, 2, eFloor), ch);
     *tok = 2;
     return 0;
     
   case eCeil:
-    pushch(setOpStack(__FUNCTIONS__[eCeil], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eCeil], 1, 2, eCeil), ch);
     *tok = 2;
     return 0;
 
   case eRound:
-    pushch(setOpStack(__FUNCTIONS__[eRound], 1, 2), ch);
+    pushch(setOpStack(__FUNCTIONS__[eRound], 1, 2, eRound), ch);
     *tok = 2;
     return 0;
 
@@ -187,8 +176,9 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
     return error;
 
   case NF: //variables
-    for(int k = 0; k <= var->count; k++){
-      if(!strcmp(buffer, var->name[k])){
+    {
+      int k = varcheck(var, buffer);
+      if(k >= 0){
 	pushn(var->value[k], num);
 	*tok = 1;
 	return 0;

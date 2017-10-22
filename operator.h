@@ -4,7 +4,7 @@
 #include "stack.h"
 
 #define NF 26
-#define NO 15
+#define NO 18
 
 extern const char __OPERATORS__[NO][5];
 extern const char __FUNCTIONS__[NF][20];
@@ -60,14 +60,18 @@ enum operatorEnum{
   eGreaterEqual,
 
   eNotEqual,
-  eEqual
+  eEqual,
+
+  eAnd,
+  eOr,
+  eNot
 };
 
 int searchFunctionArray(char *buffer);
 int searchOperatorArray(char *buffer);
-operatorStruct setOpStack(const char *operator, int argNo, int precedence);
+operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration);
 void execNum(numberStack *num, operatorStruct ch);
-double oneArg(double a, char *o);
-double twoArg(double a, double b, char *o);
+double oneArg(double a, int o);
+double twoArg(double a, double b, int o);
 
 #endif //OPERATOR

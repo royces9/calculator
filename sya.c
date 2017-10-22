@@ -28,6 +28,9 @@ int checkType(char a){
   case '>':
   case '<':
   case '!':
+  case '&':
+  case '|':
+  case '~':
   case '\n':
   case ';':
     return 2;
@@ -149,13 +152,15 @@ int sya(char *input, double *ans, vari *var){
     case '<':
 
     case '!':
+    case '&':
+    case '|':
+    case '~':
       bufferOper[k++] = input[i];
       if((type == 1) || (input[i] == '(') || (input[i] == ')') || (input[i+1] == '(') || (input[i+1] == ')')){
 	bufferOper[k] = '\0';
 	error = findOperator(bufferOper, &out, &oper, *ans, var, &tok);
 	k = 0;
       }
-
       break;
 
     case '\n':

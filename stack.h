@@ -5,6 +5,7 @@ typedef struct{
   char operator[10];
   int precedence;
   int argNo;
+  int enumeration;
 } operatorStruct;
 
 typedef struct{
