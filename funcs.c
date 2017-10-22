@@ -7,23 +7,7 @@
 #include "multi.h"
 #include "funcs.h"
 #include "file.h"
-/*
-#define SIN 'a'
-#define COS 'b'
-#define TAN 'c'
-#define LN 'd'
-#define LOG 'e'
-#define SQRT 'f'
-#define ASIN 'g'
-#define ACOS 'h'
-#define ATAN 'i'
-#define FLOOR 'j'
-#define CEIL 'k'
-#define ROUND 'l'
-#define MIN 'm'
-#define MAX 'n'
-#define AVG 'o'
-*/
+
 #define NF 26
 
 const char FUNCTIONS[NF][20] = {
