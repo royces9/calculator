@@ -2,7 +2,8 @@
 #define STACK
 
 typedef struct{
-  char operator;
+  char operator[10];
+  int precedence;
   int argNo;
 } operatorStruct;
 

@@ -2,17 +2,46 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "operator.h"
 #include "stack.h"
-#include "funcs.h"
+#include "onearg.h"
+#include "twoarg.h"
 #include "sya.h"
+
+int checkType(char a){
+  switch(a){
+  case '0' ... '9':
+  case '.':
+  case 'a' ... 'z':
+  case 'A' ... 'Z':
+  case '_':
+    return 1;
+
+  case '^':
+  case '(':
+  case '*':
+  case '/':
+  case '-':
+  case '+':
+  case ')':
+  case '=':
+  case '>':
+  case '<':
+  case '!':
+  case '\n':
+  case ';':
+    return 2;
+
+  default:
+    return 0;
+  }
+}
 
 int sya(char *input, double *ans, vari *var){
   numberStack out; //stack for output numbers
   operatorStack oper; //stack for operators
-  int i = 0, j = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, tok = 0;
+  int i = 0, j = 0, k = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, tok = 2;
   char *str2d = NULL;
-
-  char *operators = "+-*^/abcdefghijklmno";
 
   removeSpaces(input);
   
@@ -44,57 +73,58 @@ int sya(char *input, double *ans, vari *var){
     return error = -4;
   }
 
-  char *buffer = malloc((length+1) * sizeof(*buffer));
-  __MALLOC_CHECK(buffer, error);
+  char bufferLetters[length];
+  char bufferOper[length];
 
   for(i = 0; input[i]; ++i){
+    int type = checkType(input[i+1]);
     switch(input[i]){
     case '0' ... '9':
     case '.':
     case 'a' ... 'z':
     case 'A' ... 'Z':
     case '_':
-      buffer[j++] = input[i];
-      if(strchr("=+-/*()^!;\n", input[i+1]) && input[i+1] != '\n'){
-	buffer[j] = '\0';
-	if(checkNumbers(buffer)){
-	  pushn(strtod(buffer, &str2d), &out);
+      bufferLetters[j++] = input[i];
+      if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){
+	bufferLetters[j] = '\0';
+	if(checkNumbers(bufferLetters)){
+	  pushn(strtod(bufferLetters, &str2d), &out);
 	  j = 0;
 	}
 	else{
 	  switch(input[i+1]){
 	  case '(':
-	    buffer[j++] = '(';
-	    buffer[j] = '\0';
-	    error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, input);
+	    bufferLetters[j++] = '(';
+	    bufferLetters[j] = '\0';
+	    error = findFunction(bufferLetters, &out, &oper, *ans, var, &tok, &i, input);
 	    j = 0;
 	    break;
 
 	  case '=':
-	    buffer[j] = '\0';
-	    check = varcheck(var, buffer);
+	    bufferLetters[j] = '\0';
+	    check = varcheck(var, bufferLetters);
 	    varset = 1;
 
 	    if(check >= 0){
-	      strcpy(var->name[check], buffer);
+	      strcpy(var->name[check], bufferLetters);
 	    }
 	    else if(check == -1){
-	      strcpy(var->name[0], buffer);
+	      strcpy(var->name[0], bufferLetters);
 	      var->occ = 1;
 	      var->count = 0;
 	      check = 0;
 	    }
 	    else if(check == -2){
 	      check = ++var->count;
-	      strcpy(var->name[check], buffer);
+	      strcpy(var->name[check], bufferLetters);
 	    }
 
 	    j = 0;
 	    break;
 
 	  default:
-	    buffer[j] = '\0';
-	    error = charfind(buffer, &out, &oper, *ans, var, &tok, &i, input);
+	    bufferLetters[j] = '\0';
+	    error = findFunction(bufferLetters, &out, &oper, *ans, var, &tok, &i, input);
 	    j = 0;
 	    break;
 	  }
@@ -104,59 +134,28 @@ int sya(char *input, double *ans, vari *var){
       break;
 
     case '^':
-      exec_num(&out, popch(&oper));
-      tok = 2;
-      pushch(setOpStack(input[i], 2), &oper);
-      break;
 
-    case '(':
-      tok = 2;
-      pushch(setOpStack(input[i], 1), &oper);
-      break;
-      
     case '*':
     case '/':
-      while(strchr(operators, oper.stk[oper.top].operator) && oper.occ == 1){
-	exec_num(&out, popch(&oper));
-      }
 
-      tok = 2;
-      pushch(setOpStack(input[i], 2), &oper);
-      break;
-      
-    case '-': //if pushch is called, generally, tok == 2
-      if(tok == 2){
-	pushn(-1, &out);
-	pushch(setOpStack('*', 2), &oper);
-	tok = 1;
-	break;
-      }
-      
+    case '-':
     case '+':
-      while(strchr(operators + 2, oper.stk[oper.top].operator) && oper.occ == 1){
-	exec_num(&out, popch(&oper));
-      }
-      tok = 2;
-      pushch(setOpStack(input[i], 2), &oper);
-      break;
 
-    case ')':      
-      do{
-	exec_num(&out, popch(&oper));
-      } while(oper.stk[oper.top].operator != '(' && oper.occ == 1);
-      tok = 1;
-      popch(&oper);
-      break;
-      
+    case '(':
+    case ')':
+
     case '=':
-      if(varset == 0){
-	free(buffer);
-	return error = -4;
-      }
-      break;
+    case '>':
+    case '<':
 
     case '!':
-      pushn(factorial(popn(&out), &error), &out);
+      bufferOper[k++] = input[i];
+      if((type == 1) || (input[i] == '(') || (input[i] == ')') || (input[i+1] == '(') || (input[i+1] == ')')){
+	bufferOper[k] = '\0';
+	error = findOperator(bufferOper, &out, &oper, *ans, var, &tok);
+	k = 0;
+      }
+
       break;
 
     case '\n':
@@ -164,19 +163,16 @@ int sya(char *input, double *ans, vari *var){
       break;
 
     default:
-      free(buffer);
       return error = -4;
       
     }//end of switch
     if(error < 0){
-      free(buffer);
       return error;
     }
   }//end of for
   
-  free(buffer);
-  while(out.occ == 1 && oper.occ == 1){
-    exec_num(&out, popch(&oper));
+  while((out.occ == 1) && (oper.occ == 1)){
+    execNum(&out, popch(&oper));
   }
 
   *ans = out.stk[0];
@@ -190,7 +186,6 @@ int sya(char *input, double *ans, vari *var){
 
 void errorrep(int error){
   if(error < -1){
-
     printf("\nError:\n");
     switch(error){
     case -2: printf("Incorrect number of function arguments"); break;

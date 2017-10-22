@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include "stack.h"
-#include "funcs.h"
+#include "onearg.h"
 #include "multi.h"
 #include "sya.h"
 

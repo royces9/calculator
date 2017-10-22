@@ -43,7 +43,7 @@ operatorStruct popch(operatorStack *st){
     out = st->stk[st->top--];
 
     if(st->top == -1){
-      st->stk[0].operator = '\0';
+      st->stk[0].operator[0] = '\0';
       st->stk[0].argNo = 0;
       st->occ = 0;
       st->top = 0;
@@ -52,7 +52,7 @@ operatorStruct popch(operatorStack *st){
     return out;
   }
   else{
-    out.operator = '\0';
+    out.operator[0] = '\0';
     out.argNo = 0;
     return out;
   }

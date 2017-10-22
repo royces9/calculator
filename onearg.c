@@ -3,130 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "operator.h"
 #include "stack.h"
 #include "multi.h"
-#include "funcs.h"
+#include "onearg.h"
 #include "file.h"
-
-#define NF 26
-
-const char FUNCTIONS[NF][20] = {
-  "quit",
-  "clear",
-  "list",
-  "help",
-  
-  "pi",
-  "e",
-  "ans",
-
-  "sin(",
-  "cos(",
-  "tan(",
-  "ln(",
-  "log(",
-  "sqrt(",
-  "asin(",
-  "acos(",
-  "atan(",
-  "floor(",
-  "ceil(",
-  "round(",
-  "min(",
-  "max(",
-  "avg(",
-
-  "derivative(",
-  "integral(",
-  "solve(",
-
-  "run("
-};
-
-enum functionEnums{
-  eQuit,
-  eClear,
-  eList,
-  eHelp,
-
-  ePi,
-  eE,
-  eAns,
-
-  eSin,
-  eCos,
-  eTan,
-  eLn,
-  eLog,
-  eSqrt,
-  eAsin,
-  eAcos,
-  eAtan,
-  eFloor,
-  eCeil,
-  eRound,
-  eMin,
-  eMax,
-  eAvg,
-
-  eDeri,
-  eInte,
-  eSolve,
-
-  eRun
-};
-
-enum operations{
-  opSin = 'a',
-  opCos,
-  opTan,
-  opLn,
-  opLog,
-  opSqrt,
-  opAsin,
-  opAcos,
-  opAtan,
-  opFloor,
-  opCeil,
-  opRound,
-  opMin,
-  opMax,
-  opAvg
-};
-
-operatorStruct setOpStack(char operator, int argNo){
-  operatorStruct out;
-  out.operator = operator;
-  out.argNo = argNo;
-  return out;
-}
-
-double twoArg(double a, double b, char o){
-  switch(o){
-  case '+': return a + b;
-  case '-': return a - b;
-  case '*': return a * b;
-  case '/': return a / b;
-  case '^': return pow(a, b);
-  }
-}
-
-double oneArg(double a, char o){
-  switch(o){
-  case opSin: return sin(a);
-  case opCos: return cos(a);
-  case opTan: return tan(a);
-  case opLn: return log(a);
-  case opLog: return log10(a);
-  case opSqrt: return sqrt(a);
-  case opAsin: return asin(a);
-  case opAcos: return acos(a);
-  case opAtan: return atan(a);
-  case opFloor: return floor(a);
-  case opCeil: return ceil(a);
-  case opRound: return round(a);    
-  }
-}
 
 double factorial(double a, int *error){
   if(a - floor(a) > 0 || a <= 0){
@@ -139,37 +20,9 @@ double factorial(double a, int *error){
   return a == 1 ? 1 : a*factorial(a-1, error);
 }
 
-void exec_num(numberStack *num, operatorStruct ch){
-  double a, b;
-  switch(ch.argNo){
-  case 1:
-    a = popn(num);
-    pushn(oneArg(a, ch.operator), num);
-    break;
-
-  case 2:
-    b = popn(num);
-    a = popn(num);
-    pushn(twoArg(a, b, ch.operator), num);
-    break;
-
-  default:
-    break;
-  }
-}
-
-int funcfind(char buffer[]){
-  for(int i = 0; i < NF; i++){
-    if(!strcmp(FUNCTIONS[i], buffer)){
-      return i;
-    }
-  }
-  return NF;
-}
-
-int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, vari *var, int *tok, int *start, char input[]){
+int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, vari *var, int *tok, int *start, char input[]){
   char **separatedString;
-  int i = funcfind(buffer), error = 0;
+  int i = searchFunctionArray(buffer), error = 0;
   operatorStruct operator;
   double out;
 
@@ -224,62 +77,62 @@ int charfind(char buffer[], numberStack *num, operatorStack *ch, double ans, var
     return 0;
 
   case eSin:
-    pushch(setOpStack(opSin, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eSin], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eCos:
-    pushch(setOpStack(opCos, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eCos], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eTan:
-    pushch(setOpStack(opTan, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eTan], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eLn:
-    pushch(setOpStack(opLn, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eLn], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eLog:
-    pushch(setOpStack(opLog, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eLog], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eSqrt:
-    pushch(setOpStack(opSqrt, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eSqrt], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eAsin:
-    pushch(setOpStack(opAsin, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eAsin], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eAcos:
-    pushch(setOpStack(opAcos, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eAcos], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eAtan:
-    pushch(setOpStack(opAtan, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eAtan], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eFloor:
-    pushch(setOpStack(opFloor, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eFloor], 1, 2), ch);
     *tok = 2;
     return 0;
     
   case eCeil:
-    pushch(setOpStack(opCeil, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eCeil], 1, 2), ch);
     *tok = 2;
     return 0;
 
   case eRound:
-    pushch(setOpStack(opRound, 1), ch);
+    pushch(setOpStack(__FUNCTIONS__[eRound], 1, 2), ch);
     *tok = 2;
     return 0;
 
@@ -387,3 +240,4 @@ void helpPrint(){
 
     printf("run(file)\n file - path to a text file\n This function parses each line of the file as if it were entered into the console directly.\n'#' at the beginning of a line comments out a line\n';' at the end of a line suppresses output\n\n");
 }
+
