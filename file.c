@@ -37,7 +37,6 @@ int runFile(char **input, vari *var, double *ans){
       if(buffer[length - 1] != ';'){
 	printf("> %s\n", buffer);
       }
-      removeSpaces(buffer);
       error = sya(buffer, ans, var);
 
       if(error){

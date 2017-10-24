@@ -41,12 +41,6 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
     return -1;
 
   case eHelp: //help
-    printf("quit - quit program\n");
-    printf("list - list variables\n");
-    printf("clear - clear variables\n\n");
-    printf("derivative(f(x), x, c, delta)\n   f(x) - function\n   x - variable used in function\n   c - point of the tangent line\n   delta - the difference used (finite difference)\n\n");
-    printf("integral(f(x), x, a, b, n)\n   f(x) - function\n   x - variable used in function\n   a - starting point\n   b - ending point\n   n - number of partitions (composite Simpson's rule, odd n is incremented to n+1)\n\n");
-    printf("solve(f(x), x, guess, delta)\n   f(x) - function\n   x - variable used in function\n   guess - initial guess (Newton's Method)\n   delta - largest difference allowed between x_n+1 and x_n\n\n");
     helpPrint();
     return -1;
 
@@ -66,105 +60,62 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
     return 0;
 
   case eSin:
-    pushch(setOpStack(__FUNCTIONS__[eSin], 1, 2, eSin), ch);
-    *tok = 2;
-    return 0;
-
   case eCos:
-    pushch(setOpStack(__FUNCTIONS__[eCos], 1, 2, eCos), ch);
-    *tok = 2;
-    return 0;
-
   case eTan:
-    pushch(setOpStack(__FUNCTIONS__[eTan], 1, 2, eTan), ch);
-    *tok = 2;
-    return 0;
-
   case eLn:
-    pushch(setOpStack(__FUNCTIONS__[eLn], 1, 2, eLn), ch);
-    *tok = 2;
-    return 0;
-
   case eLog:
-    pushch(setOpStack(__FUNCTIONS__[eLog], 1, 2, eLog), ch);
-    *tok = 2;
-    return 0;
-
   case eSqrt:
-    pushch(setOpStack(__FUNCTIONS__[eSqrt], 1, 2, eSqrt), ch);
-    *tok = 2;
-    return 0;
-
   case eAsin:
-    pushch(setOpStack(__FUNCTIONS__[eAsin], 1, 2, eAsin), ch);
-    *tok = 2;
-    return 0;
-
   case eAcos:
-    pushch(setOpStack(__FUNCTIONS__[eAcos], 1, 2, eAcos), ch);
-    *tok = 2;
-    return 0;
-
   case eAtan:
-    pushch(setOpStack(__FUNCTIONS__[eAtan], 1, 2, eAtan), ch);
-    *tok = 2;
-    return 0;
-
   case eFloor:
-    pushch(setOpStack(__FUNCTIONS__[eFloor], 1, 2, eFloor), ch);
-    *tok = 2;
-    return 0;
-    
   case eCeil:
-    pushch(setOpStack(__FUNCTIONS__[eCeil], 1, 2, eCeil), ch);
-    *tok = 2;
-    return 0;
-
   case eRound:
-    pushch(setOpStack(__FUNCTIONS__[eRound], 1, 2, eRound), ch);
-    *tok = 2;
+  case eFactorial:
+    pushch(setOpStack(__FUNCTIONS__[i], 1, 2, i), ch);
+    *tok = 0;
     return 0;
 
   case eMin:
     separatedString = separateString(input, ',', start, &error);
     pushn(min(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
-    *tok = 2;
+    *tok = 0;
     return error;
 
   case eMax:
     separatedString = separateString(input, ',', start, &error);
     pushn(max(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
-    *tok = 2;
+    *tok = 0;
     return error;    
     
   case eAvg:
     separatedString = separateString(input, ',', start, &error);
     pushn(avg(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
-    *tok = 2;
+    *tok = 0;
     return error;    
     
   case eDeri:
     separatedString = separateString(input, ',', start, &error);
     pushn(deri(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
-    *tok = 2;
+    *tok = 0;
     return error;
     
   case eInte:
     separatedString = separateString(input, ',', start, &error);
     pushn(inte(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
-    *tok = 2;
+    *tok = 0;
     return error;
     
   case eSolve:
     separatedString = separateString(input, ',', start, &error);
     pushn(solve(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
-    *tok = 2;
+    *tok = 0;
     return error;
 
   case eRun:
@@ -172,10 +123,10 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
     error = runFile(separatedString, var, &out);
     pushn(out, num);
     freeDoubleArray(separatedString);
-    *tok = 2;
+    *tok = 0;
     return error;
 
-  case NF: //variables
+  case __NF__: //variables
     {
       int k = varcheck(var, buffer);
       if(k >= 0){
@@ -230,4 +181,3 @@ void helpPrint(){
 
     printf("run(file)\n file - path to a text file\n This function parses each line of the file as if it were entered into the console directly.\n'#' at the beginning of a line comments out a line\n';' at the end of a line suppresses output\n\n");
 }
-

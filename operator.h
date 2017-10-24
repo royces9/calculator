@@ -3,11 +3,11 @@
 
 #include "stack.h"
 
-#define NF 26
-#define NO 18
+#define __NF__ 27
+#define __NO__ 18
 
-extern const char __OPERATORS__[NO][5];
-extern const char __FUNCTIONS__[NF][20];
+extern const char __OPERATORS__[__NO__][5];
+extern const char __FUNCTIONS__[__NF__][20];
 
 enum functionEnums{
   eQuit,
@@ -34,6 +34,7 @@ enum functionEnums{
   eMin,
   eMax,
   eAvg,
+  eFactorial,
 
   eDeri,
   eInte,
@@ -49,7 +50,6 @@ enum operatorEnum{
   eDivide,
 
   eExponent,
-  eFactorial,
   eAssign,
   eLeftParen,
   eRightParen,
@@ -66,6 +66,8 @@ enum operatorEnum{
   eOr,
   eNot
 };
+
+extern const int operatorPrecedence[__NO__];
 
 int searchFunctionArray(char *buffer);
 int searchOperatorArray(char *buffer);

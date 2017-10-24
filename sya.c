@@ -11,10 +11,8 @@
 int sya(char *input, double *ans, vari *var){
   numberStack out; //stack for output numbers
   operatorStack oper; //stack for operators
-  int i = 0, j = 0, k = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, tok = 2;
+  int i = 0, j = 0, k = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, negativeCheck = 0;
   char *str2d = NULL;
-
-  removeSpaces(input);
   
   //reset stack variables
   out.top = 0;
@@ -67,7 +65,7 @@ int sya(char *input, double *ans, vari *var){
 	  case '(':
 	    bufferLetters[j++] = '(';
 	    bufferLetters[j] = '\0';
-	    error = findFunction(bufferLetters, &out, &oper, *ans, var, &tok, &i, input);
+	    error = findFunction(bufferLetters, &out, &oper, *ans, var, &negativeCheck, &i, input);
 	    j = 0;
 	    break;
 
@@ -95,13 +93,13 @@ int sya(char *input, double *ans, vari *var){
 
 	  default:
 	    bufferLetters[j] = '\0';
-	    error = findFunction(bufferLetters, &out, &oper, *ans, var, &tok, &i, input);
+	    error = findFunction(bufferLetters, &out, &oper, *ans, var, &negativeCheck, &i, input);
 	    j = 0;
 	    break;
 	  }
 	}
       }
-      tok = 1;
+      negativeCheck = 1;
       break;
 
     case '^':
@@ -124,11 +122,14 @@ int sya(char *input, double *ans, vari *var){
     case '|':
     case '~':
       bufferOper[k++] = input[i];
-      if((type == 1) || (input[i] == '(') || (input[i] == ')') || (input[i+1] == '(') || (input[i+1] == ')')){
+      if((type == 1) || (type == 0) || (input[i] == '(') || (input[i] == ')') || (input[i+1] == '(') || (input[i+1] == ')')){
 	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, &out, &oper, *ans, var, &tok);
+	error = findOperator(bufferOper, &out, &oper, *ans, var, &negativeCheck);
 	k = 0;
       }
+      break;
+
+    case ' ':
       break;
 
     case '\n':
@@ -166,22 +167,11 @@ void errorrep(int error){
     case -4: printf("Invalid expression"); break;
     case -5: printf("Invalid function or variable name"); break;
     case -6: printf("Malloc error"); break;
+    case -7: printf("Invalid operator");
     default: break;
     }
   printf("\n\n");
   }
-}
-
-void removeSpaces(char *input){
-  char *a = input;
-  char *b = input;
-  while(*b != 0){
-    *a = *b++;
-    if(*a != ' '){
-      a++;
-    }
-  }
-  *a = 0;
 }
 
 int checkNumbers(char *input){ //check if the input string is a number

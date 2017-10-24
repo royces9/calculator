@@ -5,7 +5,7 @@
 #include "stack.h"
 #include "operator.h"
 
-const char __FUNCTIONS__[NF][20] = {
+const char __FUNCTIONS__[__NF__][20] = {
   "quit",
   "clear",
   "list",
@@ -30,6 +30,7 @@ const char __FUNCTIONS__[NF][20] = {
   "min(",
   "max(",
   "avg(",
+  "factorial(",
 
   "derivative(",
   "integral(",
@@ -38,14 +39,13 @@ const char __FUNCTIONS__[NF][20] = {
   "run("
 };
 
-const char __OPERATORS__[NO][5] = {
+const char __OPERATORS__[__NO__][5] = {
   "+",
   "-",
   "*",
   "/",
 
   "^",
-  "!",
   "=",
   "(",
   ")",
@@ -63,22 +63,43 @@ const char __OPERATORS__[NO][5] = {
   "~"
 };
 
+const int operatorPrecedence[__NO__] = {
+  6,
+  6,
+  5,
+  5,
+  4,
+  4,
+  16,
+  15,
+  15,
+  8,
+  8,
+  8,
+  8,
+  9,
+  9,
+  11,
+  12,
+  0
+}; //~is not implemented at the moment
+
 int searchFunctionArray(char *buffer){
-  for(int i = 0; i < NF; ++i){
+  for(int i = 0; i < __NF__; ++i){
     if(!strcmp(__FUNCTIONS__[i], buffer)){
       return i;
     }
   }
-  return NF;
+  return __NF__;
 }
 
 int searchOperatorArray(char *buffer){
-  for(int i = 0; i < NO; ++i){
+  for(int i = 0; i < __NO__; ++i){
     if(!strcmp(__OPERATORS__[i], buffer)){
       return i;
     }
   }
-  return NO;
+  return __NO__;
 }
 
 
@@ -110,6 +131,14 @@ void execNum(numberStack *num, operatorStruct ch){
   }
 }
 
+double factorial(double a){
+  a = floor(a);
+  if(a == 0){
+    return 1;
+  }
+  return a == 1 ? 1 : a*factorial(a-1);
+}
+
 double oneArg(double a, int o){
   switch(o){
   case eSin: return sin(a);
@@ -124,6 +153,7 @@ double oneArg(double a, int o){
   case eFloor: return floor(a);
   case eCeil: return ceil(a);
   case eRound: return round(a);
+  case eFactorial: return factorial(a);
   default: return a;
   }
 }
@@ -145,5 +175,3 @@ double twoArg(double a, double b, int o){
   case eOr: return a || b;
   }
 }
-
-
