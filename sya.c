@@ -8,38 +8,6 @@
 #include "twoarg.h"
 #include "sya.h"
 
-int checkType(char a){
-  switch(a){
-  case '0' ... '9':
-  case '.':
-  case 'a' ... 'z':
-  case 'A' ... 'Z':
-  case '_':
-    return 1;
-
-  case '^':
-  case '(':
-  case '*':
-  case '/':
-  case '-':
-  case '+':
-  case ')':
-  case '=':
-  case '>':
-  case '<':
-  case '!':
-  case '&':
-  case '|':
-  case '~':
-  case '\n':
-  case ';':
-    return 2;
-
-  default:
-    return 0;
-  }
-}
-
 int sya(char *input, double *ans, vari *var){
   numberStack out; //stack for output numbers
   operatorStack oper; //stack for operators
@@ -59,12 +27,12 @@ int sya(char *input, double *ans, vari *var){
 
 
   //Error checking
-  for(length = 0; input[length]; length++){
+  for(length = 0; input[length]; ++length){
     if(input[length] == '('){
-      leftParenthesisCount++;
+      ++leftParenthesisCount;
     }
     else if(input[length] == ')'){
-      rightParenthesisCount++;
+      ++rightParenthesisCount;
     }	   
   }
   
@@ -218,10 +186,42 @@ void removeSpaces(char *input){
 
 int checkNumbers(char *input){ //check if the input string is a number
   int count = 0;
-  for(int i = 0; i  < strlen(input); i++){
+  for(int i = 0; i  < strlen(input); ++i){
     if(input[i] < '0' && input[i] != '.' || input[i] > '9' || !input[i]){
       return 0;
     }
   }
   return 1;
+}
+
+int checkType(char a){
+  switch(a){
+  case '0' ... '9':
+  case '.':
+  case 'a' ... 'z':
+  case 'A' ... 'Z':
+  case '_':
+    return 1;
+
+  case '^':
+  case '(':
+  case '*':
+  case '/':
+  case '-':
+  case '+':
+  case ')':
+  case '=':
+  case '>':
+  case '<':
+  case '!':
+  case '&':
+  case '|':
+  case '~':
+  case '\n':
+  case ';':
+    return 2;
+
+  default:
+    return 0;
+  }
 }

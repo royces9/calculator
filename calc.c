@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
   memset(var.value, 0, sizeof(var.value));
   
   if(argc > 1){
-    for(int i = 1; i < argc; i++){
+    for(int i = 1; i < argc; ++i){
       printf(">>%s\n", *(argv+i));
       error = sya(argv[i], &ans, &var);
 

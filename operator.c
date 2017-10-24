@@ -129,7 +129,6 @@ double oneArg(double a, int o){
 }
 
 double twoArg(double a, double b, int o){
-  //  int i = searchOperatorArray(o);
   switch(o){
   case eAdd: return a + b;
   case eSubtract: return a - b;

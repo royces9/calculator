@@ -61,7 +61,7 @@ double avg(char **input, vari *var, int *error){
   double sum = 0;
   double partSum = 0;
   int argNo = numberOfArgs(input);
-  for(int i = 0; i < argNo; i++){
+  for(int i = 0; i < argNo; ++i){
     sya(input[i], &partSum, var);
     __SYA_ERROR(*error);
     sum += partSum;
@@ -182,7 +182,7 @@ double inte(char **input, vari *var, int *error){
   }
   halfnumber = number/2;
 
-  for(int i = 1; i <= halfnumber; i++){
+  for(int i = 1; i <= halfnumber; ++i){
     varTemp.value[varIndex] = a + (((2 * i) - 2) * step);
     *error = sya(input[0], &out, &varTemp);
     __SYA_ERROR(*error);
@@ -267,15 +267,15 @@ char **separateString(char *input, char delimiter, int *start, int *error){
   
   input += (*start+1);
   
-  for(length = 0; input[length]; length++){
+  for(length = 0; input[length]; ++length){
     if(input[length] == '('){
-      leftParenthesisCount++;
+      ++leftParenthesisCount;
     }
     else if(input[length] == ')'){
-      rightParenthesisCount++;
+      ++rightParenthesisCount;
     }
     if(input[length] == delimiter){
-      delimiterCount++;
+      ++delimiterCount;
     }
     if(leftParenthesisCount == rightParenthesisCount){
       break;
@@ -297,12 +297,11 @@ char **separateString(char *input, char delimiter, int *start, int *error){
 
   separatedString[0] = malloc((strlen(tok) + 1) * sizeof(**separatedString));
   __MALLOC_CHECK(separatedString[0], *error);
-  ++tok;
-  strcpy(separatedString[0], tok);
+  strcpy(separatedString[0], ++tok);
 
   tok = strtok(NULL, strDelimiter);
 
-  for(i = 1; tok != NULL; i++){
+  for(i = 1; tok != NULL; ++i){
     separatedString[i] = malloc((strlen(tok) + 1) * sizeof(**separatedString));
     __MALLOC_CHECK(separatedString[i], *error);
     strcpy(separatedString[i], tok);

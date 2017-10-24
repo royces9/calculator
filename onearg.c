@@ -199,7 +199,7 @@ int varcheck(vari *list, char input[]){
     return -1;
   }
 
-  for(int i = 0; i<=list->count; i++){
+  for(int i = 0; i<=list->count; ++i){
     if(!strcmp(input, list->name[i])){
       return i;
     }
@@ -210,7 +210,7 @@ int varcheck(vari *list, char input[]){
 
 void freeDoubleArray(char **input){
   int i = 0;
-  for(i = 0; strcmp(input[i], ""); i++){
+  for(i = 0; strcmp(input[i], ""); ++i){
     free(input[i]);
   }
   free(input[i]);
