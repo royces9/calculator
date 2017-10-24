@@ -33,6 +33,9 @@ run()
 ### Current known bugs:
 
 -a*-b returns -1
+
 a--b returns a
+
 -a--b returns -1
+
 probably more bugs involving -1 exist
