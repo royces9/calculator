@@ -22,7 +22,7 @@ sin(), cos(), tan(), asin(), acos(), atan(), pi
 log(), ln(), sqrt(), e
 
 ### Miscellaneous functions
-avg(), min(), max(), floor(), ceil(), round()
+avg(), min(), max(), floor(), ceil(), round(), factorial()
 
 ### Numerical functions
 derivate(), integral(), solve()
@@ -32,10 +32,3 @@ run()
 
 ### Current known bugs:
 
--a*-b returns -1
-
-a--b returns a
-
--a--b returns -1
-
-probably more bugs involving -1 exist
