@@ -1,8 +1,8 @@
 CC = gcc
 FLAGS = -lm -lreadline -I. -flto
-HEADERS = sya.h stack.h multi.h onearg.h file.h twoarg.h operator.h
-CFILES = sya.c stack.c multi.c onearg.c calc.c file.c twoarg.c oeprator.c
-OFILES = sya.o stack.o multi.o onearg.o calc.o file.o twoarg.o operator.o
+HEADERS = sya.h stack.h multi.h onearg.h file.h twoarg.h operator.h fileStruct.h
+CFILES = sya.c stack.c multi.c onearg.c calc.c file.c twoarg.c oeprator.c fileStruct.c
+OFILES = sya.o stack.o multi.o onearg.o calc.o file.o twoarg.o operator.o fileStruct.o
 
 calc2: $(OFILES)
 	$(CC) $(OFILES) -o calc2 $(FLAGS)
@@ -25,7 +25,7 @@ sya.o: sya.c sya.h stack.h onearg.h twoarg.h operator.h
 calc.o: calc.c stack.h sya.h
 	$(CC) -c calc.c
 
-file.o: file.c file.h stack.h sya.h
+file.o: file.c file.h stack.h sya.h fileStruct.h
 	$(CC) -c file.c
 
 twoarg.o: twoarg.c twoarg.h operator.h
@@ -34,8 +34,12 @@ twoarg.o: twoarg.c twoarg.h operator.h
 operator.o: operator.c operator.h
 	$(CC) -c operator.c
 
+fileStruct.o: fileStruct.c fileStruct.h
+	$(CC) -c fileStruct.c
+
 usr: $(OFILES)
 	$(CC) $(OFILES) -o /usr/local/bin/calc $(FLAGS)
 
 del: $(OFILES)
 	del $(OFILES)
+
