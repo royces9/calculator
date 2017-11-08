@@ -3,12 +3,11 @@
 
 typedef struct fileTree{
   char *line;
-struct fileTree *left;
-struct fileTree *right;
+  struct fileTree *left;
+  struct fileTree *right;
 } fileTree;
 
 typedef struct{
-  char type;
   fileTree *stk[1024];
   int top;
 } fileStack;

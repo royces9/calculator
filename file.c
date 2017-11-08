@@ -12,9 +12,10 @@ int runFile(char **input, vari *var, double *ans){
   char buffer[1024];
   int error = 0, length = 0, maxSize = 1024, i = 0, direction = 0;
   char **fileString = malloc(maxSize * sizeof(*fileString));
-  fileTree tree;
-  fileTree *head = &tree;
-  fileStack stk, readStk, end;
+  fileTree tree, *head = &tree;
+
+  fileStack stk;
+  stk.top = 0;
   
   inputFile = fopen(input[0], "r");
   if(!inputFile){
@@ -44,18 +45,15 @@ int runFile(char **input, vari *var, double *ans){
     case 1: //if
     case 2: //while
     case -2: //else
-      head->right = createLeaf();
       fPush(&stk, head);
+      head->right = createLeaf();
       head = head->right;
-
-      //fPush(&readStk, head);
       break;
 
     case -1: //end
       head = fPop(&stk);
       head->left = createLeaf();
       head = head->left;
-      //fPush(&end, head);
       break;
 
     default:
@@ -69,38 +67,48 @@ int runFile(char **input, vari *var, double *ans){
       fileString = realloc(fileString, maxSize * sizeof(*fileString));
     }
   }  
-  printf("Done making tree.\n");
 
   //read tree stuff goes here?
-  int condCount = 0;
-  int check;
+  int check = 0;
   fileStack execStack;
+  execStack.top = 0;
   head = &tree;
-  for(int j = 0;; ++j){
-    printf("Before checkProgramFlow.\n");
-    direction = checkProgramFlow(*(fileString + j));
-    printf("After checkProgramFlow.\n");
+  for(;;){
+    if(head->line == NULL) break;
+
+    direction = checkProgramFlow(head->line);
 
     //if the line ends with ';', don't print the line, still executes
-    if((head->line[strlen(head->line)-1] != ';') || !direction){
+    if((head->line[strlen(head->line)-1] != ';') && direction == 0){
       printf("> %s\n", head->line);
     }
 
     switch(direction){
     case 1: //if
+      //printf("direction: if\n");
       check = checkConditional(head->line, direction, var, ans);
-	if(check){
+      if(check < 0){
+	return check;
+      }
+      //printf("check %d\n", check);
+      if(check){
+	if(head->left->line != NULL){
 	  fPush(&execStack, head->left);
-	  head = head->right;
 	}
-	else{
-	  head = head->left;
-	  check = 0;
-	}
-	break;
+	head = head->right;
+      }
+      else{
+	head = head->left;
+	check = 0;
+      }
+      break;
 
     case 2: //while
+      //printf("direction: while\n");
       check = checkConditional(head->line, direction, var, ans);
+      if(check < 0){
+	return check;
+      }
 	if(check){
 	  fPush(&execStack, head);
 	  head = head->right;
@@ -111,11 +119,12 @@ int runFile(char **input, vari *var, double *ans){
 	break;
 	
     case -1: //end
+      //printf("direction: end\n");
       head = fPop(&execStack);
-      head = head->left;
       break;
       
     case -2: //else
+      //printf("direction: else\n");
       if(check == 0){
 	fPush(&execStack, head);
 	head = head->right;
@@ -134,17 +143,13 @@ int runFile(char **input, vari *var, double *ans){
       }
       break;
     }
-    printf("Post direction.\n");
-
-    if(buffer[length - 1] != ';'){
-      printf(">    %lf\n\n", *ans);
-    }
+    //printf("Post direction.\n");
 
     if((head->left == NULL) && (head->right == NULL)){
       break;
     }
   }
-  printf("Done executing lines.\n");
+  //printf("Done executing lines.\n");
   fclose(inputFile);
   return 0;
 }
@@ -157,23 +162,21 @@ int checkProgramFlow(char *input){
   return 0;
 }
 
-void parseCondition(char *input, int type){
+char *parseCondition(char *input, int type){
   switch(type){
   case 1:
     input = strchr(input, 'i');
     input += 2;
-    return;
+    return input;
   case 2:
-    return;
-  case 3:
     input = strchr(input, 'w');
     input += 5;
-    return;
+    return input;
   }
 }
 
 int checkConditional(char *input, int type, vari *var, double *ans){
-  parseCondition(input, type);
+  input = parseCondition(input, type);
   int error;
   error = sya(input, ans, var);
   if(error){

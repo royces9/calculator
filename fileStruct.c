@@ -4,6 +4,11 @@
 
 fileTree *createLeaf(){
   fileTree *file = malloc(sizeof(fileTree));
+  if(file == NULL){
+    printf("NULL\n");
+    return NULL;
+  }
+  file->line = NULL;
   file->left = NULL;
   file->right = NULL;
   return file;
@@ -18,5 +23,5 @@ void fPush(fileStack *stk, fileTree *node){
 }
 
  fileTree *fPop(fileStack *stk){
-  return stk->stk[stk->top--];
+  return stk->stk[--stk->top];
 }
