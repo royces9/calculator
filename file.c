@@ -73,9 +73,7 @@ int runFile(char **input, vari *var, double *ans){
   fileStack execStack;
   execStack.top = 0;
   head = &tree;
-  for(;;){
-    if(head->line == NULL) break;
-
+  for(;head->line != NULL;){
     direction = checkProgramFlow(head->line);
 
     //if the line ends with ';', don't print the line, still executes
@@ -85,12 +83,11 @@ int runFile(char **input, vari *var, double *ans){
 
     switch(direction){
     case 1: //if
-      //printf("direction: if\n");
       check = checkConditional(head->line, direction, var, ans);
       if(check < 0){
 	return check;
       }
-      //printf("check %d\n", check);
+
       if(check){
 	if(head->left->line != NULL){
 	  fPush(&execStack, head->left);
@@ -104,27 +101,29 @@ int runFile(char **input, vari *var, double *ans){
       break;
 
     case 2: //while
-      //printf("direction: while\n");
       check = checkConditional(head->line, direction, var, ans);
+      printf("check %d\n", check);
       if(check < 0){
 	return check;
       }
-	if(check){
+
+      if(check){
+	if(head->left->line !=NULL){
 	  fPush(&execStack, head);
-	  head = head->right;
 	}
-	else{
-	  head = head->left;
-	}
-	break;
+	head = head->right;
+      }
+      else{
+	head = head->left;
+      }
+      break;
 	
     case -1: //end
-      //printf("direction: end\n");
+      printf("direction: end\n");
       head = fPop(&execStack);
       break;
       
     case -2: //else
-      //printf("direction: else\n");
       if(check == 0){
 	fPush(&execStack, head);
 	head = head->right;
@@ -136,11 +135,12 @@ int runFile(char **input, vari *var, double *ans){
 
     default:
       error = sya(head->line, ans, var);
-      head = head->left;
       if(error){
 	fclose(inputFile);
 	return error;
       }
+      head = head->left;
+      printf("leftline %s\n", head->line);
       break;
     }
     //printf("Post direction.\n");
@@ -149,7 +149,8 @@ int runFile(char **input, vari *var, double *ans){
       break;
     }
   }
-  //printf("Done executing lines.\n");
+  cutDownTree(&tree);
+
   fclose(inputFile);
   return 0;
 }

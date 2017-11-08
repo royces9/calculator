@@ -15,7 +15,18 @@ fileTree *createLeaf(){
 }
 
 void cutDownTree(fileTree *tree){
+  int left = 0, right = 0;
+  if(tree->left == NULL) left = 1;
+  if(tree->right == NULL) right = 2;
+  switch(left + right){
+  case 0: free(tree); break;
+  case 1: cutDownTree(tree->left); break;
+  case 2: cutDownTree(tree->right); break;
+  case 3: cutDownTree(tree->left); cutDownTree(tree->right); break;
+  }
+  free(tree);
 }
+
 
 
 void fPush(fileStack *stk, fileTree *node){
