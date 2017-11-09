@@ -98,14 +98,11 @@ int runFile(char **input, vari *var, double *ans){
       }
 
       if(check){
-	if(head->left->line != NULL){
-	  fPush(&execStack, head->left);
-	}
+	fPush(&execStack, head->left);
 	head = head->right;
       }
       else{
 	head = head->left;
-	check = 0;
       }
       break;
 
