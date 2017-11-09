@@ -11,7 +11,7 @@ void pushn(double inp, numberStack *st){
 }
 
 double popn(numberStack *st){
-  double out;
+  double out = 0;
   if(st->occ == 1){
     out = st->stk[st->top--];
 
@@ -19,11 +19,8 @@ double popn(numberStack *st){
       st->occ = 0;
       st->top = 0;
     }
-    return out;
   }
-  else{
-    return 0;
-  }
+  return out;
 }
 //characters
 void pushch(operatorStruct inp, operatorStack *st){
@@ -48,12 +45,10 @@ operatorStruct popch(operatorStack *st){
       st->occ = 0;
       st->top = 0;
     }
-
-    return out;
   }
   else{
     out.operator[0] = '\0';
     out.argNo = 0;
-    return out;
   }
+  return out;
 }

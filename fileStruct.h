@@ -10,6 +10,7 @@ typedef struct fileTree{
 typedef struct{
   fileTree *stk[1024];
   int top;
+  int occ;
 } fileStack;
 
 fileTree *createLeaf();

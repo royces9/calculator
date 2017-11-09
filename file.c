@@ -4,22 +4,27 @@
 
 #include "fileStruct.h"
 #include "stack.h"
+#include "onearg.h"
 #include "file.h"
 #include "sya.h"
 
 int runFile(char **input, vari *var, double *ans){
   FILE *inputFile;
   char buffer[1024];
-  int error = 0, length = 0, maxSize = 1024, i = 0, direction = 0;
+  int error = 0, length = 0, maxSize = 1024, i = 0, direction = 0, check = 0;
   char **fileString = malloc(maxSize * sizeof(*fileString));
+  __MALLOC_CHECK(fileString, error);
   fileTree tree, *head = &tree;
+  fileStack execStack, stk;
+  execStack.top = 0;
+  execStack.occ = 0;
 
-  fileStack stk;
   stk.top = 0;
-  
+  stk.occ = 0;
+
   inputFile = fopen(input[0], "r");
   if(!inputFile){
-    return error = -7;
+    return error = -8;
   }
   printf("\n");
 
@@ -35,6 +40,7 @@ int runFile(char **input, vari *var, double *ans){
     }
 
     fileString[i] = malloc(length * sizeof(**fileString));
+    __MALLOC_CHECK(fileString[i], error);
     strcpy(*(fileString+i), buffer);
 
     head->line = fileString[i];
@@ -63,17 +69,18 @@ int runFile(char **input, vari *var, double *ans){
     }
 
     if(++i >= maxSize){
-      maxSize = 2 * length;
+      maxSize *= 2;
       fileString = realloc(fileString, maxSize * sizeof(*fileString));
     }
   }  
 
-  //read tree stuff goes here?
-  int check = 0;
-  fileStack execStack;
-  execStack.top = 0;
   head = &tree;
-  for(;head->line != NULL;){
+  //head->line == NULL shortcircuits, so strcmp doesn't segfault
+  while((head->line == NULL) || strcmp(head->line, "end") || (direction != -1)){
+    if(head->line == NULL){
+      break;
+    }
+
     direction = checkProgramFlow(head->line);
 
     //if the line ends with ';', don't print the line, still executes
@@ -84,7 +91,7 @@ int runFile(char **input, vari *var, double *ans){
     switch(direction){
     case 1: //if
       check = checkConditional(head->line, direction, var, ans);
-      if(check < 0){
+      if(check < 0){ //if there is an error in the if
 	return check;
       }
 
@@ -102,15 +109,13 @@ int runFile(char **input, vari *var, double *ans){
 
     case 2: //while
       check = checkConditional(head->line, direction, var, ans);
-      printf("check %d\n", check);
       if(check < 0){
+	fclose(inputFile);
 	return check;
       }
 
       if(check){
-	if(head->left->line !=NULL){
-	  fPush(&execStack, head);
-	}
+	fPush(&execStack, head);
 	head = head->right;
       }
       else{
@@ -119,13 +124,12 @@ int runFile(char **input, vari *var, double *ans){
       break;
 	
     case -1: //end
-      printf("direction: end\n");
       head = fPop(&execStack);
       break;
       
     case -2: //else
-      if(check == 0){
-	fPush(&execStack, head);
+      if(check == 0){ //checks the value from the previous if iteration
+	fPush(&execStack, head->left);
 	head = head->right;
       }
       else{
@@ -140,15 +144,17 @@ int runFile(char **input, vari *var, double *ans){
 	return error;
       }
       head = head->left;
-      printf("leftline %s\n", head->line);
-      break;
-    }
-    //printf("Post direction.\n");
-
-    if((head->left == NULL) && (head->right == NULL)){
       break;
     }
   }
+
+  //free array of strings
+  for(i = 0; i < maxSize; ++i){
+    free(fileString[i]);
+  }
+  free(fileString);
+
+  //free tree
   cutDownTree(&tree);
 
   fclose(inputFile);
@@ -165,11 +171,11 @@ int checkProgramFlow(char *input){
 
 char *parseCondition(char *input, int type){
   switch(type){
-  case 1:
-    input = strchr(input, 'i');
+  case 1: //if
+    input = strchr(input, 'i'); //take advantage of the fact that it searches for first occurence
     input += 2;
     return input;
-  case 2:
+  case 2: //while
     input = strchr(input, 'w');
     input += 5;
     return input;
@@ -178,8 +184,7 @@ char *parseCondition(char *input, int type){
 
 int checkConditional(char *input, int type, vari *var, double *ans){
   input = parseCondition(input, type);
-  int error;
-  error = sya(input, ans, var);
+  int error = sya(input, ans, var);
   if(error){
     return error;
   }

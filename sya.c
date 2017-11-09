@@ -167,7 +167,8 @@ void errorrep(int error){
     case -4: printf("Invalid expression"); break;
     case -5: printf("Invalid function or variable name"); break;
     case -6: printf("Malloc error"); break;
-    case -7: printf("Invalid operator");
+    case -7: printf("Invalid operator"); break;
+    case -8: printf("File does not exist"); break;
     default: break;
     }
   printf("\n\n");
