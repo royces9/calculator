@@ -145,6 +145,11 @@ int runFile(char **input, vari *var, double *ans){
 	fclose(inputFile);
 	return error;
       }
+
+      if((head->line[strlen(head->line)-1] != ';') && direction == 0){
+	printf(">     %lf\n", *ans);
+      }
+
       head = head->left;
       break;
     }
