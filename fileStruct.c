@@ -4,10 +4,8 @@
 
 fileTree *createLeaf(){
   fileTree *leaf = malloc(sizeof(fileTree));
-  if(leaf == NULL){
-    printf("NULL\n");
-    return NULL;
-  }
+  if(leaf == NULL) return NULL;
+
   leaf->line = NULL;
   leaf->left = NULL;
   leaf->right = NULL;
@@ -18,7 +16,7 @@ void cutDownTree(fileTree *tree){
   if(tree == NULL) return;
 
   cutDownTree(tree->left);
-  cutDownTree(tree->right);
+  cutDownTree(tree->right);;
   free(tree);
 }
 

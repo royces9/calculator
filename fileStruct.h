@@ -18,5 +18,4 @@ void cutDownTree(fileTree *tree);
 void fPush(fileStack *stk, fileTree *node);
 fileTree *fPop(fileStack *stk);
 
-
 #endif //FILESTRUCT

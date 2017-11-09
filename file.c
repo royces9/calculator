@@ -14,7 +14,8 @@ int runFile(char **input, vari *var, double *ans){
   int error = 0, length = 0, maxSize = 1024, i = 0, direction = 0, check = 0;
   char **fileString = malloc(maxSize * sizeof(*fileString));
   __MALLOC_CHECK(fileString, error);
-  fileTree tree, *head = &tree;
+
+  fileTree *tree = createLeaf(), *head = tree;
   fileStack execStack, stk;
   execStack.top = 0;
   execStack.occ = 0;
@@ -39,7 +40,7 @@ int runFile(char **input, vari *var, double *ans){
       buffer[--length] = '\0'; //update the length of the new string
     }
 
-    fileString[i] = malloc(length * sizeof(**fileString));
+    fileString[i] = malloc((length+1) * sizeof(**fileString));
     __MALLOC_CHECK(fileString[i], error);
     strcpy(*(fileString+i), buffer);
 
@@ -74,7 +75,8 @@ int runFile(char **input, vari *var, double *ans){
     }
   }  
 
-  head = &tree;
+  head = tree;
+
   //head->line == NULL shortcircuits, so strcmp doesn't segfault
   while((head->line == NULL) || strcmp(head->line, "end") || (direction != -1)){
     if(head->line == NULL){
@@ -155,7 +157,7 @@ int runFile(char **input, vari *var, double *ans){
   free(fileString);
 
   //free tree
-  cutDownTree(&tree);
+  cutDownTree(tree);
 
   fclose(inputFile);
   return 0;
