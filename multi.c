@@ -177,9 +177,11 @@ double inte(char **input, vari *var, int *error){
   strcpy(varTemp.name[varIndex],input[1]); //copy the dummy variable into struct
 
   //calculate integral using composite Simpson's
-  if(fmod(number,2)){ //if the number of steps is odd, change it to be even
+  /*  if(fmod(number,2)){ //if the number of steps is odd, change it to be even
     number++;
-  }
+    }*/
+  number += fmod(number, 2);
+
   halfnumber = number/2;
 
   for(int i = 1; i <= halfnumber; ++i){
@@ -268,15 +270,13 @@ char **separateString(char *input, char delimiter, int *start, int *error){
   input += (*start+1);
   
   for(length = 0; input[length]; ++length){
-    if(input[length] == '('){
-      ++leftParenthesisCount;
-    }
-    else if(input[length] == ')'){
-      ++rightParenthesisCount;
-    }
-    if(input[length] == delimiter){
-      ++delimiterCount;
-    }
+    //increment count if char is left or right end parenthesis
+    leftParenthesisCount += (input[length] == '(');
+    rightParenthesisCount += (input[length] == ')');
+
+    //increment count if char is the delimiter
+    delimiterCount += (input[length] == delimiter);
+
     if(leftParenthesisCount == rightParenthesisCount){
       break;
     }

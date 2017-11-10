@@ -60,9 +60,6 @@ int runFile(char **input, vari *var, double *ans){
 
     case -1: //end
       head = fPop(&stk);
-      head->left = createLeaf();
-      head = head->left;
-      break;
 
     default:
       head->left = createLeaf();

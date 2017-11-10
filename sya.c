@@ -26,12 +26,8 @@ int sya(char *input, double *ans, vari *var){
 
   //Error checking
   for(length = 0; input[length]; ++length){
-    if(input[length] == '('){
-      ++leftParenthesisCount;
-    }
-    else if(input[length] == ')'){
-      ++rightParenthesisCount;
-    }	   
+    leftParenthesisCount += (input[length] == '(');
+    rightParenthesisCount += (input[length] == ')');
   }
   
   if(leftParenthesisCount != rightParenthesisCount){

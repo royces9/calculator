@@ -102,7 +102,6 @@ int searchOperatorArray(char *buffer){
   return __NO__;
 }
 
-
 operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration){
   operatorStruct out;
   strcpy(out.operator, operator);

@@ -66,10 +66,6 @@ Precedence values for operators: Reference wiki page of C/C++ operators
 
   case eAssign:
     break;
-    /*
-  case eFactorial:
-    pushn(factorial(popn(num), &error), num);
-    break;*/
 
   case eAdd:
   case eMultiply:
@@ -96,15 +92,3 @@ Precedence values for operators: Reference wiki page of C/C++ operators
 
   return 0;
 }
-/*
-double factorial(double a, int *error){
-  if(a - floor(a) > 0 || a <= 0){
-    if(a == 0){
-      return 1;
-    }
-    *error = - 4;
-    return 0;
-  }
-  return a == 1 ? 1 : a*factorial(a-1, error);
-}
-*/
