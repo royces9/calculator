@@ -15,8 +15,9 @@ fileTree *createLeaf(){
 void cutDownTree(fileTree *tree){
   if(tree == NULL) return;
 
+  tree->line = NULL;
   cutDownTree(tree->left);
-  cutDownTree(tree->right);;
+  cutDownTree(tree->right);
   free(tree);
 }
 

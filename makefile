@@ -25,7 +25,7 @@ sya.o: sya.c sya.h stack.h onearg.h twoarg.h operator.h
 calc.o: calc.c stack.h sya.h
 	$(CC) -c calc.c
 
-file.o: file.c file.h stack.h sya.h fileStruct.h
+file.o: file.c file.h stack.h sya.h fileStruct.h onearg.h
 	$(CC) -c file.c
 
 twoarg.o: twoarg.c twoarg.h operator.h

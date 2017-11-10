@@ -12,17 +12,18 @@ int runFile(char **input, vari *var, double *ans){
   FILE *inputFile;
   char buffer[1024];
   int error = 0, length = 0, maxSize = 1024, i = 0, direction = 0, check = 0;
-  char **fileString = malloc(maxSize * sizeof(*fileString));
+  char **fileString = calloc(maxSize, sizeof(*fileString));
   __MALLOC_CHECK(fileString, error);
 
   fileTree *tree = createLeaf(), *head = tree;
   fileStack execStack, stk;
   execStack.top = 0;
   execStack.occ = 0;
+  memset(execStack.stk, 0, sizeof(execStack.stk));
 
   stk.top = 0;
   stk.occ = 0;
-
+  memset(stk.stk, 0, sizeof(stk.stk));
   inputFile = fopen(input[0], "r");
   if(!inputFile){
     return error = -8;
@@ -153,13 +154,15 @@ int runFile(char **input, vari *var, double *ans){
   }
 
   //free array of strings
+  cutDownTree(tree);
+
   for(i = 0; i < maxSize; ++i){
     free(fileString[i]);
   }
   free(fileString);
 
   //free tree
-  cutDownTree(tree);
+
 
   fclose(inputFile);
   return 0;
