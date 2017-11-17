@@ -295,8 +295,9 @@ int printLine(char **input, vari *var){
 	if(input[i][len-(back+1)] == '"')
 	  string += 1;
 
-    input[i][len-(back+1)] = '\0';
-    if(string)
+
+    if(string){
+      input[i][len-(back+1)] = '\0';
       if(string == 2)
 	if((input[i][len-(back+3)] == '\\') && (input[i][len-(back+2)] == 'n')){
 	  input[i][len-(back+3)] = '\0';
@@ -304,9 +305,10 @@ int printLine(char **input, vari *var){
 	}
 	else
 	  printf("%s", input[i]+front+1);
+
       else
 	return -9;
-
+    }
     else{
       double out;
       error = sya(input[i], &out, var);
