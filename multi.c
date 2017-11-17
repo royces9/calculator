@@ -298,7 +298,12 @@ int printLine(char **input, vari *var){
     input[i][len-(back+1)] = '\0';
     if(string)
       if(string == 2)
-	printf("%s", input[i]+front+1);
+	if((input[i][len-(back+3)] == '\\') && (input[i][len-(back+2)] == 'n')){
+	  input[i][len-(back+3)] = '\0';
+	  printf("%s\n", input[i]+front+1);
+	}
+	else
+	  printf("%s", input[i]+front+1);
       else
 	return -9;
 
