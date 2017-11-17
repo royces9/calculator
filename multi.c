@@ -276,33 +276,40 @@ int printLine(char **input, vari *var){
   int error = 0;
 
   for(int i = 0; i < argNo; ++i){
-    removeSpaces(input[i], &front, &back); //removes leading and trailing spaces up until the "
-    printf("debug/%s/debug\n", input[i]);
+    //printf("debug/%s/debug\n", input[i]);
     int len = strlen(input[i]);
-    /*
-    input += front;
-    int len = strlen(input[i])-back;
-    input[len] = '\0';
-    */
-    printf("front %d\n", front);
-    printf("back %d\n", back);
-    printf("debug/%s/debug\n", input[i]);
 
-    if(input[i][0] == '"'){
-      if(input[i][len-1] == '"'){
-	input[i][len-1] = '\0';
-	printf("%s", input[i]+1);
-      }
-      else{
+    int string = 0;
+    if(input[i][0] == '"')
+      string = 1;
+    else
+      for(front = 0; input[i][front] == ' '; ++front)
+	if(input[i][front+1] == '"')
+	  string = 1;
+
+
+    if(input[i][len-(back+1)] == '"')
+      string += 1;
+    else
+      for(back = 0; input[i][len-(back+1)] == ' '; ++back)
+	if(input[i][len-(back+1)] == '"')
+	  string += 1;
+
+    input[i][len-(back+1)] = '\0';
+    if(string)
+      if(string == 2)
+	printf("%s", input[i]+front+1);
+      else
 	return -9;
-      }
-    }
+
     else{
       double out;
       error = sya(input[i], &out, var);
-      __SYA_ERROR(error);
+      if(error) return error;
       printf("%lf", out);
+
     }
+
   }
   return error;
 }
