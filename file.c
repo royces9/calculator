@@ -31,6 +31,12 @@ int runFile(char **input, vari *var, double *ans){
   printf("\n");
 
   while(fgets(buffer, 1024, inputFile)){
+    int offset = 0;
+    if(buffer[0] == ' '){
+      for(offset = 0; buffer[offset] == ' '; ++offset);
+    }
+    char *bufferHold = buffer;
+    bufferHold += offset;
     length = strlen(buffer);
 
     if(!strcmp(buffer, "\n") || (buffer[0] == '#')){ //skips a blank line, # comments out a line
@@ -43,7 +49,7 @@ int runFile(char **input, vari *var, double *ans){
 
     fileString[i] = malloc((length+1) * sizeof(**fileString));
     __MALLOC_CHECK(fileString[i], error);
-    strcpy(*(fileString+i), buffer);
+    strcpy(*(fileString+i), bufferHold);
 
     head->line = fileString[i];
 
@@ -92,6 +98,7 @@ int runFile(char **input, vari *var, double *ans){
     case 1: //if
       check = checkConditional(head->line, direction, var, ans);
       if(check < 0){ //if there is an error in the if
+	fclose(inputFile);
 	return check;
       }
 
