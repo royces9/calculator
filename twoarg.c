@@ -6,11 +6,12 @@
 #include "stack.h"
 #include "operator.h"
 
+#include "onearg.h"
 #include "twoarg.h"
 
 int findOperator(char *buffer, numberStack *num, operatorStack *oper, double ans, vari *var, int *tok){
   int i = searchOperatorArray(buffer);
-  int varset = 0, error = 0;
+  int error = 0;
 
   /*
 Precedence values for operators: Reference wiki page of C/C++ operators
@@ -56,9 +57,9 @@ Precedence values for operators: Reference wiki page of C/C++ operators
     break;
                            
   case eRightParen:
-    while(strcmp(oper->stk[oper->top].operator, "(") && oper->occ == 1){
+    do{
       execNum(num, popch(oper));
-    }
+    } while(strcmp(oper->stk[oper->top].operator, "(") && oper->occ == 1);
 
     *tok = 1;
     popch(oper);

@@ -26,10 +26,11 @@ int runFile(char **input, vari *var, double *ans){
   memset(stk.stk, 0, sizeof(stk.stk));
   inputFile = fopen(input[0], "r");
   if(!inputFile){
+    free(tree);
+    free(fileString);
     return error = -8;
   }
   printf("\n");
-
   while(fgets(buffer, 1024, inputFile)){
     int offset = 0;
     if(buffer[0] == ' '){
@@ -99,6 +100,8 @@ int runFile(char **input, vari *var, double *ans){
       check = checkConditional(head->line, direction, var, ans);
       if(check < 0){ //if there is an error in the if
 	fclose(inputFile);
+	cutDownTree(tree);
+	freeString(fileString, maxSize);
 	return check;
       }
 
@@ -114,6 +117,8 @@ int runFile(char **input, vari *var, double *ans){
     case 2: //while
       check = checkConditional(head->line, direction, var, ans);
       if(check < 0){
+	cutDownTree(tree);
+	freeString(fileString, maxSize);
 	fclose(inputFile);
 	return check;
       }
@@ -144,6 +149,8 @@ int runFile(char **input, vari *var, double *ans){
     default:
       error = sya(head->line, ans, var);
       if(error){
+	cutDownTree(tree);
+	freeString(fileString, maxSize);
 	fclose(inputFile);
 	return error;
       }
@@ -157,16 +164,16 @@ int runFile(char **input, vari *var, double *ans){
     }
   }
 
-  //free array of strings
-  cutDownTree(tree);
-
-  for(i = 0; i < maxSize; ++i){
-    free(fileString[i]);
-  }
-  free(fileString);
 
   //free tree
+  cutDownTree(tree);
 
+  //free array of strings
+  freeString(fileString, maxSize);
+  /*  for(i = 0; i < maxSize; ++i){
+    free(fileString[i]);
+  }
+  free(fileString);*/
 
   fclose(inputFile);
   return 0;
@@ -202,3 +209,9 @@ int checkConditional(char *input, int type, vari *var, double *ans){
   return *ans;
 }
 
+void freeString(char **string, int max){
+  for(int i = 0; i < max; ++i){
+    free(string[i]);
+  }
+  free(string);
+}

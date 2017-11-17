@@ -14,7 +14,7 @@
 
 int numberOfArgs(char **input){
   int i = 0;
-  for(i = 0; strcmp(input[i], "\0"); i++);
+  for(i = 0; strcmp(input[i], "\0"); ++i);
   return i;
 }
 
@@ -257,7 +257,69 @@ double solve(char **input, vari *var, int *error){
   }
   return varTemp.value[varc];
 }
+void removeSpaces(char *input, int *front, int *back){
+  if(input[0] == ' '){
+    int i = 1;
+    for(i = 1; input[i] != ' '; ++i);
+    *front = i;
+  }
+  int len = strlen(input);
+  if(input[len-1] == ' '){
+    int i = 1;
+    for(i = 1; input[len - i] != ' '; ++i);
+    *back = i;
+  }
+}
 
+int printLine(char **input, vari *var){
+  int argNo = numberOfArgs(input), front = 0, back = 0;
+  int error = 0;
+
+  for(int i = 0; i < argNo; ++i){
+    //printf("debug/%s/debug\n", input[i]);
+    int len = strlen(input[i]);
+
+    int string = 0;
+    if(input[i][0] == '"')
+      string = 1;
+    else
+      for(front = 0; input[i][front] == ' '; ++front)
+	if(input[i][front+1] == '"')
+	  string = 1;
+
+
+    if(input[i][len-(back+1)] == '"')
+      string += 1;
+    else
+      for(back = 0; input[i][len-(back+1)] == ' '; ++back)
+	if(input[i][len-(back+1)] == '"')
+	  string += 1;
+
+
+    if(string){
+      input[i][len-(back+1)] = '\0';
+      if(string == 2)
+	if((input[i][len-(back+3)] == '\\') && (input[i][len-(back+2)] == 'n')){
+	  input[i][len-(back+3)] = '\0';
+	  printf("%s\n", input[i]+front+1);
+	}
+	else
+	  printf("%s", input[i]+front+1);
+
+      else
+	return -9;
+    }
+    else{
+      double out;
+      error = sya(input[i], &out, var);
+      if(error) return error;
+      printf("%lf", out);
+
+    }
+
+  }
+  return error;
+}
 
 char **separateString(char *input, char delimiter, int *start, int *error){
   char *tok;

@@ -67,23 +67,27 @@ int sya(char *input, double *ans, vari *var){
 
 	  case '=':
 	    bufferLetters[j] = '\0';
-	    check = varcheck(var, bufferLetters);
-	    varset = 1;
 
-	    if(check >= 0){
-	      strcpy(var->name[check], bufferLetters);
+	    if(input[i+2] != '='){
+	      check = varcheck(var, bufferLetters);
+	      varset = 1;
+	      if(check >= 0){
+		strcpy(var->name[check], bufferLetters);
+	      }
+	      else if(check == -1){
+		strcpy(var->name[0], bufferLetters);
+		var->occ = 1;
+		var->count = 0;
+		check = 0;
+	      }
+	      else if(check == -2){
+		check = ++var->count;
+		strcpy(var->name[check], bufferLetters);
+	      }
 	    }
-	    else if(check == -1){
-	      strcpy(var->name[0], bufferLetters);
-	      var->occ = 1;
-	      var->count = 0;
-	      check = 0;
+	    else{
+	      error = findFunction(bufferLetters, &out, &oper, *ans, var, &negativeCheck, &i, input);
 	    }
-	    else if(check == -2){
-	      check = ++var->count;
-	      strcpy(var->name[check], bufferLetters);
-	    }
-
 	    j = 0;
 	    break;
 
@@ -118,7 +122,7 @@ int sya(char *input, double *ans, vari *var){
     case '|':
     case '~':
       bufferOper[k++] = input[i];
-      if((type == 1) || (type == 0) || (input[i] == '(') || (input[i] == ')') || (input[i+1] == '(') || (input[i+1] == ')')){
+      if((type != 2) || (input[i] == '(') || (input[i] == ')') || (input[i+1] == '(') || (input[i+1] == ')')){
 	bufferOper[k] = '\0';
 	error = findOperator(bufferOper, &out, &oper, *ans, var, &negativeCheck);
 	k = 0;
@@ -141,13 +145,13 @@ int sya(char *input, double *ans, vari *var){
     }
   }//end of for
   
-  while((out.occ == 1) && (oper.occ == 1)){
+  while(out.occ && oper.occ){
     execNum(&out, popch(&oper));
   }
 
   *ans = out.stk[0];
   
-  if(varset == 1){
+  if(varset){
     var->value[check] = out.stk[0];
   }
 
@@ -165,6 +169,7 @@ void errorrep(int error){
     case -6: printf("Malloc error"); break;
     case -7: printf("Invalid operator"); break;
     case -8: printf("File does not exist"); break;
+    case -9: printf("Mismatched quotation marks"); break;
     default: break;
     }
   printf("\n\n");
