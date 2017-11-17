@@ -14,7 +14,7 @@
 
 int numberOfArgs(char **input){
   int i = 0;
-  for(i = 0; strcmp(input[i], "\0"); i++);
+  for(i = 0; strcmp(input[i], "\0"); ++i);
   return i;
 }
 
@@ -257,7 +257,55 @@ double solve(char **input, vari *var, int *error){
   }
   return varTemp.value[varc];
 }
+void removeSpaces(char *input, int *front, int *back){
+  if(input[0] == ' '){
+    int i = 1;
+    for(i = 1; input[i] != ' '; ++i);
+    *front = i;
+  }
+  int len = strlen(input);
+  if(input[len-1] == ' '){
+    int i = 1;
+    for(i = 1; input[len - i] != ' '; ++i);
+    *back = i;
+  }
+}
 
+int printLine(char **input, vari *var){
+  int argNo = numberOfArgs(input), front = 0, back = 0;
+  int error = 0;
+
+  for(int i = 0; i < argNo; ++i){
+    removeSpaces(input[i], &front, &back); //removes leading and trailing spaces up until the "
+    printf("debug/%s/debug\n", input[i]);
+    int len = strlen(input[i]);
+    /*
+    input += front;
+    int len = strlen(input[i])-back;
+    input[len] = '\0';
+    */
+    printf("front %d\n", front);
+    printf("back %d\n", back);
+    printf("debug/%s/debug\n", input[i]);
+
+    if(input[i][0] == '"'){
+      if(input[i][len-1] == '"'){
+	input[i][len-1] = '\0';
+	printf("%s", input[i]+1);
+      }
+      else{
+	return -9;
+      }
+    }
+    else{
+      double out;
+      error = sya(input[i], &out, var);
+      __SYA_ERROR(error);
+      printf("%lf", out);
+    }
+  }
+  return error;
+}
 
 char **separateString(char *input, char delimiter, int *start, int *error){
   char *tok;

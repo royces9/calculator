@@ -3,7 +3,7 @@
 
 #include "stack.h"
 
-#define __NF__ 27
+#define __NF__ 28
 #define __NO__ 18
 
 extern const char __OPERATORS__[__NO__][5];
@@ -40,7 +40,8 @@ enum functionEnums{
   eInte,
   eSolve,
 
-  eRun
+  eRun,
+  ePrint
 };
 
 enum operatorEnum{
