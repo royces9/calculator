@@ -276,7 +276,6 @@ int printLine(char **input, vari *var){
   int error = 0;
 
   for(int i = 0; i < argNo; ++i){
-    //printf("debug/%s/debug\n", input[i]);
     int len = strlen(input[i]);
 
     int string = 0;
@@ -316,7 +315,6 @@ int printLine(char **input, vari *var){
       printf("%lf", out);
 
     }
-
   }
   return error;
 }

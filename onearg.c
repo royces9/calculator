@@ -129,6 +129,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
   case ePrint:
     separatedString = separateString(input, ',', start, &error);
     error = printLine(separatedString, var);
+    freeDoubleArray(separatedString);
     return error;
 
   case __NF__: //variables
