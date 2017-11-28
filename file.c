@@ -162,10 +162,6 @@ int runFile(char **input, vari *var, double *ans){
 
   //free array of strings
   freeString(fileString, maxSize);
-  /*  for(i = 0; i < maxSize; ++i){
-    free(fileString[i]);
-  }
-  free(fileString);*/
 
   fclose(inputFile);
   return 0;
