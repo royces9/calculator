@@ -169,6 +169,7 @@ void errorrep(int error){
     case -6: printf("Malloc error"); break;
     case -7: printf("Invalid operator"); break;
     case -8: printf("File does not exist"); break;
+    case -9: printf("Mismatched quotation marks"); break;
     default: break;
     }
   printf("\n\n");

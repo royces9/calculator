@@ -126,6 +126,11 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
     *tok = 0;
     return error;
 
+  case ePrint:
+    separatedString = separateString(input, ',', start, &error);
+    error = printLine(separatedString, var);
+    return error;
+
   case __NF__: //variables
     {
       int k = varcheck(var, buffer);

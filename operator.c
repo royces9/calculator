@@ -36,7 +36,8 @@ const char __FUNCTIONS__[__NF__][20] = {
   "integral(",
   "solve(",
 
-  "run("
+  "run(",
+  "print("
 };
 
 const char __OPERATORS__[__NO__][5] = {

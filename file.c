@@ -32,8 +32,18 @@ int runFile(char **input, vari *var, double *ans){
   }
   printf("\n");
   while(fgets(buffer, 1024, inputFile)){
-    length = strlen(buffer);
+    /*        int offset = 0;
+    if(buffer[0] == ' '){
+      for(offset = 0; buffer[offset] == ' '; ++offset);
+    }
+    char *bufferHold = buffer;
+    bufferHold += offset;
+    length = strlen(bufferHold);
+    printf("/%s", buffer);
+    printf("/%s/", bufferHold);
+    strcpy(buffer, bufferHold);*/
 
+    length = strlen(buffer);
     if(!strcmp(buffer, "\n") || (buffer[0] == '#')){ //skips a blank line, # comments out a line
       continue;
     }
@@ -41,15 +51,14 @@ int runFile(char **input, vari *var, double *ans){
     if(buffer[length - 1] == '\n'){ //replaces end new line with a null terminated character
       buffer[--length] = '\0'; //update the length of the new string
     }
-
+    //printf("/%s/\n", buffer);
     fileString[i] = malloc((length+1) * sizeof(**fileString));
     __MALLOC_CHECK(fileString[i], error);
     strcpy(*(fileString+i), buffer);
-
+    //printf("fuck %s\n", fileString[i]);
     head->line = fileString[i];
 
     direction = checkProgramFlow(*(fileString+i));
-
     switch(direction){
     case 1: //if
     case 2: //while
@@ -77,13 +86,10 @@ int runFile(char **input, vari *var, double *ans){
   head = tree;
 
   //head->line == NULL shortcircuits, so strcmp doesn't segfault
-  while((head->line == NULL) || strcmp(head->line, "end") || (direction != -1)){
-    if(head->line == NULL){
-      break;
-    }
-
+  //while((head->line == NULL) || strcmp(head->line, "end") || (direction != -1)){
+  while((head != NULL) && (head->line != NULL)){
     direction = checkProgramFlow(head->line);
-
+    //printf("dir %d\n", direction);
     //if the line ends with ';', don't print the line, still executes
     if((head->line[strlen(head->line)-1] != ';') && direction == 0){
       printf("> %s\n", head->line);
@@ -95,6 +101,7 @@ int runFile(char **input, vari *var, double *ans){
       if(check < 0){ //if there is an error in the if
 	cutDownTree(tree);
 	freeString(fileString, maxSize);
+	fclose(inputFile);
 	return check;
       }
 
@@ -109,6 +116,7 @@ int runFile(char **input, vari *var, double *ans){
 
     case 2: //while
       check = checkConditional(head->line, direction, var, ans);
+      //printf("check %d\n", check);
       if(check < 0){
 	cutDownTree(tree);
 	freeString(fileString, maxSize);
