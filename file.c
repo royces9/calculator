@@ -4,7 +4,6 @@
 
 #include "fileStruct.h"
 #include "stack.h"
-#include "onearg.h"
 #include "file.h"
 #include "sya.h"
 

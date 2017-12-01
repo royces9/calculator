@@ -6,7 +6,6 @@
 #include "stack.h"
 #include "operator.h"
 
-#include "onearg.h"
 #include "twoarg.h"
 
 int findOperator(char *buffer, numberStack *num, operatorStack *oper, double ans, vari *var, int *tok){

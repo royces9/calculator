@@ -13,7 +13,7 @@ debug: $(OFILES)
 stack.o: stack.c stack.h
 	$(CC) -c stack.c
 
-multi.o: multi.c multi.h stack.h onearg.h sya.h
+multi.o: multi.c multi.h stack.h sya.h
 	$(CC) -c multi.c
 
 onearg.o: onearg.c onearg.h multi.h stack.h file.h operator.h
@@ -25,7 +25,7 @@ sya.o: sya.c sya.h stack.h onearg.h twoarg.h operator.h
 calc.o: calc.c stack.h sya.h
 	$(CC) -c calc.c
 
-file.o: file.c file.h stack.h sya.h fileStruct.h onearg.h
+file.o: file.c file.h stack.h sya.h fileStruct.h
 	$(CC) -c file.c
 
 twoarg.o: twoarg.c twoarg.h operator.h
