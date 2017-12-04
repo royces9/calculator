@@ -1,6 +1,12 @@
 #ifndef STACK
 #define STACK
 
+#define __MALLOC_CHECK(pointer, error) \
+  if(pointer == NULL){\
+  error = -6; \
+  return 0; \
+  }
+
 typedef struct{
   char operator[10];
   int precedence;

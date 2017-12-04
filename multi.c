@@ -5,12 +5,9 @@
 #include <time.h>
 
 #include "stack.h"
-#include "onearg.h"
 #include "multi.h"
+#include "onearg.h"
 #include "sya.h"
-
-#define __SYA_ERROR(error) \
-  if(error){ return 0;}
 
 int numberOfArgs(char **input){
   int i = 0;
@@ -24,15 +21,15 @@ double min(char **input, vari *var, int *error){
   int argNo = numberOfArgs(input);
 
   *error = sya(input[0], &out, var);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   *error = sya(input[1], &inter, var);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   out = fmin(out, inter);
   for(int i = 2; i < argNo; i++){
     sya(input[i], &inter, var);
-    __SYA_ERROR(*error);
+    if(*error) return 0;
     out = fmin(out, inter);
   }
   return out;
@@ -43,27 +40,26 @@ double max(char **input, vari *var, int *error){
   int argNo = numberOfArgs(input);
 
   *error = sya(input[0], &out, var);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   *error = sya(input[1], &inter, var);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   out = fmax(out, inter);
   for(int i = 2; i < argNo; i++){
     *error = sya(input[i], &inter, var);
-    __SYA_ERROR(*error);
+    if(*error) return 0;
     out = fmax(out, inter);
   }
   return out;
 }
 
 double avg(char **input, vari *var, int *error){
-  double sum = 0;
-  double partSum = 0;
+  double sum = 0, partSum = 0;
   int argNo = numberOfArgs(input);
   for(int i = 0; i < argNo; ++i){
     sya(input[i], &partSum, var);
-    __SYA_ERROR(*error);
+    if(*error) return 0;
     sum += partSum;
   }
   return sum/argNo;
@@ -89,10 +85,10 @@ double deri(char **input, vari *var, int *error){
   }
 
   *error = sya(input[2], &point, &varTemp);
-    __SYA_ERROR(*error);
+  if(*error) return 0;
 
   *error = sya(input[3], &h, &varTemp);
-    __SYA_ERROR(*error);
+  if(*error) return 0;
   
   //set up a dummy variable specified by user  
   varIndex = varcheck(&varTemp, input[1]);
@@ -112,18 +108,14 @@ double deri(char **input, vari *var, int *error){
   
   //does f(x+h)
   *error = sya(input[0], &out, &varTemp);
-  __SYA_ERROR(*error);
-
-  if(*error){
-    return 0;
-  }
+  if(*error) return 0;
 
   //sets the dummy variable equal to x-h
   varTemp.value[varIndex] = point - h;
 
   //does f(x-h)
   *error = sya(input[0], &inter, &varTemp);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   //this is f(x+h) - f(x-h)
   out -= inter;
@@ -132,10 +124,16 @@ double deri(char **input, vari *var, int *error){
 }
 
 double inte(char **input, vari *var, int *error){
+  //check number of arguments
+  if(numberOfArgs(input) != 5){
+    *error = -2;
+    return 0;
+  }
+
   char *str2d;
-  double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0, sum = 0, halfnumber = 0;
+  double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0, sum = 0;
   vari varTemp = *var;
-  int varIndex = 0;
+  int varIndex = 0, iter = 0;
 
   /*
   input[0] = function
@@ -144,23 +142,16 @@ double inte(char **input, vari *var, int *error){
   input[3] = right bound
   input[4] = partition count
    */
-  
-  //check number of arguments
-  if(numberOfArgs(input) != 5){
-    *error = -2;
-    return 0;
-  }
-  int iter = 0;
 
   //get number of steps, and step size
   *error = sya(input[2], &a, &varTemp);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   *error = sya(input[3], &b, &varTemp);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   *error = sya(input[4], &number, &varTemp);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   step = (b-a)/number;
 
@@ -177,27 +168,22 @@ double inte(char **input, vari *var, int *error){
   strcpy(varTemp.name[varIndex],input[1]); //copy the dummy variable into struct
 
   //calculate integral using composite Simpson's
-  /*  if(fmod(number,2)){ //if the number of steps is odd, change it to be even
-    number++;
-    }*/
-  number += fmod(number, 2);
+  number = floor(number/2); //if the number of steps is odd, change it to be even
 
-  halfnumber = number/2;
-
-  for(int i = 1; i <= halfnumber; ++i){
+  for(int i = 1; i <= number; ++i){
     varTemp.value[varIndex] = a + (((2 * i) - 2) * step);
     *error = sya(input[0], &out, &varTemp);
-    __SYA_ERROR(*error);
+    if(*error) return 0;
     sum += out;
 
     varTemp.value[varIndex] = a + (((2 * i) - 1) * step);
     *error = sya(input[0], &inter, &varTemp);
-    __SYA_ERROR(*error);
+    if(*error) return 0;
     sum += (4 * inter);
 
     varTemp.value[varIndex] = a + ((2 * i) * step);
     *error = sya(input[0], &out, &varTemp);
-    __SYA_ERROR(*error);
+    if(*error) return 0;
     sum += out;
   }
 
@@ -206,6 +192,12 @@ double inte(char **input, vari *var, int *error){
 }
 
 double solve(char **input, vari *var, int *error){
+  //check number of arguments
+  if(numberOfArgs(input) != 4){
+    *error = -2;
+    return 0;
+  }
+
   char *str2d;
   vari varTemp = *var;
   double out = 0, inter = 0, h = 0, test = 0, delta = 0.000001;
@@ -217,12 +209,6 @@ double solve(char **input, vari *var, int *error){
   input[2] = initial guess
   input[3] = tolerance
    */
-
-  //check number of arguments
-  if(numberOfArgs(input) != 4){
-    *error = -2;
-    return 0;
-  }
 
   //set dummy variable
   varc = varcheck(&varTemp, input[1]);
@@ -237,24 +223,25 @@ double solve(char **input, vari *var, int *error){
   strcpy(varTemp.name[varc],input[1]);
 
   *error = sya(input[2], &varTemp.value[varc], &varTemp);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   *error = sya(input[3], &h, &varTemp);
-  __SYA_ERROR(*error);
+  if(*error) return 0;
 
   test = h + 1; //ensure test is always greater than h
 
   while(fabs(test) > h){
     *error = sya(input[0],&out, &varTemp);
-    __SYA_ERROR(*error);
+    if(*error) return 0;
 
     varTemp.value[varc] -= delta;
     *error = sya(input[0],&inter, &varTemp);
-    __SYA_ERROR(*error);
+    if(*error) return 0;
 
     test = (delta*out)/(out-inter);
     varTemp.value[varc] -= test;
   }
+
   return varTemp.value[varc];
 }
 void removeSpaces(char *input, int *front, int *back){
@@ -271,54 +258,58 @@ void removeSpaces(char *input, int *front, int *back){
   }
 }
 
-int printLine(char **input, vari *var){
+int printLine(char **input, vari *var, int *error){
   int argNo = numberOfArgs(input), front = 0, back = 0;
-  int error = 0;
 
   for(int i = 0; i < argNo; ++i){
-    //printf("debug/%s/debug\n", input[i]);
-    int len = strlen(input[i]);
+    int len = strlen(input[i]), string = 0;
 
-    int string = 0;
-    if(input[i][0] == '"')
+    if(input[i][0] == '"'){
       string = 1;
-    else
-      for(front = 0; input[i][front] == ' '; ++front)
-	if(input[i][front+1] == '"')
+    }
+    else{
+      for(front = 0; input[i][front] == ' '; ++front){
+	if(input[i][front+1] == '"'){
 	  string = 1;
+	}
+      }
+    }
 
-
-    if(input[i][len-(back+1)] == '"')
+    if(input[i][len-(back+1)] == '"'){
       string += 1;
-    else
-      for(back = 0; input[i][len-(back+1)] == ' '; ++back)
-	if(input[i][len-(back+1)] == '"')
+    }
+    else{
+      for(back = 0; input[i][len-(back+1)] == ' '; ++back){
+	if(input[i][len-(back+1)] == '"'){
 	  string += 1;
-
+	}
+      }
+    }
 
     if(string){
       input[i][len-(back+1)] = '\0';
-      if(string == 2)
+      if(string == 2){
 	if((input[i][len-(back+3)] == '\\') && (input[i][len-(back+2)] == 'n')){
 	  input[i][len-(back+3)] = '\0';
 	  printf("%s\n", input[i]+front+1);
 	}
-	else
+	else{
 	  printf("%s", input[i]+front+1);
-
-      else
+	}
+      }
+      else{
 	return -9;
+      }
     }
     else{
       double out;
-      error = sya(input[i], &out, var);
-      if(error) return error;
+      *error = sya(input[i], &out, var);
+      if(*error) return 0;
       printf("%lf", out);
 
     }
-
   }
-  return error;
+  return 0;
 }
 
 char **separateString(char *input, char delimiter, int *start, int *error){
@@ -344,7 +335,7 @@ char **separateString(char *input, char delimiter, int *start, int *error){
     }
   }
 
-  char *input2 = malloc((length + 2)* sizeof(*input2));
+  char *input2 = malloc((length + 3)* sizeof(*input2));
   __MALLOC_CHECK(input2, *error);
 
   strcpy(input2,input);

@@ -128,13 +128,14 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
 
   case ePrint:
     separatedString = separateString(input, ',', start, &error);
-    error = printLine(separatedString, var);
+    printLine(separatedString, var, &error);
+    freeDoubleArray(separatedString);
     return error;
 
   case __NF__: //variables
     {
-      int k = varcheck(var, buffer);
-      if(k >= 0){
+    int k = varcheck(var, buffer);
+    if(k >= 0){
 	pushn(var->value[k], num);
 	*tok = 1;
 	return 0;
