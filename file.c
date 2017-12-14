@@ -32,6 +32,7 @@ int runFile(char **input, vari *var, double *ans){
   printf("\n");
   while(fgets(buffer, 1024, inputFile)){
     int offset = 0;
+    //removing trailing spaces
     if(buffer[0] == ' '){
       for(offset = 0; buffer[offset] == ' '; ++offset);
     }
