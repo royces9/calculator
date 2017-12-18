@@ -152,7 +152,7 @@ double inte(char **input, vari *var, int *error){
 
   *error = sya(input[4], &number, &varTemp);
   if(*error) return 0;
-
+  
   step = (b-a)/number;
 
   //set dummy variable
@@ -168,8 +168,9 @@ double inte(char **input, vari *var, int *error){
   strcpy(varTemp.name[varIndex],input[1]); //copy the dummy variable into struct
 
   //calculate integral using composite Simpson's
-  number = floor(number/2); //if the number of steps is odd, change it to be even
 
+  number = floor(number/2); //if the number of steps is odd, change it to be even
+  
   for(int i = 1; i <= number; ++i){
     varTemp.value[varIndex] = a + (((2 * i) - 2) * step);
     *error = sya(input[0], &out, &varTemp);

@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "stack.h"
 
 void pushn(double inp, numberStack *st){
@@ -50,5 +52,21 @@ operatorStruct popch(operatorStack *st){
     out.operator[0] = '\0';
     out.argNo = 0;
   }
+  return out;
+}
+
+numberStack newNumberStack(){
+  numberStack out;
+  out.top = 0;
+  out.occ = 0;
+  memset(out.stk, 0, sizeof(out.stk));
+  return out;
+}
+
+operatorStack newOperatorStack(){
+  operatorStack out;
+  out.top = 0;
+  out.occ = 0;
+  memset(out.stk, '\0', sizeof(out.stk));
   return out;
 }

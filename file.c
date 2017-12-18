@@ -15,14 +15,8 @@ int runFile(char **input, vari *var, double *ans){
   __MALLOC_CHECK(fileString, error);
 
   fileTree *tree = createLeaf(), *head = tree;
-  fileStack execStack, stk;
-  execStack.top = 0;
-  execStack.occ = 0;
-  memset(execStack.stk, 0, sizeof(execStack.stk));
+  fileStack execStack = newFileStack(), stk = newFileStack();
 
-  stk.top = 0;
-  stk.occ = 0;
-  memset(stk.stk, 0, sizeof(stk.stk));
   inputFile = fopen(input[0], "r");
   if(!inputFile){
     free(tree);
@@ -165,6 +159,14 @@ int runFile(char **input, vari *var, double *ans){
 
   fclose(inputFile);
   return 0;
+}
+
+fileStack newFileStack(){
+  fileStack out;
+  out.top = 0;
+  out.occ = 0;
+  memset(out.stk, 0, sizeof(out.stk));
+  return out;
 }
 
 int checkProgramFlow(char *input){

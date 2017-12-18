@@ -9,20 +9,10 @@
 #include "sya.h"
 
 int sya(char *input, double *ans, vari *var){
-  numberStack out; //stack for output numbers
-  operatorStack oper; //stack for operators
+  numberStack out = newNumberStack(); //stack for output numbers
+  operatorStack oper = newOperatorStack(); //stack for operators
   int i = 0, j = 0, k = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, varset = 0, negativeCheck = 0;
   char *str2d = NULL;
-  
-  //reset stack variables
-  out.top = 0;
-  out.occ = 0;
-  memset(out.stk, 0, sizeof(out.stk));
-  
-  oper.top = 0;
-  oper.occ = 0;
-  memset(oper.stk, '\0', sizeof(oper.stk));
-
 
   //Error checking
   for(length = 0; input[length]; ++length){
@@ -38,8 +28,7 @@ int sya(char *input, double *ans, vari *var){
     return error = -4;
   }
 
-  char bufferLetters[length];
-  char bufferOper[length];
+  char bufferLetters[length], bufferOper[length];
 
   for(i = 0; input[i]; ++i){
     int type = checkType(input[i+1]);
