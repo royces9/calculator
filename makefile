@@ -1,8 +1,8 @@
 CC = gcc
 FLAGS = -lm -lreadline -I. -flto
-HEADERS = sya.h stack.h multi.h onearg.h file.h twoarg.h operator.h fileStruct.h
-CFILES = sya.c stack.c multi.c onearg.c calc.c file.c twoarg.c oeprator.c fileStruct.c
-OFILES = sya.o stack.o multi.o onearg.o calc.o file.o twoarg.o operator.o fileStruct.o
+HEADERS = $(wildcard *.h)
+CFILES = $(wildcard *.c)
+OFILES = $(wildcard *.o)
 
 calc2: $(OFILES)
 	$(CC) $(OFILES) -o calc2 $(FLAGS)
