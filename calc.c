@@ -9,15 +9,16 @@
 int main(int argc, char *argv[]){
   char *input = NULL;
   int error = 0;
-  double ans = 0;
+  double ans = 0; //stores the previous answer in this variable, can be used by using "ans"
 
   vari var;
-
+  //initialize var to 0
   var.count = 0;
   var.occ = 0;
   memset(var.name, '\0', sizeof(var.name));
   memset(var.value, 0, sizeof(var.value));
   
+  //execute command line arguments first
   if(argc > 1){
     for(int i = 1; i < argc; ++i){
       printf(">>%s\n", *(argv+i));
@@ -31,21 +32,25 @@ int main(int argc, char *argv[]){
       }
     }
   } 
+
+  //main loop
   while(error <= 0){
+    //user input and history
     input = readline(">>");
     add_history(input);
 
-    if(*input == 0){
+    if(*input == 0){ //if the user enters an empty line, go to top of loop
       continue;
     }
     
-    else{
+    else{ //parses string and does all the calculations
       error = sya(input, &ans, &var);
     }
+
     if(error == 0){
       printf("\n%lf\n\n", ans);
     }
-    else{
+    else{ //if the error is less than -1, prints and error code
       errorrep(error);
     }
 
