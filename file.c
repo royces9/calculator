@@ -10,13 +10,14 @@
 int runFile(char **input, vari *var, double *ans){
   FILE *inputFile;
   char buffer[1024];
-  int error = 0, length = 0, maxSize = 1024, i = 0, direction = 0, check = 0;
+  int error = 0, length = 0, maxSize = 1024, direction = 0, check = 0;
   char **fileString = calloc(maxSize, sizeof(*fileString));
   __MALLOC_CHECK(fileString, error);
 
   fileTree *tree = createLeaf(), *head = tree;
   fileStack execStack = newFileStack(), stk = newFileStack();
 
+  //open and check if file exists
   inputFile = fopen(input[0], "r");
   if(!inputFile){
     free(tree);
@@ -24,7 +25,9 @@ int runFile(char **input, vari *var, double *ans){
     return error = -8;
   }
   printf("\n");
-  while(fgets(buffer, 1024, inputFile)){
+
+  //creates the tree structure
+  for(int i = 0; fgets(buffer, 1024, inputFile); ++i){
     int offset = 0;
     //removing trailing spaces
     if(buffer[0] == ' '){
@@ -46,8 +49,9 @@ int runFile(char **input, vari *var, double *ans){
     strcpy(*(fileString+i), bufferHold);
     head->line = fileString[i];
 
+    //check whether to branch left or right
     direction = checkProgramFlow(*(fileString+i));
-    switch(direction){
+    switch(direction){ //the first statement in a while/if/else branch right
     case 1: //if
     case 2: //while
     case -2: //else
@@ -56,7 +60,7 @@ int runFile(char **input, vari *var, double *ans){
       head = head->right;
       break;
 
-    case -1: //end
+    case -1: //end signifies end of while/if/else 
       head = fPop(&stk);
 
     default:
@@ -65,19 +69,22 @@ int runFile(char **input, vari *var, double *ans){
       break;
     }
 
-    if(++i >= maxSize){
+    //make fileString bigger if there is no room in it for the next iteration
+    if((i+1) >= maxSize){
       maxSize *= 2;
       fileString = realloc(fileString, maxSize * sizeof(*fileString));
     }
   }  
 
+  //reset the head as the first node
   head = tree;
 
+  //executes the tree
   while((head != NULL) && (head->line != NULL)){
     direction = checkProgramFlow(head->line);
 
     //if the line ends with ';', don't print the line, still executes
-    if((head->line[strlen(head->line)-1] != ';') && direction == 0){
+    if((head->line[strlen(head->line)-1] != ';') && (direction == 0)){
       printf("> %s\n", head->line);
     }
 
@@ -91,7 +98,7 @@ int runFile(char **input, vari *var, double *ans){
 	return check;
       }
 
-      if(check){
+      if(check){ //push head->left to continue execution from the line after the if, and everything inside executes
 	fPush(&execStack, head->left);
 	head = head->right;
       }
@@ -109,7 +116,7 @@ int runFile(char **input, vari *var, double *ans){
 	return check;
       }
 
-      if(check){
+      if(check){ //push head to continue execute from the line that contains the while, the condition is rechecked
 	fPush(&execStack, head);
 	head = head->right;
       }
@@ -118,8 +125,8 @@ int runFile(char **input, vari *var, double *ans){
       }
       break;
 	
-    case -1: //end
-      head = fPop(&execStack);
+    case -1: //end 
+      head = fPop(&execStack); //head returns to whatever is on top of the stack
       break;
       
     case -2: //else
@@ -127,12 +134,12 @@ int runFile(char **input, vari *var, double *ans){
 	fPush(&execStack, head->left);
 	head = head->right;
       }
-      else{
+      else{ //check is true, continue after the else
 	head = head->left;
       }
       break;
 
-    default:
+    default: //for executing non conditional lines
       error = sya(head->line, ans, var);
       if(error){
 	cutDownTree(tree);
@@ -141,7 +148,7 @@ int runFile(char **input, vari *var, double *ans){
 	return error;
       }
 
-      if((head->line[strlen(head->line)-1] != ';') && direction == 0){
+      if((head->line[strlen(head->line)-1] != ';') && direction == 0){ //print our output
 	printf(">     %lf\n", *ans);
       }
 
@@ -149,7 +156,6 @@ int runFile(char **input, vari *var, double *ans){
       break;
     }
   }
-
 
   //free tree
   cutDownTree(tree);
@@ -161,6 +167,7 @@ int runFile(char **input, vari *var, double *ans){
   return 0;
 }
 
+//create new fileStack
 fileStack newFileStack(){
   fileStack out;
   out.top = 0;
@@ -169,6 +176,7 @@ fileStack newFileStack(){
   return out;
 }
 
+//determine whether to branch left or right
 int checkProgramFlow(char *input){
   if(strstr(input, "else")) return -2;
   if(strstr(input, "end")) return -1;
@@ -177,6 +185,7 @@ int checkProgramFlow(char *input){
   return 0;
 }
 
+//determine if it's while or if
 char *parseCondition(char *input, int type){
   switch(type){
   case 1: //if
@@ -190,6 +199,7 @@ char *parseCondition(char *input, int type){
   }
 }
 
+//checks conditionals in while/if
 int checkConditional(char *input, int type, vari *var, double *ans){
   input = parseCondition(input, type);
   int error = sya(input, ans, var);
@@ -199,6 +209,7 @@ int checkConditional(char *input, int type, vari *var, double *ans){
   return *ans;
 }
 
+//free double array
 void freeString(char **string, int max){
   for(int i = 0; i < max; ++i){
     free(string[i]);

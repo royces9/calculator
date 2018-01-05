@@ -5,6 +5,7 @@
 #include "stack.h"
 #include "operator.h"
 
+//string containing functions
 const char __FUNCTIONS__[__NF__][20] = {
   "quit",
   "clear",
@@ -40,6 +41,7 @@ const char __FUNCTIONS__[__NF__][20] = {
   "print("
 };
 
+//string containing operators
 const char __OPERATORS__[__NO__][5] = {
   "+",
   "-",
@@ -64,6 +66,7 @@ const char __OPERATORS__[__NO__][5] = {
   "~"
 };
 
+//array containing the precedence of each operator
 const int operatorPrecedence[__NO__] = {
   6,
   6,
@@ -85,6 +88,7 @@ const int operatorPrecedence[__NO__] = {
   0
 }; //~is not implemented at the moment
 
+//search in __FUNCTIONS__
 int searchFunctionArray(char *buffer){
   for(int i = 0; i < __NF__; ++i){
     if(!strcmp(__FUNCTIONS__[i], buffer)){
@@ -94,6 +98,7 @@ int searchFunctionArray(char *buffer){
   return __NF__;
 }
 
+//search in __OPERATORS__
 int searchOperatorArray(char *buffer){
   for(int i = 0; i < __NO__; ++i){
     if(!strcmp(__OPERATORS__[i], buffer)){
@@ -103,6 +108,7 @@ int searchOperatorArray(char *buffer){
   return __NO__;
 }
 
+//set the operatorStruct, kinda like a constructor
 operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration){
   operatorStruct out;
   strcpy(out.operator, operator);
@@ -112,6 +118,7 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
   return out;
 }
 
+//executes either one argument function or two argument function
 void execNum(numberStack *num, operatorStruct ch){
   double a, b;
   switch(ch.argNo){
@@ -131,6 +138,7 @@ void execNum(numberStack *num, operatorStruct ch){
   }
 }
 
+//factorial function
 double factorial(double a){
   a = floor(a);
   if(a == 0){
@@ -139,6 +147,7 @@ double factorial(double a){
   return a == 1 ? 1 : a*factorial(a-1);
 }
 
+//returns value from one argument functions
 double oneArg(double a, int o){
   switch(o){
   case eSin: return sin(a);
@@ -158,6 +167,7 @@ double oneArg(double a, int o){
   }
 }
 
+//returns value from two argument function
 double twoArg(double a, double b, int o){
   switch(o){
   case eAdd: return a + b;
