@@ -9,12 +9,14 @@
 #include "onearg.h"
 #include "sya.h"
 
+//counts number of input arguments
 int numberOfArgs(char **input){
   int i = 0;
   for(i = 0; strcmp(input[i], "\0"); ++i);
   return i;
 }
 
+//determines minimum value from the inputs given
 double min(char **input, vari *var, int *error){
   char *str2d, *str2d2;
   double out, inter;
@@ -35,6 +37,7 @@ double min(char **input, vari *var, int *error){
   return out;
 }
 
+//determines maximum value from the inputs given
 double max(char **input, vari *var, int *error){
   double out, inter;
   int argNo = numberOfArgs(input);
@@ -54,28 +57,30 @@ double max(char **input, vari *var, int *error){
   return out;
 }
 
+//calculates average value from the inputs given
 double avg(char **input, vari *var, int *error){
   double sum = 0, partSum = 0;
   int argNo = numberOfArgs(input);
   for(int i = 0; i < argNo; ++i){
-    sya(input[i], &partSum, var);
+    *error = sya(input[i], &partSum, var);
     if(*error) return 0;
     sum += partSum;
   }
   return sum/argNo;
 }
 
+//calculates the derivative of a function at a given point with a given step size
 double deri(char **input, vari *var, int *error){
   char *str2d;
   double out = 0, inter = 0, point = 0, h = 0;
-  vari varTemp = *var;
+  vari varTemp = *var; //copy global struct to a local variable struct
   int varIndex = 0;
 
   /*
   input[0] = function
   input[1] = variable
   input[2] = point
-  input[3] = tolerance 
+  input[3] = step size
    */
 
   //check the number of inputs is correct
@@ -84,6 +89,7 @@ double deri(char **input, vari *var, int *error){
     return 0;
   }
 
+  //set both the point and step size
   *error = sya(input[2], &point, &varTemp);
   if(*error) return 0;
 
@@ -93,14 +99,15 @@ double deri(char **input, vari *var, int *error){
   //set up a dummy variable specified by user  
   varIndex = varcheck(&varTemp, input[1]);
 
-  if(varIndex == -1){
+  if(varIndex == -1){ //if there are no other variables 
     varIndex = 0;
     varTemp.occ = 1;
   }
-  else if(varIndex == -2){
+  else if(varIndex == -2){ //if there are other variables
     varIndex = ++varTemp.count;
   }
 
+  //set the variable into the local variable struct
   strcpy(varTemp.name[varIndex], input[1]);
 
   //sets the dummy variable equal to x+h
@@ -123,6 +130,7 @@ double deri(char **input, vari *var, int *error){
   return out/(2*h);
 }
 
+//calculates integral of a given function with a given range and partition count
 double inte(char **input, vari *var, int *error){
   //check number of arguments
   if(numberOfArgs(input) != 5){
@@ -132,7 +140,7 @@ double inte(char **input, vari *var, int *error){
 
   char *str2d;
   double out = 0, inter = 0, step = 0, number = 0, a = 0, b = 0, sum = 0;
-  vari varTemp = *var;
+  vari varTemp = *var; //copy global variable struct to a local variable struct
   int varIndex = 0, iter = 0;
 
   /*
@@ -152,35 +160,40 @@ double inte(char **input, vari *var, int *error){
 
   *error = sya(input[4], &number, &varTemp);
   if(*error) return 0;
-
+  
+  //calculate step size
   step = (b-a)/number;
 
   //set dummy variable
   varIndex = varcheck(&varTemp, input[1]); //checks if variable exists or not, return value used as index
     
-  if(varIndex == -1){
+  if(varIndex == -1){ //if there are no other variables
     varIndex = 0;
     varTemp.occ = 1;
   }
-  else if(varIndex == -2){
+  else if(varIndex == -2){ //if there are variables
     varIndex = ++varTemp.count;
   }
   strcpy(varTemp.name[varIndex],input[1]); //copy the dummy variable into struct
 
   //calculate integral using composite Simpson's
-  number = floor(number/2); //if the number of steps is odd, change it to be even
 
+  number = floor(number/2); //if the number of steps is odd, change it to be even
+  
   for(int i = 1; i <= number; ++i){
+    //f(x_2i-2)
     varTemp.value[varIndex] = a + (((2 * i) - 2) * step);
     *error = sya(input[0], &out, &varTemp);
     if(*error) return 0;
     sum += out;
 
+    //4*f(x_2i-1)
     varTemp.value[varIndex] = a + (((2 * i) - 1) * step);
     *error = sya(input[0], &inter, &varTemp);
     if(*error) return 0;
     sum += (4 * inter);
 
+    //f(x_2i)
     varTemp.value[varIndex] = a + ((2 * i) * step);
     *error = sya(input[0], &out, &varTemp);
     if(*error) return 0;
@@ -191,6 +204,7 @@ double inte(char **input, vari *var, int *error){
   return sum * (step / 3);
 }
 
+//numerically solve an expression f(x)=0 for x
 double solve(char **input, vari *var, int *error){
   //check number of arguments
   if(numberOfArgs(input) != 4){
@@ -213,15 +227,16 @@ double solve(char **input, vari *var, int *error){
   //set dummy variable
   varc = varcheck(&varTemp, input[1]);
 
-  if(varc == -1){
+  if(varc == -1){ //if there are no other variables
     varc = 0;
     varTemp.occ = 1;
   }
-  else if(varc == -2){
+  else if(varc == -2){ //if there are other variables
     varc = ++varTemp.count;
   }
   strcpy(varTemp.name[varc],input[1]);
 
+  //set initial guess and the tolerance
   *error = sya(input[2], &varTemp.value[varc], &varTemp);
   if(*error) return 0;
 
@@ -230,7 +245,8 @@ double solve(char **input, vari *var, int *error){
 
   test = h + 1; //ensure test is always greater than h
 
-  while(fabs(test) > h){
+  //solve f(x)=0 for x using Newton's method
+  while(fabs(test) > h){ //if the difference between iterations is less than the tolerance, break out of loop
     *error = sya(input[0],&out, &varTemp);
     if(*error) return 0;
 
@@ -244,6 +260,8 @@ double solve(char **input, vari *var, int *error){
 
   return varTemp.value[varc];
 }
+
+//remove spaces from char input
 void removeSpaces(char *input, int *front, int *back){
   if(input[0] == ' '){
     int i = 1;
@@ -258,12 +276,14 @@ void removeSpaces(char *input, int *front, int *back){
   }
 }
 
+//print a line to stdout, formatting is similar to matlab
 int printLine(char **input, vari *var, int *error){
   int argNo = numberOfArgs(input), front = 0, back = 0;
 
   for(int i = 0; i < argNo; ++i){
     int len = strlen(input[i]), string = 0;
 
+    //check if there is a quote in beginning of string, or spaces then a quote
     if(input[i][0] == '"'){
       string = 1;
     }
@@ -275,35 +295,37 @@ int printLine(char **input, vari *var, int *error){
       }
     }
 
+    //check if there is a quote at the end of the string, or spaces then a quote (going backwards
     if(input[i][len-(back+1)] == '"'){
-      string += 1;
+      ++string;
     }
     else{
       for(back = 0; input[i][len-(back+1)] == ' '; ++back){
 	if(input[i][len-(back+1)] == '"'){
-	  string += 1;
+	  ++string;
 	}
       }
     }
 
+    //if there are quotes the the beginning/end of string, this is true
     if(string){
-      input[i][len-(back+1)] = '\0';
+      input[i][len-(back+1)] = '\0'; //null terminate it to write over the quote
       if(string == 2){
-	if((input[i][len-(back+3)] == '\\') && (input[i][len-(back+2)] == 'n')){
-	  input[i][len-(back+3)] = '\0';
-	  printf("%s\n", input[i]+front+1);
+	if((input[i][len-(back+3)] == '\\') && (input[i][len-(back+2)] == 'n')){ //check if there's a new line
+	  input[i][len-(back+3)] = '\0'; //write over the \ in new line
+	  printf("%s\n", input[i]+front+1); //print with new line
 	}
 	else{
-	  printf("%s", input[i]+front+1);
+	  printf("%s", input[i]+front+1); //print without new line
 	}
       }
       else{
-	return -9;
+	return -9; //there's no second quote to match, error
       }
     }
-    else{
+    else{ //no quotes, just a variable or expression
       double out;
-      *error = sya(input[i], &out, var);
+      *error = sya(input[i], &out, var); //calculate expression and print, print variables this way
       if(*error) return 0;
       printf("%lf", out);
 
@@ -312,6 +334,7 @@ int printLine(char **input, vari *var, int *error){
   return 0;
 }
 
+//separate a single string into multiple strings by a given delimiter
 char **separateString(char *input, char delimiter, int *start, int *error){
   char *tok;
   int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, delimiterCount = 0, i = 0;  
@@ -335,6 +358,7 @@ char **separateString(char *input, char delimiter, int *start, int *error){
     }
   }
 
+  //temp variable that strtok will take in, since strtok mangles original pointer
   char *input2 = malloc((length + 3)* sizeof(*input2));
   __MALLOC_CHECK(input2, *error);
 
@@ -348,12 +372,14 @@ char **separateString(char *input, char delimiter, int *start, int *error){
   *start += (length+1);
   tok = strtok(input2, strDelimiter);
 
+  //fill the first index with a string
   separatedString[0] = malloc((strlen(tok) + 1) * sizeof(**separatedString));
   __MALLOC_CHECK(separatedString[0], *error);
   strcpy(separatedString[0], ++tok);
 
   tok = strtok(NULL, strDelimiter);
 
+  //every loop populates separateString with another string
   for(i = 1; tok != NULL; ++i){
     separatedString[i] = malloc((strlen(tok) + 1) * sizeof(**separatedString));
     __MALLOC_CHECK(separatedString[i], *error);

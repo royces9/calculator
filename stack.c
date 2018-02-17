@@ -1,22 +1,24 @@
+#include <string.h>
+
 #include "stack.h"
 
 void pushn(double inp, numberStack *st){
   if(st->occ){
     st->stk[++st->top] = inp;
   }
-  else{
+  else{ //if stack is empty put it into 0, st.top is guaranteed to be 0 at initialization
     st->stk[0] = inp;
     st->occ = 1;
   }
 }
 
-double popn(numberStack *st){
+double popn(numberStack *st){ //pop a double from the stack
   double out = 0;
   if(st->occ){
 
     out = st->stk[st->top--];
 
-    if(st->top == -1){
+    if((st->top) == -1){ //if top is -1, the stack is now empty, set occ and top back to 0
       st->occ = 0;
       st->top = 0;
     }
@@ -29,7 +31,7 @@ void pushch(operatorStruct inp, operatorStack *st){
     st->stk[++st->top] = inp;
   }
 
-  else{
+  else{ //if stack is empty put it into 0
     st->stk[0] = inp;
     st->occ= 1;
   }
@@ -40,9 +42,7 @@ operatorStruct popch(operatorStack *st){
   if(st->occ){
     out = st->stk[st->top--];
 
-    if(st->top == -1){
-      st->stk[0].operator[0] = '\0';
-      st->stk[0].argNo = 0;
+    if(st->top == -1){ //if top is -1, then the stack is empty, set occ and top to 0
       st->occ = 0;
       st->top = 0;
     }
@@ -51,5 +51,21 @@ operatorStruct popch(operatorStack *st){
     out.operator[0] = '\0';
     out.argNo = 0;
   }
+  return out;
+}
+
+numberStack newNumberStack(){ //make new number stack
+  numberStack out;
+  out.top = 0;
+  out.occ = 0;
+  memset(out.stk, 0, sizeof(out.stk));
+  return out;
+}
+
+operatorStack newOperatorStack(){ //make new operator stack
+  operatorStack out;
+  out.top = 0;
+  out.occ = 0;
+  memset(out.stk, '\0', sizeof(out.stk));
   return out;
 }
