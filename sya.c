@@ -117,7 +117,9 @@ int sya(char *input, double *ans, vari *var){
     case '|':
     case '~':
       bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
-      if((type != 2) || (input[i] == '(') || (input[i] == ')') || (input[i+1] == '(') || (input[i+1] == ')')){ //if the current or next character is a parenthese or the next character is not a operator end the buffer
+      //assumes operators are only two characters wide, checks the current char and the next to see if it's a
+      //valid operator, if it is not, then go into the if and find the correct operator in findOperator
+      if(checkOper(input[i], input[i+1]) == __NO__){
 	bufferOper[k] = '\0';
 	error = findOperator(bufferOper, &out, &oper, *ans, var, &negativeCheck); //find the corresponding operator
 	k = 0;
@@ -177,6 +179,11 @@ int checkNumbers(char *input){ //check if the input string is a number
     }
   }
   return 1;
+}
+
+int checkOper(char a, char b){
+  char buffer[2] = {a, b};
+  return searchOperatorArray(buffer);
 }
 
 int checkType(char a){ //checks the type of character
