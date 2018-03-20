@@ -40,6 +40,7 @@ int main(int argc, char *argv[]){
     add_history(input);
 
     if(*input == 0){ //if the user enters an empty line, go to top of loop
+      free(input);
       continue;
     }
     
