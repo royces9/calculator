@@ -53,7 +53,7 @@ operatorStruct popch(operatorStack *st){
   return out;
 }
 
-numberStack newNumberStack(){ //make new number stack
+numberStack newNumberStack(void){ //make new number stack
   numberStack out;
   out.top = 0;
   out.occ = 0;
@@ -61,10 +61,19 @@ numberStack newNumberStack(){ //make new number stack
   return out;
 }
 
-operatorStack newOperatorStack(){ //make new operator stack
+operatorStack newOperatorStack(void){ //make new operator stack
   operatorStack out;
   out.top = 0;
   out.occ = 0;
   memset(out.stk, '\0', sizeof(out.stk));
   return out;
+}
+
+vari newVari(void){
+  vari var;
+  var.count = 0;
+  var.occ = 0;
+  memset(var.name, '\0', sizeof(var.name));
+  memset(var.value, 0, sizeof(var.value));
+  return var;
 }

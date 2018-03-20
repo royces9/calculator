@@ -39,7 +39,8 @@ void pushn(double inp, numberStack *st);
 double popn(numberStack *st);
 void pushch(operatorStruct inp, operatorStack *st);
 operatorStruct popch(operatorStack *st);
-numberStack newNumberStack();
-operatorStack newOperatorStack();
+numberStack newNumberStack(void);
+operatorStack newOperatorStack(void);
+vari newVari(void);
 
 #endif //STACK

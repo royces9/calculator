@@ -11,13 +11,9 @@ int main(int argc, char *argv[]){
   int error = 0;
   double ans = 0; //stores the previous answer in this variable, can be used by using "ans"
 
-  vari var;
-  //initialize var to 0
-  var.count = 0;
-  var.occ = 0;
-  memset(var.name, '\0', sizeof(var.name));
-  memset(var.value, 0, sizeof(var.value));
-  
+  //initialize variable struct
+  vari var = newVari();
+
   //execute command line arguments first
   if(argc > 1){
     for(int i = 1; i < argc; ++i){
