@@ -43,57 +43,39 @@ int sya(char *input, double *ans, vari *var){
     case 'A' ... 'Z':
     case '_':
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
-      if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){
+      if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
 	bufferLetters[j] = '\0';
 	if(checkNumbers(bufferLetters)){ //if the buffer is all numbers, it's a number, otherwise a variable
 	  pushn(strtod(bufferLetters, &str2d), &out);
 	  j = 0;
 	}
-	else{
-	  switch(input[i+1]){ //check character after the variable name
-	  case '(': //for functions ,"sin(" or "log(" etc, finds the function
-	    bufferLetters[j++] = '(';
-	    bufferLetters[j] = '\0';
-	    error = findFunction(bufferLetters, &out, &oper, *ans, var, &negativeCheck, &i, input);
-	    j = 0;
-	    break;
 
-	  case '=': //for variable assignment
-	    bufferLetters[j] = '\0';
+	else if(isAssign(input) && !varset){ //checks if the command is an assignment
+	  check = varcheck(var, bufferLetters); //checks that the variable exists
+	  varset = 1; //flag for assignment at the end of the sya loop
 
-	    if(input[i+2] != '='){ //checks to make sure it's not equality instead
-
-	      check = varcheck(var, bufferLetters); //checks that the variable exists
-	      varset = 1; //flag for assignment at the end of the sya loop
-
-	      if(check >= 0){ //variable exists, returned value is the index location
-		strcpy(var->name[check], bufferLetters);
-	      }
-	      else if(check == -1){ //var struct is empty, adds first variable to the struct
-		strcpy(var->name[0], bufferLetters);
-		var->occ = 1; //sets the struct occupied flag to true
-		var->count = 0;
-		check = 0; //the index of the new variable
-	      }
-	      else if(check == -2){ //var struct is not empty, but it's a new variable
-		check = ++var->count;
-		strcpy(var->name[check], bufferLetters);
-	      }
-	    }
-	    else{ //else it's equality
-	      error = findFunction(bufferLetters, &out, &oper, *ans, var, &negativeCheck, &i, input);
-	    }
-	    j = 0;
-	    break;
-
-	  default: //find variables or functions that don't take arguments, "quit", "help" etc
-	    bufferLetters[j] = '\0';
-	    error = findFunction(bufferLetters, &out, &oper, *ans, var, &negativeCheck, &i, input);
-	    j = 0;
-	    break;
+	  if(check == -1){ //var struct is empty, adds first variable to the struct
+	    strcpy(var->name[0], bufferLetters);
+	    var->occ = 1; //sets the struct occupied flag to true
+	    var->count = 0;
+	    check = 0; //the index of the new variable
 	  }
+	  else if(check == -2){ //var struct is not empty, but it's a new variable
+	    check = ++var->count;
+	    strcpy(var->name[check], bufferLetters);
+	  }
+	  j = 0;
 	}
-      }
+
+	else{
+	  if(input[i+1] == '('){
+	    bufferLetters[j++] = '(';
+	  }
+	  bufferLetters[j] = '\0';
+	  error = findFunction(bufferLetters, &out, &oper, *ans, var, &negativeCheck, &i, input);
+	  j = 0;
+	} //end else
+      } //end if
       negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
       break;
 
@@ -219,4 +201,10 @@ int checkType(char a){ //checks the type of character
   default:
     return 0;
   }
+}
+
+int isAssign(char *input){
+  //char *equal = strchr(input, '=');
+  //char *equal = strstr(input, "=")
+  return (strchr(input, '=') == (strstr(input, "=="))) ? 0 : 1;
 }

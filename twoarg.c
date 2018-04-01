@@ -66,7 +66,7 @@ Precedence values for operators: Reference wiki page of C/C++ operators
 
   case eAssign:
     break;
-
+    
   case eAdd:
   case eMultiply:
   case eDivide:
