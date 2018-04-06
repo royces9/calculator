@@ -6,7 +6,7 @@
 #include "stack.h"
 #include "sya.h"
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
   char *input = NULL;
   int error = 0;
   double ans = 0; //stores the previous answer in this variable, can be used by using "ans"
@@ -15,39 +15,35 @@ int main(int argc, char *argv[]){
   vari var = newVari();
 
   //execute command line arguments first
-  if(argc > 1){
+  if(argc > 1) {
     for(int i = 1; i < argc; ++i){
       printf(">>%s\n", *(argv+i));
       error = sya(argv[i], &ans, &var);
 
-      if(error == 0){
+      if(error == 0) {
 	printf("\n%lf\n\n",ans);
-      }
-      else{
+      } else{
 	errorrep(error);
       }
     }
   } 
 
   //main loop
-  while(error <= 0){
+  while(error <= 0) {
     //user input and history
     input = readline(">>");
     add_history(input);
 
-    if(*input == 0){ //if the user enters an empty line, go to top of loop
+    if(*input == 0) { //if the user enters an empty line, go to top of loop
       free(input);
       continue;
-    }
-    
-    else{ //parses string and does all the calculations
+    } else{ //parses string and does all the calculations
       error = sya(input, &ans, &var);
     }
 
-    if(error == 0){
+    if(error == 0) {
       printf("\n%lf\n\n", ans);
-    }
-    else{ //if the error is less than -1, prints and error code
+    } else{ //if the error is less than -1, prints and error code
       errorrep(error);
     }
 
