@@ -8,10 +8,7 @@
 #include "sya.h"
 
 int runFile(char **input, vari *var, double *ans) {
-  FILE *inputFile;
-  char buffer[1024]; //buffer to put strings from file into
   int error = 0; //int to put errors into
-  int length = 0; //length of string
   int maxSize = 1024; //maximum size of tree
   int direction = 0; //direction to go down tree
   int check = 0; //check whether conditionals are true/false
@@ -19,12 +16,50 @@ int runFile(char **input, vari *var, double *ans) {
   char **fileString = calloc(maxSize, sizeof(*fileString));
   __MALLOC_CHECK(fileString, error);
 
-
   fileTree *tree = createLeaf(), *head = tree;
   fileStack execStack = newFileStack(), stk = newFileStack();
 
+  //make tree structure
+  error = createTree(input[0], tree, fileString, &maxSize);
+  if(error) return error;
+
+  //execute tree
+  error = executeTree(tree, var, ans, maxSize);
+
+  //free tree
+  cutDownTree(tree);
+
+  //free array of strings
+  freeString(fileString, maxSize);
+
+  return error;
+}
+
+
+//create new fileStack
+fileStack newFileStack() {
+  fileStack out;
+  out.top = 0;
+  out.occ = 0;
+  memset(out.stk, 0, sizeof(out.stk));
+  return out;
+}
+
+
+//create and populate tree
+int createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
+  FILE *inputFile = fopen(fileName, "r"); //file to read from
+  char buffer[1024]; //size of char buffer that each line of the file is copied too
+  int direction = 0; //direction to branch in tree
+  int error = 0; //error checking
+  int length = 0; //lengh of string
+
+  fileStack stk = newFileStack();
+
+  fileTree *head = tree;
+
   //open and check if file exists
-  inputFile = fopen(input[0], "r");
+  //return error if it doesn't exist/can't open
   if(!inputFile) {
     free(tree);
     free(fileString);
@@ -40,6 +75,7 @@ int runFile(char **input, vari *var, double *ans) {
       for(offset = 0; buffer[offset] == ' '; ++offset);
       //empty for loop
     }
+
     char *bufferHold = buffer;
     bufferHold += offset;
     length = strlen(bufferHold);
@@ -55,6 +91,7 @@ int runFile(char **input, vari *var, double *ans) {
     }
 
     //allocates memory and copies string from file into array
+    //puts that string into tree struct
     fileString[i] = malloc((length+1) * sizeof(**fileString));
     __MALLOC_CHECK(fileString[i], error);
     strcpy(*(fileString+i), bufferHold);
@@ -74,7 +111,9 @@ int runFile(char **input, vari *var, double *ans) {
       head = head->right;
       break;
 
-    case -1: //end signifies end of while/if/else 
+      //end
+      //signifies end of while/if/else 
+    case -1:
       head = fPop(&stk);
 
     default:
@@ -84,16 +123,24 @@ int runFile(char **input, vari *var, double *ans) {
     }
 
     //make fileString bigger if there is no room in it for the next iteration
-    if((i+1) >= maxSize) {
-      maxSize *= 2;
-      fileString = realloc(fileString, maxSize * sizeof(*fileString));
+    if((i+1) >= *maxSize) {
+      *maxSize *= 2;
+      fileString = realloc(fileString, *maxSize * sizeof(*fileString));
     }
   }  
+  fclose(inputFile);
+}
 
-  //reset the head as the first node
-  head = tree;
 
+int executeTree(fileTree *tree, vari *var, double *ans, int maxSize){
+  fileTree *head = tree;
+  int direction = 0; //checking the direction of program flow
+  int check = 0; //checking conditionals: if/while
+  int error = 0; //error 
+  fileStack stk = newFileStack(); //create new file stack
+  
   //executes the tree
+  //checks that the current leaf and the string it holds are not 0
   while((head != NULL) && (head->line != NULL)) {
 
     //check whether to branch left or right down tree
@@ -108,9 +155,6 @@ int runFile(char **input, vari *var, double *ans) {
     case 1: //if
       check = checkConditional(head->line, direction, var, ans);
       if(check < 0) { //if there is an error in the if
-	cutDownTree(tree);
-	freeString(fileString, maxSize);
-	fclose(inputFile);
 	return check;
       }
 
@@ -119,7 +163,7 @@ int runFile(char **input, vari *var, double *ans) {
       //everything inside the if executes
       //otherwise go directly to head->left
       if(check) {
-	fPush(&execStack, head->left);
+	fPush(&stk, head->left);
 	head = head->right;
       } else {
 	head = head->left;
@@ -129,9 +173,6 @@ int runFile(char **input, vari *var, double *ans) {
     case 2: //while
       check = checkConditional(head->line, direction, var, ans);
       if(check < 0) {
-	cutDownTree(tree);
-	freeString(fileString, maxSize);
-	fclose(inputFile);
 	return check;
       }
 
@@ -140,7 +181,7 @@ int runFile(char **input, vari *var, double *ans) {
       //when the loop comes back, the condition is rechecked
       //when the condition becomes false, go to the line after the while block
       if(check) {
-	fPush(&execStack, head);
+	fPush(&stk, head);
 	head = head->right;
       } else {
 	head = head->left;
@@ -148,7 +189,7 @@ int runFile(char **input, vari *var, double *ans) {
       break;
 	
     case -1: //end 
-      head = fPop(&execStack); //head returns to whatever is on top of the stack
+      head = fPop(&stk); //head returns to whatever is on top of the stack
       break;
       
     case -2: //else
@@ -158,7 +199,7 @@ int runFile(char **input, vari *var, double *ans) {
       //when the check is non 0, the if condition executed
       //the else block is skipped
       if(check == 0) {
-	fPush(&execStack, head->left);
+	fPush(&stk, head->left);
 	head = head->right;
       } else { //check is true, continue after the else
 	head = head->left;
@@ -166,12 +207,10 @@ int runFile(char **input, vari *var, double *ans) {
       break;
 
       //every other line is executed normally
-    default: //for executing non conditional lines
+      //for executing non conditional lines
+    default:
       error = sya(head->line, ans, var);
       if(error) {
-	cutDownTree(tree);
-	freeString(fileString, maxSize);
-	fclose(inputFile);
 	return error;
       }
 
@@ -185,25 +224,8 @@ int runFile(char **input, vari *var, double *ans) {
       break;
     }
   }
-
-  //free tree
-  cutDownTree(tree);
-
-  //free array of strings
-  freeString(fileString, maxSize);
-
-  fclose(inputFile);
-  return 0;
 }
 
-//create new fileStack
-fileStack newFileStack() {
-  fileStack out;
-  out.top = 0;
-  out.occ = 0;
-  memset(out.stk, 0, sizeof(out.stk));
-  return out;
-}
 
 //determine whether to branch left or right
 int checkProgramFlow(char *input) {
@@ -214,7 +236,8 @@ int checkProgramFlow(char *input) {
   return 0;
 }
 
-//determine if it's while or if
+
+//determine if input string is while or if
 char *parseCondition(char *input, int type) {
   switch(type){
   case 1: //if
@@ -229,6 +252,7 @@ char *parseCondition(char *input, int type) {
   }
 }
 
+
 //checks conditionals in while/if
 int checkConditional(char *input, int type, vari *var, double *ans) {
   input = parseCondition(input, type);
@@ -241,6 +265,7 @@ int checkConditional(char *input, int type, vari *var, double *ans) {
   //guarantee that *ans only returns 0 or 1
   return !!*ans;
 }
+
 
 //free double array
 void freeString(char **string, int max) {
