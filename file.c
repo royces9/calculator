@@ -10,14 +10,11 @@
 int runFile(char **input, vari *var, double *ans) {
   int error = 0; //int to put errors into
   int maxSize = 1024; //maximum size of tree
-  int direction = 0; //direction to go down tree
-  int check = 0; //check whether conditionals are true/false
 
   char **fileString = calloc(maxSize, sizeof(*fileString));
   __MALLOC_CHECK(fileString, error);
 
-  fileTree *tree = createLeaf(), *head = tree;
-  fileStack execStack = newFileStack(), stk = newFileStack();
+  fileTree *tree = createLeaf();
 
   //make tree structure
   error = createTree(input[0], tree, fileString, &maxSize);
