@@ -10,6 +10,9 @@ calc2: $(OFILES)
 debug: $(OFILES)
 	$(CC) -g $(OFILES) -o calc2 $(FLAGS)
 
+matrix.o: matrix.c matrix.h
+	%(CC) -c matrix.c
+
 stack.o: stack.c stack.h
 	$(CC) -c stack.c
 

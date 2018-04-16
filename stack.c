@@ -2,7 +2,7 @@
 
 #include "stack.h"
 
-void pushn(double inp, numberStack *st){
+void pushn(matrix *inp, numberStack *st){
   if(st->occ){
     st->stk[++st->top] = inp;
   }
@@ -13,7 +13,7 @@ void pushn(double inp, numberStack *st){
 }
 
 double popn(numberStack *st){ //pop a double from the stack
-  double out = 0;
+  matrix *out = NULL;
   if(st->occ){
 
     out = st->stk[st->top--];

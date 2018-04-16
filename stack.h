@@ -1,6 +1,8 @@
 #ifndef STACK
 #define STACK
 
+#include "matrix.h"
+
 //macro for malloc failure
 #define __MALLOC_CHECK(pointer, error) \
   if(pointer == NULL){\
@@ -16,7 +18,7 @@ typedef struct{ //struct for operators, +, -, etc
 } operatorStruct;
 
 typedef struct{ //struct for stack of numbers
-  double stk[1024]; //stack
+  matrix *stk[1024]; //stack
   int top; //index for where the top is
   char occ; //boolean, 0 if empty, 1 if occupied
 } numberStack;
@@ -29,14 +31,14 @@ typedef struct{ //same as numberStack, except for operators
 
 typedef struct{ //variable storage
   char name[256][256]; //stores variable names
-  double value[256]; //stores variable values
+  matrix *value[256]; //stores variable values
   char occ; //same as numberStack
   int count; //index for the newest variable
 } vari;
 
 
-void pushn(double inp, numberStack *st);
-double popn(numberStack *st);
+void pushn(matrix *inp, numberStack *st);
+matrix *popn(numberStack *st);
 void pushch(operatorStruct inp, operatorStack *st);
 operatorStruct popch(operatorStack *st);
 numberStack newNumberStack(void);

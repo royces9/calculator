@@ -8,7 +8,7 @@
 #include "twoarg.h"
 #include "sya.h"
 
-int sya(char *input, double *ans, vari *var){
+int sya(char *input, matrix *ans, vari *var){
   numberStack out = newNumberStack(); //stack for output numbers
   operatorStack oper = newOperatorStack(); //stack for operators
   int i = 0, j = 0, k = 0, error = 0, leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, check = 0, negativeCheck = 0;

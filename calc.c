@@ -3,13 +3,14 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include "matrix.h"
 #include "stack.h"
 #include "sya.h"
 
 int main(int argc, char *argv[]){
   char *input = NULL;
   int error = 0;
-  double ans = 0; //stores the previous answer in this variable, can be used by using "ans"
+  matrix *ans; //stores the previous answer in this variable, can be used by using "ans"
 
   //initialize variable struct
   vari var = newVari();
