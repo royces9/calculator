@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = -lm -lreadline -I. -flto
+FLAGS = -lm -lreadline -I. -flto -Wall -O2
 HEADERS = $(wildcard *.h)
 CFILES = $(wildcard *.c)
 OFILES = $(wildcard *.o)
