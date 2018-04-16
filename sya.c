@@ -204,7 +204,6 @@ int checkType(char a){ //checks the type of character
 }
 
 int isAssign(char *input){
-  //char *equal = strchr(input, '=');
-  //char *equal = strstr(input, "=")
+  //check if the first occurence of '=' is in the same spot as "=="
   return (strchr(input, '=') == (strstr(input, "=="))) ? 0 : 1;
 }

@@ -12,7 +12,7 @@ void pushn(matrix *inp, numberStack *st){
   }
 }
 
-double popn(numberStack *st){ //pop a double from the stack
+double *popn(numberStack *st){ //pop a double from the stack
   matrix *out = NULL;
   if(st->occ){
 
