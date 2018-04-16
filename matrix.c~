@@ -1,4 +1,0 @@
-#include "matrix.h"
-
-matrix *initMatrix(int size, int dimension){
-}
