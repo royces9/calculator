@@ -126,6 +126,7 @@ int createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
     }
   }  
   fclose(inputFile);
+  return error;
 }
 
 
@@ -221,6 +222,7 @@ int executeTree(fileTree *tree, vari *var, double *ans, int maxSize){
       break;
     }
   }
+  return error;
 }
 
 

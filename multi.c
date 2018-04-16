@@ -38,6 +38,7 @@ double min(char **input, vari *var, int *error) {
   return out;
 }
 
+
 //determines maximum value from the inputs given
 double max(char **input, vari *var, int *error) {
   double out, inter;
