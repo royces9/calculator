@@ -238,6 +238,5 @@ int checkType(char a) {
 //checks if = and == are in the same spot, relies on strchr and strstr to
 //linearlly check from the beginning of the string
 int isAssign(char *input) {
->>>>>>> master
   return (strchr(input, '=') == (strstr(input, "=="))) ? 0 : 1;
 }

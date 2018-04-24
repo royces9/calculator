@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
       error = sya(argv[i], &ans, &var);
 
       if(error == 0) {
-	printf("\n%lf\n\n",ans);
+	printMatrix(ans);
       } else{
 	errorrep(error);
       }
@@ -43,8 +43,8 @@ int main(int argc, char *argv[]) {
     }
 
     if(error == 0) {
-      printf("\n%lf\n\n", ans);
-    } else{ //if the error is less than -1, prints and error code
+      printMatrix(ans);
+    } else{ //if the error is less than -1, prints an error code
       errorrep(error);
     }
 
