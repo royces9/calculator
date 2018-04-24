@@ -3,7 +3,7 @@
 #include "stack.h"
 
 
-void pushn(double inp, numberStack *st) {
+void pushn(matrix *inp, numberStack *st) {
   if(st->occ) {
     st->stk[++st->top] = inp;
   } else { //if stack is empty put it into 0, st.top is guaranteed to be 0 at initialization
@@ -13,7 +13,7 @@ void pushn(double inp, numberStack *st) {
 }
 
 
-double popn(numberStack *st) { //pop a double from the stack
+matrix *popn(numberStack *st) { //pop a double from the stack
   double out = 0;
   if(st->occ) {
     out = st->stk[st->top--];

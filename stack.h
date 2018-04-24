@@ -17,17 +17,20 @@ typedef struct { //struct for operators, +, -, etc
   int enumeration; //corresponding enum
 } operatorStruct;
 
+
 typedef struct { //struct for stack of numbers
-  double stk[1024]; //stack
+  matrix *stk[1024]; //stack
   int top; //index for where the top is
   char occ; //boolean, 0 if empty, 1 if occupied
 } numberStack;
+
 
 typedef struct { //same as numberStack, except for operators
   operatorStruct stk[1024];
   int top;
   char occ;
 } operatorStack;
+
 
 typedef struct { //variable storage
   char name[256][256]; //stores variable names

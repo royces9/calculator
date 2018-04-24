@@ -9,12 +9,15 @@
 
 
 //shunting yard algorithm
-int sya(char *input, double *ans, vari *var) {
+int sya(char *input, matrix *ans, vari *var) {
   numberStack out = newNumberStack(); //stack for output numbers
   operatorStack oper = newOperatorStack(); //stack for operators
+
   int i = 0, j = 0, k = 0; //iterators
   int error = 0; //error checking int
   int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0; //number of parens and length of input
+  int leftBrackCount = 0, rightBrackCount = 0;
+  
   int check = 0; //for if an assignment occurs
   int negativeCheck = 0; //to check if the '-' char is subtraction or a negative
   char varset = 0, *str2d = NULL; //string for strtod function, unused
@@ -26,9 +29,13 @@ int sya(char *input, double *ans, vari *var) {
     //increment counter when the current char is a left end or right end parenthese
     leftParenthesisCount += (input[length] == '(');
     rightParenthesisCount += (input[length] == ')');
+
+    leftBracketCount += (input[length] == '[');
+    rightBracketCount += (input[length] == ']');
   }
+
   
-  if(leftParenthesisCount != rightParenthesisCount) {
+  if((leftParenthesisCount != rightParenthesisCount) || (leftBracketCount != rightBracketCount)) {
     return error = -3;
   }
 
@@ -96,6 +103,9 @@ int sya(char *input, double *ans, vari *var) {
     case '(':
     case ')':
 
+    case '[':
+    case ']':
+
     case '=':
     case '>':
     case '<':
@@ -118,6 +128,7 @@ int sya(char *input, double *ans, vari *var) {
 
       //other
     case ' ': //skip spaces, new line, semicolon
+    case '\t':
     case '\n':
     case ';':
       break;
@@ -199,6 +210,8 @@ int checkType(char a) {
     return 1;
 
   case '^':
+  case '[':
+  case ']':
   case '(':
   case '*':
   case '/':

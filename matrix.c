@@ -4,7 +4,6 @@
 
 #include "matrix.h"
 
-
 matrix *initMatrix(int *size, int dimension, int *error){
   matrix *out = malloc(sizeof(*out));
 
@@ -31,6 +30,9 @@ matrix *initMatrix(int *size, int dimension, int *error){
   return out;
 }
 
+
+//free the matrix and all of the data
+//associated with it
 void freeMatrix(matrix *m){
   free(m->size);
   free(m->elements);
@@ -40,34 +42,46 @@ void freeMatrix(matrix *m){
 
 //offset is the number of elements to offset the dimension m
 void printTwoDMatrix(matrix *m, int offset){
-  
   int newSize[2] = {m->size[0], m->size[1]};
+
+  /*another way that could work? I'll just keep it here for now
+  int i = 0;
+  int j = 0;
+  int *loc[2] = {&i, &j};
+  for(i = 0; i < m->size[0]; ++i){
+    for(j = 0; j < m->size[1]; ++j){
+      printf("%lf ", m->elements[offset + sub2ind(*loc, newSize, 2)]);
+    }
+    printf("\n");
+  }
+  printf("\n");*/
+  
   for(int i = 0; i < m->size[0]; ++i){
     for(int j = 0; j < m->size[1]; ++j){
       int location[2] = {i, j};
-      int ind = sub2ind(location, newSize, m->dimension);
       printf("%lf ", m->elements[offset+sub2ind(location, newSize, 2)]);
     }
     printf("\n");
   }
   printf("\n");
+
   return;
 }
 
 void printMatrix(matrix *m){
   int offset = 0;
   int twoDimSize = m->size[0] * m->size[1];
-  if(m->dimension >2){
+  if(m->dimension > 2){
     for(int i = 1; i < m->dimension; ++i){
 	printTwoDMatrix(m, offset);
 	offset += twoDimSize;
     }
-  }
-  else{
+  } else{
     printTwoDMatrix(m, 0);
   }
   return;
 }
+
 
 int getLength(int *size, int dimension){
   int out = 1;
@@ -83,9 +97,11 @@ int getLength(int *size, int dimension){
 int sub2ind(int *location, int *size, int dimension){
   int ind = location[0] + size[0];
   int sizeProd = size[0];
+
   for(int i = 1; i < dimension; ++i){
     ind = ind + sizeProd * (location[i] - 1);
     sizeProd *= size[i];
   }
+
   return ind;
 }
