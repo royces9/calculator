@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "matrix.h"
 #include "stack.h"
 #include "operator.h"
 
@@ -108,6 +109,7 @@ int searchOperatorArray(char *buffer) {
   return OPERATOR_COUNT;
 }
 
+
 //set the operatorStruct, kinda like a constructor
 operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration) {
   operatorStruct out;
@@ -120,17 +122,17 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 
 //executes either one argument function or two argument function
 void execNum(numberStack *num, operatorStruct ch) {
-  double a, b;
+  matrix *a, *b;
   switch(ch.argNo) {
   case 1:
     a = popn(num);
-    pushn(oneArg(a, ch.enumeration), num);
+    pushn(matrixOneArg(a, ch.enumeration), num);
     break;
 
   case 2:
     b = popn(num);
     a = popn(num);
-    pushn(twoArg(a, b, ch.enumeration), num);
+    pushn(matrixTwoArg(a, b, ch.enumeration), num);
     break;
 
   default:
@@ -138,8 +140,9 @@ void execNum(numberStack *num, operatorStruct ch) {
   }
 }
 
+
 //factorial function
-double factorial(double a) {
+element factorial(element a) {
   a = floor(a);
   if(a == 0) {
     return 1;
@@ -147,8 +150,9 @@ double factorial(double a) {
   return a == 1 ? 1 : a*factorial(a-1);
 }
 
+
 //returns value from one argument functions
-double oneArg(double a, int o) {
+element oneArg(element a, int o) {
   switch(o) {
   case eSin: return sin(a);
   case eCos: return cos(a);
@@ -167,8 +171,9 @@ double oneArg(double a, int o) {
   }
 }
 
+
 //returns value from two argument function
-double twoArg(double a, double b, int o) {
+element twoArg(element a, element b, int o) {
   switch(o) {
   case eAdd: return a + b;
   case eSubtract: return a - b;
@@ -186,7 +191,8 @@ double twoArg(double a, double b, int o) {
   }
 }
 
-int findOperator(char *buffer, numberStack *num, operatorStack *oper, double ans, vari *var, int *tok) {
+
+int findOperator(char *buffer, numberStack *num, operatorStack *oper, matrix *ans, vari *var, int *tok) {
   int i = searchOperatorArray(buffer);
   int error = 0;
 

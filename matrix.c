@@ -40,6 +40,7 @@ void freeMatrix(matrix *m){
 }
 
 
+//prints a matrix that has two dimensions
 //offset is the number of elements to offset the dimension m
 void printTwoDMatrix(matrix *m, int offset){
   int newSize[2] = {m->size[0], m->size[1]};
@@ -68,6 +69,9 @@ void printTwoDMatrix(matrix *m, int offset){
   return;
 }
 
+
+//print out a matrix of any size
+//prints out 2d slices of the matrix
 void printMatrix(matrix *m){
   int offset = 0;
   int twoDimSize = m->size[0] * m->size[1];
@@ -104,4 +108,35 @@ int sub2ind(int *location, int *size, int dimension){
   }
 
   return ind;
+}
+
+
+matrix *matrixOneArg(matrix *a, int o){
+  int *error = 0;
+  matrix *out = initMatrix(a->size, a->dimension, error);
+  for(int i = 0; i < out->length; ++i){
+    out->elements[i] = oneArg(a->elements[i], o);
+  }
+
+  return out;
+}
+
+
+matrix *matrixTwoArg(matrix *a, matrix *b, int o, int *error){
+  if(matrixOperator(o)){
+  }
+}
+
+
+//this function checks if the operator enum 'o' is
+//a matrix operator (true) or not (false)
+//if the output matrix is a different size than
+//the input matrices, then it is considered a
+//a matrix operator
+//examples include, dot product, matrix multiplication
+//cross product is one counter example
+//everything else requires the two input matrices to be
+//the same size (per element operation)
+int matrixOperator(int o){
+
 }
