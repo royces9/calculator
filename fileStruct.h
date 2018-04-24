@@ -1,13 +1,13 @@
 #ifndef FILESTRUCT
 #define FILESTRUCT
 
-typedef struct fileTree{
+typedef struct fileTree {
   char *line;
   struct fileTree *left;
   struct fileTree *right;
 } fileTree;
 
-typedef struct{
+typedef struct {
   fileTree *stk[1024];
   int top;
   int occ;

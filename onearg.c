@@ -9,13 +9,13 @@
 #include "onearg.h"
 #include "file.h"
 
-int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, vari *var, int *tok, int *start, char input[]){
+int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, vari *var, int *tok, int *start, char input[]) {
   char **separatedString;
   int i = searchFunctionArray(buffer), error = 0;
   operatorStruct operator;
   double out;
 
-  switch(i){
+  switch(i) {
   case eQuit: //quit
     return 1;
 
@@ -28,14 +28,13 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
     return -1;
 
   case eList: //list
-    if(var->occ != 0){
+    if(var->occ != 0) {
       printf("\nVariable List:\n");
-      for(int j = 0; j <= var->count; j++){
+      for(int j = 0; j <= var->count; j++) {
 	printf("%s = %lf\n", var->name[j], var->value[j]);
       }
       printf("\n");
-    }
-    else{
+    } else {
       printf("\nNo variables set\n\n");
     }
     return -1;
@@ -72,7 +71,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
   case eCeil:
   case eRound:
   case eFactorial:
-    pushch(setOpStack(__FUNCTIONS__[i], 1, 2, i), ch);
+    pushch(setOpStack(FUNCTION_LIST[i], 1, 2, i), ch);
     *tok = 0;
     return 0;
 
@@ -132,10 +131,10 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
     freeDoubleArray(separatedString);
     return error;
 
-  case __NF__: //variables
+  case FUNCTION_COUNT: //variables
     {
     int k = varcheck(var, buffer);
-    if(k >= 0){
+    if(k >= 0) {
 	pushn(var->value[k], num);
 	*tok = 1;
 	return 0;
@@ -151,13 +150,13 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
   return -5;
 }
 
-int varcheck(vari *list, char input[]){
-  if(list->occ == 0){
+int varcheck(vari *list, char input[]) {
+  if(list->occ == 0) {
     return -1;
   }
 
-  for(int i = 0; i<=list->count; ++i){
-    if(!strcmp(input, list->name[i])){
+  for(int i = 0; i<=list->count; ++i) {
+    if(!strcmp(input, list->name[i])) {
       return i;
     }
   }
@@ -165,16 +164,16 @@ int varcheck(vari *list, char input[]){
   return -2;
 }
 
-void freeDoubleArray(char **input){
+void freeDoubleArray(char **input) {
   int i = 0;
-  for(i = 0; strcmp(input[i], ""); ++i){
+  for(i = 0; strcmp(input[i], ""); ++i) {
     free(input[i]);
   }
   free(input[i]);
   free(input);
 }
 
-void helpPrint(){
+void helpPrint() {
     printf("quit - quit program\n");
     printf("list - list variables\n");
     printf("clear - clear variables\n\n");

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "fileStruct.h"
 
-fileTree *createLeaf(){
+fileTree *createLeaf() {
   fileTree *leaf = malloc(sizeof(fileTree));
   if(leaf == NULL) return NULL;
 
@@ -12,7 +12,7 @@ fileTree *createLeaf(){
   return leaf;
 }
 
-void cutDownTree(fileTree *tree){
+void cutDownTree(fileTree *tree) {
   if(tree == NULL) return;
 
   tree->line = NULL;
@@ -21,21 +21,20 @@ void cutDownTree(fileTree *tree){
   free(tree);
 }
 
-void fPush(fileStack *stk, fileTree *node){
-  if(stk->occ == 1){
+void fPush(fileStack *stk, fileTree *node) {
+  if(stk->occ == 1) {
     stk->stk[++stk->top] = node;
-  }
-  else{
+  } else {
     stk->stk[0] = node;
     stk->occ = 1;
   }
 }
 
-fileTree *fPop(fileStack *stk){
+fileTree *fPop(fileStack *stk) {
   fileTree *out = NULL;
-  if(stk->occ == 1){
+  if(stk->occ == 1) {
     out = stk->stk[stk->top--];
-    if(stk->top == -1){
+    if(stk->top == -1) {
       stk->occ = 0;
       stk->top = 0;
     }
