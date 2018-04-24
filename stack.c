@@ -2,6 +2,7 @@
 
 #include "stack.h"
 
+
 void pushn(double inp, numberStack *st) {
   if(st->occ) {
     st->stk[++st->top] = inp;
@@ -10,6 +11,7 @@ void pushn(double inp, numberStack *st) {
     st->occ = 1;
   }
 }
+
 
 double popn(numberStack *st) { //pop a double from the stack
   double out = 0;

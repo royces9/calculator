@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = -lm -lreadline -I. -flto -Wall -O2
+FLAGS = -lm -lreadline -I. -flto
 HEADERS = $(wildcard *.h)
 CFILES = $(wildcard *.c)
 OFILES = $(wildcard *.o)
@@ -22,7 +22,7 @@ multi.o: multi.c multi.h stack.h sya.h
 onearg.o: onearg.c onearg.h multi.h stack.h file.h operator.h
 	$(CC) -c onearg.c
 
-sya.o: sya.c sya.h stack.h onearg.h operator.h
+sya.o: sya.c sya.h stack.h onearg.h twoarg.h operator.h
 	$(CC) -c sya.c
 
 calc.o: calc.c stack.h sya.h
@@ -30,6 +30,9 @@ calc.o: calc.c stack.h sya.h
 
 file.o: file.c file.h stack.h sya.h fileStruct.h
 	$(CC) -c file.c
+
+twoarg.o: twoarg.c twoarg.h operator.h
+	$(CC) -c twoarg.c
 
 operator.o: operator.c operator.h
 	$(CC) -c operator.c
