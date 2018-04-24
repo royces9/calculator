@@ -6,7 +6,7 @@
 #include "operator.h"
 
 //string containing functions
-const char __FUNCTIONS__[__NF__][20] = {
+const char FUNCTION_LIST[FUNCTION_COUNT][20] = {
   "quit",
   "clear",
   "list",
@@ -42,7 +42,7 @@ const char __FUNCTIONS__[__NF__][20] = {
 };
 
 //string containing operators
-const char __OPERATORS__[__NO__][5] = {
+const char OPERATOR_LIST[OPERATOR_COUNT][5] = {
   "+",
   "-",
   "*",
@@ -67,7 +67,7 @@ const char __OPERATORS__[__NO__][5] = {
 };
 
 //array containing the precedence of each operator
-const int operatorPrecedence[__NO__] = {
+const int operatorPrecedence[OPERATOR_COUNT] = {
   6,
   6,
   5,
@@ -88,28 +88,28 @@ const int operatorPrecedence[__NO__] = {
   0
 }; //~is not implemented at the moment
 
-//search in __FUNCTIONS__
-int searchFunctionArray(char *buffer){
-  for(int i = 0; i < __NF__; ++i){
-    if(!strcmp(__FUNCTIONS__[i], buffer)){
+//search in FUNCTION_LIST
+int searchFunctionArray(char *buffer) {
+  for(int i = 0; i < FUNCTION_COUNT; ++i) {
+    if(!strcmp(FUNCTION_LIST[i], buffer)) {
       return i;
     }
   }
-  return __NF__;
+  return FUNCTION_COUNT;
 }
 
-//search in __OPERATORS__
-int searchOperatorArray(char *buffer){
-  for(int i = 0; i < __NO__; ++i){
-    if(!strcmp(__OPERATORS__[i], buffer)){
+//search in OPERATOR_COUNT
+int searchOperatorArray(char *buffer) {
+  for(int i = 0; i < OPERATOR_COUNT; ++i) {
+    if(!strcmp(OPERATOR_LIST[i], buffer)) {
       return i;
     }
   }
-  return __NO__;
+  return OPERATOR_COUNT;
 }
 
 //set the operatorStruct, kinda like a constructor
-operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration){
+operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration) {
   operatorStruct out;
   strcpy(out.operator, operator);
   out.precedence = precedence;
@@ -119,9 +119,9 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 }
 
 //executes either one argument function or two argument function
-void execNum(numberStack *num, operatorStruct ch){
+void execNum(numberStack *num, operatorStruct ch) {
   double a, b;
-  switch(ch.argNo){
+  switch(ch.argNo) {
   case 1:
     a = popn(num);
     pushn(oneArg(a, ch.enumeration), num);
@@ -139,17 +139,17 @@ void execNum(numberStack *num, operatorStruct ch){
 }
 
 //factorial function
-double factorial(double a){
+double factorial(double a) {
   a = floor(a);
-  if(a == 0){
+  if(a == 0) {
     return 1;
   }
   return a == 1 ? 1 : a*factorial(a-1);
 }
 
 //returns value from one argument functions
-double oneArg(double a, int o){
-  switch(o){
+double oneArg(double a, int o) {
+  switch(o) {
   case eSin: return sin(a);
   case eCos: return cos(a);
   case eTan: return tan(a);
@@ -168,8 +168,8 @@ double oneArg(double a, int o){
 }
 
 //returns value from two argument function
-double twoArg(double a, double b, int o){
-  switch(o){
+double twoArg(double a, double b, int o) {
+  switch(o) {
   case eAdd: return a + b;
   case eSubtract: return a - b;
   case eMultiply: return a * b;
@@ -184,4 +184,90 @@ double twoArg(double a, double b, int o){
   case eAnd: return a && b;
   case eOr: return a || b;
   }
+}
+
+int findOperator(char *buffer, numberStack *num, operatorStack *oper, double ans, vari *var, int *tok) {
+  int i = searchOperatorArray(buffer);
+  int error = 0;
+
+  /*                                                                                                                  
+  **Precedence values for operators: Reference wiki page of C/C++ operators
+  **1                                                
+  **2 f(x)-calls
+  **3
+  **4 ^ !
+  **5
+  **6 + -
+  **7
+  **8 < <= > >=
+  **9 == !=
+  **10
+  **11 &&
+  **12 ||
+  **13
+  **14
+  **15 parens
+  **16 =
+*/
+  switch(i) {
+  case eSubtract:
+    if(*tok == 1) {
+      while((oper->stk[oper->top].precedence <= 6) && oper->occ == 1) {
+	execNum(num, popch(oper));
+      }
+      pushch(setOpStack("+", 2, 6, eAdd), oper);
+    }
+
+    *tok = 0;
+    pushch(setOpStack("*", 2, 5, eMultiply), oper);
+    pushn(-1, num);
+    break;
+
+  case eExponent:
+    *tok = 0;
+    pushch(setOpStack("^", 2, 4, eExponent), oper);
+    break;
+
+  case eLeftParen:
+    *tok = 0;
+    pushch(setOpStack("(", 1, 15, eLeftParen), oper);
+    break;
+
+  case eRightParen:
+    do {
+      execNum(num, popch(oper));
+    } while(strcmp(oper->stk[oper->top].operator, "(") && oper->occ == 1);
+
+    *tok = 1;
+    popch(oper);
+    break;
+
+
+  case eAssign:
+    break;
+
+  case eAdd:
+  case eMultiply:
+  case eDivide:
+  case eLess:
+  case eGreater:
+  case eLessEqual:
+  case eGreaterEqual:
+  case eNotEqual:
+  case eEqual:
+  case eAnd:
+  case eOr:
+    while((oper->stk[oper->top].precedence <= operatorPrecedence[i]) && (oper->occ == 1)) {
+      execNum(num, popch(oper));
+    }
+    *tok = 0;
+    pushch(setOpStack(buffer, 2, operatorPrecedence[i], i), oper);
+    break;
+
+  default:
+    return -7;
+  }
+
+
+  return 0;
 }
