@@ -2,8 +2,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "matrix.h"
-#include "stack.h"
 #include "operator.h"
 
 //string containing functions

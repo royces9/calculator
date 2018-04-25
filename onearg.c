@@ -9,11 +9,11 @@
 #include "onearg.h"
 #include "file.h"
 
-int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, vari *var, int *tok, int *start, char input[]) {
+int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans, vari *var, int *tok, int *start, char input[]) {
   char **separatedString;
   int i = searchFunctionArray(buffer), error = 0;
   operatorStruct operator;
-  double out;
+  matrix *out;
 
   switch(i) {
   case eQuit: //quit
@@ -44,12 +44,12 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
     return -1;
 
   case ePi:
-    pushn(M_PI, num);
+    pushn(initScalar(M_PI), num);
     *tok = 1;
     return 0;
 
   case eE:
-    pushn(M_E, num);
+    pushn(initScalar(M_E), num);
     *tok = 1;
     return 0;
 
@@ -119,7 +119,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, double ans, 
 
   case eRun:
     separatedString = separateString(input, '\0', start, &error);
-    error = runFile(separatedString, var, &out);
+    error = runFile(separatedString, var, out);
     pushn(out, num);
     freeDoubleArray(separatedString);
     *tok = 0;

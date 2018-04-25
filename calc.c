@@ -10,7 +10,7 @@
 int main(int argc, char *argv[]) {
   char *input = NULL;
   int error = 0;
-  matrix *ans; //stores the previous answer in this variable, can be used by using "ans"
+  matrix ans; //stores the previous answer in this variable, can be used by using "ans"
 
   //initialize variable struct
   vari var = newVari();
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
       error = sya(argv[i], &ans, &var);
 
       if(error == 0) {
-	printMatrix(ans);
+	printMatrix(*ans);
       } else{
 	errorrep(error);
       }
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(error == 0) {
-      printMatrix(ans);
+      printMatrix(*ans);
     } else{ //if the error is less than -1, prints an error code
       errorrep(error);
     }

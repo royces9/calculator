@@ -4,16 +4,15 @@ HEADERS = $(wildcard *.h)
 CFILES = $(wildcard *.c)
 OFILES = $(wildcard *.o)
 
-calc2: $(OFILES)
+all: matrix.o stack.o multi.o onearg.o sya.o calc.o file.o operator.o fileStruct.o
+
+calc2: $(CFILES) $(HEADERS) $(OFILES)
 	$(CC) $(OFILES) -o calc2 $(FLAGS)
 
-debug: $(OFILES)
-	$(CC) -g $(OFILES) -o calc2 $(FLAGS)
-
 matrix.o: matrix.c matrix.h
-	%(CC) -c matrix.c
+	$(CC) -c matrix.c
 
-stack.o: stack.c stack.h
+stack.o: stack.c stack.h matrix.h
 	$(CC) -c stack.c
 
 multi.o: multi.c multi.h stack.h sya.h
@@ -31,14 +30,14 @@ calc.o: calc.c stack.h sya.h
 file.o: file.c file.h stack.h sya.h fileStruct.h
 	$(CC) -c file.c
 
-twoarg.o: twoarg.c twoarg.h operator.h
-	$(CC) -c twoarg.c
-
 operator.o: operator.c operator.h
 	$(CC) -c operator.c
 
 fileStruct.o: fileStruct.c fileStruct.h
 	$(CC) -c fileStruct.c
+
+debug: $(OFILES)
+	$(CC) -g $(OFILES) -o calc2 $(FLAGS)
 
 usr: $(OFILES)
 	$(CC) $(OFILES) -o /usr/local/bin/calc $(FLAGS)

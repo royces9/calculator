@@ -120,7 +120,7 @@ int sya(char *input, matrix *ans, vari *var) {
       //valid operator, if it is not, then go into the if and find the correct operator in findOperator
       if(checkOper(input[i], input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, &out, &oper, *ans, var, &negativeCheck); //find the corresponding operator
+	error = findOperator(bufferOper, &out, &oper, ans, var, &negativeCheck); //find the corresponding operator
 	k = 0;
       }
       break;

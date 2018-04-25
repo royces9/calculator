@@ -7,7 +7,7 @@
 #include "file.h"
 #include "sya.h"
 
-int runFile(char **input, vari *var, double *ans) {
+int runFile(char **input, vari *var, matrix *ans) {
   int error = 0; //int to put errors into
   int maxSize = 1024; //maximum size of tree
 
@@ -129,7 +129,7 @@ int createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
 }
 
 
-int executeTree(fileTree *tree, vari *var, double *ans, int maxSize){
+int executeTree(fileTree *tree, vari *var, matrix *ans, int maxSize){
   fileTree *head = tree;
   int direction = 0; //checking the direction of program flow
   int check = 0; //checking conditionals: if/while
@@ -251,7 +251,7 @@ char *parseCondition(char *input, int type) {
 
 
 //checks conditionals in while/if
-int checkConditional(char *input, int type, vari *var, double *ans) {
+int checkConditional(char *input, int type, vari *var, matrix *ans) {
   input = parseCondition(input, type);
   int error = sya(input, ans, var);
   if(error) {
@@ -260,7 +260,7 @@ int checkConditional(char *input, int type, vari *var, double *ans) {
   }
 
   //guarantee that *ans only returns 0 or 1
-  return !!*ans;
+  return !!ans->elements[0];
 }
 
 

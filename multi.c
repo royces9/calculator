@@ -18,15 +18,15 @@ int numberOfArgs(char **input) {
 
 
 //determines minimum value from the inputs given
-double min(char **input, vari *var, int *error) {
+matrix *min(char **input, vari *var, int *error) {
   char *str2d, *str2d2;
-  double out, inter;
+  matrix *out, *inter;
   int argNo = numberOfArgs(input);
 
-  *error = sya(input[0], &out, var);
+  *error = sya(input[0], out, var);
   if(*error) return 0;
 
-  *error = sya(input[1], &inter, var);
+  *error = sya(input[1], inter, var);
   if(*error) return 0;
 
   out = fmin(out, inter);
