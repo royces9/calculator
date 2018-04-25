@@ -124,6 +124,20 @@ matrix *matrixOneArg(matrix *a, int o){
 
 matrix *matrixTwoArg(matrix *a, matrix *b, int o, int *error){
   if(matrixOperator(o)){
+    if(checkInnerDim(a, b)){
+    }
+  } else{
+    if(compareSize(a->size, b->size, a->dimension, b->dimension)){
+      matrix *out = initMatrix(a->size, a->dimension, error);
+      for(int i = 0; i < a->length; ++i){
+	out->elements[i] = twoArg(a->elements[i], b->elements[i], o);
+      }
+    } else{
+      //temp error number here
+      *error = -12; 
+      return NULL;
+    }
+    return out;
   }
 }
 
@@ -139,4 +153,24 @@ matrix *matrixTwoArg(matrix *a, matrix *b, int o, int *error){
 //the same size (per element operation)
 int matrixOperator(int o){
 
+}
+
+
+//compare two size vectors
+int compareSize(int *a, int *b, int dimA, int dimB){
+  if(dimA != dimB){
+    return 0;
+  }
+  for(int i = 0; i < dimA; ++i){
+    if(*(a+i) != *(b+i)){
+      return 0;
+    }
+  }
+  return 1;
+}
+
+
+//check that the inner dimensions of the matrix match
+int checkInnerDim(matrix *a, matrix *b){
+  return (a->size[a->dimension-1] == b->size[0]) : 1 ? 0;
 }

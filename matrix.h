@@ -25,4 +25,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, int o);
 
 int matrixOperator(int o);
 
+int compareSize(int *a, int *b, int dim);
+int checkInnerDim(matrix *a, matrix *b);
+
 #endif //MATRIX
