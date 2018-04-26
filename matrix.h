@@ -13,7 +13,6 @@ typedef struct matrix{
 
 
 matrix initMatrix(int *size, int dimension, int *error);
-matrix copyMatrix(matrix m);
 matrix initScalar(element e);
 
 void freeMatrix(matrix m);

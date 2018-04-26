@@ -34,20 +34,20 @@ matrix initMatrix(int *size, int dimension, int *error){
 }
 
 
-matrix copyMatrix(matrix m){
-}
-
 //define a scalar as just a single dimension matrix
 //also define that a vector is always 2 dimensions, with one of
 //the two dimensions being 1
 matrix initScalar(element e){
-  int size = 1;
+  int *size = malloc(sizeof(*size));
+  *size = 1;
   int dimension = 1;
   int *error;
-  matrix out = initMatrix(&size, dimension, error);
+  matrix out = initMatrix(size, dimension, error);
   out.elements[0] = e;
   return out;
 }
+
+
 //free the matrix and all of the data
 //associated with it
 void freeMatrix(matrix m){
@@ -91,13 +91,16 @@ void printTwoDMatrix(matrix m, int offset){
 void printMatrix(matrix m){
   int offset = 0;
   int twoDimSize = m.size[0] * m.size[1];
+
   if(m.dimension > 2){
     for(int i = 1; i < m.dimension; ++i){
 	printTwoDMatrix(m, offset);
 	offset += twoDimSize;
     }
-  } else{
+  } else if(m.dimension == 2){ //2d mat
     printTwoDMatrix(m, 0);
+  } else{ //scalar
+    printf("\n%lf\n\n", m.elements[0]);
   }
   return;
 }
