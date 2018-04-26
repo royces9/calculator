@@ -16,7 +16,7 @@ int sya(char *input, matrix *ans, vari *var) {
   int i = 0, j = 0, k = 0; //iterators
   int error = 0; //error checking int
   int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0; //number of parens and length of input
-  int leftBrackCount = 0, rightBrackCount = 0;
+  int leftBracketCount = 0, rightBracketCount = 0;
   
   int check = 0; //for if an assignment occurs
   int negativeCheck = 0; //to check if the '-' char is subtraction or a negative
@@ -64,7 +64,7 @@ int sya(char *input, matrix *ans, vari *var) {
       if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
 	bufferLetters[j] = '\0';
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
-	  pushn(strtod(bufferLetters, &str2d), &out);
+	  pushn(initScalar(strtod(bufferLetters, &str2d)), &out);
 	} else if(isAssign(input) && !varset) { //checks if the command is an assignment
 	  check = varcheck(var, bufferLetters); //checks that the variable exists
 	  varset = 1; //flag for assignment at the end of the sya loop
@@ -83,7 +83,7 @@ int sya(char *input, matrix *ans, vari *var) {
 	    bufferLetters[j++] = '(';
 	  }
 	  bufferLetters[j] = '\0';
-	  error = findFunction(bufferLetters, &out, &oper, *ans, var, &negativeCheck, &i, input);
+	  error = findFunction(bufferLetters, &out, &oper, ans, var, &negativeCheck, &i, input);
 	} //end else
 	j = 0; //reset counter for buffer
       } //end if
@@ -120,7 +120,7 @@ int sya(char *input, matrix *ans, vari *var) {
       //valid operator, if it is not, then go into the if and find the correct operator in findOperator
       if(checkOper(input[i], input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, &out, &oper, ans, var, &negativeCheck); //find the corresponding operator
+	error = findOperator(bufferOper, &out, &oper, *ans, var, &negativeCheck); //find the corresponding operator
 	k = 0;
       }
       break;

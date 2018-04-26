@@ -54,7 +54,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     return 0;
 
   case eAns:
-    pushn(ans, num);
+    pushn(*ans, num);
     *tok = 1;
     return 0;
 
@@ -71,10 +71,13 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
   case eCeil:
   case eRound:
   case eFactorial:
+  case eMin:
+  case eMax:
+  case eAvg:
     pushch(setOpStack(FUNCTION_LIST[i], 1, 2, i), ch);
     *tok = 0;
     return 0;
-
+    /*
   case eMin:
     separatedString = separateString(input, ',', start, &error);
     pushn(min(separatedString, var, &error), num);
@@ -95,7 +98,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;    
-    
+    */
   case eDeri:
     separatedString = separateString(input, ',', start, &error);
     pushn(deri(separatedString, var, &error), num);
@@ -120,7 +123,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
   case eRun:
     separatedString = separateString(input, '\0', start, &error);
     error = runFile(separatedString, var, out);
-    pushn(out, num);
+    pushn(*out, num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;

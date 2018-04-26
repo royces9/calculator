@@ -76,6 +76,6 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 void execNum(numberStack *num, operatorStruct ch);
 double oneArg(double a, int o);
 double twoArg(double a, double b, int o);
-int findOperator(char *buffer, numberStack *num, operatorStack *ch, double anse, vari *var, int *tok);
+int findOperator(char *buffer, numberStack *num, operatorStack *ch, matrix ans, vari *var, int *tok);
 
 #endif //OPERATOR

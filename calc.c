@@ -3,7 +3,6 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-#include "matrix.h"
 #include "stack.h"
 #include "sya.h"
 
@@ -22,7 +21,7 @@ int main(int argc, char *argv[]) {
       error = sya(argv[i], &ans, &var);
 
       if(error == 0) {
-	printMatrix(*ans);
+	printMatrix(ans);
       } else{
 	errorrep(error);
       }
@@ -43,7 +42,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(error == 0) {
-      printMatrix(*ans);
+      printMatrix(ans);
     } else{ //if the error is less than -1, prints an error code
       errorrep(error);
     }

@@ -120,7 +120,9 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 
 //executes either one argument function or two argument function
 void execNum(numberStack *num, operatorStruct ch) {
-  matrix *a, *b;
+  matrix a, b;
+  //temp error
+  int *error = 0;
   switch(ch.argNo) {
   case 1:
     a = popn(num);
@@ -130,7 +132,7 @@ void execNum(numberStack *num, operatorStruct ch) {
   case 2:
     b = popn(num);
     a = popn(num);
-    pushn(matrixTwoArg(a, b, ch.enumeration), num);
+    pushn(matrixTwoArg(a, b, ch.enumeration, error), num);
     break;
 
   default:
@@ -190,7 +192,7 @@ element twoArg(element a, element b, int o) {
 }
 
 
-int findOperator(char *buffer, numberStack *num, operatorStack *oper, matrix *ans, vari *var, int *tok) {
+int findOperator(char *buffer, numberStack *num, operatorStack *oper, matrix ans, vari *var, int *tok) {
   int i = searchOperatorArray(buffer);
   int error = 0;
 
@@ -224,7 +226,7 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, matrix *an
 
     *tok = 0;
     pushch(setOpStack("*", 2, 5, eMultiply), oper);
-    pushn(-1, num);
+    pushn(initScalar(-1), num);
     break;
 
   case eExponent:
