@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 
 #include "stack.h"
@@ -38,6 +39,7 @@ void pushch(operatorStruct inp, operatorStack *st) {
   }
 }
 
+
 operatorStruct popch(operatorStack *st) {
   operatorStruct out;
   if(st->occ) {
@@ -54,6 +56,7 @@ operatorStruct popch(operatorStack *st) {
   return out;
 }
 
+
 numberStack newNumberStack(void) { //make new number stack
   numberStack out;
   out.top = 0;
@@ -62,6 +65,7 @@ numberStack newNumberStack(void) { //make new number stack
   return out;
 }
 
+
 operatorStack newOperatorStack(void) { //make new operator stack
   operatorStack out;
   out.top = 0;
@@ -69,6 +73,7 @@ operatorStack newOperatorStack(void) { //make new operator stack
   memset(out.stk, '\0', sizeof(out.stk));
   return out;
 }
+
 
 vari newVari(void) {
   vari var;
@@ -79,8 +84,18 @@ vari newVari(void) {
   return var;
 }
 
+
+void freeVari(vari *var){
+  if(var->occ != 0){
+    for(int i = 0; i <= var->count; ++i){
+      freeMatrix(var->value[i]);
+    }
+  }
+}
+
+
 void emptyNumberStack(numberStack *st){
-  for(int i = 0; i <= st->top; ++i){
-    freeMatrix(st->stk[i]);
+  while(st->occ == 1){
+    free(popn(st));
   }
 }

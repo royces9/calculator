@@ -47,6 +47,7 @@ operatorStruct popch(operatorStack *st);
 numberStack newNumberStack(void);
 operatorStack newOperatorStack(void);
 vari newVari(void);
+void freeVari(vari *var);
 
 void emptyNumberStack(numberStack *st);
 

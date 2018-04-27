@@ -31,7 +31,8 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     if(var->occ != 0) {
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; j++) {
-	printf("%s = %lf\n", var->name[j], var->value[j]);
+	printf("%s =", var->name[j]);
+	printMatrix(*var->value[j]);
       }
       printf("\n");
     } else {

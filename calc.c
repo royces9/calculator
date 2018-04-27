@@ -12,6 +12,8 @@ int main(int argc, char *argv[]) {
 
   //stores the previous answer in this variable, can be used by using "ans"
   matrix ans;
+  ans.size = NULL;
+  ans.elements = NULL;
 
   //initialize variable struct
   vari var = newVari();
@@ -50,7 +52,11 @@ int main(int argc, char *argv[]) {
     }
     free(input); //readline mallocs the input line
   }
-  free(ans.size);
-  free(ans.elements);
+
+  if(ans.size != NULL){
+    free(ans.size);
+    free(ans.elements);
+  }
+  freeVari(&var);
   return 0;
 }

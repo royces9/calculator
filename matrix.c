@@ -40,9 +40,8 @@ matrix *initMatrix(int *size, int dimension, int *error){
 matrix *initScalar(element e){
   int *size = malloc(sizeof(*size));
   *size = 1;
-  int dimension = 1;
-  int *error;
-  matrix *out = initMatrix(size, dimension, error);
+  int *error = NULL;
+  matrix *out = initMatrix(size, 1, error);
   free(size);  
   out->elements[0] = e;
   return out;
