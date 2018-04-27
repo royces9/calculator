@@ -61,7 +61,8 @@ int sya(char *input, matrix *ans, vari *var) {
     case 'A' ... 'Z':
     case '_':
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
-      if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
+      if((type == 2) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
+	//if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
 	bufferLetters[j] = '\0';
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
@@ -151,6 +152,7 @@ int sya(char *input, matrix *ans, vari *var) {
   while(out.occ && oper.occ) { //while the operator and number stack are occupied, keep executing
     execNum(&out, popch(&oper));
   }
+
 
   copyMatrix(ans, out.stk[0]);
   freeMatrix(out.stk[0]);
