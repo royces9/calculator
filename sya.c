@@ -152,9 +152,11 @@ int sya(char *input, matrix *ans, vari *var) {
     execNum(&out, popch(&oper));
   }
 
-  *ans = *out.stk[0]; //put the output into ans
-  free(out.stk[0]);
-
+  //*ans = *out.stk[0]; //put the output into ans
+  //free(out.stk[0]);
+  copyMatrix(ans, out.stk[0]);
+  freeMatrix(out.stk[0]);
+  
   if(varset) { //set variable if there was an assignment
     *(var->value[check]) = *ans;
   }

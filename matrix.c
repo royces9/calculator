@@ -49,10 +49,16 @@ matrix *initScalar(element e){
 }
 
 
-matrix *copyMatrix(matrix *m){
-  matrix *out = initMatrix(m->size, m->dimension, 0);
-  out->elements = memcpy(out->elements, m->elements, sizeof(*out->elements) * m->length);
-  return out;
+matrix *copyMatrix(matrix *dest, matrix *src){
+  dest->dimension = src->dimension;
+  dest->length = src->length;
+
+  dest->elements = malloc(sizeof(*dest->elements) * dest->length);
+  dest->elements = memcpy(dest->elements, src->elements, sizeof(*dest->elements) * dest->length);
+
+  dest->size = malloc(sizeof(*dest->size) * dest->dimension);
+  dest->size = memcpy(dest->elements, src->elements, sizeof(*dest->size) * dest->dimension);
+  return dest;
 }
 
 //free the matrix and all of the data

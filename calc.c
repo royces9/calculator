@@ -51,6 +51,8 @@ int main(int argc, char *argv[]) {
     }
     free(input); //readline mallocs the input line
   }
-  freeMatrix(ans);
+  free(ans->size);
+  free(ans->elements);
+  //freeMatrix(ans);
   return 0;
 }

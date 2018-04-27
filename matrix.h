@@ -14,7 +14,7 @@ typedef struct matrix{
 
 matrix *initMatrix(int *size, int dimension, int *error);
 matrix *initScalar(element e);
-matrix *copyMatrix(matrix *m);
+matrix *copyMatrix(matrix *dest, matrix *src);
 
 void freeMatrix(matrix *m);
 void printTwoDMatrix(matrix m, int offset);
