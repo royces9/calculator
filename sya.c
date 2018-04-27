@@ -61,8 +61,8 @@ int sya(char *input, matrix *ans, vari *var) {
     case 'A' ... 'Z':
     case '_':
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
-      if((type == 2) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
-	//if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
+      //if((type == 2) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
+	if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
 	bufferLetters[j] = '\0';
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
@@ -73,16 +73,11 @@ int sya(char *input, matrix *ans, vari *var) {
 	  varset = 1; //flag for assignment at the end of the sya loop
 
 	  if(check == -1) { //var struct is empty, adds first variable to the struct
-	    strcpy(var->name[0], bufferLetters);
-	    var->occ = 1; //sets the struct occupied flag to true
-	    var->count = 0;
 	    check = 0; //the index of the new variable
-
 	  } else if(check == -2) { //var struct is not empty, but it's a new variable
-	    check = ++var->count;
-	    strcpy(var->name[check], bufferLetters);
+	    check = var->count + 1;
 	  }
-
+	    strcpy(var->name[check], bufferLetters);
 	} else { //check if command is a function
 	  if(input[i+1] == '(') {
 	    bufferLetters[j++] = '(';
@@ -152,13 +147,17 @@ int sya(char *input, matrix *ans, vari *var) {
   while(out.occ && oper.occ) { //while the operator and number stack are occupied, keep executing
     execNum(&out, popch(&oper));
   }
-
-
+  if(ans->elements != NULL){
+    free(ans->elements);
+    free(ans->size);
+  }
   copyMatrix(ans, out.stk[0]);
   freeMatrix(out.stk[0]);
 
   if(varset) { //set variable if there was an assignment
+    var->count = check;
     var->value[check] = malloc(sizeof(*var->value[check]));
+    var->occ = 1;
     copyMatrix(var->value[check], ans);
   }
 
@@ -235,6 +234,7 @@ int checkType(char a) {
   case '~':
   case '\n':
   case ';':
+  case ' ':
     return 2;
 
   default:
