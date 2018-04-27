@@ -57,7 +57,7 @@ matrix *copyMatrix(matrix *dest, matrix *src){
   dest->elements = memcpy(dest->elements, src->elements, sizeof(*dest->elements) * dest->length);
 
   dest->size = malloc(sizeof(*dest->size) * dest->dimension);
-  dest->size = memcpy(dest->elements, src->elements, sizeof(*dest->size) * dest->dimension);
+  dest->size = memcpy(dest->size, src->size, sizeof(*dest->size) * dest->dimension);
   return dest;
 }
 

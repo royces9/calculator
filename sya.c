@@ -154,6 +154,7 @@ int sya(char *input, matrix *ans, vari *var) {
 
   //*ans = *out.stk[0]; //put the output into ans
   //free(out.stk[0]);
+
   copyMatrix(ans, out.stk[0]);
   freeMatrix(out.stk[0]);
   
