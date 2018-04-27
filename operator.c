@@ -127,12 +127,15 @@ void execNum(numberStack *num, operatorStruct ch) {
   case 1:
     a = popn(num);
     pushn(matrixOneArg(a, ch.enumeration), num);
+    freeMatrix(a);
     break;
 
   case 2:
     b = popn(num);
     a = popn(num);
     pushn(matrixTwoArg(a, b, ch.enumeration, error), num);
+    freeMatrix(a);
+    freeMatrix(b);
     break;
 
   default:

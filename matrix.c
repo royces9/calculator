@@ -90,9 +90,9 @@ void printTwoDMatrix(matrix m, int offset){
 //prints out 2d slices of the matrix
 void printMatrix(matrix m){
   int offset = 0;
-  int twoDimSize = m.size[0] * m.size[1];
 
   if(m.dimension > 2){
+  int twoDimSize = m.size[0] * m.size[1];
     for(int i = 1; i < m.dimension; ++i){
 	printTwoDMatrix(m, offset);
 	offset += twoDimSize;
@@ -147,19 +147,18 @@ matrix matrixTwoArg(matrix a, matrix b, int o, int *error){
   if(matrixOperator(o)){
     if(checkInnerDim(a, b)){
     }
-  } else{
-    if(compareSize(a.size, b.size, a.dimension, b.dimension)){
-      out = initMatrix(a.size, a.dimension, error);
-      for(int i = 0; i < a.length; ++i){
-	out.elements[i] = twoArg(a.elements[i], b.elements[i], o);
-      }
-    } else{
-      //temp error number here
-      *error = -12; 
-      return out;
+  } else if(compareSize(a.size, b.size, a.dimension, b.dimension)){
+    out = initMatrix(a.size, a.dimension, error);
+
+    for(int i = 0; i < a.length; ++i){
+      out.elements[i] = twoArg(a.elements[i], b.elements[i], o);
     }
+  } else{
+    //temp error number here
+    *error = -12;
     return out;
   }
+  return out;
 }
 
 
@@ -173,6 +172,7 @@ matrix matrixTwoArg(matrix a, matrix b, int o, int *error){
 //everything else requires the two input matrices to be
 //the same size (per element operation)
 int matrixOperator(int o){
+  return 0;
 }
 
 
@@ -181,6 +181,7 @@ int compareSize(int *a, int *b, int dimA, int dimB){
   if(dimA != dimB){
     return 0;
   }
+
   for(int i = 0; i < dimA; ++i){
     if(*(a+i) != *(b+i)){
       return 0;

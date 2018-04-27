@@ -25,6 +25,8 @@ int main(int argc, char *argv[]) {
       } else{
 	errorrep(error);
       }
+
+      freeMatrix(ans);
     }
   } 
 
@@ -46,7 +48,7 @@ int main(int argc, char *argv[]) {
     } else{ //if the error is less than -1, prints an error code
       errorrep(error);
     }
-
+    freeMatrix(ans);
     free(input); //readline mallocs the input line
   }
   return 0;

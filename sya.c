@@ -149,11 +149,10 @@ int sya(char *input, matrix *ans, vari *var) {
   }
 
   *ans = out.stk[0]; //put the output into ans
-  
   if(varset) { //set variable if there was an assignment
-    var->value[check] = out.stk[0];
+    //    var->value[check] = out.stk[0];
+    var->value[check] = *ans;
   }
-
   return error;
 }
 
