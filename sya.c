@@ -68,7 +68,7 @@ int sya(char *input, matrix *ans, vari *var) {
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
 	  pushn(initScalar(strtod(bufferLetters, &str2d)), &out);
 
-	} else if(isAssign(input) && !varset) { //checks if the command is an assignment
+	} else if(!varset && isAssign(input)) { //checks if the command is an assignment
 	  check = varcheck(var, bufferLetters); //checks that the variable exists
 	  varset = 1; //flag for assignment at the end of the sya loop
 
@@ -77,8 +77,8 @@ int sya(char *input, matrix *ans, vari *var) {
 	  } else if(check == -2) { //var struct is not empty, but it's a new variable
 	    check = var->count + 1;
 	  }
-	    strcpy(var->name[check], bufferLetters);
-	} else { //check if command is a function
+	  strcpy(var->name[check], bufferLetters);
+	} else { //check if command is a function or  variable
 	  if(input[i+1] == '(') {
 	    bufferLetters[j++] = '(';
 	  }
@@ -147,6 +147,7 @@ int sya(char *input, matrix *ans, vari *var) {
   while(out.occ && oper.occ) { //while the operator and number stack are occupied, keep executing
     execNum(&out, popch(&oper));
   }
+
   if(ans->elements != NULL){
     free(ans->elements);
     free(ans->size);
@@ -155,9 +156,18 @@ int sya(char *input, matrix *ans, vari *var) {
   freeMatrix(out.stk[0]);
 
   if(varset) { //set variable if there was an assignment
-    var->count = check;
-    var->value[check] = malloc(sizeof(*var->value[check]));
+    //check that the newly assigned variable hasn't been assigned before
+    //free it if it has
+    if(var->value[check]){
+      freeMatrix(var->value[check]);
+    }
+
+    if(check > var->count){
+      ++var->count;
+    }
     var->occ = 1;
+    
+    var->value[check] = malloc(sizeof(*var->value[check]));
     copyMatrix(var->value[check], ans);
   }
 

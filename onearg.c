@@ -20,17 +20,17 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     return 1;
 
   case eClear: //clear
-    memset(var->name, '\0', sizeof(var->name));
-    memset(var->value, 0, sizeof(var->value));
+    freeVari(var);
     var->occ = 0;
     var->count = 0;
     printf("\nAll variables cleared\n\n");
     return -1;
 
   case eList: //list
-    if(var->occ != 0) {
+    if(var->occ) {
       printf("\nVariable List:\n");
-      for(int j = 0; j <= var->count; j++) {
+      printf("count %d\n", var->count);
+      for(int j = 0; j <= var->count; ++j) {
 	printf("%s =", var->name[j]);
 	printMatrix(*var->value[j]);
       }
@@ -137,9 +137,10 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
 
   case FUNCTION_COUNT: //variables
     {
-    int k = varcheck(var, buffer);
-    if(k >= 0) {
-	pushn(var->value[k], num);
+      int k = varcheck(var, buffer);
+      if(k >= 0) {
+	matrix *varCopy = malloc(sizeof(*varCopy));
+	pushn(copyMatrix(varCopy,var->value[k]), num);
 	*tok = 1;
 	return 0;
       }
