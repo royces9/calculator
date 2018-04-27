@@ -9,7 +9,7 @@
 #include "onearg.h"
 #include "file.h"
 
-int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans, vari *var, int *tok, int *start, char input[]) {
+int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans, vari *var, int *tok, int *start, char *input) {
   char **separatedString;
   int i = searchFunctionArray(buffer), error = 0;
   operatorStruct operator;
@@ -155,6 +155,11 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
   return -5;
 }
 
+int extractMatrix(numberStack *num, operatorStack *ch, matrix *ans, vari *var, int *start, char *input){
+
+  return 0;
+}
+
 int varcheck(vari *list, char input[]) {
   if(list->occ == 0) {
     return -1;
@@ -169,6 +174,7 @@ int varcheck(vari *list, char input[]) {
   return -2;
 }
 
+
 void freeDoubleArray(char **input) {
   int i = 0;
   for(i = 0; strcmp(input[i], ""); ++i) {
@@ -177,6 +183,7 @@ void freeDoubleArray(char **input) {
   free(input[i]);
   free(input);
 }
+
 
 void helpPrint() {
     printf("quit - quit program\n");

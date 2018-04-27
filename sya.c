@@ -91,7 +91,10 @@ int sya(char *input, matrix *ans, vari *var) {
       negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
       break;
 
-
+    case ']':
+    case '[':
+      error = extractMatrix(&out, &oper, ans, var, &i, input);
+      break;
       //operators
     case '^':
 
@@ -103,9 +106,6 @@ int sya(char *input, matrix *ans, vari *var) {
 
     case '(':
     case ')':
-
-    case '[':
-    case ']':
 
     case '=':
     case '>':
