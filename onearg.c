@@ -54,7 +54,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     return 0;
 
   case eAns:
-    pushn(*ans, num);
+    pushn(ans, num);
     *tok = 1;
     return 0;
 
@@ -123,7 +123,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
   case eRun:
     separatedString = separateString(input, '\0', start, &error);
     error = runFile(separatedString, var, out);
-    pushn(*out, num);
+    pushn(out, num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;

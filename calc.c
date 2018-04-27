@@ -9,7 +9,10 @@
 int main(int argc, char *argv[]) {
   char *input = NULL;
   int error = 0;
-  matrix ans; //stores the previous answer in this variable, can be used by using "ans"
+
+  //stores the previous answer in this variable, can be used by using "ans"
+  //empty matrix
+  matrix *ans = initMatrix(NULL, 0, 0);
 
   //initialize variable struct
   vari var = newVari();
@@ -18,15 +21,13 @@ int main(int argc, char *argv[]) {
   if(argc > 1) {
     for(int i = 1; i < argc; ++i){
       printf(">>%s\n", *(argv+i));
-      error = sya(argv[i], &ans, &var);
+      error = sya(argv[i], ans, &var);
 
       if(error == 0) {
-	printMatrix(ans);
+	printMatrix(*ans);
       } else{
 	errorrep(error);
       }
-
-      freeMatrix(ans);
     }
   } 
 
@@ -40,16 +41,16 @@ int main(int argc, char *argv[]) {
       free(input);
       continue;
     } else{ //parses string and does all the calculations
-      error = sya(input, &ans, &var);
+      error = sya(input, ans, &var);
     }
 
     if(error == 0) {
-      printMatrix(ans);
+      printMatrix(*ans);
     } else{ //if the error is less than -1, prints an error code
       errorrep(error);
     }
-    freeMatrix(ans);
     free(input); //readline mallocs the input line
   }
+  freeMatrix(ans);
   return 0;
 }

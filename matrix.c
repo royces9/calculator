@@ -4,29 +4,29 @@
 
 #include "operator.h"
 
-matrix initMatrix(int *size, int dimension, int *error){
-  matrix out;
+matrix *initMatrix(int *size, int dimension, int *error){
+  matrix *out = malloc(sizeof(*out));
 
   //dimension of the matrix
-  out.dimension = dimension;
+  out->dimension = dimension;
 
   //size of each dimensions
   //the last element of size must end with zero
-  out.size = malloc(sizeof(*out.size) * dimension);
-  out.size = memcpy(out.size, size, sizeof(*out.size) * dimension);
+  out->size = malloc(sizeof(*out->size) * dimension);
+  out->size = memcpy(out->size, size, sizeof(*out->size) * dimension);
 
   //get the total length of the array to malloc
-  out.length = getLength(size, dimension);
-  
+  out->length = getLength(size, dimension);
+
   //if there is a 0 element in size
-  if(!out.length){
+  if(!out->length){
     //temp value for the error
     *error = -10;
     return out;
   }
 
-  out.elements = calloc(out.length, sizeof(*out.elements));
-  if(!out.elements){
+  out->elements = calloc(out->length, sizeof(*out->elements));
+  if(!out->elements){
     //temp error value
     *error = -12;
   }
@@ -37,22 +37,30 @@ matrix initMatrix(int *size, int dimension, int *error){
 //define a scalar as just a single dimension matrix
 //also define that a vector is always 2 dimensions, with one of
 //the two dimensions being 1
-matrix initScalar(element e){
+matrix *initScalar(element e){
   int *size = malloc(sizeof(*size));
   *size = 1;
   int dimension = 1;
   int *error;
-  matrix out = initMatrix(size, dimension, error);
-  out.elements[0] = e;
+  matrix *out = initMatrix(size, dimension, error);
+  free(size);  
+  out->elements[0] = e;
   return out;
 }
 
 
+matrix *copyMatrix(matrix *m){
+  matrix *out = initMatrix(m->size, m->dimension, 0);
+  out->elements = memcpy(out->elements, m->elements, sizeof(*out->elements) * m->length);
+  return out;
+}
+
 //free the matrix and all of the data
 //associated with it
-void freeMatrix(matrix m){
-  free(m.size);
-  free(m.elements);
+void freeMatrix(matrix *m){
+  free(m->size);
+  free(m->elements);
+  free(m);
 }
 
 
@@ -90,9 +98,8 @@ void printTwoDMatrix(matrix m, int offset){
 //prints out 2d slices of the matrix
 void printMatrix(matrix m){
   int offset = 0;
-
   if(m.dimension > 2){
-  int twoDimSize = m.size[0] * m.size[1];
+    int twoDimSize = m.size[0] * m.size[1];
     for(int i = 1; i < m.dimension; ++i){
 	printTwoDMatrix(m, offset);
 	offset += twoDimSize;
@@ -130,34 +137,35 @@ int sub2ind(int *location, int *size, int dimension){
 }
 
 
-matrix matrixOneArg(matrix a, int o){
+matrix *matrixOneArg(matrix *a, int o){
   //temp error
   int *error = 0;
-  matrix out = initMatrix(a.size, a.dimension, error);
-  for(int i = 0; i < out.length; ++i){
-    out.elements[i] = oneArg(a.elements[i], o);
+  matrix *out = initMatrix(a->size, a->dimension, error);
+  for(int i = 0; i < out->length; ++i){
+    out->elements[i] = oneArg(a->elements[i], o);
   }
-
+  freeMatrix(a);
   return out;
 }
 
 
-matrix matrixTwoArg(matrix a, matrix b, int o, int *error){
-  matrix out;
+matrix *matrixTwoArg(matrix *a, matrix *b, int o, int *error){
+  matrix *out;
   if(matrixOperator(o)){
     if(checkInnerDim(a, b)){
     }
-  } else if(compareSize(a.size, b.size, a.dimension, b.dimension)){
-    out = initMatrix(a.size, a.dimension, error);
+  } else if(compareSize(a->size, b->size, a->dimension, b->dimension)){
+    out = initMatrix(a->size, a->dimension, error);
 
-    for(int i = 0; i < a.length; ++i){
-      out.elements[i] = twoArg(a.elements[i], b.elements[i], o);
+    for(int i = 0; i < a->length; ++i){
+      out->elements[i] = twoArg(a->elements[i], b->elements[i], o);
     }
   } else{
     //temp error number here
     *error = -12;
-    return out;
   }
+  freeMatrix(a);
+  freeMatrix(b);
   return out;
 }
 
@@ -192,6 +200,6 @@ int compareSize(int *a, int *b, int dimA, int dimB){
 
 
 //check that the inner dimensions of the matrix match
-int checkInnerDim(matrix a, matrix b){
-  return (a.size[a.dimension-1] == b.size[0]) ? 1 : 0;
+int checkInnerDim(matrix *a, matrix *b){
+  return (a->size[a->dimension-1] == b->size[0]) ? 1 : 0;
 }

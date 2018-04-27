@@ -120,20 +120,20 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 
 //executes either one argument function or two argument function
 void execNum(numberStack *num, operatorStruct ch) {
-  matrix a, b;
+  matrix *a, *b;
   //temp error
   int *error = 0;
   switch(ch.argNo) {
   case 1:
     a = popn(num);
-    pushn(matrixOneArg(a, ch.enumeration), num);
+    pushn(matrixOneArg(*a, ch.enumeration), num);
     freeMatrix(a);
     break;
 
   case 2:
     b = popn(num);
     a = popn(num);
-    pushn(matrixTwoArg(a, b, ch.enumeration, error), num);
+    pushn(matrixTwoArg(*a, *b, ch.enumeration, error), num);
     freeMatrix(a);
     freeMatrix(b);
     break;

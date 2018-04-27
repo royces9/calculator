@@ -3,7 +3,7 @@
 #include "stack.h"
 
 
-void pushn(matrix inp, numberStack *st) {
+void pushn(matrix *inp, numberStack *st) {
   if(st->occ) {
     st->stk[++st->top] = inp;
   } else { //if stack is empty put it into 0, st.top is guaranteed to be 0 at initialization
@@ -13,8 +13,8 @@ void pushn(matrix inp, numberStack *st) {
 }
 
 
-matrix popn(numberStack *st) { //pop a double from the stack
-  matrix out;
+matrix *popn(numberStack *st) { //pop a matrix from the stack
+  matrix *out;
   if(st->occ) {
     out = st->stk[st->top--];
     if((st->top) == -1) { //if top is -1, the stack is now empty, set occ and top back to 0
@@ -77,4 +77,10 @@ vari newVari(void) {
   memset(var.name, '\0', sizeof(var.name));
   memset(var.value, 0, sizeof(var.value));
   return var;
+}
+
+void emptyNumberStack(numberStack *st){
+  for(int i = 0; i <= st->top; ++i){
+    freeMatrix(st->stk[i]);
+  }
 }

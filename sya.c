@@ -63,8 +63,10 @@ int sya(char *input, matrix *ans, vari *var) {
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
       if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
 	bufferLetters[j] = '\0';
+
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
 	  pushn(initScalar(strtod(bufferLetters, &str2d)), &out);
+
 	} else if(isAssign(input) && !varset) { //checks if the command is an assignment
 	  check = varcheck(var, bufferLetters); //checks that the variable exists
 	  varset = 1; //flag for assignment at the end of the sya loop
@@ -74,14 +76,17 @@ int sya(char *input, matrix *ans, vari *var) {
 	    var->occ = 1; //sets the struct occupied flag to true
 	    var->count = 0;
 	    check = 0; //the index of the new variable
+
 	  } else if(check == -2) { //var struct is not empty, but it's a new variable
 	    check = ++var->count;
 	    strcpy(var->name[check], bufferLetters);
 	  }
-	} else {
+
+	} else { //check if command is a function
 	  if(input[i+1] == '(') {
 	    bufferLetters[j++] = '(';
 	  }
+
 	  bufferLetters[j] = '\0';
 	  error = findFunction(bufferLetters, &out, &oper, ans, var, &negativeCheck, &i, input);
 	} //end else
@@ -139,20 +144,21 @@ int sya(char *input, matrix *ans, vari *var) {
       return error = -4;
       
     }//end of switch
-    if(error < 0) { //break if error
+    if((error < 0) || (error == 1)) { //break if error or quit
       return error;
     }
   }//end of for
-  
   while(out.occ && oper.occ) { //while the operator and number stack are occupied, keep executing
     execNum(&out, popch(&oper));
   }
 
-  *ans = out.stk[0]; //put the output into ans
+  *ans = *out.stk[0]; //put the output into ans
+  free(out.stk[0]);
+
   if(varset) { //set variable if there was an assignment
-    //    var->value[check] = out.stk[0];
-    var->value[check] = *ans;
+    *(var->value[check]) = *ans;
   }
+
   return error;
 }
 
