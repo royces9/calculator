@@ -101,28 +101,28 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     return error;    
     */
   case eDeri:
-    separatedString = separateString(input, ',', start, &error);
+    separatedString = separateString(input, "()", ',', start, &error);
     pushn(deri(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
     
   case eInte:
-    separatedString = separateString(input, ',', start, &error);
+    separatedString = separateString(input, "()", ',', start, &error);
     pushn(inte(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
     
   case eSolve:
-    separatedString = separateString(input, ',', start, &error);
+    separatedString = separateString(input, "()", ',', start, &error);
     pushn(solve(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
 
   case eRun:
-    separatedString = separateString(input, '\0', start, &error);
+    separatedString = separateString(input, "()", '\0', start, &error);
     error = runFile(separatedString, var, out);
     pushn(out, num);
     freeDoubleArray(separatedString);
@@ -130,7 +130,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     return error;
 
   case ePrint:
-    separatedString = separateString(input, ',', start, &error);
+    separatedString = separateString(input, "()", ',', start, &error);
     printLine(separatedString, var, &error);
     freeDoubleArray(separatedString);
     return error;

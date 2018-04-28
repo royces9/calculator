@@ -309,9 +309,9 @@ int printLine(char **input, vari *var, int *error) {
 }
 
 //separate a single string into multiple strings by a given delimiter
-char **separateString(char *input, char delimiter, int *start, int *error) {
+char **separateString(char *input, char limits[2], char delimiter, int *start, int *error) {
   char *tok;
-  int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0, delimiterCount = 0, i = 0;  
+  int leftLimit = 0, rightLimit = 0, length = 0, delimiterCount = 0, i = 0;  
 
   char strDelimiter[2];
   strDelimiter[0] = delimiter;
@@ -321,13 +321,13 @@ char **separateString(char *input, char delimiter, int *start, int *error) {
   
   for(length = 0; input[length]; ++length) {
     //increment count if char is left or right end parenthesis
-    leftParenthesisCount += (input[length] == '(');
-    rightParenthesisCount += (input[length] == ')');
+    leftLimit += (input[length] == limits[1]);
+    rightLimit += (input[length] == limits[0]);
 
     //increment count if char is the delimiter
     delimiterCount += (input[length] == delimiter);
 
-    if(leftParenthesisCount == rightParenthesisCount) {
+    if(leftLimit == rightLimit) {
       break;
     }
   }
