@@ -238,6 +238,44 @@ matrix *solve(char **input, vari *var, int *error) {
   return varTemp.value[varc];
 }
 
+
+matrix *zeros(char **input, vari *var, int *error){
+  int dimension = numberOfArgs(input);
+  int *size = malloc(sizeof(*size) * dimension);
+  matrix temp;
+  temp.size = NULL;
+  temp.elements = NULL;
+  for(int i = 0; i < dimension; ++i){
+    *error = sya(input[i], &temp, var);
+    if(temp.dimension != 1){
+      *error = 13;
+      return NULL;
+    }
+    size[i] = temp.elements[0];
+  }
+
+  matrix *out = initMatrix(size, dimension, error);
+  
+  free(temp.size);
+  free(temp.elements);
+  free(size);
+  
+  return out;
+}
+
+
+matrix *ones(char **input, vari *var, int *error){
+  matrix *out = zeros(input, var, error);
+  if(*error){
+    return out;
+  }
+  for(int i = 0; i < out->length; ++i){
+    out->elements[i] = 1;
+  }
+  return out;
+}
+
+
 //remove spaces from char input
 void removeSpaces(char *input, int *front, int *back) {
   if(input[0] == ' ') {
@@ -319,19 +357,22 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, i
   
   input += (*start+1);
   
-  for(length = 0; input[length]; ++length) {
-    //increment count if char is left or right end parenthesis
-    leftLimit += (input[length] == limits[1]);
-    rightLimit += (input[length] == limits[0]);
+  if(limits != NULL){
+    for(length = 0; input[length]; ++length) {
+      //increment count if char is left or right end parenthesis
+      leftLimit += (input[length] == limits[1]);
+      rightLimit += (input[length] == limits[0]);
 
-    //increment count if char is the delimiter
-    delimiterCount += (input[length] == delimiter);
+      //increment count if char is the delimiter
+      delimiterCount += (input[length] == delimiter);
 
-    if(leftLimit == rightLimit) {
-      break;
+      if(leftLimit == rightLimit) {
+	break;
+      }
     }
+  } else{
+    length = strlen(input);
   }
-
   //temp variable that strtok will take in, since strtok mangles original pointer
   char *input2 = malloc((length + 3)* sizeof(*input2));
   __MALLOC_CHECK(input2, *error);

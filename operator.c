@@ -36,6 +36,9 @@ const char FUNCTION_LIST[FUNCTION_COUNT][20] = {
   "integral(",
   "solve(",
 
+  "zeros(",
+  "ones(",
+  
   "run(",
   "print("
 };

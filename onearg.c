@@ -29,7 +29,6 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
   case eList: //list
     if(var->occ) {
       printf("\nVariable List:\n");
-      printf("count %d\n", var->count);
       for(int j = 0; j <= var->count; ++j) {
 	printf("%s =", var->name[j]);
 	printMatrix(*var->value[j]);
@@ -55,8 +54,12 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     return 0;
 
   case eAns:
-    pushn(ans, num);
-    *tok = 1;
+    { //because ans scope is in main, make a copy of ans that can be free'd
+      matrix *copy = malloc(sizeof(*copy));
+      copyMatrix(copy, ans);
+      pushn(copy, num);
+      *tok = 1;
+    }
     return 0;
 
   case eSin:
@@ -121,6 +124,20 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     *tok = 0;
     return error;
 
+  case eZeros:
+    separatedString = separateString(input, "()", ',', start, &error);
+    pushn(zeros(separatedString, var, &error), num);
+    freeDoubleArray(separatedString);
+    *tok = 0;
+    return error;
+    
+  case eOnes:
+    separatedString = separateString(input, "()", ',', start, &error);
+    pushn(ones(separatedString, var, &error), num);
+    freeDoubleArray(separatedString);
+    *tok = 0;
+    return error;
+
   case eRun:
     separatedString = separateString(input, "()", '\0', start, &error);
     error = runFile(separatedString, var, out);
@@ -155,9 +172,20 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
   return -5;
 }
 
-int extractMatrix(numberStack *num, operatorStack *ch, matrix *ans, vari *var, int *start, char *input){
+matrix *extractMatrix(numberStack *num, operatorStack *ch, matrix *ans, vari *var, int *start, char *input, int *error){
+  matrix *out;
+  char **separatedString = separateString(input, "[]", ';', start, error);
+  int rows = 0;
+  int columns = 0;
+  for(rows = 0; separatedString[rows]; ++rows){
+    int *start2 = 0;
+    char **separatedStringTwo = separateString(separatedString[rows], NULL, ',', start2, error);
+    for(columns = 0; separatedStringTwo[columns]; ++columns){
 
-  return 0;
+    }
+  }
+  freeDoubleArray(separatedString);
+  return out;
 }
 
 int varcheck(vari *list, char input[]) {

@@ -85,7 +85,7 @@ void printTwoDMatrix(matrix m, int offset){
     printf("\n");
   }
   printf("\n");*/
-  
+  printf("\n");  
   for(int i = 0; i < m.size[0]; ++i){
     for(int j = 0; j < m.size[1]; ++j){
       int location[2] = {i, j};

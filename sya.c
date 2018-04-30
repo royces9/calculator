@@ -93,7 +93,7 @@ int sya(char *input, matrix *ans, vari *var) {
 
     case ']':
     case '[':
-      error = extractMatrix(&out, &oper, ans, var, &i, input);
+      //pushn(extractMatrix(&out, &oper, ans, var, &i, input, error));
       break;
       //operators
     case '^':
@@ -152,8 +152,10 @@ int sya(char *input, matrix *ans, vari *var) {
     free(ans->elements);
     free(ans->size);
   }
+
   copyMatrix(ans, out.stk[0]);
   freeMatrix(out.stk[0]);
+
 
   if(varset) { //set variable if there was an assignment
     //check that the newly assigned variable hasn't been assigned before

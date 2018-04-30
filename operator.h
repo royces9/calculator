@@ -3,7 +3,7 @@
 
 #include "stack.h"
 
-#define FUNCTION_COUNT 28
+#define FUNCTION_COUNT 30
 #define OPERATOR_COUNT 18
 
 extern const char OPERATOR_LIST[OPERATOR_COUNT][5];
@@ -39,6 +39,9 @@ enum functionEnums {
   eDeri,
   eInte,
   eSolve,
+
+  eZeros,
+  eOnes,
 
   eRun,
   ePrint

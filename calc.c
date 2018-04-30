@@ -57,7 +57,6 @@ int main(int argc, char *argv[]) {
     free(ans.size);
     free(ans.elements);
   }
-  printf("%d %d\n", var.occ, var.count);
   freeVari(&var);
   return 0;
 }
