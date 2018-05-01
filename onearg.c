@@ -138,6 +138,10 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, matrix *ans,
     *tok = 0;
     return error;
 
+  case eEye:
+    *tok = 0;
+    return error;
+    
   case eRun:
     separatedString = separateString(input, "()", '\0', start, &error);
     error = runFile(separatedString, var, out);
