@@ -185,7 +185,26 @@ matrix *matrixTwoArg(matrix *a, matrix *b, int o, int *error){
 //everything else requires the two input matrices to be
 //the same size (per element operation)
 int matrixOperator(int o){
-  return 0;
+  switch(o){
+  case eMultiply:
+  case eMin:
+  case eMax:
+    return 1;
+  case eSin:
+  case eCos:
+  case eTan:
+  case eLn:
+  case eLog:
+  case eSqrt:
+  case eAsin:
+  case eAcos:
+  case eAtan:
+  case eFloor:
+  case eCeil:
+  case eRound:
+  case eFactorial:
+    return 0;
+  }
 }
 
 
