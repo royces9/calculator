@@ -27,6 +27,7 @@ matrix *matrixOneArg(matrix *a, int o);
 matrix *matrixTwoArg(matrix *a, matrix *b, int o, int *error);
 
 int matrixOperator(int o);
+int isScalar(matrix *m);
 
 int compareSize(int *a, int *b, int dimA, int dimB);
 int checkInnerDim(matrix *a, matrix *b);

@@ -207,6 +207,11 @@ int matrixOperator(int o){
   }
 }
 
+//check if a matrix is a scalar (true)
+//else false
+int isScalar(matrix *m){
+  return (m->dimension == 1);
+}
 
 //compare two size vectors
 int compareSize(int *a, int *b, int dimA, int dimB){
