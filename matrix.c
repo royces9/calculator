@@ -70,17 +70,26 @@ void freeMatrix(matrix *m){
 
 
 //prints a matrix that has two dimensions
-//offset is the number of elements to offset the dimension m
-void printTwoDMatrix(matrix m, int offset){
-  int newSize[2] = {m.size[0], m.size[1]};
-
-  /*another way that could work? I'll just keep it here for now
+//printMatrix works by printing out 2d slices of
+//multidimensional arrays, offset is going to be
+//a multiple of the number of slices of the 2d matrix
+//
+//for a 3d matrix of size [2 2 2], with elements 1 to 8
+//the first print will print:
+//1 3
+//2 4
+//the second print will have an offset of 4 and print:
+//5 7
+//6 8
+void printTwoDMatrix(const matrix m, int offset){
+  /*  another way that could work? I'll just keep it here for now
   int i = 0;
   int j = 0;
   int *loc[2] = {&i, &j};
+  printf("\n");
   for(i = 0; i < m.size[0]; ++i){
     for(j = 0; j < m.size[1]; ++j){
-      printf("%lf ", m.elements[offset + sub2ind(*loc, newSize, 2)]);
+        printf("%lf ", m.elements[offset + ((*loc[0]) + m.size[0] * (*loc[1]))]);
     }
     printf("\n");
   }
@@ -89,7 +98,9 @@ void printTwoDMatrix(matrix m, int offset){
   for(int i = 0; i < m.size[0]; ++i){
     for(int j = 0; j < m.size[1]; ++j){
       int location[2] = {i, j};
-      printf("%lf ", m.elements[offset+sub2ind(location, newSize, 2)]);
+      //the below is the same as sub2ind for a 2d matrix
+      //location[0] + m.size[0] * location[1]
+      printf("%lf ", m.elements[offset + (location[0] + m.size[0] * location[1])]);
     }
     printf("\n");
   }
@@ -101,7 +112,7 @@ void printTwoDMatrix(matrix m, int offset){
 
 //print out a matrix of any size
 //prints out 2d slices of the matrix
-void printMatrix(matrix m){
+void printMatrix(const matrix m){
   int offset = 0;
   if(m.dimension > 2){
     int twoDimSize = m.size[0] * m.size[1];
