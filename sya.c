@@ -4,7 +4,6 @@
 
 #include "operator.h"
 #include "stack.h"
-#include "onearg.h"
 #include "sya.h"
 
 

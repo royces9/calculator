@@ -6,7 +6,7 @@
 
 #include "stack.h"
 #include "multi.h"
-#include "onearg.h"
+#include "operator.h"
 #include "sya.h"
 
 //counts number of input arguments
