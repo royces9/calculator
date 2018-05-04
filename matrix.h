@@ -23,9 +23,6 @@ void printMatrix(const matrix m);
 int getLength(int *size, int dimension);
 int sub2ind(int *location, int *size, int dimension);
 
-matrix *matrixOneArg(matrix *a, int o);
-matrix *matrixTwoArg(matrix *a, matrix *b, int o, int *error);
-
 int matrixOperator(int o);
 int isScalar(matrix *m);
 

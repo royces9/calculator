@@ -92,7 +92,7 @@ int sya(char *input, matrix *ans, vari *var) {
 
     case ']':
     case '[':
-      //pushn(extractMatrix(&out, &oper, ans, var, &i, input, error));
+      pushn(extractMatrix(&out, &oper, ans, var, &i, input, error));
       break;
       //operators
     case '^':

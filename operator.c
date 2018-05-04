@@ -4,8 +4,9 @@
 #include <stdlib.h>
 
 #include "operator.h"
-#include "matrix.h"
+#include "multi.h"
 #include "file.h"
+
 
 //search in FUNCTION_LIST
 int searchFunctionArray(char *buffer) {
@@ -16,6 +17,7 @@ int searchFunctionArray(char *buffer) {
   }
   return FUNCTION_COUNT;
 }
+
 
 //search in OPERATOR_COUNT
 int searchOperatorArray(char *buffer) {
@@ -38,6 +40,7 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
   return out;
 }
 
+
 //executes either one argument function or two argument function
 void execNum(numberStack *num, operatorStruct ch) {
   matrix *a, *b;
@@ -46,13 +49,13 @@ void execNum(numberStack *num, operatorStruct ch) {
   switch(ch.argNo) {
   case 1:
     a = popn(num);
-    pushn(matrixOneArg(a, ch.enumeration), num);
+    pushn(matrixOneArg(a, ch), num);
     break;
 
   case 2:
     b = popn(num);
     a = popn(num);
-    pushn(matrixTwoArg(a, b, ch.enumeration, error), num);
+    pushn(matrixTwoArg(a, b, ch, error), num);
     break;
 
   default:
@@ -68,6 +71,21 @@ element factorial(element a) {
     return 1;
   }
   return a == 1 ? 1 : a*factorial(a-1);
+}
+
+matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
+  matrix *out;
+
+  freeMatrix(a);
+  return out;
+}
+
+matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
+  matrix *out;
+
+  freeMatrix(a);
+  freeMatrix(b);
+  return out;
 }
 
 
@@ -345,11 +363,80 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, matrix ans
   return 0;
 }
 
+
+//separate a matrix, accounting for sub matrices as input in a matrix
+//[[1, 2], 3] or something like that
+char **separateMatrix(char *input, int length, matrix *ans, vari *var, int *error){
+
+  matrix *out = malloc(sizeof(*matrix));
+
+  input += 1;
+  input[length - 1] = '\0';
+  char **matrixElement = malloc(sizeof(*matrixElement) * length);
+  int *delimiterLocation = malloc(sizeof(*delimiterCount) * length);
+  int delimiterCount[2] = {0, 0};
+  int previousElement = 0;
+  int elementCount = 0;
+  for(int i = 0; input[i]; ++i){
+    if((input[i] == ',') || (input[i] == ';')){
+      if(input[i] == ','){
+	delimiterLocation[elementCount] = 1;
+	++delimiterCount[0];
+      } else if(input[i] == ';'){
+	delimiterLocation[elementCount] = 2;
+	++delimiterCount[1];
+      }
+
+      matrixElement[elementCount] = malloc(sizeof(**matrixElement) * (i - previousElement));
+      strncpy(matrixElement[elementCount], input[previousElement], sizeof(*matrixElement) * (i - previousElement));
+      ++elementCount;
+    } else if((input[i] == '[')){
+      for(i; input[i] == ']'; ++i);
+    }
+    delimiterLocation[elementCount] = 0;
+    matrixElement[elementcount] = NULL;
+  }
+
+  if(delimiterCount[0] == delimiterCount[1]){
+    if(delimiterCount[0] == 0){ //means that the input was a single element, which could be a matrix
+      sya(matrixElement[0], ans, var);
+      copyMatrix(out, ans);
+      return out;
+    }
+    *error = -14;
+    return NULL;
+  } else{
+    int *size = malloc(sizeof(*size) * 2);
+    size[0] = delimiterCount[1] + 1;
+    size[1] = delimiterCount[0] + 1;
+    out = initMatrix(
+  }
+}
+
+
 matrix *extractMatrix(numberStack *num, operatorStack *ch, matrix *ans, vari *var, int *start, char *input, int *error){
   matrix *out;
-  char **separatedString = separateString(input, "[]", ';', start, error);
   int rows = 0;
   int columns = 0;
+ 
+  int leftBracketCount = 0, rightBracketcount = 0;
+  input += (*start + 1);
+  int length;
+
+  for(length = 0; input[length]; ++length){
+    leftBracketCount += (input[length] == '[');
+    rightBracketCount += (input[length] == ']');
+
+    if(leftBracketCount == rightBracketCount){
+      break;
+    }
+  }
+
+  ++length;
+  
+  char *matrixString = malloc(sizeof(*matrixString) * length);
+  strncpy(matrixString, input, sizeof(*matrixString) * length);
+
   for(rows = 0; separatedString[rows]; ++rows){
     int *start2 = 0;
     char **separatedStringTwo = separateString(separatedString[rows], NULL, ',', start2, error);

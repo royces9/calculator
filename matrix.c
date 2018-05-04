@@ -61,6 +61,46 @@ matrix *copyMatrix(matrix *dest, matrix *src){
   return dest;
 }
 
+
+//dimension is a number to specifiy along which direction to concatenate
+//along, it starts from 0
+matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
+  int diff = abs(a->dimension - b->dimension);
+  matrix *out;
+  //a and b are the same dimension
+  if(!diff){
+    int sizeA[a->dimension-1];
+    int sizeB[b->dimension-1];
+    for(int i = 0, j = 0; i < ( a->dimension - 1); ++i, ++j){
+      if(i == dimension){
+	++i;
+      }
+      sizeA[j] = a->size[i];
+      sizeB[j] = b->size[i];
+    }
+    if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimensions - 1)){
+      int *newSize = malloc(sizeof(*newSize) * a->dimension);
+      for(int i = 0; i < a->dimension; ++i){
+	newSize[i] = a->size[i];
+	if(i == dimension){
+	  newSize[i] += b->size[i];
+	}
+      }
+      out = initMatrix(newSize, a->dimension, error);
+      return out;
+    } else{
+      *error = -15;
+      return NULL;
+    }
+
+  } else if(diff == 1){ //if the dimension are different by 1
+
+  } else{ //dimensions are two or more different
+    *error = -15;
+    return NULL;
+  }
+}
+
 //free the matrix and all of the data
 //associated with it
 void freeMatrix(matrix *m){
@@ -151,39 +191,6 @@ int sub2ind(int *location, int *size, int dimension){
   }
 
   return ind;
-}
-
-
-matrix *matrixOneArg(matrix *a, int o){
-  //temp error
-  int *error = 0;
-  matrix *out = initMatrix(a->size, a->dimension, error);
-  for(int i = 0; i < out->length; ++i){
-    out->elements[i] = oneArg(a->elements[i], o);
-  }
-  freeMatrix(a);
-  return out;
-}
-
-
-matrix *matrixTwoArg(matrix *a, matrix *b, int o, int *error){
-  matrix *out;
-  if(matrixOperator(o)){
-    if(checkInnerDim(a, b)){
-    }
-  } else if(compareSize(a->size, b->size, a->dimension, b->dimension)){
-    out = initMatrix(a->size, a->dimension, error);
-
-    for(int i = 0; i < a->length; ++i){
-      out->elements[i] = twoArg(a->elements[i], b->elements[i], o);
-    }
-  } else{
-    //temp error number here
-    *error = -12;
-  }
-  freeMatrix(a);
-  freeMatrix(b);
-  return out;
 }
 
 
