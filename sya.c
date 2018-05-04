@@ -153,10 +153,8 @@ int sya(char *input, matrix *ans, vari *var) {
     free(ans->size);
   }
 
-  printf("test1\n");
   copyMatrix(ans, out.stk[0]);
   freeMatrix(out.stk[0]);
-  printf("test2\n");
 
   if(varset) { //set variable if there was an assignment
     //check that the newly assigned variable hasn't been assigned before

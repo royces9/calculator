@@ -57,6 +57,7 @@ matrix *copyMatrix(matrix *dest, matrix *src){
 
   dest->size = malloc(sizeof(*dest->size) * dest->dimension);
   dest->size = memcpy(dest->size, src->size, sizeof(*dest->size) * dest->dimension);
+  
   return dest;
 }
 
@@ -201,6 +202,8 @@ int matrixOperator(int o){
   case eMin:
   case eMax:
     return 1;
+
+  case eAdd:
   case eSin:
   case eCos:
   case eTan:

@@ -4,7 +4,7 @@ HEADERS = $(wildcard *.h)
 CFILES = $(wildcard *.c)
 OFILES = $(wildcard *.o)
 
-all: matrix.o stack.o multi.o onearg.o sya.o calc.o file.o operator.o fileStruct.o calc2
+all: matrix.o stack.o multi.o sya.o calc.o file.o operator.o fileStruct.o calc2
 
 calc2: $(CFILES) $(HEADERS) $(OFILES)
 	$(CC) $(OFILES) -o calc2 $(FLAGS)
@@ -18,10 +18,7 @@ stack.o: stack.c stack.h matrix.h
 multi.o: multi.c multi.h stack.h sya.h
 	$(CC) -c multi.c
 
-onearg.o: onearg.c onearg.h multi.h stack.h file.h operator.h
-	$(CC) -c onearg.c
-
-sya.o: sya.c sya.h stack.h onearg.h operator.h
+sya.o: sya.c sya.h stack.h operator.h
 	$(CC) -c sya.c
 
 calc.o: calc.c stack.h sya.h
@@ -30,7 +27,7 @@ calc.o: calc.c stack.h sya.h
 file.o: file.c file.h stack.h sya.h fileStruct.h
 	$(CC) -c file.c
 
-operator.o: operator.c operator.h
+operator.o: operator.c operator.h operatorUtility.h
 	$(CC) -c operator.c
 
 fileStruct.o: fileStruct.c fileStruct.h
