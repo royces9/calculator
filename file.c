@@ -7,7 +7,7 @@
 #include "file.h"
 #include "sya.h"
 
-int runFile(char **input, vari *var, matrix *ans) {
+int runFile(char **input, vari *var) {
   int error = 0; //int to put errors into
   int maxSize = 1024; //maximum size of tree
 
@@ -21,7 +21,7 @@ int runFile(char **input, vari *var, matrix *ans) {
   if(error) return error;
 
   //execute tree
-  error = executeTree(tree, var, ans, maxSize);
+  error = executeTree(tree, var, maxSize);
 
   //free tree
   cutDownTree(tree);
@@ -129,12 +129,13 @@ int createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
 }
 
 
-int executeTree(fileTree *tree, vari *var, matrix *ans, int maxSize){
+int executeTree(fileTree *tree, vari *var, int maxSize){
   fileTree *head = tree;
   int direction = 0; //checking the direction of program flow
   int check = 0; //checking conditionals: if/while
   int error = 0; //error 
   fileStack stk = newFileStack(); //create new file stack
+  vari temp = *var;
   
   //executes the tree
   //checks that the current leaf and the string it holds are not 0
@@ -150,7 +151,7 @@ int executeTree(fileTree *tree, vari *var, matrix *ans, int maxSize){
 
     switch(direction) {
     case 1: //if
-      check = checkConditional(head->line, direction, var, ans);
+      check = checkConditional(head->line, direction, var);
       if(check < 0) { //if there is an error in the if
 	return check;
       }
@@ -168,7 +169,7 @@ int executeTree(fileTree *tree, vari *var, matrix *ans, int maxSize){
       break;
 
     case 2: //while
-      check = checkConditional(head->line, direction, var, ans);
+      check = checkConditional(head->line, direction, var);
       if(check < 0) {
 	return check;
       }
@@ -206,14 +207,14 @@ int executeTree(fileTree *tree, vari *var, matrix *ans, int maxSize){
       //every other line is executed normally
       //for executing non conditional lines
     default:
-      error = sya(head->line, ans, var);
+      error = sya(head->line, &temp);
       if(error) {
 	return error;
       }
 
       //print output
       if((head->line[strlen(head->line)-1] != ';') && direction == 0) {
-	printf(">     %lf\n", *ans);
+	printMatrix(temp.ans);
       }
 
       //continue execution going left
@@ -251,16 +252,17 @@ char *parseCondition(char *input, int type) {
 
 
 //checks conditionals in while/if
-int checkConditional(char *input, int type, vari *var, matrix *ans) {
+int checkConditional(char *input, int type, vari *var) {
   input = parseCondition(input, type);
-  int error = sya(input, ans, var);
+  vari temp = *var;
+  int error = sya(input, &temp);
   if(error) {
     //error can return negative values
     return error; 
   }
 
   //guarantee that *ans only returns 0 or 1
-  return !!ans->elements[0];
+  return !!temp.ans.elements[0];
 }
 
 

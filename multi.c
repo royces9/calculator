@@ -136,15 +136,15 @@ matrix *inte(char **input, vari *var, int *error) {
   //get number of steps, and step size
   *error = sya(input[2], &varTemp);
   if(*error) return 0;
-  matrixCopy(&a, &varTemp.ans);
+  copyMatrix(&a, &varTemp.ans);
 
   *error = sya(input[3], &varTemp);
   if(*error) return 0;
-  matrixCopy(&b, &varTemp.ans);
+  copyMatrix(&b, &varTemp.ans);
 
   *error = sya(input[4], &varTemp);
   if(*error) return 0;
-  matrixCopy(&number, &varTemp.ans);
+  copyMatrix(&number, &varTemp.ans);
   
   //calculate step size
   step = (b.elements[0]-a.elements[0])/number.elements[0];
@@ -223,11 +223,11 @@ matrix *solve(char **input, vari *var, int *error) {
   //set initial guess and the tolerance
   *error = sya(input[2], &varTemp);
   if(*error) return 0;
-  matrixCopy(&varTemp.value[varc], &varTemp.ans);
+  copyMatrix(varTemp.value[varc], &varTemp.ans);
 
   *error = sya(input[3], &varTemp);
   if(*error) return 0;
-  matrixCopy(&h, &varTemp.ans);
+  copyMatrix(&h, &varTemp.ans);
 
   test = h.elements[0] + 1; //ensure test is always greater than h
 
@@ -235,12 +235,12 @@ matrix *solve(char **input, vari *var, int *error) {
   while(fabs(test) > h.elements[0]) { //if the difference between iterations is less than the tolerance, break out of loop
     *error = sya(input[0], &varTemp);
     if(*error) return 0;
-    matrixCopy(&out, &varTemp.ans);
+    copyMatrix(&out, &varTemp.ans);
 
     varTemp.value[varc]->elements[0] -= delta;
     *error = sya(input[0], &varTemp);
     if(*error) return 0;
-    matrixCopy(&inter, &varTemp.ans);
+    copyMatrix(&inter, &varTemp.ans);
 
     test = (delta*out.elements[0])/(out.elements[0]-inter.elements[0]);
     varTemp.value[varc]->elements[0] -= test;
@@ -253,24 +253,25 @@ matrix *solve(char **input, vari *var, int *error) {
 matrix *zeros(char **input, vari *var, int *error){
   int dimension = numberOfArgs(input);
   int *size = malloc(sizeof(*size) * dimension);
-  matrix temp;
-  temp.size = NULL;
-  temp.elements = NULL;
+  vari temp = *var;
+
+
   for(int i = 0; i < dimension; ++i){
-    *error = sya(input[i], &temp, var);
-    if(temp.dimension != 1){
+    matrix *inputMat = malloc(sizeof(*inputMat));
+    *error = sya(input[i], &temp);
+    copyMatrix(inputMat, &temp.ans);
+
+    if(inputMat->dimension != 1){
       *error = 13;
       return NULL;
     }
-    size[i] = temp.elements[0];
+    size[i] = inputMat->elements[0];
+    freeMatrix(inputMat);
   }
 
   matrix *out = initMatrix(size, dimension, error);
-  
-  free(temp.size);
-  free(temp.elements);
+
   free(size);
-  
   return out;
 }
 
@@ -306,7 +307,7 @@ void removeSpaces(char *input, int *front, int *back) {
 //print a line to stdout, formatting is similar to matlab
 int printLine(char **input, vari *var, int *error) {
   int argNo = numberOfArgs(input), front = 0, back = 0;
-
+  vari temp = *var;
   for(int i = 0; i < argNo; ++i) {
     int len = strlen(input[i]), string = 0;
 
@@ -348,9 +349,9 @@ int printLine(char **input, vari *var, int *error) {
     }
     else { //no quotes, just a variable or expression
       matrix out;
-      *error = sya(input[i], &out, var); //calculate expression and print, print variables this way
+      *error = sya(input[i], &temp); //calculate expression and print, print variables this way
       if(*error) return 0;
-      printMatrix(out);
+      printMatrix(temp.ans);
 
     }
   }

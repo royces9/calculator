@@ -78,7 +78,8 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
       sizeA[j] = a->size[i];
       sizeB[j] = b->size[i];
     }
-    if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimensions - 1)){
+
+    if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimension - 1)){
       int *newSize = malloc(sizeof(*newSize) * a->dimension);
       for(int i = 0; i < a->dimension; ++i){
 	newSize[i] = a->size[i];
@@ -88,6 +89,7 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
       }
       out = initMatrix(newSize, a->dimension, error);
       return out;
+
     } else{
       *error = -15;
       return NULL;

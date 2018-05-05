@@ -83,8 +83,8 @@ vari newVari(void) {
   memset(var.name, '\0', sizeof(var.name));
   memset(var.value, 0, sizeof(var.value));
 
-  var.ans->size = NULL;
-  var.ans->elements = NULL;
+  var.ans.size = NULL;
+  var.ans.elements = NULL;
   return var;
 }
 
@@ -96,9 +96,9 @@ void freeVari(vari *var){
     }
   }
 
-  if(var->ans != NULL){
-    free(var.ans.size);
-    free(var.ans.elements);
+  if(var->ans.size != NULL){
+    free(var->ans.size);
+    free(var->ans.elements);
   }
 }
 

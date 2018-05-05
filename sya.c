@@ -92,7 +92,7 @@ int sya(char *input, vari *var) {
 
     case ']':
     case '[':
-      pushn(extractMatrix(var, &i, input, error));
+      pushn(extractMatrix(var, &i, input, &error), &out);
       break;
       //operators
     case '^':
@@ -120,7 +120,7 @@ int sya(char *input, vari *var) {
       //valid operator, if it is not, then go into the if and find the correct operator in findOperator
       if(checkOper(input[i], input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, &out, &oper var, &negativeCheck); //find the corresponding operator
+	error = findOperator(bufferOper, &out, &oper, var, &negativeCheck); //find the corresponding operator
 	k = 0;
       }
       break;
