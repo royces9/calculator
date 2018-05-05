@@ -6,7 +6,7 @@
 #include "operator.h"
 #include "multi.h"
 #include "file.h"
-
+#include "sya.h"
 
 //search in FUNCTION_LIST
 int searchFunctionArray(char *buffer) {
@@ -42,14 +42,12 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 
 
 //executes either one argument function or two argument function
-void execNum(numberStack *num, operatorStruct ch) {
+void execNum(numberStack *num, operatorStruct ch, int *error) {
   matrix *a, *b;
-  //temp error
-  int *error = 0;
   switch(ch.argNo) {
   case 1:
     a = popn(num);
-    pushn(matrixOneArg(a, ch), num);
+    pushn(matrixOneArg(a, ch, error), num);
     break;
 
   case 2:
@@ -176,7 +174,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
   case eAns:
     { //because ans scope is in main, make a copy of ans that can be free'd
       matrix *copy = malloc(sizeof(*copy));
-      copyMatrix(copy, var->ans);
+      copyMatrix(copy, &var->ans);
       pushn(copy, num);
       *tok = 1;
     }
@@ -243,8 +241,8 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 
   case eRun:
     separatedString = separateString(input, "()", '\0', start, &error);
-    error = runFile(separatedString, var, out);
-    pushn(out, num);
+    error = runFile(separatedString, var);
+    pushn(&var->ans, num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
@@ -304,7 +302,7 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
   case eSubtract:
     if(*tok == 1) {
       while((oper->stk[oper->top].precedence <= 6) && oper->occ == 1) {
-	execNum(num, popch(oper));
+	execNum(num, popch(oper), &error);
       }
       pushch(setOpStack("+", 2, 6, eAdd), oper);
     }
@@ -326,7 +324,7 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
 
   case eRightParen:
     do {
-      execNum(num, popch(oper));
+      execNum(num, popch(oper), &error);
     } while(strcmp(oper->stk[oper->top].operator, "(") && oper->occ == 1);
 
     *tok = 1;
@@ -349,7 +347,7 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
   case eAnd:
   case eOr:
     while((oper->stk[oper->top].precedence <= operatorPrecedence[i]) && (oper->occ == 1)) {
-      execNum(num, popch(oper));
+      execNum(num, popch(oper), &error);
     }
     *tok = 0;
     pushch(setOpStack(buffer, 2, operatorPrecedence[i], i), oper);
@@ -359,14 +357,13 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
     return -7;
   }
 
-
   return 0;
 }
 
 
 //separate a matrix, accounting for sub matrices as input in a matrix
 //[[1, 2], 3] or something like that
-matrix *separateMatrix(char *input, int *offset, vari *var, int *error ){
+matrix *separateMatrix(char *input, int *offset, vari *var, int *error){
   int length = 0;
   matrix *out = malloc(sizeof(*out));
 
@@ -393,6 +390,7 @@ matrix *separateMatrix(char *input, int *offset, vari *var, int *error ){
 
   char *cutInput = malloc(sizeof(*cutInput) * length);
   strncpy(cutInput, input, length);
+
   *error = sya(cutInput, &temp);
   copyMatrix(out, &temp.ans);
 
@@ -405,14 +403,15 @@ matrix *separateMatrix(char *input, int *offset, vari *var, int *error ){
 
 matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   matrix *out;
-
+  int length = 0;
   //input is initially the full string, start is the index for the first '['
   //this changes input to be the first char after the first '['
   input += (*start + 2);
 
   //find where the matrix declaration ends
   //count brackets until they match
-  int leftBracketCount = 0, rightBracketcount = 0;
+  int leftBracketCount = 0, rightBracketCount = 0;
+
   for(length = 0; input[length]; ++length){
     leftBracketCount += (input[length] == '[');
     rightBracketCount += (input[length] == ']');
@@ -422,7 +421,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   }
 
   //check that the bracket count is correct
-  if(leftBracketCount != rightBrackCount){
+  if(leftBracketCount != rightBracketCount){
     *error = -4;
     return NULL;
   }
@@ -446,11 +445,12 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
       sh.precedence = ((matrixString[i] == ',') + 1);
       pushch(sh, &opStk);
     } else{
-      pushn(separateMatrix(matrixString + offset, &offset, var, error), &stk);
+      pushn(separateMatrix(matrixString + offset, &offset, var, error), &numStk);
       i += offset;
       if(*error) return NULL;
     }
-    if(opStk.stk[top].precedence == 2){
+
+    if(opStk.stk[opStk.top].precedence == 2){
       matrix *b = popn(&numStk);
       matrix *a = popn(&numStk);
       concatMatrix(a, b, 2, error);

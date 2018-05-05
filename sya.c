@@ -144,7 +144,7 @@ int sya(char *input, vari *var) {
     }
   }//end of for
   while(out.occ && oper.occ) { //while the operator and number stack are occupied, keep executing
-    execNum(&out, popch(&oper));
+    execNum(&out, popch(&oper), &error);
   }
 
   if(var->ans.elements != NULL){
