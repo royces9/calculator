@@ -65,12 +65,14 @@ matrix *deri(char **input, vari *var, int *error) {
   }
 
   //set both the point and step size
-  *error = sya(input[2], &point, &varTemp);
+  *error = sya(input[2], &varTemp);
   if(*error) return 0;
+  copyMatrix(&h, &varTemp.ans);
 
-  *error = sya(input[3], &h, &varTemp);
+  *error = sya(input[3], &varTemp);
   if(*error) return 0;
-  
+  copyMatrix(&point, &varTemp.ans);
+
   //set up a dummy variable specified by user  
   varIndex = varcheck(&varTemp, input[1]);
 
@@ -88,15 +90,17 @@ matrix *deri(char **input, vari *var, int *error) {
   varTemp.value[varIndex] = initScalar(point.elements[0] + h.elements[0]);
   
   //does f(x+h)
-  *error = sya(input[0], &out, &varTemp);
+  *error = sya(input[0], &varTemp);
   if(*error) return 0;
+  copyMatrix(&out, &varTemp.ans);
 
   //sets the dummy variable equal to x-h
   varTemp.value[varIndex] = initScalar(point.elements[0] - h.elements[0]);
 
   //does f(x-h)
-  *error = sya(input[0], &inter, &varTemp);
+  *error = sya(input[0], &varTemp);
   if(*error) return 0;
+  copyMatrix(&inter, &varTemp.ans);
 
   //this is f(x+h) - f(x-h)
   out.elements[0] -= inter.elements[0];
@@ -130,14 +134,17 @@ matrix *inte(char **input, vari *var, int *error) {
    */
 
   //get number of steps, and step size
-  *error = sya(input[2], &a, &varTemp);
+  *error = sya(input[2], &varTemp);
   if(*error) return 0;
+  matrixCopy(&a, &varTemp.ans);
 
-  *error = sya(input[3], &b, &varTemp);
+  *error = sya(input[3], &varTemp);
   if(*error) return 0;
+  matrixCopy(&b, &varTemp.ans);
 
-  *error = sya(input[4], &number, &varTemp);
+  *error = sya(input[4], &varTemp);
   if(*error) return 0;
+  matrixCopy(&number, &varTemp.ans);
   
   //calculate step size
   step = (b.elements[0]-a.elements[0])/number.elements[0];
@@ -160,21 +167,21 @@ matrix *inte(char **input, vari *var, int *error) {
   for(int i = 1; i <= number.elements[0]; ++i) {
     //f(x_2i-2)
     varTemp.value[varIndex] = initScalar(a.elements[0] + (((2 * i) - 2) * step));
-    *error = sya(input[0], &out, &varTemp);
+    *error = sya(input[0], &varTemp);
     if(*error) return 0;
-    sum += out.elements[0];
+    sum += varTemp.ans.elements[0];
 
     //4*f(x_2i-1)
     varTemp.value[varIndex] = initScalar(a.elements[0] + (((2 * i) - 1) * step));
-    *error = sya(input[0], &inter, &varTemp);
+    *error = sya(input[0], &varTemp);
     if(*error) return 0;
-    sum += (4 * inter.elements[0]);
+    sum += (4 * varTemp.ans.elements[0]);
 
     //f(x_2i)
     varTemp.value[varIndex] = initScalar(a.elements[0] + ((2 * i) * step));
-    *error = sya(input[0], &out, &varTemp);
+    *error = sya(input[0], &varTemp);
     if(*error) return 0;
-    sum += out.elements[0];
+    sum += varTemp.ans.elements[0];
   }
 
   //return integral
@@ -214,22 +221,26 @@ matrix *solve(char **input, vari *var, int *error) {
   strcpy(varTemp.name[varc],input[1]);
 
   //set initial guess and the tolerance
-  *error = sya(input[2], varTemp.value[varc], &varTemp);
+  *error = sya(input[2], &varTemp);
   if(*error) return 0;
+  matrixCopy(&varTemp.value[varc], &varTemp.ans);
 
-  *error = sya(input[3], &h, &varTemp);
+  *error = sya(input[3], &varTemp);
   if(*error) return 0;
+  matrixCopy(&h, &varTemp.ans);
 
   test = h.elements[0] + 1; //ensure test is always greater than h
 
   //solve f(x)=0 for x using Newton's method
   while(fabs(test) > h.elements[0]) { //if the difference between iterations is less than the tolerance, break out of loop
-    *error = sya(input[0],&out, &varTemp);
+    *error = sya(input[0], &varTemp);
     if(*error) return 0;
+    matrixCopy(&out, &varTemp.ans);
 
     varTemp.value[varc]->elements[0] -= delta;
-    *error = sya(input[0],&inter, &varTemp);
+    *error = sya(input[0], &varTemp);
     if(*error) return 0;
+    matrixCopy(&inter, &varTemp.ans);
 
     test = (delta*out.elements[0])/(out.elements[0]-inter.elements[0]);
     varTemp.value[varc]->elements[0] -= test;

@@ -82,6 +82,9 @@ vari newVari(void) {
   var.occ = 0;
   memset(var.name, '\0', sizeof(var.name));
   memset(var.value, 0, sizeof(var.value));
+
+  var.ans->size = NULL;
+  var.ans->elements = NULL;
   return var;
 }
 
@@ -91,6 +94,11 @@ void freeVari(vari *var){
     for(int i = 0; i <= var->count; ++i){
       freeMatrix(var->value[i]);
     }
+  }
+
+  if(var->ans != NULL){
+    free(var.ans.size);
+    free(var.ans.elements);
   }
 }
 

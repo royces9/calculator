@@ -8,7 +8,7 @@
 
 
 //shunting yard algorithm
-int sya(char *input, matrix *ans, vari *var) {
+int sya(char *input, vari *var) {
   numberStack out = newNumberStack(); //stack for output numbers
   operatorStack oper = newOperatorStack(); //stack for operators
 
@@ -83,7 +83,7 @@ int sya(char *input, matrix *ans, vari *var) {
 	  }
 
 	  bufferLetters[j] = '\0';
-	  error = findFunction(bufferLetters, &out, &oper, ans, var, &negativeCheck, &i, input);
+	  error = findFunction(bufferLetters, &out, &oper, var, &negativeCheck, &i, input);
 	} //end else
 	j = 0; //reset counter for buffer
       } //end if
@@ -92,7 +92,7 @@ int sya(char *input, matrix *ans, vari *var) {
 
     case ']':
     case '[':
-      pushn(extractMatrix(&out, &oper, ans, var, &i, input, error));
+      pushn(extractMatrix(var, &i, input, error));
       break;
       //operators
     case '^':
@@ -120,7 +120,7 @@ int sya(char *input, matrix *ans, vari *var) {
       //valid operator, if it is not, then go into the if and find the correct operator in findOperator
       if(checkOper(input[i], input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, &out, &oper, *ans, var, &negativeCheck); //find the corresponding operator
+	error = findOperator(bufferOper, &out, &oper var, &negativeCheck); //find the corresponding operator
 	k = 0;
       }
       break;
@@ -147,12 +147,12 @@ int sya(char *input, matrix *ans, vari *var) {
     execNum(&out, popch(&oper));
   }
 
-  if(ans->elements != NULL){
-    free(ans->elements);
-    free(ans->size);
+  if(var->ans.elements != NULL){
+    free(var->ans.elements);
+    free(var->ans.size);
   }
 
-  copyMatrix(ans, out.stk[0]);
+  copyMatrix(&var->ans, out.stk[0]);
   freeMatrix(out.stk[0]);
 
   if(varset) { //set variable if there was an assignment
@@ -168,7 +168,7 @@ int sya(char *input, matrix *ans, vari *var) {
     var->occ = 1;
     
     var->value[check] = malloc(sizeof(*var->value[check]));
-    copyMatrix(var->value[check], ans);
+    copyMatrix(var->value[check], &var->ans);
   }
 
   return error;

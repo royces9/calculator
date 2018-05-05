@@ -35,6 +35,7 @@ typedef struct { //same as numberStack, except for operators
 typedef struct { //variable storage
   char name[256][256]; //stores variable names
   matrix *value[256]; //stores variable values
+  matrix ans;
   char occ; //same as numberStack
   int count; //index for the newest variable
 } vari;

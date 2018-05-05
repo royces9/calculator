@@ -11,10 +11,12 @@ int main(int argc, char *argv[]) {
   int error = 0;
 
   //stores the previous answer in this variable, can be used by using "ans"
+  /*
   matrix ans;
   ans.size = NULL;
   ans.elements = NULL;
-
+  */
+  
   //initialize variable struct
   vari var = newVari();
 
@@ -22,10 +24,10 @@ int main(int argc, char *argv[]) {
   if(argc > 1) {
     for(int i = 1; i < argc; ++i){
       printf(">>%s\n", *(argv+i));
-      error = sya(argv[i], &ans, &var);
+      error = sya(argv[i], &var);
 
       if(error == 0) {
-	printMatrix(ans);
+	printMatrix(var.ans);
       } else{
 	errorrep(error);
       }
@@ -42,21 +44,17 @@ int main(int argc, char *argv[]) {
       free(input);
       continue;
     } else{ //parses string and does all the calculations
-      error = sya(input, &ans, &var);
+      error = sya(input, &var);
     }
 
     if(error == 0) {
-      printMatrix(ans);
+      printMatrix(var.ans);
     } else{ //if the error is less than -1, prints an error code
       errorrep(error);
     }
     free(input); //readline mallocs the input line
   }
 
-  if(ans.size != NULL){
-    free(ans.size);
-    free(ans.elements);
-  }
   freeVari(&var);
   return 0;
 }
