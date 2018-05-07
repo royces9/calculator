@@ -44,6 +44,7 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 //executes either one argument function or two argument function
 void execNum(numberStack *num, operatorStruct ch, int *error) {
   matrix *a = NULL, *b = NULL;
+
   switch(ch.argNo) {
   case 1:
     a = popn(num);
@@ -71,6 +72,7 @@ element factorial(element a) {
   return a == 1 ? 1 : a*factorial(a-1);
 }
 
+
 matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   matrix *out;
   int check = 0;
@@ -80,12 +82,10 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   if(!check){
     int j = 0;
 
+    int *size = malloc(sizeof(*size) * (a->dimension + 1));
 
-    int *size = malloc(sizeof(*size) * a->dimension);
-    memcpy(size, a->size, a->dimension+1);
-    printf("test1\n");
+    memcpy(size, a->size, sizeof(*size) * (a->dimension + 1));
     out = initMatrix(size, a->dimension, error);
-    printf("test2\n");
     free(size);
 
     for(int i = 0; i < out->length; ++i){

@@ -155,12 +155,6 @@ int sya(char *input, vari *var) {
     free(var->ans.size);
   }
 
-
-  /*  var->ans.dimension = out.stk[0]->dimension;
-  var->ans.length = out.stk[0]->length;
-  memcpy(var->ans.size, out.stk[0]->size, sizeof(*var->ans.size) * (var->ans.dimension+1));
-  memcpy(var->ans.elements, out.stk[0]->elements, sizeof(*var->ans.elements) * var->ans.length);
-  */
   copyMatrix(&var->ans, out.stk[0]);
   freeMatrix(out.stk[0]);
 
