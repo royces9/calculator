@@ -36,7 +36,7 @@ const char FUNCTION_LIST[FUNCTION_COUNT][20] = {
   "eye(",
 
   "run(",
-    "print("
+  "print("
 };
 
 

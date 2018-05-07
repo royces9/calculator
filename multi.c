@@ -257,7 +257,7 @@ matrix *zeros(char **input, vari *var, int *error){
 
 
   for(int i = 0; i < dimension; ++i){
-    matrix *inputMat = malloc(sizeof(*inputMat));
+    matrix *inputMat;
     *error = sya(input[i], &temp);
     copyMatrix(inputMat, &temp.ans);
 

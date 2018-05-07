@@ -59,6 +59,7 @@ int sya(char *input, vari *var) {
     case 'a' ... 'z':
     case 'A' ... 'Z':
     case '_':
+      k = 0;
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
       //if((type == 2) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
 	if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
@@ -76,7 +77,8 @@ int sya(char *input, vari *var) {
 	    check = var->count + 1;
 	  }
 	  strcpy(var->name[check], bufferLetters);
-	} else { //check if command is a function or  variable
+
+	} else { //check if command is a function or variable
 	  if(input[i+1] == '(') {
 	    bufferLetters[j++] = '(';
 	  }
@@ -113,6 +115,7 @@ int sya(char *input, vari *var) {
     case '&':
     case '|':
     case '~':
+      j = 0;
       bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
 
       //assumes operators are only two characters wide, checks the current char and the next to see if it's a
@@ -152,6 +155,12 @@ int sya(char *input, vari *var) {
     free(var->ans.size);
   }
 
+
+  /*  var->ans.dimension = out.stk[0]->dimension;
+  var->ans.length = out.stk[0]->length;
+  memcpy(var->ans.size, out.stk[0]->size, sizeof(*var->ans.size) * (var->ans.dimension+1));
+  memcpy(var->ans.elements, out.stk[0]->elements, sizeof(*var->ans.elements) * var->ans.length);
+  */
   copyMatrix(&var->ans, out.stk[0]);
   freeMatrix(out.stk[0]);
 

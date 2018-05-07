@@ -12,11 +12,13 @@ matrix *initMatrix(int *size, int dimension, int *error){
 
   //size of each dimensions
   //the last element of size must end with zero
-  out->size = malloc(sizeof(*out->size) * dimension);
+  out->size = malloc(sizeof(*out->size) * (dimension + 1));
   out->size = memcpy(out->size, size, sizeof(*out->size) * dimension);
+  //printf("%d %d\n", size[0], size[1]);
 
   //get the total length of the array to malloc
   out->length = getLength(size, dimension);
+
   //if there is a 0 element in size
   if(!out->length){
     //temp value for the error
@@ -41,8 +43,9 @@ matrix *initScalar(element e){
   out->dimension = 1;
   out->length = 1;
 
-  out->size = malloc(sizeof(*out->size));
-  *out->size = 1;
+  out->size = malloc(sizeof(*out->size) * 2);
+  out->size[0] = 1;
+  out->size[1] = 0;
 
   out->elements = malloc(sizeof(*out->elements));
   *out->elements = e;
@@ -58,8 +61,8 @@ matrix *copyMatrix(matrix *dest, matrix *src){
   dest->elements = malloc(sizeof(*dest->elements) * dest->length);
   dest->elements = memcpy(dest->elements, src->elements, sizeof(*dest->elements) * dest->length);
 
-  dest->size = malloc(sizeof(*dest->size) * dest->dimension);
-  dest->size = memcpy(dest->size, src->size, sizeof(*dest->size) * dest->dimension);
+  dest->size = malloc(sizeof(*dest->size) * (dest->dimension + 1));
+  dest->size = memcpy(dest->size, src->size, sizeof(*dest->size) * (dest->dimension + 1));
   
   return dest;
 }

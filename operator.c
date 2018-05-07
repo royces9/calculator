@@ -43,7 +43,7 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 
 //executes either one argument function or two argument function
 void execNum(numberStack *num, operatorStruct ch, int *error) {
-  matrix *a, *b;
+  matrix *a = NULL, *b = NULL;
   switch(ch.argNo) {
   case 1:
     a = popn(num);
@@ -74,20 +74,26 @@ element factorial(element a) {
 matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   matrix *out;
   int check = 0;
-
   //check if the enumeration is one of the function in oneArg
   oneArg(0, ch.enumeration, &check);
+
   if(!check){
     int j = 0;
-    int *size = malloc(sizeof(*a->size) * a->dimension);
+
+
+    int *size = malloc(sizeof(*size) * a->dimension);
+    memcpy(size, a->size, a->dimension+1);
+    printf("test1\n");
     out = initMatrix(size, a->dimension, error);
+    printf("test2\n");
     free(size);
 
-    for(int i = 0; i < a->length; ++i){
-      out->elements[i] = oneArg(a->elements[i], ch.enumeration, 0);
+    for(int i = 0; i < out->length; ++i){
+      out->elements[i] = oneArg(a->elements[i], ch.enumeration, error);
     }
   } else{
     switch(ch.enumeration){
+    default: out = malloc(sizeof(*out)); copyMatrix(out, a); break;
     }
   }
   freeMatrix(a);
@@ -96,7 +102,6 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
 
 matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   matrix *out;
-
   switch(ch.enumeration){
 
   }

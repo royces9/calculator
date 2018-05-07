@@ -16,7 +16,7 @@ void pushn(matrix *inp, numberStack *st) {
 
 
 matrix *popn(numberStack *st) { //pop a matrix from the stack
-  matrix *out;
+  matrix *out = NULL;
   if(st->occ) {
     out = st->stk[st->top--];
     if((st->top) == -1) { //if top is -1, the stack is now empty, set occ and top back to 0

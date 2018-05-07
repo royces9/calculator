@@ -11,7 +11,7 @@
   }
 
 typedef struct { //struct for operators, +, -, etc
-  char operator[2]; //char holding operator, operators are only two chars wide for now
+  char operator[2]; //char holding operator/function
   int precedence; //order of operation, higher is higher priority
   int argNo; //number of arguments it takes, generally two or one
   int enumeration; //corresponding enum
