@@ -73,13 +73,31 @@ element factorial(element a) {
 
 matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   matrix *out;
+  int check = 0;
 
+  //check if the enumeration is one of the function in oneArg
+  oneArg(0, ch.enumeration, &check);
+  if(!check){
+    out = malloc(sizeof(*out));
+    copyMatrix(out, a);
+
+    for(int i = 0; i < a->length; ++i){
+      out->elements[i] = oneArg(a->elements[i], ch.enumeration, 0);
+    }
+  } else{
+    switch(ch.enumeration){
+    }
+  }
   freeMatrix(a);
   return out;
 }
 
 matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   matrix *out;
+
+  switch(ch.enumeration){
+
+  }
 
   freeMatrix(a);
   freeMatrix(b);
@@ -88,7 +106,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
 
 
 //returns value from one argument functions
-element oneArg(element a, int o) {
+element oneArg(element a, int o, int *error) {
   switch(o) {
   case eSin: return sin(a);
   case eCos: return cos(a);
@@ -103,13 +121,13 @@ element oneArg(element a, int o) {
   case eCeil: return ceil(a);
   case eRound: return round(a);
   case eFactorial: return factorial(a);
-  default: return a;
+  default: *error = 1; return a;
   }
 }
 
 
 //returns value from two argument function
-element twoArg(element a, element b, int o) {
+element twoArg(element a, element b, int o, int *error) {
   switch(o) {
   case eAdd: return a + b;
   case eSubtract: return a - b;

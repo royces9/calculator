@@ -38,12 +38,16 @@ matrix *initMatrix(int *size, int dimension, int *error){
 //also define that a vector is always 2 dimensions, with one of
 //the two dimensions being 1
 matrix *initScalar(element e){
-  int *size = malloc(sizeof(*size));
-  *size = 1;
-  int *error = NULL;
-  matrix *out = initMatrix(size, 1, error);
-  free(size);  
-  out->elements[0] = e;
+  matrix *out = malloc(sizeof(*out));
+  out->dimension = 1;
+  out->length = 1;
+
+  out->size = malloc(sizeof(*out->size));
+  *out->size = 1;
+
+  out->elements = malloc(sizeof(*out->elements));
+  *out->elements = e;
+
   return out;
 }
 
