@@ -66,7 +66,6 @@ int sya(char *input, vari *var) {
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
 	  pushn(initScalar(strtod(bufferLetters, &str2d)), &out);
-
 	} else if(!varset && isAssign(input)) { //checks if the command is an assignment
 	  check = varcheck(var, bufferLetters); //checks that the variable exists
 	  varset = 1; //flag for assignment at the end of the sya loop
@@ -139,6 +138,7 @@ int sya(char *input, vari *var) {
       return error = -4;
       
     }//end of switch
+
     if((error < 0) || (error == 1)) { //break if error or quit
       return error;
     }
@@ -209,6 +209,8 @@ int checkNumbers(char *input) { //check if the input string is a number
 //check if the two chars together make an operator 
 int checkOper(char a, char b) {
   char buffer[2] = {a, b};
+  //if b is '\0', end of string
+  //if(!b) return OPERATOR_COUNT;
   return searchOperatorArray(buffer);
 }
 

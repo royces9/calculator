@@ -78,8 +78,10 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   //check if the enumeration is one of the function in oneArg
   oneArg(0, ch.enumeration, &check);
   if(!check){
-    out = malloc(sizeof(*out));
-    copyMatrix(out, a);
+    int j = 0;
+    int *size = malloc(sizeof(*a->size) * a->dimension);
+    out = initMatrix(size, a->dimension, error);
+    free(size);
 
     for(int i = 0; i < a->length; ++i){
       out->elements[i] = oneArg(a->elements[i], ch.enumeration, 0);
@@ -296,7 +298,6 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var, int *tok) {
   int i = searchOperatorArray(buffer);
   int error = 0;
-
   /*                                                                                                                  
   **Precedence values for operators: Reference wiki page of C/C++ operators
   **1                                                

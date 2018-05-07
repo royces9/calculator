@@ -17,7 +17,6 @@ matrix *initMatrix(int *size, int dimension, int *error){
 
   //get the total length of the array to malloc
   out->length = getLength(size, dimension);
-
   //if there is a 0 element in size
   if(!out->length){
     //temp value for the error
