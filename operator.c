@@ -102,6 +102,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
 
 matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   matrix *out;
+  int check = 0;
   switch(ch.enumeration){
 
   }
