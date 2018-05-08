@@ -152,6 +152,8 @@ int sya(char *input, vari *var) {
 
   if(var->ans.elements != NULL){
     free(var->ans.elements);
+  }
+  if(var->ans.size != NULL){
     free(var->ans.size);
   }
 

@@ -95,9 +95,11 @@ void freeVari(vari *var){
       freeMatrix(var->value[i]);
     }
   }
-
   if(var->ans.size != NULL){
     free(var->ans.size);
+  }
+
+  if(var->ans.elements != NULL){
     free(var->ans.elements);
   }
 }

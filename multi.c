@@ -12,36 +12,36 @@
 //counts number of input arguments
 int numberOfArgs(char **input) {
   int i = 0;
-  for(i = 0; strcmp(input[i], "\0"); ++i); //empty for
+  for(; strcmp(input[i], "\0"); ++i); //empty for
   return i;
 }
 
 
 //determines minimum value from the inputs given
-matrix *min(matrix m, vari *var, int *error) {
-  element out = m.elements[0];
-  for(int i = 1; i < m.length; i++) {
-    out = fmin(out, m.elements[i]);
+matrix *min(matrix *m, vari *var, int *error) {
+  element out = m->elements[0];
+  for(int i = 1; i < m->length; i++) {
+    out = fmin(out, m->elements[i]);
   }
   return initScalar(out);
 }
 
 //determines maximum value from the inputs given
-matrix *max(matrix m, vari *var, int *error) {
-  element out = m.elements[0];
-  for(int i = 1; i < m.length; i++) {
-    out = fmax(out, m.elements[i]);
+matrix *max(matrix *m, vari *var, int *error) {
+  element out = m->elements[0];
+  for(int i = 1; i < m->length; i++) {
+    out = fmax(out, m->elements[i]);
   }
   return initScalar(out);
 }
 
 //calculates average value from the inputs given
-matrix *avg(matrix m, vari *var, int *error) {
+matrix *avg(matrix *m, vari *var, int *error) {
   element sum = 0;
-  for(int i = 0; i < m.length; ++i) {
-    sum += m.elements[i];
+  for(int i = 0; i < m->length; ++i) {
+    sum += m->elements[i];
   }
-  return initScalar(sum/m.length);
+  return initScalar(sum/m->length);
 }
 
 //calculates the derivative of a function at a given point with a given step size
@@ -49,6 +49,9 @@ matrix *deri(char **input, vari *var, int *error) {
   char *str2d;
   matrix out, inter, h, point;
   vari varTemp = *var; //copy global struct to a local variable struct
+  varTemp.ans.size = NULL;
+  varTemp.ans.elements = NULL;
+  
   int varIndex = 0;
 
   /*
@@ -105,6 +108,8 @@ matrix *deri(char **input, vari *var, int *error) {
   //this is f(x+h) - f(x-h)
   out.elements[0] -= inter.elements[0];
 
+  freeVari(&varTemp);
+
   return initScalar(out.elements[0]/(2*h.elements[0]));
 }
 
@@ -123,6 +128,9 @@ matrix *inte(char **input, vari *var, int *error) {
   matrix out, inter;
   matrix a, b, number;
   vari varTemp = *var; //copy global variable struct to a local variable struct
+  varTemp.ans.size = NULL;
+  varTemp.ans.elements = NULL;
+
   int varIndex = 0, iter = 0;
 
   /*
@@ -184,6 +192,8 @@ matrix *inte(char **input, vari *var, int *error) {
     sum += varTemp.ans.elements[0];
   }
 
+  freeVari(&tempVar);
+
   //return integral
   return initScalar(sum * (step / 3));
 }
@@ -198,6 +208,9 @@ matrix *solve(char **input, vari *var, int *error) {
 
   char *str2d;
   vari varTemp = *var;
+  varTemp.ans.size = NULL;
+  varTemp.ans.elements = NULL;
+  
   matrix out, inter, h;
   double test = 0, delta = 0.000001;
   int varc = 0;
@@ -246,29 +259,35 @@ matrix *solve(char **input, vari *var, int *error) {
     varTemp.value[varc]->elements[0] -= test;
   }
 
+  freeVari(&tempVar);
   return varTemp.value[varc];
 }
 
 
 matrix *zeros(char **input, vari *var, int *error){
   int dimension = numberOfArgs(input);
-  int *size = malloc(sizeof(*size) * dimension);
-  vari temp = *var;
+  int *size = malloc(sizeof(*size) * (dimension + 1));
 
+  vari temp = *var;
+  temp.ans.size = NULL;
+  temp.ans.elements = NULL;
 
   for(int i = 0; i < dimension; ++i){
-    matrix *inputMat;
+    matrix *inputMat = malloc(sizeof(*inputMat));
     *error = sya(input[i], &temp);
     copyMatrix(inputMat, &temp.ans);
 
     if(inputMat->dimension != 1){
       *error = 13;
+      freeVari(&temp);
       return NULL;
     }
     size[i] = inputMat->elements[0];
     freeMatrix(inputMat);
   }
 
+  size[dimension] = 0;
+  freeVari(&temp);
   matrix *out = initMatrix(size, dimension, error);
 
   free(size);
@@ -307,7 +326,10 @@ void removeSpaces(char *input, int *front, int *back) {
 //print a line to stdout, formatting is similar to matlab
 int printLine(char **input, vari *var, int *error) {
   int argNo = numberOfArgs(input), front = 0, back = 0;
-  vari temp = *var;
+  vari varTemp = *var;
+  varTemp.ans.size = NULL;
+  varTemp.ans.elements = NULL;
+
   for(int i = 0; i < argNo; ++i) {
     int len = strlen(input[i]), string = 0;
 
@@ -348,13 +370,15 @@ int printLine(char **input, vari *var, int *error) {
       }
     }
     else { //no quotes, just a variable or expression
-      matrix out;
-      *error = sya(input[i], &temp); //calculate expression and print, print variables this way
+      *error = sya(input[i], &varTemp); //calculate expression and print, print variables this way
       if(*error) return 0;
-      printMatrix(temp.ans);
+      printMatrix(varTemp.ans);
 
     }
   }
+
+  freeVari(varTemp);
+
   return 0;
 }
 
