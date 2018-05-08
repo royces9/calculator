@@ -72,6 +72,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   //check if the enumeration is one of the function in oneArg
   oneArg(0, ch.enumeration, &check);
 
+  //check remains 0, is in oneArg
   if(!check){
     int j = 0;
 
@@ -97,12 +98,25 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
 matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   matrix *out;
   int check = 0;
-  switch(ch.enumeration){
+  twoArg(0, 0, ch.enumeration, &check);
 
+  //check if 0, is in twoArg
+  if(!check){
+    //check that the matrices are the same size
+    if(compareSize(a->size, b->size, a->dimension, b->dimension)){
+      out = initMatrix(a->size, a->dimension, error);
+      for(int i = 0; i < a->length; ++i){
+	out->elements[i] = twoArg(a->elements[i], b->elements[i], ch.enumeration, error);
+      }
+    }
+  } else{
+    switch(ch.enumeration){
+    }
   }
 
   freeMatrix(a);
   freeMatrix(b);
+
   return out;
 }
 
@@ -484,12 +498,3 @@ void helpPrint() {
   printf("run(file)\n   file - path to a text file\n   This function parses each line of the file as if it were entered into the console directly, with the exception of \"while\", \"if/else\" and \"end\".\n    \"while\" - loops until the statement inside the \"while\"'s conditional is false. The inside is executed as if it were entered into the console directly. There may be floating point round off errors.\n   \"if/else\" - Executes the block of lines inside the \"if\"'s conditional if the statement is true, Otherwise it will execute the \"else\" block.\n   '#' at the beginning of\
  a line comments out a line\n   ';' at the end of a line suppresses output\n\n");
 }
-
-
-
-
-
-
-
-
-

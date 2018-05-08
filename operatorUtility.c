@@ -43,13 +43,16 @@ const char FUNCTION_LIST[FUNCTION_COUNT][20] = {
 const char OPERATOR_LIST[OPERATOR_COUNT][5] = {
   "+",
   "-",
-  "*",
-  "/",
+  ".*",
+  "./",
 
   "^",
   "=",
   "(",
   ")",
+
+  "*",
+  "/",
 
   "<",
   ">",
@@ -61,7 +64,7 @@ const char OPERATOR_LIST[OPERATOR_COUNT][5] = {
 
   "&&",
   "||",
-      "~"
+  "~"
 };
 
 
@@ -70,18 +73,24 @@ const int operatorPrecedence[OPERATOR_COUNT] = {
   6,
   5,
   5,
+
   4,
   4,
   16,
   15,
+
+  5,
+  5,
+
   15,
   8,
   8,
   8,
+
   8,
   9,
+
   9,
   11,
   12,
-  0
 }; //~is not implemented at the moment

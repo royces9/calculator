@@ -242,7 +242,9 @@ int isScalar(matrix *m){
   return (m->dimension == 1);
 }
 
-//compare two size vectors
+
+//compare two size vectors, return 1 if same
+//0 otherwise
 int compareSize(int *a, int *b, int dimA, int dimB){
   if(dimA != dimB){
     return 0;

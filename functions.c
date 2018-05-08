@@ -54,19 +54,20 @@ switch(o) {
 
 //returns value from two argument function
 element twoArg(element a, element b, int o, int *error) {
-switch(o) {
- case eAdd: return a + b;
- case eSubtract: return a - b;
- case eMultiply: return a * b;
- case eDivide: return a / b;
- case eExponent: return pow(a, b);
- case eLess: return a < b;
- case eGreater: return a > b;
- case eLessEqual: return a <= b;
- case eGreaterEqual: return a >= b;
- case eNotEqual: return a != b;
- case eEqual: return a == b;
- case eAnd: return a && b;
- case eOr: return a || b;
-}
+  switch(o) {
+  case eAdd: return a + b;
+  case eSubtract: return a - b;
+  case eMultiply: return a * b;
+  case eDivide: return a / b;
+  case eExponent: return pow(a, b);
+  case eLess: return a < b;
+  case eGreater: return a > b;
+  case eLessEqual: return a <= b;
+  case eGreaterEqual: return a >= b;
+  case eNotEqual: return a != b;
+  case eEqual: return a == b;
+  case eAnd: return a && b;
+  case eOr: return a || b;
+  default: *error = 1; return a;
+  }
 }

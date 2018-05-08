@@ -44,15 +44,84 @@ int sya(char *input, vari *var) {
     return error = -4;
   }
 
+
   //buffers for characters and operators
   char bufferLetters[length], bufferOper[length];
+  int type[length+1];
+  for(int l = 0; input[l]; ++l){
+    type[l] = checkType(input[l]);
+  }
 
+  type[length] = 0;
+  
   //main loop
   //iterators through the input string, apply shunting-yard algorithm
   for(i = 0; input[i]; ++i) {
-    int type = checkType(input[i+1]); //checks the next char for a type defined in checkType function
-    switch(input[i]){
+    switch(type[i]){
+    case 1:
+      k = 0;
+      bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
+      if(((type[i+1] == 2) || (type[i+1] == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
+	bufferLetters[j] = '\0';
 
+	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
+	  pushn(initScalar(strtod(bufferLetters, &str2d)), &out);
+	} else if(!varset && isAssign(input)) { //checks if the command is an assignment
+	  check = varcheck(var, bufferLetters); //checks that the variable exists
+	  varset = 1; //flag for assignment at the end of the sya loop
+
+	  if(check == -1) { //var struct is empty, adds first variable to the struct
+	    check = 0; //the index of the new variable
+	  } else if(check == -2) { //var struct is not empty, but it's a new variable
+	    check = var->count + 1;
+	  }
+	  strcpy(var->name[check], bufferLetters);
+
+	} else { //check if command is a function or variable
+	  if(input[i+1] == '(') {
+	    bufferLetters[j++] = '(';
+	  }
+
+	  bufferLetters[j] = '\0';
+	  error = findFunction(bufferLetters, &out, &oper, var, &negativeCheck, &i, input);
+	}
+	j = 0; //reset counter for buffer
+      } //end if
+      negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
+      break;
+
+    case 2:
+      j = 0;
+      bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
+
+      //assumes operators are only two characters wide, checks the current char and the next to see if it's a
+      //valid operator, if it is not, then go into the if and find the correct operator in findOperator
+      if(checkOper(input[i], input[i+1]) == OPERATOR_COUNT) {
+	bufferOper[k] = '\0';
+	error = findOperator(bufferOper, &out, &oper, var, &negativeCheck); //find the corresponding operator
+	k = 0;
+      }
+      break;
+
+    case 3:
+      if(type[i+1] == 2){
+	char matrixOper[2] = {type[i], type[i+1]};
+	error = findOperator(matrixOper, &out, &oper, var, &negativeCheck);
+	++i;
+      } else if(type[i+i] == 1){
+	bufferLetters[j++] = '.';
+      }
+      break;
+
+    case 4:
+      pushn(extractMatrix(var, &i, input, &error), &out);
+      break;
+    case -1:
+
+      return -4;
+      break;
+
+      /*
       //alphanumeric
     case '0' ... '9':
     case '.':
@@ -61,8 +130,7 @@ int sya(char *input, vari *var) {
     case '_':
       k = 0;
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
-      //if((type == 2) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
-	if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
+      if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
 	bufferLetters[j] = '\0';
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
@@ -95,7 +163,10 @@ int sya(char *input, vari *var) {
     case '[':
       pushn(extractMatrix(var, &i, input, &error), &out);
       break;
+      */
       //operators
+
+      /*
     case '^':
 
     case '*':
@@ -126,8 +197,8 @@ int sya(char *input, vari *var) {
 	k = 0;
       }
       break;
-
-
+      */
+      /*
       //other
     case ' ': //skip spaces, new line, semicolon
     case '\t':
@@ -139,7 +210,7 @@ int sya(char *input, vari *var) {
       //any other characters
     default: //any other characters give errors
       return error = -4;
-      
+      */
     }//end of switch
 
     if((error < 0) || (error == 1)) { //break if error or quit
@@ -225,17 +296,17 @@ int checkType(char a) {
   switch(a) {
     //alpha numeric is 1
     //operators are 2
-    //everything else is 0
+    //'.' is 3, can be either operator or alpha
+    //"[]" is 4, matrix operator
+    //misc characters are 0, just ignore em    
+    //nonsupported characters are -1?
   case '0' ... '9':
-  case '.':
   case 'a' ... 'z':
   case 'A' ... 'Z':
   case '_':
     return 1;
 
   case '^':
-  case '[':
-  case ']':
   case '(':
   case '*':
   case '/':
@@ -249,13 +320,23 @@ int checkType(char a) {
   case '&':
   case '|':
   case '~':
+    return 2;
+
+  case '.':
+    return 3;
+
+  case '[':
+  case ']':
+    return 4;
+    
+  case '\t':
   case '\n':
   case ';':
   case ' ':
-    return 2;
+    return 0;
 
   default:
-    return 0;
+    return -1;
   }
 }
 
