@@ -192,7 +192,7 @@ matrix *inte(char **input, vari *var, int *error) {
     sum += varTemp.ans.elements[0];
   }
 
-  freeVari(&tempVar);
+  freeVari(&varTemp);
 
   //return integral
   return initScalar(sum * (step / 3));
@@ -259,7 +259,7 @@ matrix *solve(char **input, vari *var, int *error) {
     varTemp.value[varc]->elements[0] -= test;
   }
 
-  freeVari(&tempVar);
+  freeVari(&varTemp);
   return varTemp.value[varc];
 }
 
@@ -377,7 +377,7 @@ int printLine(char **input, vari *var, int *error) {
     }
   }
 
-  freeVari(varTemp);
+  freeVari(&varTemp);
 
   return 0;
 }
