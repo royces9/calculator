@@ -3,10 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "stack.h"
+#include "functions.h"
 #include "operator.h"
 #include "multi.h"
 #include "file.h"
 #include "sya.h"
+
 
 //search in FUNCTION_LIST
 int searchFunctionArray(char *buffer) {
@@ -63,16 +66,6 @@ void execNum(numberStack *num, operatorStruct ch, int *error) {
 }
 
 
-//factorial function
-element factorial(element a) {
-  a = floor(a);
-  if(a == 0) {
-    return 1;
-  }
-  return a == 1 ? 1 : a*factorial(a-1);
-}
-
-
 matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   matrix *out;
   int check = 0;
@@ -93,6 +86,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
     }
   } else{
     switch(ch.enumeration){
+    case eEye: out = eye(a, error); break;
     default: out = malloc(sizeof(*out)); copyMatrix(out, a); break;
     }
   }
@@ -112,46 +106,6 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   return out;
 }
 
-
-//returns value from one argument functions
-element oneArg(element a, int o, int *error) {
-  switch(o) {
-  case eSin: return sin(a);
-  case eCos: return cos(a);
-  case eTan: return tan(a);
-  case eLn: return log(a);
-  case eLog: return log10(a);
-  case eSqrt: return sqrt(a);
-  case eAsin: return asin(a);
-  case eAcos: return acos(a);
-  case eAtan: return atan(a);
-  case eFloor: return floor(a);
-  case eCeil: return ceil(a);
-  case eRound: return round(a);
-  case eFactorial: return factorial(a);
-  default: *error = 1; return a;
-  }
-}
-
-
-//returns value from two argument function
-element twoArg(element a, element b, int o, int *error) {
-  switch(o) {
-  case eAdd: return a + b;
-  case eSubtract: return a - b;
-  case eMultiply: return a * b;
-  case eDivide: return a / b;
-  case eExponent: return pow(a, b);
-  case eLess: return a < b;
-  case eGreater: return a > b;
-  case eLessEqual: return a <= b;
-  case eGreaterEqual: return a >= b;
-  case eNotEqual: return a != b;
-  case eEqual: return a == b;
-  case eAnd: return a && b;
-  case eOr: return a || b;
-  }
-}
 
 int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *start, char *input) {
   char **separatedString;
@@ -222,6 +176,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
   case eMin:
   case eMax:
   case eAvg:
+  case eEye:
     pushch(setOpStack(FUNCTION_LIST[i], 1, 2, i), ch);
     *tok = 0;
     return 0;
@@ -261,10 +216,6 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
     *tok = 0;
     return error;
 
-  case eEye:
-    *tok = 0;
-    return error;
-
   case eRun:
     separatedString = separateString(input, "()", '\0', start, &error);
     error = runFile(separatedString, var);
@@ -298,7 +249,6 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 
   return -5;
 }
-
 
 
 int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var, int *tok) {
@@ -394,7 +344,9 @@ matrix *separateMatrix(char *input, int *offset, vari *var, int *error){
 
   //copy variable struct to not write over ans
   vari temp = *var;
-
+  temp.ans.size = NULL;
+  temp.ans.elements = NULL;
+  
   //counter for brackets, in order:
   //()[]
   int bracketCount[4] = {0, 0, 0, 0};
@@ -405,7 +357,7 @@ matrix *separateMatrix(char *input, int *offset, vari *var, int *error){
       bracketCount[i] += (input[length] == bracket[i]);
     }
 
-    //total number of ( and ); and; [ and ], are the same
+    //total number of ( and ); and, [ and ], are the same
     //and the current character is a comma
     if(((bracketCount[0] == bracketCount[1]) && (bracketCount[2] == bracketCount[3]))
        && (input[length] == ',')){
@@ -421,17 +373,17 @@ matrix *separateMatrix(char *input, int *offset, vari *var, int *error){
 
   *offset += (length + 1);
 
-  free(temp.ans.size);
-  free(temp.ans.elements);
+  freeVari(&temp);
   return out;
 }
 
 matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   matrix *out;
   int length = 0;
+  
   //input is initially the full string, start is the index for the first '['
   //this changes input to be the first char after the first '['
-  input += (*start + 2);
+  input += (*start + 1);
 
   //find where the matrix declaration ends
   //count brackets until they match
@@ -440,6 +392,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   for(length = 0; input[length]; ++length){
     leftBracketCount += (input[length] == '[');
     rightBracketCount += (input[length] == ']');
+
     if(leftBracketCount == rightBracketCount){
       break;
     }
@@ -483,6 +436,11 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     }
   }
 
+  while(opStk.occ == 1){
+    matrix *b = popn(&numStk);
+    matrix *a = popn(&numStk);
+    concatMatrix(a, b, 1, error);
+  }
   return out;
 }
 
