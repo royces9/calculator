@@ -15,7 +15,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error);
 int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *start, char *input);
 int findOperator(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok);
 
-matrix *separateMatrix(char *input, int *offset, vari *var, int *error);
+char **separateMatrix(char *input, int length, int *error);
 matrix *extractMatrix(vari *var, int *start, char *input, int *error);
 
 int varcheck(vari *list, char inp[]);

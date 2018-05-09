@@ -58,6 +58,7 @@ int sya(char *input, vari *var) {
   //iterators through the input string, apply shunting-yard algorithm
   for(i = 0; input[i]; ++i) {
     switch(type[i]){
+      //alpha numerics
     case 1:
       k = 0;
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
@@ -90,6 +91,7 @@ int sya(char *input, vari *var) {
       negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
       break;
 
+      //operator characters
     case 2:
       j = 0;
       bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
@@ -103,6 +105,7 @@ int sya(char *input, vari *var) {
       }
       break;
 
+      //'.'
     case 3:
       if(type[i+1] == 2){
 	char matrixOper[3] = {input[i], input[i+1], 0};
@@ -113,6 +116,7 @@ int sya(char *input, vari *var) {
       }
       break;
 
+      //"[]"
     case 4:
       pushn(extractMatrix(var, &i, input, &error), &out);
       break;

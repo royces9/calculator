@@ -12,7 +12,8 @@
 //counts number of input arguments
 int numberOfArgs(char **input) {
   int i = 0;
-  for(; strcmp(input[i], "\0"); ++i); //empty for
+  for(; input[i]; ++i); //empty for
+  //for(; strcmp(input[i], "\0"); ++i); //empty for
   return i;
 }
 
@@ -387,18 +388,15 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, i
   char *tok;
   int leftLimit = 0, rightLimit = 0, length = 0, delimiterCount = 0, i = 0;  
 
-  char strDelimiter[2];
-  strDelimiter[0] = delimiter;
-  strDelimiter[1] = '\0';
+  char strDelimiter[2] = {delimiter, 0};
   
   input += (*start+1);
   
   if(limits != NULL){
     for(length = 0; input[length]; ++length) {
       //increment count if char is left or right end parenthesis
-      leftLimit += (input[length] == limits[1]);
-      rightLimit += (input[length] == limits[0]);
-
+      leftLimit += (input[length] == limits[0]);
+      rightLimit += (input[length] == limits[1]);
       //increment count if char is the delimiter
       delimiterCount += (input[length] == delimiter);
 
@@ -409,11 +407,14 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, i
   } else{
     length = strlen(input);
   }
+
   //temp variable that strtok will take in, since strtok mangles original pointer
+
   char *input2 = malloc((length + 3)* sizeof(*input2));
   __MALLOC_CHECK(input2, *error);
 
-  strcpy(input2,input);
+  //only copy up to length # of characters
+  strncpy(input2,input, sizeof(*input2) * (length + 3));
   input2[length] = 0;
 
   //allocate double array output and populate it the strings
@@ -438,10 +439,11 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, i
     tok = strtok(NULL, strDelimiter);
   }
 
-  separatedString[i] = malloc(sizeof(**separatedString)); //allocate an end string that is just a char
-  __MALLOC_CHECK(separatedString[i], *error);
+  separatedString[i] = NULL;
+  //separatedString[i] = malloc(sizeof(**separatedString)); //allocate an end string that is just a char
+  //__MALLOC_CHECK(separatedString[i], *error);
 
-  separatedString[i][0]= '\0'; //end string
+  //separatedString[i][0]= '\0'; //end string
 
   free(input2);
   return separatedString;
