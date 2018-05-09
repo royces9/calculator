@@ -99,7 +99,6 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   matrix *out;
   int check = 0;
   twoArg(0, 0, ch.enumeration, &check);
-
   //check if 0, is in twoArg
   if(!check){
     //check that the matrices are the same size
@@ -108,6 +107,9 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
       for(int i = 0; i < a->length; ++i){
 	out->elements[i] = twoArg(a->elements[i], b->elements[i], ch.enumeration, error);
       }
+    } else{
+      *error = -12;
+      return NULL;
     }
   } else{
     switch(ch.enumeration){
@@ -335,6 +337,8 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
   case eEqual:
   case eAnd:
   case eOr:
+  case eMatrixMultiply:
+  case eMatrixDivide:
     while((oper->stk[oper->top].precedence <= operatorPrecedence[i]) && (oper->occ == 1)) {
       execNum(num, popch(oper), &error);
     }

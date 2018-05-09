@@ -105,7 +105,7 @@ int sya(char *input, vari *var) {
 
     case 3:
       if(type[i+1] == 2){
-	char matrixOper[2] = {type[i], type[i+1]};
+	char matrixOper[2] = {input[i], input[i+1]};
 	error = findOperator(matrixOper, &out, &oper, var, &negativeCheck);
 	++i;
       } else if(type[i+i] == 1){
@@ -116,101 +116,11 @@ int sya(char *input, vari *var) {
     case 4:
       pushn(extractMatrix(var, &i, input, &error), &out);
       break;
-    case -1:
 
+    case -1:
       return -4;
       break;
 
-      /*
-      //alphanumeric
-    case '0' ... '9':
-    case '.':
-    case 'a' ... 'z':
-    case 'A' ... 'Z':
-    case '_':
-      k = 0;
-      bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
-      if(((type == 2) || (type == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
-	bufferLetters[j] = '\0';
-
-	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
-	  pushn(initScalar(strtod(bufferLetters, &str2d)), &out);
-	} else if(!varset && isAssign(input)) { //checks if the command is an assignment
-	  check = varcheck(var, bufferLetters); //checks that the variable exists
-	  varset = 1; //flag for assignment at the end of the sya loop
-
-	  if(check == -1) { //var struct is empty, adds first variable to the struct
-	    check = 0; //the index of the new variable
-	  } else if(check == -2) { //var struct is not empty, but it's a new variable
-	    check = var->count + 1;
-	  }
-	  strcpy(var->name[check], bufferLetters);
-
-	} else { //check if command is a function or variable
-	  if(input[i+1] == '(') {
-	    bufferLetters[j++] = '(';
-	  }
-
-	  bufferLetters[j] = '\0';
-	  error = findFunction(bufferLetters, &out, &oper, var, &negativeCheck, &i, input);
-	} //end else
-	j = 0; //reset counter for buffer
-      } //end if
-      negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
-      break;
-
-    case ']':
-    case '[':
-      pushn(extractMatrix(var, &i, input, &error), &out);
-      break;
-      */
-      //operators
-
-      /*
-    case '^':
-
-    case '*':
-    case '/':
-
-    case '-':
-    case '+':
-
-    case '(':
-    case ')':
-
-    case '=':
-    case '>':
-    case '<':
-
-    case '!':
-    case '&':
-    case '|':
-    case '~':
-      j = 0;
-      bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
-
-      //assumes operators are only two characters wide, checks the current char and the next to see if it's a
-      //valid operator, if it is not, then go into the if and find the correct operator in findOperator
-      if(checkOper(input[i], input[i+1]) == OPERATOR_COUNT) {
-	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, &out, &oper, var, &negativeCheck); //find the corresponding operator
-	k = 0;
-      }
-      break;
-      */
-      /*
-      //other
-    case ' ': //skip spaces, new line, semicolon
-    case '\t':
-    case '\n':
-    case ';':
-      break;
-
-
-      //any other characters
-    default: //any other characters give errors
-      return error = -4;
-      */
     }//end of switch
 
     if((error < 0) || (error == 1)) { //break if error or quit

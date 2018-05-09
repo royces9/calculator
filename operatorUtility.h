@@ -50,6 +50,7 @@ enum functionEnums {
   ePrint
 };
 
+
 enum operatorEnum {
   eAdd,
   eSubtract,
@@ -61,7 +62,7 @@ enum operatorEnum {
   eLeftParen,
   eRightParen,
 
-  eMatrixMulti,
+  eMatrixMultiply,
   eMatrixDivide,
 
   eLess,

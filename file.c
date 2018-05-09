@@ -136,6 +136,8 @@ int executeTree(fileTree *tree, vari *var, int maxSize){
   int error = 0; //error 
   fileStack stk = newFileStack(); //create new file stack
   vari temp = *var;
+  temp.ans.elements = NULL;
+  temp.ans.size = NULL;
   
   //executes the tree
   //checks that the current leaf and the string it holds are not 0
@@ -209,6 +211,7 @@ int executeTree(fileTree *tree, vari *var, int maxSize){
     default:
       error = sya(head->line, &temp);
       if(error) {
+	freeVari(&temp);
 	return error;
       }
 
@@ -222,6 +225,7 @@ int executeTree(fileTree *tree, vari *var, int maxSize){
       break;
     }
   }
+  freeVari(&temp);
 }
 
 
