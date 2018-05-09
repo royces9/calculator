@@ -105,7 +105,7 @@ int sya(char *input, vari *var) {
 
     case 3:
       if(type[i+1] == 2){
-	char matrixOper[2] = {input[i], input[i+1]};
+	char matrixOper[3] = {input[i], input[i+1], 0};
 	error = findOperator(matrixOper, &out, &oper, var, &negativeCheck);
 	++i;
       } else if(type[i+i] == 1){
