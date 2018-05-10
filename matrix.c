@@ -68,14 +68,23 @@ matrix *copyMatrix(matrix *dest, matrix *src){
 }
 
 
+//a being concatenated to b along dimension and sent to out
+matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
+  for(int i = 0; i < out->length; ++i){
+
+    out->elements[i] = 0;
+  }
+  return out;
+}
+
 //dimension is a number to specifiy along which direction to concatenate
 //along, it starts from 0
 matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
   if(isScalar(a) && isScalar(b)){
     int size[2] = {1, 1};
-    if(dimension == 1){
+    if(dimension == 0){
       ++size[0]; //set size to [2, 1]
-    } else if(dimension == 0){
+    } else if(dimension == 1){
       ++size[1]; //set size to [1, 2]
     }
 
@@ -88,6 +97,7 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
 
   int diff = abs(a->dimension - b->dimension);
   matrix *out;
+
   //a and b are the same dimension
   if(!diff){
     int sizeA[a->dimension];
@@ -106,7 +116,8 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
     }
 
     if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimension - 1)){
-      int *newSize = malloc(sizeof(*newSize) * a->dimension);
+      int *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
+      newSize[a->dimension] = 0;
 
       for(int i = 0; i < a->dimension; ++i){
 	newSize[i] = a->size[i];
@@ -117,7 +128,9 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
 
       out = initMatrix(newSize, a->dimension, error);
       free(newSize);
-      
+
+      assignConcat(out, a, b, dimension);
+
       return out;
 
     } else{

@@ -508,7 +508,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     case ',':
       *error = sya(separatedMatrix[i] + 1, &temp);
       a = popn(&numStk);
-      pushn(concatMatrix(a, &temp.ans, 0, error), &numStk);
+      pushn(concatMatrix(a, &temp.ans, 1, error), &numStk);
       freeMatrix(a);
       break;
 
@@ -533,7 +533,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     b = popn(&numStk);
     a = popn(&numStk);
 
-    pushn(concatMatrix(a, b, 1, error), &numStk);
+    pushn(concatMatrix(a, b, 0, error), &numStk);
 
     freeMatrix(a);
     freeMatrix(b);
