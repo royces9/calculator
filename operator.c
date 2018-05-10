@@ -359,10 +359,8 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
 char **separateMatrix(char *input, int delimiter, int *error){
   char **out = malloc(sizeof(*out) * (delimiter + 2));
 
-  //counter for brackets, in order:
-  //()[]
-  int bracketCount[4] = {0, 0, 0, 0};
-  char bracket[4] = "()[]";
+  //counter for brackets, parentheses and brackets:
+  int bracketCount[4] = {0, 0};
 
   //the last index where a ,' or ';' was found
   int currentLength = 0;
@@ -372,22 +370,33 @@ char **separateMatrix(char *input, int delimiter, int *error){
 
   int j = 0;
   for(; input[j]; ++j){
-    for(int i = 0; i < 4; ++i){
-      bracketCount[i] += (input[j] == bracket[i]);
-    }
+    switch(input[j]){
+    case '(':
+      ++bracketCount[0];
+      break;
+    case ')':
+      --bracketCount[0];
+      break;
+    case '[':
+      ++bracketCount[1];
+      break;
+    case ']':
+      --bracketCount[1];
+      break;
+    case ',':
+    case ';':
+      if( !( bracketCount[0] || bracketCount[1] ) ){
+	out[subMatrices] = malloc(sizeof(**out) * ((j - currentLength) + 2));
 
-    //total number of ( and ); and, [ and ], are the same
-    //and the current character is a ',' or ';'
-    if(((bracketCount[0] == bracketCount[1]) && (bracketCount[2] == bracketCount[3]))
-       && ((input[j] == ',') || (input[j] == ';'))){
+	strncpy(out[subMatrices], input + currentLength, j - currentLength);
 
-      out[subMatrices] = malloc(sizeof(**out) * ((j - currentLength) + 2));
+	out[subMatrices][j - currentLength] = '\0';
+	currentLength = j;
+	++subMatrices;
+      }
+      break;
 
-      strncpy(out[subMatrices], input + currentLength, j - currentLength);
-
-      out[subMatrices][j - currentLength] = '\0';
-      currentLength = j;
-      ++subMatrices;
+    default: break;
     }
   }
 
@@ -396,27 +405,54 @@ char **separateMatrix(char *input, int delimiter, int *error){
   strncpy(out[subMatrices], input + currentLength, j - currentLength);
   out[subMatrices][j - currentLength] = '\0';
 
-  if(subMatrices != (delimiter + 1)){
-    char **out2 = malloc(sizeof(*out) * (subMatrices + 1));
-    for(int i = 0; i < subMatrices; ++i){
-      out2[i] = out[i];
+  out[++subMatrices] = NULL;
+  return out;
+}
+
+
+int countDelimiter(char *input){
+  int out = 0;
+  int bracketCount[2] = {0, 0};
+
+  for(int i = 0; input[i]; ++i){
+    switch(input[i]){
+    case '(':
+      ++bracketCount[0];
+      break;
+
+    case ')':
+      --bracketCount[0];
+      break;
+
+    case '[':
+      ++bracketCount[1];
+      break;
+
+    case ']':
+      --bracketCount[1];
+      break;
+
+    case ',':
+    case ';':
+      if(!(bracketCount[0] || bracketCount[1])){
+	++out;
+      }
+      break;
+    default: break;
     }
-
-    out2[subMatrices] = NULL;
-    free(out);
-
-    return out2;
-  } else{
-    out[subMatrices] = NULL;
-    return out;
   }
+
+  return out;
 }
 
 
 matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   matrix *out;
   int length = 0;
-  
+  vari temp = *var;
+  temp.ans.elements = NULL;
+  temp.ans.size = NULL;
+
   //input is incremented to start at input[*start], which is where
   //the first [ should be
   input += (*start);
@@ -439,7 +475,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     *error = -4;
     return NULL;
   }
-  
+  *start += (length);
   //the string that will contain every character that contains elements of the matrix
   char *matrixString = malloc(sizeof(*matrixString) * (length));
   //copy from the first character after the first '['
@@ -451,14 +487,58 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   //number stack for creating the matrix
   numberStack numStk = newNumberStack();
   //operator stack for concatenating
-  operatorStack opStk = newOperatorStack();
 
-  char **separatedMatrix = separateMatrix(matrixString, length, error);
-  for(int i = 0; separatedMatrix[i]; ++i){
+  int delimiter = countDelimiter(matrixString);
+  char **separatedMatrix = separateMatrix(matrixString, delimiter, error);
 
+  int top = 1;
+
+  *error = sya(separatedMatrix[0], &temp);
+
+  matrix *tempMat = malloc(sizeof(*tempMat));
+  copyMatrix(tempMat, &temp.ans);
+  pushn(tempMat, &numStk);
+
+  matrix *a, *b;
+  for(int i = 1; separatedMatrix[i]; ++i){
+    switch(separatedMatrix[i][0]){
+    case ',':
+      *error = sya(separatedMatrix[i] + 1, &temp);
+      a = popn(&numStk);
+      pushn(concatMatrix(a, &temp.ans, 1, error), &numStk);
+      freeMatrix(a);
+      break;
+
+    case ';':
+      *error = sya(separatedMatrix[i] + 1, &temp);
+      copyMatrix(tempMat, &temp.ans);
+      pushn(tempMat, &numStk);
+
+      break;
+      
+    default:
+      *error = -14;
+      freeDoubleArray(separatedMatrix);
+      freeVari(&temp);
+      return NULL;
+    }
   }
 
+  while(numStk.occ && (numStk.top == 1)){
+    b = popn(&numStk);
+    a = popn(&numStk);
+
+    pushn(concatMatrix(a, b, 2, error), &numStk);
+
+    freeMatrix(a);
+    freeMatrix(b);
+  }
+
+  freeMatrix(tempMat);
   freeDoubleArray(separatedMatrix);
+
+  out = popn(&numStk);
+
   return out;
 }
 

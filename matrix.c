@@ -71,6 +71,20 @@ matrix *copyMatrix(matrix *dest, matrix *src){
 //dimension is a number to specifiy along which direction to concatenate
 //along, it starts from 0
 matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
+  if(isScalar(a) && isScalar(b)){
+    int size[2] = {1, 1};
+    if(dimension == 0){
+      ++size[0]; //set size to [2, 1]
+    } else{
+      ++size[1]; //set size to [1, 2]
+    }
+    matrix *out = initMatrix(size, 2, error);
+
+    out->elements[0] = a->elements[0];
+    out->elements[1] = b->elements[0];
+    return out;
+  }
+
   int diff = abs(a->dimension - b->dimension);
   matrix *out;
   //a and b are the same dimension
@@ -87,13 +101,17 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
 
     if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimension - 1)){
       int *newSize = malloc(sizeof(*newSize) * a->dimension);
+
       for(int i = 0; i < a->dimension; ++i){
 	newSize[i] = a->size[i];
 	if(i == dimension){
 	  newSize[i] += b->size[i];
 	}
       }
+
       out = initMatrix(newSize, a->dimension, error);
+      free(newSize);
+      
       return out;
 
     } else{

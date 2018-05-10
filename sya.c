@@ -57,6 +57,7 @@ int sya(char *input, vari *var) {
   //main loop
   //iterators through the input string, apply shunting-yard algorithm
   for(i = 0; input[i]; ++i) {
+    //printf("%c\n", input[i]);
     switch(type[i]){
       //alpha numerics
     case 1:
