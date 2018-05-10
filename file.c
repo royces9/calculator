@@ -216,7 +216,7 @@ int executeTree(fileTree *tree, vari *var, int maxSize){
 
       //print output
       if((head->line[strlen(head->line)-1] != ';') && direction == 0) {
-	printMatrix(temp.ans);
+	printMatrix(&temp.ans);
       }
 
       //continue execution going left

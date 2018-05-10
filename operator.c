@@ -145,7 +145,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; ++j) {
 	printf("%s =", var->name[j]);
-	printMatrix(*var->value[j]);
+	printMatrix(var->value[j]);
       }
       printf("\n");
     } else {
@@ -451,8 +451,6 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   matrix *out;
   int length = 0;
   vari temp = copyVari(var);
-  temp.ans.elements = NULL;
-  temp.ans.size = NULL;
 
   //input is incremented to start at input[*start], which is where
   //the first [ should be

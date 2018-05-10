@@ -80,71 +80,147 @@ matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
 //dimension is a number to specifiy along which direction to concatenate
 //along, it starts from 0
 matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
-  if(isScalar(a) && isScalar(b)){
-    int size[2] = {1, 1};
-    if(dimension == 0){
-      ++size[0]; //set size to [2, 1]
-    } else if(dimension == 1){
-      ++size[1]; //set size to [1, 2]
-    }
+  int aScalar = isScalar(a);
+  int bScalar = isScalar(b);
 
-    matrix *out = initMatrix(size, 2, error);
+  int scalarConcat = aScalar + bScalar;
 
-    out->elements[0] = a->elements[0];
-    out->elements[1] = b->elements[0];
-    return out;
-  }
+  switch(scalarConcat){
 
-  int diff = abs(a->dimension - b->dimension);
-  matrix *out;
+  case 0: //a and b are not scalars
+    {
+      int diff = abs(a->dimension - b->dimension);
+      matrix *out;
 
-  //a and b are the same dimension
-  if(!diff){
-    int sizeA[a->dimension];
-    int sizeB[b->dimension];
+      //a and b are the same dimension
+      if(!diff){
+	int sizeA[a->dimension];
+	int sizeB[b->dimension];
 
-    sizeA[a->dimension] = 0;
-    sizeB[b->dimension] = 0;
+	sizeA[a->dimension] = 0;
+	sizeB[b->dimension] = 0;
 
-    for(int i = 0, j = 0; i < ( a->dimension - 1); ++i, ++j){
-      if(i == dimension){
-	++i;
-      }
+	for(int i = 0, j = 0; i < ( a->dimension - 1); ++i, ++j){
+	  if(i == dimension){
+	    ++i;
+	  }
 
-      sizeA[j] = a->size[i];
-      sizeB[j] = b->size[i];
-    }
+	  sizeA[j] = a->size[i];
+	  sizeB[j] = b->size[i];
+	}
 
-    if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimension - 1)){
-      int *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
-      newSize[a->dimension] = 0;
+	if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimension - 1)){
+	  int *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
+	  newSize[a->dimension] = 0;
 
-      for(int i = 0; i < a->dimension; ++i){
-	newSize[i] = a->size[i];
-	if(i == dimension){
-	  newSize[i] += b->size[i];
+	  for(int i = 0; i < a->dimension; ++i){
+	    newSize[i] = a->size[i];
+	    if(i == dimension){
+	      newSize[i] += b->size[i];
+	    }
+	  }
+
+	  out = initMatrix(newSize, a->dimension, error);
+	  free(newSize);
+
+	  assignConcat(out, a, b, dimension);
+
+	  return out;
+
+	} else{
+	  *error = -15;
+	  return NULL;
 	}
       }
+      break;
 
-      out = initMatrix(newSize, a->dimension, error);
-      free(newSize);
 
-      assignConcat(out, a, b, dimension);
+      
+    case 1: //only one of a or b are scalars
+      {
+	//temporary variables for less writing in if blocks
+	matrix *tempVector;
+	element tempScalar;
 
-      return out;
+	//assign which matrix is a scalar and which is a matrix
+	if(aScalar){
+	  tempVector = b;
+	  tempScalar = a->elements[0];
 
-    } else{
-      *error = -15;
-      return NULL;
+	} else if(bScalar){
+	  tempVector = a;
+	  tempScalar = b->elements[0];
+
+	} else{ //return an error otherwise
+	  *error = -14;
+	  return NULL;
+	}
+
+	//check that the matrix is a vector, only vectors can be
+	//concatenated with scalars
+	if((tempVector->dimension > 2) ||
+	   (tempVector->size[!dimension] != 1)){
+	  *error = -15;
+	  return NULL;
+	}
+
+	//new size vector
+	int newSize[3];
+	memcpy(newSize, tempVector->size, sizeof(*newSize) * 3);
+
+	//null end size vector
+	newSize[3] = 0;
+
+	//increment size because of the concatenation
+	++newSize[dimension];
+
+	//init new matrix
+	matrix *out = initMatrix(newSize, tempVector->dimension, error);
+
+	//put values into new matrix
+	//first vector values
+	for(int i = 0; i < tempVector->length; ++i){
+	  out->elements[i + aScalar] = tempVector->elements[i];
+	}
+
+	//then scalar value
+	//assume that bScalar is either 0 or 1, this then puts
+	//the scalar value at either the beginning or the end
+	out->elements[tempVector->length * bScalar] = tempScalar;
+
+	return out;
+      }
+      break;
+
+
+    case 2: //both a and b are scalars
+      {
+	//create and set new size vector
+
+	int newSize[2] = {1, 1};
+	if(dimension == 0){
+	  ++newSize[0]; //set newSize to [2, 1]
+	} else if(dimension == 1){
+	  ++newSize[1]; //set newSize to [1, 2]
+	} else{
+	  *error = 13;
+	  return NULL;
+	}
+
+	matrix *out = initMatrix(newSize, 2, error);
+
+	out->elements[0] = a->elements[0];
+	out->elements[1] = b->elements[0];
+
+	return out;
+      }
+
+
+    default: *error = -14; break; //return error if something else
     }
-
-  } else if(diff == 1){ //if the dimension are different by 1
-
-  } else{ //dimensions are two or more different
-    *error = -15;
-    return NULL;
   }
 }
+
 
 //free the matrix and all of the data
 //associated with it
@@ -161,13 +237,13 @@ void freeMatrix(matrix *m){
 //a multiple of the number of slices of the 2d matrix
 //
 //for a 3d matrix of size [2 2 2], with elements 1 to 8
-//the first print will print:
+//the first print will prpint:
 //1 3
 //2 4
 //the second print will have an offset of 4 and print:
 //5 7
 //6 8
-void printTwoDMatrix(const matrix m, int offset){
+void printTwoDMatrix(const matrix *m, int offset){
   /*  another way that could work? I'll just keep it here for now
   int i = 0;
   int j = 0;
@@ -180,13 +256,14 @@ void printTwoDMatrix(const matrix m, int offset){
     printf("\n");
   }
   printf("\n");*/
-  printf("\n");  
-  for(int i = 0; i < m.size[0]; ++i){
-    for(int j = 0; j < m.size[1]; ++j){
+
+  printf("\n");
+  for(int i = 0; i < m->size[0]; ++i){
+    for(int j = 0; j < m->size[1]; ++j){
       int location[2] = {i, j};
       //the below is the same as sub2ind for a 2d matrix
       //location[0] + m.size[0] * location[1]
-      printf("%lf ", m.elements[offset + (location[0] + m.size[0] * location[1])]);
+      printf("%lf ", m->elements[offset + (location[0] + m->size[0] * location[1])]);
     }
     printf("\n");
   }
@@ -198,18 +275,18 @@ void printTwoDMatrix(const matrix m, int offset){
 
 //print out a matrix of any size
 //prints out 2d slices of the matrix
-void printMatrix(const matrix m){
+void printMatrix(const matrix *m){
   int offset = 0;
-  if(m.dimension > 2){
-    int twoDimSize = m.size[0] * m.size[1];
-    for(int i = 1; i < m.dimension; ++i){
+  if(m->dimension > 2){
+    int twoDimSize = m->size[0] * m->size[1];
+    for(int i = 1; i < m->dimension; ++i){
 	printTwoDMatrix(m, offset);
 	offset += twoDimSize;
     }
-  } else if(m.dimension == 2){ //2d mat
+  } else if(m->dimension == 2){ //2d mat
     printTwoDMatrix(m, 0);
   } else{ //scalar
-    printf("\n%lf\n\n", m.elements[0]);
+    printf("\n%lf\n\n", m->elements[0]);
   }
   return;
 }
