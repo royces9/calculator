@@ -43,11 +43,15 @@ typedef struct { //variable storage
 
 void pushn(matrix *inp, numberStack *st);
 matrix *popn(numberStack *st);
+
 void pushch(operatorStruct inp, operatorStack *st);
 operatorStruct popch(operatorStack *st);
+
 numberStack newNumberStack(void);
 operatorStack newOperatorStack(void);
+
 vari newVari(void);
+vari copyVari(vari *var);
 void freeVari(vari *var);
 
 void emptyNumberStack(numberStack *st);

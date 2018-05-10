@@ -89,12 +89,28 @@ vari newVari(void) {
 }
 
 
+vari copyVari(vari *var){
+  vari out = *var;
+
+  out.ans.elements = NULL;
+  out.ans.size = NULL;
+  
+  for(int i = 0; i < var->count; ++i){
+    strcpy(out.name[i], var->name[i]);
+    out.value[i] = malloc(sizeof(*out.value[i]));
+    copyMatrix(out.value[i], var->value[i]);
+  }
+
+  return out;
+}
+
 void freeVari(vari *var){
   if(var->occ != 0){
     for(int i = 0; i <= var->count; ++i){
       freeMatrix(var->value[i]);
     }
   }
+
   if(var->ans.size != NULL){
     free(var->ans.size);
   }

@@ -73,11 +73,12 @@ matrix *copyMatrix(matrix *dest, matrix *src){
 matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
   if(isScalar(a) && isScalar(b)){
     int size[2] = {1, 1};
-    if(dimension == 0){
+    if(dimension == 1){
       ++size[0]; //set size to [2, 1]
-    } else{
+    } else if(dimension == 0){
       ++size[1]; //set size to [1, 2]
     }
+
     matrix *out = initMatrix(size, 2, error);
 
     out->elements[0] = a->elements[0];
@@ -89,12 +90,17 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
   matrix *out;
   //a and b are the same dimension
   if(!diff){
-    int sizeA[a->dimension-1];
-    int sizeB[b->dimension-1];
+    int sizeA[a->dimension];
+    int sizeB[b->dimension];
+
+    sizeA[a->dimension] = 0;
+    sizeB[b->dimension] = 0;
+
     for(int i = 0, j = 0; i < ( a->dimension - 1); ++i, ++j){
       if(i == dimension){
 	++i;
       }
+
       sizeA[j] = a->size[i];
       sizeB[j] = b->size[i];
     }

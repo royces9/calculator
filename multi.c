@@ -49,7 +49,7 @@ matrix *avg(matrix *m, vari *var, int *error) {
 matrix *deri(char **input, vari *var, int *error) {
   char *str2d;
   matrix out, inter, h, point;
-  vari varTemp = *var; //copy global struct to a local variable struct
+  vari varTemp = copyVari(var);; //copy global struct to a local variable struct
   varTemp.ans.size = NULL;
   varTemp.ans.elements = NULL;
   
@@ -128,9 +128,7 @@ matrix *inte(char **input, vari *var, int *error) {
   char *str2d;
   matrix out, inter;
   matrix a, b, number;
-  vari varTemp = *var; //copy global variable struct to a local variable struct
-  varTemp.ans.size = NULL;
-  varTemp.ans.elements = NULL;
+  vari varTemp = copyVari(var);; //copy global struct to a local variable struct
 
   int varIndex = 0, iter = 0;
 
@@ -208,9 +206,7 @@ matrix *solve(char **input, vari *var, int *error) {
   }
 
   char *str2d;
-  vari varTemp = *var;
-  varTemp.ans.size = NULL;
-  varTemp.ans.elements = NULL;
+  vari varTemp = copyVari(var);; //copy global struct to a local variable struct
   
   matrix out, inter, h;
   double test = 0, delta = 0.000001;
@@ -269,18 +265,16 @@ matrix *zeros(char **input, vari *var, int *error){
   int dimension = numberOfArgs(input);
   int *size = malloc(sizeof(*size) * (dimension + 1));
 
-  vari temp = *var;
-  temp.ans.size = NULL;
-  temp.ans.elements = NULL;
+  vari varTemp = copyVari(var);; //copy global struct to a local variable struct
 
   for(int i = 0; i < dimension; ++i){
     matrix *inputMat = malloc(sizeof(*inputMat));
-    *error = sya(input[i], &temp);
-    copyMatrix(inputMat, &temp.ans);
+    *error = sya(input[i], &varTemp);
+    copyMatrix(inputMat, &varTemp.ans);
 
     if(inputMat->dimension != 1){
       *error = 13;
-      freeVari(&temp);
+      freeVari(&varTemp);
       return NULL;
     }
     size[i] = inputMat->elements[0];
@@ -288,7 +282,7 @@ matrix *zeros(char **input, vari *var, int *error){
   }
 
   size[dimension] = 0;
-  freeVari(&temp);
+  freeVari(&varTemp);
   matrix *out = initMatrix(size, dimension, error);
 
   free(size);

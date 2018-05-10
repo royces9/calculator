@@ -135,9 +135,8 @@ int executeTree(fileTree *tree, vari *var, int maxSize){
   int check = 0; //checking conditionals: if/while
   int error = 0; //error 
   fileStack stk = newFileStack(); //create new file stack
-  vari temp = *var;
-  temp.ans.elements = NULL;
-  temp.ans.size = NULL;
+
+  vari temp = copyVari(var);
   
   //executes the tree
   //checks that the current leaf and the string it holds are not 0

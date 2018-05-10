@@ -123,7 +123,7 @@ int sya(char *input, vari *var) {
       break;
 
     case -1:
-      return -4;
+      error = -4;
       break;
 
     }//end of switch
@@ -132,6 +132,7 @@ int sya(char *input, vari *var) {
       return error;
     }
   }//end of for
+
   while(out.occ && oper.occ) { //while the operator and number stack are occupied, keep executing
     execNum(&out, popch(&oper), &error);
   }
