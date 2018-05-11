@@ -27,6 +27,7 @@ matrix *min(matrix *m, vari *var, int *error) {
   return initScalar(out);
 }
 
+
 //determines maximum value from the inputs given
 matrix *max(matrix *m, vari *var, int *error) {
   element out = m->elements[0];
@@ -36,6 +37,7 @@ matrix *max(matrix *m, vari *var, int *error) {
   return initScalar(out);
 }
 
+
 //calculates average value from the inputs given
 matrix *avg(matrix *m, vari *var, int *error) {
   element sum = 0;
@@ -44,6 +46,7 @@ matrix *avg(matrix *m, vari *var, int *error) {
   }
   return initScalar(sum/m->length);
 }
+
 
 //calculates the derivative of a function at a given point with a given step size
 matrix *deri(char **input, vari *var, int *error) {
@@ -113,6 +116,7 @@ matrix *deri(char **input, vari *var, int *error) {
 
   return initScalar(out.elements[0]/(2*h.elements[0]));
 }
+
 
 //calculates integral of a given function with a given range and partition count
 matrix *inte(char **input, vari *var, int *error) {
@@ -196,6 +200,7 @@ matrix *inte(char **input, vari *var, int *error) {
   //return integral
   return initScalar(sum * (step / 3));
 }
+
 
 //numerically solve an expression f(x)=0 for x
 matrix *solve(char **input, vari *var, int *error) {
@@ -301,6 +306,86 @@ matrix *ones(char **input, vari *var, int *error){
   return out;
 }
 
+
+matrix *extractValue(char *buffer, char **input, vari *var, int *error){
+  int varLen = strlen(buffer);
+  matrix *out;
+
+  //change the '(' to a 0
+  buffer[varLen-1] = '\0';
+
+  int varIndex = varcheck(var, buffer);
+  if(varIndex >= 0){
+    int dimension = numberOfArgs(input);
+    vari varTemp = copyVari(var);
+    matrix *inputMat = malloc(sizeof(*inputMat));;
+
+    if(dimension == 1){
+      *error = sya(input[0], &varTemp);
+      copyMatrix(inputMat, &varTemp.ans);
+
+      out = malloc(sizeof(*out));
+      copyMatrix(out, inputMat);
+
+      for(int i = 0; i < inputMat->length; ++i){
+
+	if((int)inputMat->elements[i] <= varTemp.value[varIndex]->length){
+	  out->elements[i] = varTemp.value[varIndex]->elements[(int)inputMat->elements[i] - 1];
+
+	} else{
+	  *error = -14;
+	  freeVari(&varTemp);
+	  freeMatrix(out);
+	  freeMatrix(inputMat);
+
+	  return NULL;
+	}
+      }
+
+
+      freeMatrix(inputMat);
+      freeVari(&varTemp);
+      return out;
+
+    } else if(dimension == varTemp.ans.dimension){
+      int *location = malloc(sizeof(*location) * (dimension + 1));
+
+      for(int i = 0; i < dimension; ++i){
+	*error = sya(input[i], &varTemp);
+	if(varTemp.ans.dimension == 1){
+	  location[i] = varTemp.ans.elements[0];
+	} else{
+	  free(location);
+	  freeVari(&varTemp);
+	  freeMatrix(out);
+	  return NULL;
+	}
+      }
+
+      int index = sub2ind(location, varTemp.value[varIndex]->size, varTemp.value[varIndex]->dimension);
+      free(location);
+
+      if(index < varTemp.value[varIndex]->length){
+	out = initScalar(varTemp.value[varIndex]->elements[index]);
+      } else{
+	freeVari(&varTemp);
+	freeMatrix(out);
+	return NULL;
+      }
+
+      return out;
+      
+    } else{
+      *error  = -14;
+      freeVari(&varTemp);
+      return NULL;
+    }
+
+    freeVari(&varTemp);
+  }
+
+  return out;
+}
 
 //remove spaces from char input
 void removeSpaces(char *input, int *front, int *back) {

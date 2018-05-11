@@ -248,12 +248,21 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 
   case FUNCTION_COUNT: //variables
     {
-      int k = varcheck(var, buffer);
-      if(k >= 0) {
-	matrix *varCopy = malloc(sizeof(*varCopy));
-	pushn(copyMatrix(varCopy,var->value[k]), num);
-	*tok = 1;
-	return 0;
+      int varLen = strlen(buffer);
+      if(buffer[varLen-1] == '('){
+	separatedString = separateString(input, "()", ',', start, &error);
+	pushn(extractValue(buffer, separatedString, var, &error), num);
+	freeDoubleArray(separatedString);
+
+	return error;
+      } else{
+	int k = varcheck(var, buffer);
+	if(k >= 0) {
+	  out = malloc(sizeof(*out));
+	  pushn(copyMatrix(out,var->value[k]), num);
+	  *tok = 1;
+	  return 0;
+	}
       }
     }
     break;
