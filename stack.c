@@ -95,13 +95,46 @@ vari copyVari(vari *var){
   out.ans.elements = NULL;
   out.ans.size = NULL;
   
-  for(int i = 0; i < var->count; ++i){
-    strcpy(out.name[i], var->name[i]);
-    out.value[i] = malloc(sizeof(*out.value[i]));
-    copyMatrix(out.value[i], var->value[i]);
+  if(var->occ){
+    for(int i = 0; i <= var->count; ++i){
+      strcpy(out.name[i], var->name[i]);
+      out.value[i] = malloc(sizeof(*out.value[i]));
+      copyMatrix(out.value[i], var->value[i]);
+    }
+  }
+  return out;
+}
+
+
+int setVariable(vari *var, char *name, int check){
+  //check is from the output of varcheck
+
+  int index = 0;
+
+  switch(check){
+  case -1: //new variable, struct is empty
+    index = 0;
+    var->occ = 1;
+    break;
+    
+  case -2: //new variable, struct is not empty
+    index = ++var->count;
+    break;
+
+  default: //variable exists already
+    index = check;
+
+    //free the already existing variable
+    freeMatrix(var->value[index]);
+    break;
   }
 
-  return out;
+  var->value[index] = malloc(sizeof(*var->value[index]));
+  copyMatrix(var->value[index], &var->ans);
+  strcpy(var->name[index], name);
+
+  free(name);
+  return 0;
 }
 
 void freeVari(vari *var){

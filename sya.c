@@ -14,8 +14,9 @@ int sya(char *input, vari *var) {
 
   int i = 0, j = 0, k = 0; //iterators
   int error = 0; //error checking int
-  int leftParenthesisCount = 0, rightParenthesisCount = 0, length = 0; //number of parens and length of input
-  int leftBracketCount = 0, rightBracketCount = 0;
+  int length = 0; //number of parens and length of input
+  int parenthesisCount = 0;
+  int bracketCount = 0;
   
   int check = 0; //for if an assignment occurs
   int negativeCheck = 0; //to check if the '-' char is subtraction or a negative
@@ -26,27 +27,31 @@ int sya(char *input, vari *var) {
   //check that the number of left end and right end parentheses are the same
   for(length = 0; input[length]; ++length) {
     //increment counter when the current char is a left end or right end parenthese
-    leftParenthesisCount += (input[length] == '(');
-    rightParenthesisCount += (input[length] == ')');
+    parenthesisCount += (input[length] == '(');
+    parenthesisCount -= (input[length] == ')');
 
-    leftBracketCount += (input[length] == '[');
-    rightBracketCount += (input[length] == ']');
+    bracketCount += (input[length] == '[');
+    bracketCount -= (input[length] == ']');
   }
 
   
-  if((leftParenthesisCount != rightParenthesisCount) || (leftBracketCount != rightBracketCount)) {
+  if(parenthesisCount || bracketCount) {
     return error = -3;
   }
 
 
   //if input string ends in an operator, return error
-  if(strchr("+-/*^(=&|~<>",input[length-1])) {
+  if(strchr("[,+-/*^(=&|~<>",input[length-1])) {
     return error = -4;
   }
 
 
   //buffers for characters and operators
   char bufferLetters[length], bufferOper[length];
+
+  //name of variable if assignment
+  char *variableAssign;
+
   int type[length+1];
   for(int l = 0; input[l]; ++l){
     type[l] = checkType(input[l]);
@@ -59,8 +64,8 @@ int sya(char *input, vari *var) {
   for(i = 0; input[i]; ++i) {
     //printf("%c\n", input[i]);
     switch(type[i]){
-      //alpha numerics
-    case 1:
+      
+    case 1: //alpha numerics
       k = 0;
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
       if(((type[i+1] == 2) || (type[i+1] == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
@@ -72,12 +77,8 @@ int sya(char *input, vari *var) {
 	  check = varcheck(var, bufferLetters); //checks that the variable exists
 	  varset = 1; //flag for assignment at the end of the sya loop
 
-	  if(check == -1) { //var struct is empty, adds first variable to the struct
-	    check = 0; //the index of the new variable
-	  } else if(check == -2) { //var struct is not empty, but it's a new variable
-	    check = var->count + 1;
-	  }
-	  strcpy(var->name[check], bufferLetters);
+	  variableAssign = malloc(sizeof(*variableAssign) * (j + 1));
+	  strcpy(variableAssign, bufferLetters);
 
 	} else { //check if command is a function or variable
 	  if(input[i+1] == '(') {
@@ -92,8 +93,8 @@ int sya(char *input, vari *var) {
       negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
       break;
 
-      //operator characters
-    case 2:
+      
+    case 2: //operator characters
       j = 0;
       bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
 
@@ -106,8 +107,8 @@ int sya(char *input, vari *var) {
       }
       break;
 
-      //'.'
-    case 3:
+      
+    case 3: //'.'
       if(type[i+1] == 2){
 	char matrixOper[3] = {input[i], input[i+1], 0};
 	error = findOperator(matrixOper, &out, &oper, var, &negativeCheck);
@@ -117,8 +118,8 @@ int sya(char *input, vari *var) {
       }
       break;
 
-      //"[]"
-    case 4:
+      
+    case 4: //"[]"
       pushn(extractMatrix(var, &i, input, &error), &out);
       break;
 
@@ -144,23 +145,34 @@ int sya(char *input, vari *var) {
     free(var->ans.size);
   }
 
-  copyMatrix(&var->ans, out.stk[0]);
+  //copyMatrix(&var->ans, out.stk[0]);
+  /*
+  matrix *what;
+  copyMatrix(what, out.stk[0]);
+  var->ans = *what;
+  free(what);
+  */
+  
+  /*
+  //copy out.stk[0] to var->ans
+  var->ans.length = out.stk[0]->length;
+  var->ans.dimension = out.stk[0]->dimension;
+  
+  var->ans.elements = malloc(sizeof(*var->ans.elements) * var->ans.length);
+  memcpy(var->ans.elements, out.stk[0]->elements, sizeof(*var->ans.elements) * var->ans.length);
+
+  var->ans.size = malloc(sizeof(*var->ans.size) * (var->ans.dimension + 1));
+  memcpy(var->ans.size, out.stk[0]->size, sizeof(*var->ans.size) * (var->ans.dimension + 1));
+  */
+  //free out.stk[0]
   freeMatrix(out.stk[0]);
 
-  if(varset) { //set variable if there was an assignment
+
+  if(varset) {
+    //set variable if there was an assignment
     //check that the newly assigned variable hasn't been assigned before
     //free it if it has
-    if(var->value[check]){
-      freeMatrix(var->value[check]);
-    }
-
-    if(check > var->count){
-      ++var->count;
-    }
-    var->occ = 1;
-    
-    var->value[check] = malloc(sizeof(*var->value[check]));
-    copyMatrix(var->value[check], &var->ans);
+    error = setVariable(var, variableAssign, check);
   }
 
   return error;

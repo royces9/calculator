@@ -88,7 +88,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   } else{
     switch(ch.enumeration){
     case eEye: out = eye(a, error); break;
-    default: out = malloc(sizeof(*out)); copyMatrix(out, a); break;
+    default: copyMatrix(out, a); break;
     }
   }
   freeMatrix(a);
@@ -169,7 +169,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 
   case eAns:
     { //because ans scope is in main, make a copy of ans that can be free'd
-      matrix *copy = malloc(sizeof(*copy));
+      matrix *copy;
       copyMatrix(copy, &var->ans);
       pushn(copy, num);
       *tok = 1;
@@ -258,8 +258,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
       } else{
 	int k = varcheck(var, buffer);
 	if(k >= 0) {
-	  out = malloc(sizeof(*out));
-	  pushn(copyMatrix(out,var->value[k]), num);
+	  pushn(copyMatrix(out, var->value[k]), num);
 	  *tok = 1;
 	  return 0;
 	}
@@ -464,20 +463,20 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   //find where the matrix declaration ends
   //count brackets until they match
   //also get the length of string
-  int leftBracketCount = 0, rightBracketCount = 0;
+  int bracketCount = 0;
   int length = 0;
 
   for(length = 0; input[length]; ++length){
-    leftBracketCount += (input[length] == '[');
-    rightBracketCount += (input[length] == ']');
+    bracketCount += (input[length] == '[');
+    bracketCount -= (input[length] == ']');
 
-    if(leftBracketCount == rightBracketCount){
+    if(!bracketCount){
       break;
     }
   }
 
   //check that the bracket count is correct
-  if(leftBracketCount != rightBracketCount){
+  if(bracketCount){
     *error = -4;
     return NULL;
   }
@@ -487,6 +486,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
 
   //the string that will contain every character that contains elements of the matrix
   char *matrixString = malloc(sizeof(*matrixString) * (length));
+
   //copy from the first character after the first '['
   strncpy(matrixString, input + 1, sizeof(*matrixString) * (length));
 
@@ -504,7 +504,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   vari tempVari = copyVari(var);
   *error = sya(separatedMatrix[0], &tempVari);
 
-  matrix *tempMat = malloc(sizeof(*tempMat));
+  matrix *tempMat;
   copyMatrix(tempMat, &tempVari.ans);
   pushn(tempMat, &numStk);
 
@@ -523,7 +523,6 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     case ';':
       *error = sya(separatedMatrix[i] + 1, &tempVari);
 
-      tempMat = malloc(sizeof(*tempMat));
       copyMatrix(tempMat, &tempVari.ans);
 
       pushn(tempMat, &numStk);

@@ -55,6 +55,8 @@ matrix *initScalar(element e){
 
 
 matrix *copyMatrix(matrix *dest, matrix *src){
+  dest = malloc(sizeof(*dest));
+
   dest->dimension = src->dimension;
   dest->length = src->length;
 
