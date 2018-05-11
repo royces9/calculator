@@ -71,7 +71,6 @@ matrix *copyMatrix(matrix *dest, matrix *src){
 //a being concatenated to b along dimension and sent to out
 matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
   for(int i = 0; i < out->length; ++i){
-
     out->elements[i] = 0;
   }
   return out;
@@ -167,14 +166,12 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
 	int newSize[3];
 	memcpy(newSize, tempVector->size, sizeof(*newSize) * 3);
 
-	//null end size vector
-	newSize[3] = 0;
-
 	//increment size because of the concatenation
 	++newSize[dimension];
 
 	//init new matrix
 	out = initMatrix(newSize, tempVector->dimension, error);
+
 
 	//put values into new matrix
 	//first vector values
