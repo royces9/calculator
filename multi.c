@@ -321,9 +321,7 @@ void removeSpaces(char *input, int *front, int *back) {
 //print a line to stdout, formatting is similar to matlab
 int printLine(char **input, vari *var, int *error) {
   int argNo = numberOfArgs(input), front = 0, back = 0;
-  vari varTemp = *var;
-  varTemp.ans.size = NULL;
-  varTemp.ans.elements = NULL;
+  vari varTemp = copyVari(var);
 
   for(int i = 0; i < argNo; ++i) {
     int len = strlen(input[i]), string = 0;

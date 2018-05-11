@@ -9,34 +9,34 @@ all: matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o fil
 calc2: $(CFILES) $(HEADERS) $(OFILES)
 	$(CC) $(OFILES) -o calc2 $(FLAGS)
 
-matrix.o: matrix.c matrix.h
+matrix.o: matrix.c matrix.h operator.c operator.h
 	$(CC) -c matrix.c
 
-stack.o: stack.c stack.h matrix.h
+stack.o: stack.c stack.h
 	$(CC) -c stack.c
 
-multi.o: multi.c multi.h stack.h sya.h
+multi.o: multi.c multi.h stack.c stack.h sya.c sya.h operator.c operator.h
 	$(CC) -c multi.c
 
-sya.o: sya.c sya.h stack.h operator.h
+sya.o: sya.c sya.h stack.c stack.h operator.c operator.h
 	$(CC) -c sya.c
 
-file.o: file.c file.h stack.h sya.h fileStruct.h
+file.o: file.c file.h stack.c stack.h sya.c sya.h fileStruct.c fileStruct.h
 	$(CC) -c file.c
 
-operator.o: operator.c operator.h operatorUtility.h
+operator.o: operator.c operator.h operatorUtility.c operatorUtility.h stack.c stack.h functions.c functions.h multi.c multi.h file.c file.h sya.c sya.h
 	$(CC) -c operator.c
 
 operatorUtility.o: operatorUtility.c operatorUtility.h
 	$(CC) -c operatorUtility.c
 
-functions.o: functions.c functions.h matrix.h
+functions.o: functions.c functions.h operator.c operator.h
 	$(CC) -c functions.c
 
 fileStruct.o: fileStruct.c fileStruct.h
 	$(CC) -c fileStruct.c
 
-calc.o: calc.c stack.h sya.h
+calc.o: calc.c stack.c stack.h sya.c sya.h
 	$(CC) -c calc.c
 
 debug: $(OFILES)

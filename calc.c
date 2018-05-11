@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
       error = sya(argv[i], &var);
 
       if(error == 0) {
-	printMatrix(&var.ans);
+	printMatrix(var.ans);
       } else{
 	errorrep(error);
       }
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(error == 0) {
-      printMatrix(&var.ans);
+      printMatrix(var.ans);
     } else{ //if the error is less than -1, prints an error code
       errorrep(error);
     }

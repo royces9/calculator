@@ -145,7 +145,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; ++j) {
 	printf("%s =", var->name[j]);
-	printMatrix(var->value[j]);
+	printMatrix(*var->value[j]);
       }
       printf("\n");
     } else {
@@ -448,17 +448,15 @@ int countDelimiter(char *input){
 
 
 matrix *extractMatrix(vari *var, int *start, char *input, int *error){
-  matrix *out;
-  int length = 0;
-  vari temp = copyVari(var);
-
   //input is incremented to start at input[*start], which is where
   //the first [ should be
   input += (*start);
 
   //find where the matrix declaration ends
   //count brackets until they match
+  //also get the length of string
   int leftBracketCount = 0, rightBracketCount = 0;
+  int length = 0;
 
   for(length = 0; input[length]; ++length){
     leftBracketCount += (input[length] == '[');
@@ -474,6 +472,8 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     *error = -4;
     return NULL;
   }
+
+  //increment the main loop counter up to the ']' 
   *start += (length);
 
   //the string that will contain every character that contains elements of the matrix
@@ -487,34 +487,35 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   //number stack for creating the matrix
   numberStack numStk = newNumberStack();
 
-
   char **separatedMatrix = separateMatrix(matrixString, countDelimiter(matrixString), error);
 
   //free matrixString, not needed anymore
   free(matrixString);
 
-  *error = sya(separatedMatrix[0], &temp);
+  vari tempVari = copyVari(var);
+  *error = sya(separatedMatrix[0], &tempVari);
 
   matrix *tempMat = malloc(sizeof(*tempMat));
-  copyMatrix(tempMat, &temp.ans);
+  copyMatrix(tempMat, &tempVari.ans);
   pushn(tempMat, &numStk);
 
-  matrix *a, *b;
+  matrix *a, *b, *out;
 
   for(int i = 1; separatedMatrix[i]; ++i){
     switch(separatedMatrix[i][0]){
     case ',':
-      *error = sya(separatedMatrix[i] + 1, &temp);
+      *error = sya(separatedMatrix[i] + 1, &tempVari);
       a = popn(&numStk);
-      pushn(concatMatrix(a, &temp.ans, 1, error), &numStk);
+      pushn(concatMatrix(a, &tempVari.ans, 1, error), &numStk);
+      
       freeMatrix(a);
       break;
 
     case ';':
-      *error = sya(separatedMatrix[i] + 1, &temp);
+      *error = sya(separatedMatrix[i] + 1, &tempVari);
 
       tempMat = malloc(sizeof(*tempMat));
-      copyMatrix(tempMat, &temp.ans);
+      copyMatrix(tempMat, &tempVari.ans);
 
       pushn(tempMat, &numStk);
       break;
@@ -522,7 +523,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     default:
       *error = -14;
       freeDoubleArray(separatedMatrix);
-      freeVari(&temp);
+      freeVari(&tempVari);
       return NULL;
     }
   }
@@ -537,8 +538,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     freeMatrix(b);
   }
 
-  free(temp.ans.elements);
-  free(temp.ans.size);
+  freeVari(&tempVari);
 
   freeDoubleArray(separatedMatrix);
 

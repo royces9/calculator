@@ -84,13 +84,13 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
   int bScalar = isScalar(b);
 
   int scalarConcat = aScalar + bScalar;
+  matrix *out = NULL;
 
   switch(scalarConcat){
 
   case 0: //a and b are not scalars
     {
       int diff = abs(a->dimension - b->dimension);
-      matrix *out;
 
       //a and b are the same dimension
       if(!diff){
@@ -139,9 +139,8 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
     case 1: //only one of a or b are scalars
       {
 	//temporary variables for less writing in if blocks
-	matrix *tempVector;
-	element tempScalar;
-
+	matrix *tempVector = NULL;
+	element tempScalar = 0;
 	//assign which matrix is a scalar and which is a matrix
 	if(aScalar){
 	  tempVector = b;
@@ -175,7 +174,7 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
 	++newSize[dimension];
 
 	//init new matrix
-	matrix *out = initMatrix(newSize, tempVector->dimension, error);
+	out = initMatrix(newSize, tempVector->dimension, error);
 
 	//put values into new matrix
 	//first vector values
@@ -187,8 +186,6 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
 	//assume that bScalar is either 0 or 1, this then puts
 	//the scalar value at either the beginning or the end
 	out->elements[tempVector->length * bScalar] = tempScalar;
-
-	return out;
       }
       break;
 
@@ -207,18 +204,18 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
 	  return NULL;
 	}
 
-	matrix *out = initMatrix(newSize, 2, error);
+	out = initMatrix(newSize, 2, error);
 
 	out->elements[0] = a->elements[0];
 	out->elements[1] = b->elements[0];
-
-	return out;
       }
-
+      break;
 
     default: *error = -14; break; //return error if something else
     }
   }
+
+  return out;
 }
 
 
@@ -243,7 +240,7 @@ void freeMatrix(matrix *m){
 //the second print will have an offset of 4 and print:
 //5 7
 //6 8
-void printTwoDMatrix(const matrix *m, int offset){
+void printTwoDMatrix(const matrix m, int offset){
   /*  another way that could work? I'll just keep it here for now
   int i = 0;
   int j = 0;
@@ -258,12 +255,12 @@ void printTwoDMatrix(const matrix *m, int offset){
   printf("\n");*/
 
   printf("\n");
-  for(int i = 0; i < m->size[0]; ++i){
-    for(int j = 0; j < m->size[1]; ++j){
+  for(int i = 0; i < m.size[0]; ++i){
+    for(int j = 0; j < m.size[1]; ++j){
       int location[2] = {i, j};
       //the below is the same as sub2ind for a 2d matrix
       //location[0] + m.size[0] * location[1]
-      printf("%lf ", m->elements[offset + (location[0] + m->size[0] * location[1])]);
+      printf("%lf ", m.elements[offset + (location[0] + m.size[0] * location[1])]);
     }
     printf("\n");
   }
@@ -275,18 +272,18 @@ void printTwoDMatrix(const matrix *m, int offset){
 
 //print out a matrix of any size
 //prints out 2d slices of the matrix
-void printMatrix(const matrix *m){
+void printMatrix(const matrix m){
   int offset = 0;
-  if(m->dimension > 2){
-    int twoDimSize = m->size[0] * m->size[1];
-    for(int i = 1; i < m->dimension; ++i){
+  if(m.dimension > 2){
+    int twoDimSize = m.size[0] * m.size[1];
+    for(int i = 1; i < m.dimension; ++i){
 	printTwoDMatrix(m, offset);
 	offset += twoDimSize;
     }
-  } else if(m->dimension == 2){ //2d mat
+  } else if(m.dimension == 2){ //2d mat
     printTwoDMatrix(m, 0);
   } else{ //scalar
-    printf("\n%lf\n\n", m->elements[0]);
+    printf("\n%lf\n\n", m.elements[0]);
   }
   return;
 }
