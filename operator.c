@@ -109,7 +109,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   int check = 0;
   twoArg(0, 0, ch.enumeration, &check);
 
-  //check if 0, is in twoArg
+  //if ch.enumeration is in twoArg, check will be 1
   if(!check){
 
     //check that the matrices are the same size

@@ -51,13 +51,11 @@ matrix *matrixMultiply(matrix *a, matrix *b, int *error){
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
 
-  matrix *out;
+  matrix *out = NULL;
   switch(aScalar + bScalar){
   case 0: //neither a nor b are scalars
     //check that the inner dimensions match
     if(a->size[a->dimension-1] != b->size[0]){
-      freeMatrix(a);
-      freeMatrix(b);
       *error = -10;
       return NULL;
     }
