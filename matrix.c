@@ -54,8 +54,8 @@ matrix *initScalar(element e){
 }
 
 
-matrix *copyMatrix(matrix *dest, matrix *src){
-  dest = malloc(sizeof(*dest));
+matrix *copyMatrix(matrix *src){
+  matrix *dest = malloc(sizeof(*dest));
 
   dest->dimension = src->dimension;
   dest->length = src->length;
@@ -84,10 +84,9 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
 
-  int scalarConcat = aScalar + bScalar;
   matrix *out = NULL;
 
-  switch(scalarConcat){
+  switch(aScalar + bScalar){
 
   case 0: //a and b are not scalars
     {
@@ -147,13 +146,10 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
 	  tempVector = b;
 	  tempScalar = a->elements[0];
 
-	} else if(bScalar){
+	} else{
 	  tempVector = a;
 	  tempScalar = b->elements[0];
 
-	} else{ //return an error otherwise
-	  *error = -14;
-	  return NULL;
 	}
 
 	//check that the matrix is a vector, only vectors can be

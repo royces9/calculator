@@ -9,13 +9,6 @@
 int main(int argc, char *argv[]) {
   char *input = NULL;
   int error = 0;
-
-  //stores the previous answer in this variable, can be used by using "ans"
-  /*
-  matrix ans;
-  ans.size = NULL;
-  ans.elements = NULL;
-  */
   
   //initialize variable struct
   vari var = newVari();

@@ -51,7 +51,7 @@ matrix *avg(matrix *m, vari *var, int *error) {
 //calculates the derivative of a function at a given point with a given step size
 matrix *deri(char **input, vari *var, int *error) {
   char *str2d;
-  matrix out, inter, h, point;
+  matrix *out, *inter, *h, *point;
   vari varTemp = copyVari(var);; //copy global struct to a local variable struct
   varTemp.ans.size = NULL;
   varTemp.ans.elements = NULL;
@@ -74,11 +74,11 @@ matrix *deri(char **input, vari *var, int *error) {
   //set both the point and step size
   *error = sya(input[2], &varTemp);
   if(*error) return 0;
-  copyMatrix(&h, &varTemp.ans);
+  h = copyMatrix(&varTemp.ans);
 
   *error = sya(input[3], &varTemp);
   if(*error) return 0;
-  copyMatrix(&point, &varTemp.ans);
+  point = copyMatrix(&varTemp.ans);
 
   //set up a dummy variable specified by user  
   varIndex = varcheck(&varTemp, input[1]);
@@ -94,27 +94,27 @@ matrix *deri(char **input, vari *var, int *error) {
   strcpy(varTemp.name[varIndex], input[1]);
 
   //sets the dummy variable equal to x+h
-  varTemp.value[varIndex] = initScalar(point.elements[0] + h.elements[0]);
+  varTemp.value[varIndex] = initScalar(point->elements[0] + h->elements[0]);
   
   //does f(x+h)
   *error = sya(input[0], &varTemp);
   if(*error) return 0;
-  copyMatrix(&out, &varTemp.ans);
+  out = copyMatrix(&varTemp.ans);
 
   //sets the dummy variable equal to x-h
-  varTemp.value[varIndex] = initScalar(point.elements[0] - h.elements[0]);
+  varTemp.value[varIndex] = initScalar(point->elements[0] - h->elements[0]);
 
-  //does f(x-h)
+  //f(x-h)
   *error = sya(input[0], &varTemp);
   if(*error) return 0;
-  copyMatrix(&inter, &varTemp.ans);
+  inter = copyMatrix(&varTemp.ans);
 
-  //this is f(x+h) - f(x-h)
-  out.elements[0] -= inter.elements[0];
+  //f(x+h) - f(x-h)
+  out->elements[0] -= inter->elements[0];
 
   freeVari(&varTemp);
 
-  return initScalar(out.elements[0]/(2*h.elements[0]));
+  return initScalar(out->elements[0]/(2*h->elements[0]));
 }
 
 
@@ -130,8 +130,8 @@ matrix *inte(char **input, vari *var, int *error) {
   double step = 0, sum = 0;
 
   char *str2d;
-  matrix out, inter;
-  matrix a, b, number;
+  matrix *out, *inter;
+  matrix *a, *b, *number;
   vari varTemp = copyVari(var);; //copy global struct to a local variable struct
 
   int varIndex = 0, iter = 0;
@@ -147,18 +147,18 @@ matrix *inte(char **input, vari *var, int *error) {
   //get number of steps, and step size
   *error = sya(input[2], &varTemp);
   if(*error) return 0;
-  copyMatrix(&a, &varTemp.ans);
+  a = copyMatrix(&varTemp.ans);
 
   *error = sya(input[3], &varTemp);
   if(*error) return 0;
-  copyMatrix(&b, &varTemp.ans);
+  b = copyMatrix(&varTemp.ans);
 
   *error = sya(input[4], &varTemp);
   if(*error) return 0;
-  copyMatrix(&number, &varTemp.ans);
+  number = copyMatrix(&varTemp.ans);
   
   //calculate step size
-  step = (b.elements[0]-a.elements[0])/number.elements[0];
+  step = (b->elements[0]-a->elements[0])/number->elements[0];
 
   //set dummy variable
   varIndex = varcheck(&varTemp, input[1]); //checks if variable exists or not, return value used as index
@@ -173,23 +173,23 @@ matrix *inte(char **input, vari *var, int *error) {
 
   //calculate integral using composite Simpson's
 
-  number.elements[0] = floor(number.elements[0]/2); //halve the steps
+  number->elements[0] = floor(number->elements[0]/2); //halve the steps
   
-  for(int i = 1; i <= number.elements[0]; ++i) {
+  for(int i = 1; i <= number->elements[0]; ++i) {
     //f(x_2i-2)
-    varTemp.value[varIndex] = initScalar(a.elements[0] + (((2 * i) - 2) * step));
+    varTemp.value[varIndex] = initScalar(a->elements[0] + (((2 * i) - 2) * step));
     *error = sya(input[0], &varTemp);
     if(*error) return 0;
     sum += varTemp.ans.elements[0];
 
     //4*f(x_2i-1)
-    varTemp.value[varIndex] = initScalar(a.elements[0] + (((2 * i) - 1) * step));
+    varTemp.value[varIndex] = initScalar(a->elements[0] + (((2 * i) - 1) * step));
     *error = sya(input[0], &varTemp);
     if(*error) return 0;
     sum += (4 * varTemp.ans.elements[0]);
 
     //f(x_2i)
-    varTemp.value[varIndex] = initScalar(a.elements[0] + ((2 * i) * step));
+    varTemp.value[varIndex] = initScalar(a->elements[0] + ((2 * i) * step));
     *error = sya(input[0], &varTemp);
     if(*error) return 0;
     sum += varTemp.ans.elements[0];
@@ -213,7 +213,7 @@ matrix *solve(char **input, vari *var, int *error) {
   char *str2d;
   vari varTemp = copyVari(var);; //copy global struct to a local variable struct
   
-  matrix out, inter, h;
+  matrix *out, *inter, *h;
   double test = 0, delta = 0.000001;
   int varc = 0;
 
@@ -238,26 +238,27 @@ matrix *solve(char **input, vari *var, int *error) {
   //set initial guess and the tolerance
   *error = sya(input[2], &varTemp);
   if(*error) return 0;
-  copyMatrix(varTemp.value[varc], &varTemp.ans);
+  varTemp.value[varc] = copyMatrix(&varTemp.ans);
 
   *error = sya(input[3], &varTemp);
   if(*error) return 0;
-  copyMatrix(&h, &varTemp.ans);
+  h = copyMatrix(&varTemp.ans);
 
-  test = h.elements[0] + 1; //ensure test is always greater than h
+  test = h->elements[0] + 1; //ensure test is always greater than h
 
   //solve f(x)=0 for x using Newton's method
-  while(fabs(test) > h.elements[0]) { //if the difference between iterations is less than the tolerance, break out of loop
+  while(fabs(test) > h->elements[0]) { //if the difference between iterations is less than the tolerance, break out of loop
     *error = sya(input[0], &varTemp);
+
     if(*error) return 0;
-    copyMatrix(&out, &varTemp.ans);
+    out = copyMatrix(&varTemp.ans);
 
     varTemp.value[varc]->elements[0] -= delta;
     *error = sya(input[0], &varTemp);
     if(*error) return 0;
-    copyMatrix(&inter, &varTemp.ans);
+    inter = copyMatrix(&varTemp.ans);
 
-    test = (delta*out.elements[0])/(out.elements[0]-inter.elements[0]);
+    test = (delta*out->elements[0])/(out->elements[0]-inter->elements[0]);
     varTemp.value[varc]->elements[0] -= test;
   }
 
@@ -273,9 +274,8 @@ matrix *zeros(char **input, vari *var, int *error){
   vari varTemp = copyVari(var);; //copy global struct to a local variable struct
 
   for(int i = 0; i < dimension; ++i){
-    matrix *inputMat = malloc(sizeof(*inputMat));
     *error = sya(input[i], &varTemp);
-    copyMatrix(inputMat, &varTemp.ans);
+    matrix *inputMat = copyMatrix(&varTemp.ans);
 
     if(inputMat->dimension != 1){
       *error = 13;
@@ -318,32 +318,29 @@ matrix *extractValue(char *buffer, char **input, vari *var, int *error){
   if(varIndex >= 0){
     int dimension = numberOfArgs(input);
     vari varTemp = copyVari(var);
-    matrix *inputMat = malloc(sizeof(*inputMat));;
+    matrix *inputMat;
 
     if(dimension == 1){
       *error = sya(input[0], &varTemp);
-      copyMatrix(inputMat, &varTemp.ans);
+      out = copyMatrix(&varTemp.ans);
+      //inputMat = copyMatrix(&varTemp.ans);
+      //out = copyMatrix(inputMat);
 
-      out = malloc(sizeof(*out));
-      copyMatrix(out, inputMat);
+      for(int i = 0; i < out->length; ++i){
 
-      for(int i = 0; i < inputMat->length; ++i){
-
-	if((int)inputMat->elements[i] <= varTemp.value[varIndex]->length){
-	  out->elements[i] = varTemp.value[varIndex]->elements[(int)inputMat->elements[i] - 1];
+	if((int)out->elements[i] <= varTemp.value[varIndex]->length){
+	  out->elements[i] = varTemp.value[varIndex]->elements[(int)out->elements[i] - 1];
 
 	} else{
 	  *error = -14;
 	  freeVari(&varTemp);
 	  freeMatrix(out);
-	  freeMatrix(inputMat);
 
 	  return NULL;
 	}
       }
 
 
-      freeMatrix(inputMat);
       freeVari(&varTemp);
       return out;
 

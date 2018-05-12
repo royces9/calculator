@@ -98,8 +98,7 @@ vari copyVari(vari *var){
   if(var->occ){
     for(int i = 0; i <= var->count; ++i){
       strcpy(out.name[i], var->name[i]);
-      out.value[i] = malloc(sizeof(*out.value[i]));
-      copyMatrix(out.value[i], var->value[i]);
+      out.value[i] = copyMatrix(var->value[i]);
     }
   }
   return out;
@@ -129,8 +128,7 @@ int setVariable(vari *var, char *name, int check){
     break;
   }
 
-  var->value[index] = malloc(sizeof(*var->value[index]));
-  copyMatrix(var->value[index], &var->ans);
+  var->value[index] = copyMatrix(&var->ans);
   strcpy(var->name[index], name);
 
   free(name);

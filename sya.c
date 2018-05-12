@@ -137,6 +137,9 @@ int sya(char *input, vari *var) {
   while(out.occ && oper.occ) { //while the operator and number stack are occupied, keep executing
     execNum(&out, popch(&oper), &error);
   }
+  if(error){
+    return error;
+  }
 
   if(var->ans.elements != NULL){
     free(var->ans.elements);
@@ -145,25 +148,17 @@ int sya(char *input, vari *var) {
     free(var->ans.size);
   }
 
-  //copyMatrix(&var->ans, out.stk[0]);
-  /*
-  matrix *what;
-  copyMatrix(what, out.stk[0]);
-  var->ans = *what;
-  free(what);
-  */
   
-  /*
   //copy out.stk[0] to var->ans
   var->ans.length = out.stk[0]->length;
   var->ans.dimension = out.stk[0]->dimension;
-  
+
   var->ans.elements = malloc(sizeof(*var->ans.elements) * var->ans.length);
   memcpy(var->ans.elements, out.stk[0]->elements, sizeof(*var->ans.elements) * var->ans.length);
-
+  
   var->ans.size = malloc(sizeof(*var->ans.size) * (var->ans.dimension + 1));
   memcpy(var->ans.size, out.stk[0]->size, sizeof(*var->ans.size) * (var->ans.dimension + 1));
-  */
+
   //free out.stk[0]
   freeMatrix(out.stk[0]);
 
@@ -192,6 +187,7 @@ void errorrep(int error) {
     case -7: printf("Invalid operator"); break;
     case -8: printf("File does not exist"); break;
     case -9: printf("Mismatched quotation marks"); break;
+    case -10:printf("Matrix dimensions do not match."); break;
     default: break;
     }
   printf("\n\n");

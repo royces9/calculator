@@ -51,12 +51,20 @@ void execNum(numberStack *num, operatorStruct ch, int *error) {
   switch(ch.argNo) {
   case 1:
     a = popn(num);
+    if(a == NULL){
+      *error = -15;
+      return;
+    }
     pushn(matrixOneArg(a, ch, error), num);
     break;
 
   case 2:
     b = popn(num);
     a = popn(num);
+    if((a == NULL) || (b == NULL)){
+      *error = -10;
+      return;
+    }
     pushn(matrixTwoArg(a, b, ch, error), num);
     break;
 
@@ -77,8 +85,8 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
     int j = 0;
 
     int *size = malloc(sizeof(*size) * (a->dimension + 1));
-
     memcpy(size, a->size, sizeof(*size) * (a->dimension + 1));
+
     out = initMatrix(size, a->dimension, error);
     free(size);
 
@@ -88,7 +96,8 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   } else{
     switch(ch.enumeration){
     case eEye: out = eye(a, error); break;
-    default: copyMatrix(out, a); break;
+    case eSize: out = getSize(a, error); break;
+    default: out = copyMatrix(a); break;
     }
   }
   freeMatrix(a);
@@ -99,8 +108,10 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   matrix *out;
   int check = 0;
   twoArg(0, 0, ch.enumeration, &check);
+
   //check if 0, is in twoArg
   if(!check){
+
     //check that the matrices are the same size
     if(compareSize(a->size, b->size, a->dimension, b->dimension)){
       out = initMatrix(a->size, a->dimension, error);
@@ -109,10 +120,12 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
       }
     } else{
       *error = -12;
-      return NULL;
     }
+
   } else{
     switch(ch.enumeration){
+    case eMatrixMultiply: out = matrixMultiply(a, b, error); break;
+    default: *error = -10; break;
     }
   }
 
@@ -168,10 +181,9 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
     return 0;
 
   case eAns:
-    { //because ans scope is in main, make a copy of ans that can be free'd
-      matrix *copy;
-      copyMatrix(copy, &var->ans);
-      pushn(copy, num);
+    { //because ans is not a heap variable, make a
+      //copy of it and push the copy
+      pushn(copyMatrix(&var->ans), num);
       *tok = 1;
     }
     return 0;
@@ -193,6 +205,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
   case eMax:
   case eAvg:
   case eEye:
+  case eSize:
     pushch(setOpStack(FUNCTION_LIST[i], 1, 2, i), ch);
     *tok = 0;
     return 0;
@@ -258,7 +271,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
       } else{
 	int k = varcheck(var, buffer);
 	if(k >= 0) {
-	  pushn(copyMatrix(out, var->value[k]), num);
+	  pushn(copyMatrix(var->value[k]), num);
 	  *tok = 1;
 	  return 0;
 	}
@@ -504,9 +517,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   vari tempVari = copyVari(var);
   *error = sya(separatedMatrix[0], &tempVari);
 
-  matrix *tempMat;
-  copyMatrix(tempMat, &tempVari.ans);
-  pushn(tempMat, &numStk);
+  pushn(copyMatrix(&tempVari.ans), &numStk);
 
   matrix *a, *b, *out;
 
@@ -515,17 +526,15 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     case ',':
       *error = sya(separatedMatrix[i] + 1, &tempVari);
       a = popn(&numStk);
+
       pushn(concatMatrix(a, &tempVari.ans, 1, error), &numStk);
-      
       freeMatrix(a);
       break;
 
     case ';':
       *error = sya(separatedMatrix[i] + 1, &tempVari);
 
-      copyMatrix(tempMat, &tempVari.ans);
-
-      pushn(tempMat, &numStk);
+      pushn(copyMatrix(&tempVari.ans), &numStk);
       break;
       
     default:
