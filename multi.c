@@ -76,7 +76,7 @@ matrix *deri(char **input, vari *var, int *error) {
     *error = -10;
     return NULL;
   }
-  h = varTemp.ans.elements[0];
+  point = varTemp.ans.elements[0];
 
   *error = sya(input[3], &varTemp);
   if(*error) return 0;
@@ -84,7 +84,7 @@ matrix *deri(char **input, vari *var, int *error) {
     *error = -10;
     return NULL;
   }
-  point = varTemp.ans.elements[0];
+  h = varTemp.ans.elements[0];
 
   
   //set up a dummy variable specified by user  
@@ -109,21 +109,17 @@ matrix *deri(char **input, vari *var, int *error) {
   out = varTemp.ans.elements[0];
 
   //sets the dummy variable equal to x-h
-  //free matrix before resetting it
-  freeMatrix(varTemp.value[varIndex]);
-  varTemp.value[varIndex] = initScalar(point - h);
+  varTemp.value[varIndex]->elements[0] = point - h;
 
   //f(x-h)
   *error = sya(input[0], &varTemp);
   if(*error) return 0;
   inter = varTemp.ans.elements[0];
 
-
   //f(x+h) - f(x-h)
   out -= inter;
-
+  
   freeVari(&varTemp);
-
   return initScalar(out / (2 * h));
 }
 
