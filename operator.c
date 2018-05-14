@@ -124,7 +124,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
 
   } else{
     switch(ch.enumeration){
-    case eMatrixMultiply: out = matrixMultiply(a, b, error); break;
+    case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
     default: *error = -10; break;
     }
   }

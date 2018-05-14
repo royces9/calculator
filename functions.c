@@ -3,6 +3,7 @@
 
 #include "operator.h"
 
+
 //factorial function
 element factorial(element a) {
   a = floor(a);
@@ -47,21 +48,30 @@ matrix *getSize(matrix *a, int *error){
 }
 
 
-matrix *matrixMultiply(matrix *a, matrix *b, int *error){
+matrix *multiplyMatrix(matrix *a, matrix *b, int *error){
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
 
   matrix *out = NULL;
   switch(aScalar + bScalar){
   case 0: //neither a nor b are scalars
+    //matrix multiplication only defined for 2d arrays
+    if((a->dimension != 2) || (b->dimension != 2)){
+      *error = -10;
+      return NULL;
+    }
+
     //check that the inner dimensions match
     if(a->size[a->dimension-1] != b->size[0]){
       *error = -10;
       return NULL;
     }
 
-    *error = -10;
-    return NULL;
+    int newSize[3] = {a->size[0], b->size[1], 0};
+    out = initMatrix(size, 2, error);
+
+
+    return out;
     break;
 
 
@@ -93,6 +103,21 @@ matrix *matrixMultiply(matrix *a, matrix *b, int *error){
 
 
   default: *error = -12; return NULL;
+  }
+}
+
+
+matrix *transposeMatrix(matrix *a, int *error){
+  if(a->dimension != 2){
+    *error = -10;
+    return NULL;
+  }
+
+  int newSize[3] = {a->size[1], a->size[0], 0};
+  matrix *out = initMatrix(newSize, 2, *error);
+
+  for(int i = 0; i < out->length; ++i){
+
   }
 }
 

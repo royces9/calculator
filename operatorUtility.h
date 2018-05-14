@@ -63,8 +63,8 @@ enum operatorEnum {
   eLeftParen,
   eRightParen,
 
-  eMatrixMultiply,
-  eMatrixDivide,
+  eMultiplyMatrix,
+  eDivideMatrix,
 
   eLess,
   eGreater,

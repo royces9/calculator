@@ -78,6 +78,7 @@ matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
   return out;
 }
 
+
 //dimension is a number to specifiy along which direction to concatenate
 //along, it starts from 0
 matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
