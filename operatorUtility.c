@@ -35,7 +35,9 @@ const char FUNCTION_LIST[FUNCTION_COUNT][20] = {
   "ones(",
   "eye(",
   "size(",
-
+  "transpose(",
+  "linspace(",
+  
   "run(",
   "print("
 };

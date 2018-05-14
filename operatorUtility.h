@@ -4,7 +4,7 @@
 //file including all the utility
 //enums/constants/etc
 
-#define FUNCTION_COUNT 32
+#define FUNCTION_COUNT 34
 #define OPERATOR_COUNT 20
 
 extern const char OPERATOR_LIST[OPERATOR_COUNT][5];
@@ -46,6 +46,8 @@ enum functionEnums {
   eOnes,
   eEye,
   eSize,
+  eTranspose,
+  eLinspace,
 
   eRun,
   ePrint

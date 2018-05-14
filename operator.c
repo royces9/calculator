@@ -97,6 +97,10 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
     switch(ch.enumeration){
     case eEye: out = eye(a, error); break;
     case eSize: out = getSize(a, error); break;
+    case eTranspose: out = transposeMatrix(a, error); break;
+    case eMax: out = max(a, error); break;
+    case eMin: out = min(a, error); break;
+    case eAvg: out = avg(a, error); break;
     default: out = copyMatrix(a); break;
     }
   }
@@ -206,6 +210,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
   case eAvg:
   case eEye:
   case eSize:
+  case eTranspose:
     pushch(setOpStack(FUNCTION_LIST[i], 1, 2, i), ch);
     *tok = 0;
     return 0;
@@ -241,6 +246,13 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
   case eOnes:
     separatedString = separateString(input, "()", ',', start, &error);
     pushn(ones(separatedString, var, &error), num);
+    freeDoubleArray(separatedString);
+    *tok = 0;
+    return error;
+
+  case eLinspace:
+    separatedString = separateString(input, "()", ',', start, &error);
+    pushn(linspace(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
@@ -358,8 +370,8 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
   case eEqual:
   case eAnd:
   case eOr:
-  case eMatrixMultiply:
-  case eMatrixDivide:
+  case eMultiplyMatrix:
+  case eDivideMatrix:
     while((oper->stk[oper->top].precedence <= operatorPrecedence[i]) && (oper->occ == 1)) {
       execNum(num, popch(oper), &error);
     }
@@ -505,6 +517,12 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
 
   //replace the end ']' with a '\0'
   matrixString[length-1] = 0;
+
+  if((matrixString[length-2] == ';') || (matrixString[length-2] == ',')){
+    free(matrixString);
+    *error =  -4;
+    return NULL;
+  }
 
   //number stack for creating the matrix
   numberStack numStk = newNumberStack();

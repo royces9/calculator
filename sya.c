@@ -179,6 +179,7 @@ void errorrep(int error) {
   if(error < -1){ //error codes for -2 or lower
     printf("\nError:\n");
     switch(error) {
+
     case -2: printf("Incorrect number of function arguments"); break;
     case -3: printf("Mismatched parenthesis"); break;
     case -4: printf("Invalid expression"); break;

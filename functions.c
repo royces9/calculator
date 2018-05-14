@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include "operator.h"
-
+#include "functions.h"
 
 //factorial function
 element factorial(element a) {
@@ -68,9 +68,22 @@ matrix *multiplyMatrix(matrix *a, matrix *b, int *error){
     }
 
     int newSize[3] = {a->size[0], b->size[1], 0};
-    out = initMatrix(size, 2, error);
+    out = initMatrix(newSize, 2, error);
+
+    matrix *temp = transposeMatrix(a, error);
 
 
+    for(int i = 0; i < temp->size[1]; ++i){
+      for(int j = 0; j < b->size[1]; ++j){
+	int tempSum = 0;
+	for(int k = 0; k < temp->size[0]; ++k){
+	  tempSum += temp->elements[k] * b->elements[k];
+	}
+	out->elements[i + j * out->size[0]] = tempSum;
+      }
+    }
+    
+    freeMatrix(temp);
     return out;
     break;
 
@@ -113,12 +126,24 @@ matrix *transposeMatrix(matrix *a, int *error){
     return NULL;
   }
 
+  //new transposed size is same as a->size but switched
   int newSize[3] = {a->size[1], a->size[0], 0};
-  matrix *out = initMatrix(newSize, 2, *error);
+  matrix *out = initMatrix(newSize, 2, error);
 
+  //new index
+  int newInd = 0;
+
+  //temp variable for the sublocation of the new index
+  int subLoc = 0;
+  
   for(int i = 0; i < out->length; ++i){
+    subLoc = floor(i/a->size[0]);
+    newInd = subLoc + a->size[1] * (i - subLoc * a->size[0]);
 
+    out->elements[newInd] = a->elements[i];
   }
+
+  return out;
 }
 
 
