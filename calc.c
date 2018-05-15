@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
       if(error == 0) {
 	printMatrix(var.ans);
       } else{
-	errorrep(error);
+	errorReport(error);
       }
     }
   } 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     if(error == 0) {
       printMatrix(var.ans);
     } else{ //if the error is less than -1, prints an error code
-      errorrep(error);
+      errorReport(error);
     }
     free(input); //readline mallocs the input line
   }

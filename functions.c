@@ -20,8 +20,8 @@ matrix *eye(matrix *a, int *error){
     return NULL;
   }
 
-  int size[2] = {a->elements[0], a->elements[0]};
-  matrix *out = initMatrix(size, 2, error);
+  int newSize[3] = {a->elements[0], a->elements[0], 0};
+  matrix *out = initMatrix(newSize, 2, error);
 
   int index = 0;
   for(int i = 0; i < a->elements[0]; ++i){
@@ -35,6 +35,8 @@ matrix *eye(matrix *a, int *error){
 
 matrix *getSize(matrix *a, int *error){
   int newSize[3];
+
+  //output is a row vector
   newSize[0] = 1;
   newSize[1] = a->dimension;
   newSize[2] = 0;
@@ -53,6 +55,7 @@ matrix *multiplyMatrix(matrix *a, matrix *b, int *error){
   int bScalar = isScalar(b);
 
   matrix *out = NULL;
+
   switch(aScalar + bScalar){
   case 0: //neither a nor b are scalars
     //matrix multiplication only defined for 2d arrays
@@ -120,13 +123,56 @@ matrix *multiplyMatrix(matrix *a, matrix *b, int *error){
 }
 
 
+matrix *exponentMatrix(matrix *a, matrix *b, int *error){
+  int aScalar = isScalar(a);
+  int bScalar = isScalar(b);
+
+  matrix *out = NULL;
+  switch(aScalar + bScalar){
+  case 0: //neither a nor b are scalars
+
+    return out;
+
+
+  case 1: //one of a or b is a scalar
+    if(aScalar){ //a is the scalar
+      out = copyMatrix(b);
+      for(int i = 0; i < out->length; ++i){
+	out->elements[i] = pow(a->elements[0],b->elements[i]);
+      }
+
+    } else{ //b is the scalar
+      //check that b is a whole number, no imaginary numbers (yet?)
+      if((b - floor(b)) > 0.00001){
+      }
+      out = copyMatrix(a);
+      for(int i = 0; i < out->length; ++i){
+	out->elements[i] = pow(a->elements[i], b->elements[0]);
+      }
+    }
+
+    return out;
+
+
+  case 2: //a and b are both scalar
+    out = initScalar(pow(a->elements[0], b->elements[0]));
+    return out;
+
+
+  default: *error = -10; return out;
+  }
+}
+
+
 matrix *transposeMatrix(matrix *a, int *error){
+  //transpose only defined for 2d matrix
   if(a->dimension != 2){
     *error = -10;
     return NULL;
   }
 
-  //new transposed size is same as a->size but switched
+  //new transposed size is same as a->size
+  //but the dimensions are swapped
   int newSize[3] = {a->size[1], a->size[0], 0};
   matrix *out = initMatrix(newSize, 2, error);
 
@@ -137,7 +183,7 @@ matrix *transposeMatrix(matrix *a, int *error){
   int subLoc = 0;
   
   for(int i = 0; i < out->length; ++i){
-    subLoc = floor(i/a->size[0]);
+    subLoc = i/a->size[0];
     newInd = subLoc + a->size[1] * (i - subLoc * a->size[0]);
 
     out->elements[newInd] = a->elements[i];

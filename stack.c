@@ -105,7 +105,7 @@ vari copyVari(vari *var){
 }
 
 
-int setVariable(vari *var, char *name, int check){
+int setVariable(vari *var, char *name, char check){
   //check is from the output of varcheck
 
   int index = 0;

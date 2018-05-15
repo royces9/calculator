@@ -5,7 +5,7 @@
 //enums/constants/etc
 
 #define FUNCTION_COUNT 34
-#define OPERATOR_COUNT 20
+#define OPERATOR_COUNT 21
 
 extern const char OPERATOR_LIST[OPERATOR_COUNT][5];
 extern const char FUNCTION_LIST[FUNCTION_COUNT][20];
@@ -67,6 +67,7 @@ enum operatorEnum {
 
   eMultiplyMatrix,
   eDivideMatrix,
+  eMatrixExponent,
 
   eLess,
   eGreater,

@@ -134,7 +134,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
       if(aScalar){
 	out = copyMatrix(b);
 	for(int i = 0; i < out->length; ++i){
-	  out = initScalar(twoArg(a->elements[0],b->elements[i], ch.enumeration, error));
+	  out->elements[i] = twoArg(a->elements[0],b->elements[i], ch.enumeration, error);
 	}
 
       } else{
@@ -154,6 +154,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   } else{
     switch(ch.enumeration){
     case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
+    case eMatrixExponent: out = exponentMatrix(a, b, error); break;
     default: *error = -10; break;
     }
   }

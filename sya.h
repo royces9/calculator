@@ -2,9 +2,9 @@
 #define SYA
 
 int sya(char *inp, vari *var);  
-void errorrep(int error);
+void errorReport(int error);
 int checkNumbers(char *input);
-int checkOper(char a, char b);
+int checkOperator(char a, char b);
 int checkType(char a);
 int isAssign(char *input);
 

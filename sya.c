@@ -9,19 +9,38 @@
 
 //shunting yard algorithm
 int sya(char *input, vari *var) {
-  numberStack out = newNumberStack(); //stack for output numbers
-  operatorStack oper = newOperatorStack(); //stack for operators
 
-  int i = 0, j = 0, k = 0; //iterators
-  int error = 0; //error checking int
-  int length = 0; //number of parens and length of input
-  int parenthesisCount = 0;
+  //stack for output numbers
+  numberStack out = newNumberStack();
+
+  //stack for operators
+  operatorStack operatorStack = newOperatorStack();
+
+  //iterators
+  int i = 0, j = 0, k = 0;
+
+  //error checking int
+  int error = 0;
+
+  //length of input
+  int length = 0;
+
+  //count for the number of parentheses and brackets
+  int parenthesisCount = 0; 
   int bracketCount = 0;
-  
-  int check = 0; //for if an assignment occurs
-  int negativeCheck = 0; //to check if the '-' char is subtraction or a negative
-  char varset = 0, *str2d = NULL; //string for strtod function, unused
 
+  //flag to check if there is an assignment
+  char assignmentFlag = 0;
+
+  //to check if the '-' char is subtraction or a negative
+  int negativeCheck = 0;
+
+  //flag for setVariable, to check whether
+  //variable is saved in var or not
+  char variableExist = 0;
+
+  //string for strtod function, unused
+  char *str2d = NULL;
 
   //Error checking
   //check that the number of left end and right end parentheses are the same
@@ -73,9 +92,11 @@ int sya(char *input, vari *var) {
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
 	  pushn(initScalar(strtod(bufferLetters, &str2d)), &out);
-	} else if(!varset && isAssign(input)) { //checks if the command is an assignment
-	  check = varcheck(var, bufferLetters); //checks that the variable exists
-	  varset = 1; //flag for assignment at the end of the sya loop
+
+	} else if(!assignmentFlag && isAssign(input)) { //checks if the command is an assignment
+
+	  variableExist = varcheck(var, bufferLetters); //checks that the variable exists
+	  assignmentFlag = 1; //flag for assignment at the end of the sya loop
 
 	  variableAssign = malloc(sizeof(*variableAssign) * (j + 1));
 	  strcpy(variableAssign, bufferLetters);
@@ -86,7 +107,7 @@ int sya(char *input, vari *var) {
 	  }
 
 	  bufferLetters[j] = '\0';
-	  error = findFunction(bufferLetters, &out, &oper, var, &negativeCheck, &i, input);
+	  error = findFunction(bufferLetters, &out, &operatorStack, var, &negativeCheck, &i, input);
 	}
 	j = 0; //reset counter for buffer
       } //end if
@@ -100,9 +121,9 @@ int sya(char *input, vari *var) {
 
       //assumes operators are only two characters wide, checks the current char and the next to see if it's a
       //valid operator, if it is not, then go into the if and find the correct operator in findOperator
-      if(checkOper(input[i], input[i+1]) == OPERATOR_COUNT) {
+      if(checkOperator(input[i], input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, &out, &oper, var, &negativeCheck); //find the corresponding operator
+	error = findOperator(bufferOper, &out, &operatorStack, var, &negativeCheck); //find the corresponding operator
 	k = 0;
       }
       break;
@@ -112,7 +133,7 @@ int sya(char *input, vari *var) {
 
       if(type[i+1] == 2){
 	char matrixOper[3] = {input[i], input[i+1], 0};
-	error = findOperator(matrixOper, &out, &oper, var, &negativeCheck);
+	error = findOperator(matrixOper, &out, &operatorStack, var, &negativeCheck);
 	++i;
 
       } else if(type[i+1] == 1){
@@ -137,8 +158,8 @@ int sya(char *input, vari *var) {
     }
   }//end of for
 
-  while(out.occ && oper.occ) { //while the operator and number stack are occupied, keep executing
-    execNum(&out, popch(&oper), &error);
+  while(out.occ && operatorStack.occ) { //while the operator and number stack are occupied, keep executing
+    execNum(&out, popch(&operatorStack), &error);
   }
   if(error){
     return error;
@@ -166,11 +187,11 @@ int sya(char *input, vari *var) {
   freeMatrix(out.stk[0]);
 
 
-  if(varset) {
+  if(assignmentFlag) {
     //set variable if there was an assignment
     //check that the newly assigned variable hasn't been assigned before
     //free it if it has
-    error = setVariable(var, variableAssign, check);
+    error = setVariable(var, variableAssign, variableExist);
   }
 
   return error;
@@ -178,7 +199,7 @@ int sya(char *input, vari *var) {
 
 
 //print out errors if there are any
-void errorrep(int error) {
+void errorReport(int error) {
   if(error < -1){ //error codes for -2 or lower
     printf("\nError:\n");
     switch(error) {
@@ -211,7 +232,7 @@ int checkNumbers(char *input) { //check if the input string is a number
 
 
 //check if the two chars together make an operator 
-int checkOper(char a, char b) {
+int checkOperator(char a, char b) {
   char buffer[2] = {a, b};
   //if b is '\0', end of string
   //if(!b) return OPERATOR_COUNT;
