@@ -113,11 +113,15 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   int check = 0;
   twoArg(0, 0, ch.enumeration, &check);
 
-  //if ch.enumeration is in twoArg, check will be 1
+  //if ch.enumeration is not in twoArg, check will be 1
   if(!check){
 
     //check that the matrices are the same size
-    if(compareSize(a->size, b->size, a->dimension, b->dimension)){
+    int aScalar = isScalar(a);
+    int bScalar = isScalar(b);
+    switch(aScalar + bScalar){
+    case 0: //neither is a scalar
+      if(compareSize(a->size, b->size, a->dimension, b->dimension)){
       out = initMatrix(a->size, a->dimension, error);
       for(int i = 0; i < a->length; ++i){
 	out->elements[i] = twoArg(a->elements[i], b->elements[i], ch.enumeration, error);
@@ -126,6 +130,27 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
       *error = -12;
     }
 
+    case 1: //only a or b is a scalar
+      if(aScalar){
+	out = copyMatrix(b);
+	for(int i = 0; i < out->length; ++i){
+	  out = initScalar(twoArg(a->elements[0],b->elements[i], ch.enumeration, error));
+	}
+
+      } else{
+	out = copyMatrix(a);
+	for(int i = 0; i < out->length; ++i){
+	  out->elements[i] = twoArg(a->elements[i], b->elements[0], ch.enumeration, error);
+	}
+      }
+      break;
+
+    case 2: //a and b are scalars
+      out = initScalar(twoArg(a->elements[0], b->elements[0], ch.enumeration, error));
+      break;
+
+    default: *error = -2; break;
+    }
   } else{
     switch(ch.enumeration){
     case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;

@@ -72,9 +72,26 @@ matrix *copyMatrix(matrix *src){
 
 //a being concatenated to b along dimension and sent to out
 matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
-  for(int i = 0; i < out->length; ++i){
-    out->elements[i] = 0;
+  int aIncrement = 1;
+  int bIncrement = 1;
+
+  for(int i = 0; i < a->dimension; ++i){
+    aIncrement *= a->size[i];
+    bIncrement *= b->size[i];
   }
+
+  for(int i = 0, j = 0, aa = 0, bb = 0, k = 0; k < out->length; ++aa, ++bb){
+    for(i = 0; i < aIncrement; ++i){
+      out->elements[i] = a->elements[i + aIncrement * aa];
+      ++k;
+    }
+      
+    for(j = 0; j < bIncrement; ++j){
+      out->elements[j + i] = b->elements[j + bIncrement * bb];
+      ++k;
+    }
+  }
+
   return out;
 }
 
@@ -362,6 +379,7 @@ int compareSize(int *a, int *b, int dimA, int dimB){
       return 0;
     }
   }
+
   return 1;
 }
 
