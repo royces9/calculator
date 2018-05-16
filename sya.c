@@ -60,7 +60,7 @@ int sya(char *input, vari *var) {
 
 
   //if input string ends in an operator, return error
-  if(strchr("[,+-/*^(=&|~<>",input[length-1])) {
+  if(strchr(".[,+-/*^(=&|~<>",input[length-1])) {
     return error = -4;
   }
 
@@ -130,7 +130,6 @@ int sya(char *input, vari *var) {
 
       
     case 3: //'.'
-
       if(type[i+1] == 2){
 	char matrixOper[3] = {input[i], input[i+1], 0};
 	error = findOperator(matrixOper, &out, &operatorStack, var, &negativeCheck);
@@ -138,6 +137,9 @@ int sya(char *input, vari *var) {
 
       } else if(type[i+1] == 1){
 	bufferLetters[j++] = '.';
+
+      } else if(type[i+1] == 0){
+	error = -4;
       }
 
       break;
@@ -161,6 +163,7 @@ int sya(char *input, vari *var) {
   while(out.occ && operatorStack.occ) { //while the operator and number stack are occupied, keep executing
     execNum(&out, popch(&operatorStack), &error);
   }
+
   if(error){
     return error;
   }

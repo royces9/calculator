@@ -67,7 +67,7 @@ enum operatorEnum {
 
   eMultiplyMatrix,
   eDivideMatrix,
-  eMatrixExponent,
+  eExponentMatrix,
 
   eLess,
   eGreater,

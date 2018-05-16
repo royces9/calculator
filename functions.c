@@ -10,7 +10,7 @@ element factorial(element a) {
   if(a == 0) {
     return 1;
   }
-  return a == 1 ? 1 : a*factorial(a-1);
+  return a == 1 ? 1 : a * factorial(a - 1);
 }
 
 
@@ -143,11 +143,12 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
 
     } else{ //b is the scalar
       //check that b is a whole number, no imaginary numbers (yet?)
-      //really small number
 
       tempMat = copyMatrix(a);
+
+      //really small number
       if((b->elements[0] - floor(b->elements[0])) < 0.00000000001){
-	for(int i = 0; i < b->elements[0]; ++i){
+	for(int i = 1; i < b->elements[0]; ++i){
 	  out = multiplyMatrix(tempMat, a, error);
 	  freeMatrix(tempMat);
 	  tempMat = copyMatrix(out);
@@ -155,6 +156,7 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
 	}
       }
       out = copyMatrix(tempMat);
+      freeMatrix(tempMat);
       return out;
     }
 

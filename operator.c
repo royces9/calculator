@@ -155,7 +155,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   } else{
     switch(ch.enumeration){
     case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
-    case eMatrixExponent: out = exponentMatrix(a, b, error); break;
+    case eExponentMatrix: out = exponentMatrix(a, b, error); break;
     default: *error = -10; break;
     }
   }
@@ -363,10 +363,14 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
     pushn(initScalar(-1), num);
     break;
 
-  case eMatrixExponent:
+  case eExponentMatrix:
+    *tok = 0;
+    pushch(setOpStack("^", 2, 4, eExponentMatrix), oper);
+    break;
+    
   case eExponent:
     *tok = 0;
-    pushch(setOpStack("^", 2, 4, eExponent), oper);
+    pushch(setOpStack(".^", 2, 4, eExponent), oper);
     break;
 
   case eLeftParen:

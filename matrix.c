@@ -75,19 +75,19 @@ matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
   int aIncrement = 1;
   int bIncrement = 1;
 
-  for(int i = 0; i < a->dimension; ++i){
+  for(int i = 0; i <= dimension; ++i){
     aIncrement *= a->size[i];
     bIncrement *= b->size[i];
   }
 
   for(int i = 0, j = 0, aa = 0, bb = 0, k = 0; k < out->length; ++aa, ++bb){
     for(i = 0; i < aIncrement; ++i){
-      out->elements[i] = a->elements[i + aIncrement * aa];
+      out->elements[k] = a->elements[i + aIncrement * aa];
       ++k;
     }
       
     for(j = 0; j < bIncrement; ++j){
-      out->elements[j + i] = b->elements[j + bIncrement * bb];
+      out->elements[k] = b->elements[j + bIncrement * bb];
       ++k;
     }
   }
