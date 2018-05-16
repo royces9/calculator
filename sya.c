@@ -92,7 +92,7 @@ int sya(char *input, vari *var) {
 	bufferLetters[j] = '\0';
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
-	  pushn(initScalar(strtod(bufferLetters, &str2d)), &out);
+	  pushn(initScalar(strtod(bufferLetters, &str2d), &error), &out);
 
 	} else if(!assignmentFlag && isAssign(input)) { //checks if the command is an assignment
 
@@ -187,6 +187,10 @@ int sya(char *input, vari *var) {
   memcpy(var->ans.size, out.stk[0]->size, sizeof(*var->ans.size) * (var->ans.dimension + 1));
 
   //free out.stk[0]
+  if(out.stk[0] == NULL){
+    printf("test\n");
+  }
+
   freeMatrix(out.stk[0]);
 
 

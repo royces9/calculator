@@ -23,7 +23,7 @@ matrix *min(matrix *m, int *error) {
   for(int i = 1; i < m->length; ++i) {
     out = fmin(out, m->elements[i]);
   }
-  return initScalar(out);
+  return initScalar(out, error);
 }
 
 
@@ -33,7 +33,7 @@ matrix *max(matrix *m, int *error) {
   for(int i = 1; i < m->length; ++i) {
     out = fmax(out, m->elements[i]);
   }
-  return initScalar(out);
+  return initScalar(out, error);
 }
 
 
@@ -43,7 +43,7 @@ matrix *avg(matrix *m, int *error) {
   for(int i = 0; i < m->length; ++i) {
     sum += m->elements[i];
   }
-  return initScalar(sum/m->length);
+  return initScalar(sum/m->length, error);
 }
 
 
@@ -101,7 +101,7 @@ matrix *deri(char **input, vari *var, int *error) {
   strcpy(varTemp.name[varIndex], input[1]);
 
   //sets the dummy variable equal to x+h
-  varTemp.value[varIndex] = initScalar(point + h);
+  varTemp.value[varIndex] = initScalar(point + h, error);
   
   //f(x+h)
   *error = sya(input[0], &varTemp);
@@ -120,7 +120,7 @@ matrix *deri(char **input, vari *var, int *error) {
   out -= inter;
   
   freeVari(&varTemp);
-  return initScalar(out / (2 * h));
+  return initScalar(out / (2 * h), error);
 }
 
 
@@ -190,7 +190,7 @@ matrix *inte(char **input, vari *var, int *error) {
   strcpy(varTemp.name[varIndex],input[1]); //copy the dummy variable into struct
 
   //init scalar for the temp variable
-  varTemp.value[varIndex] = initScalar(0);
+  varTemp.value[varIndex] = initScalar(0, error);
 
 
   //calculate integral using composite Simpson's
@@ -222,7 +222,7 @@ matrix *inte(char **input, vari *var, int *error) {
   freeVari(&varTemp);
 
   //return integral
-  return initScalar(sum * (step / 3));
+  return initScalar(sum * (step / 3), error);
 }
 
 
@@ -266,7 +266,7 @@ matrix *solve(char **input, vari *var, int *error) {
     *error = -10;
     return NULL;
   }
-  varTemp.value[varc] = copyMatrix(&varTemp.ans);
+  varTemp.value[varc] = copyMatrix(&varTemp.ans, error);
 
 
   *error = sya(input[3], &varTemp);
@@ -309,7 +309,7 @@ matrix *zeros(char **input, vari *var, int *error){
 
   for(int i = 0; i < dimension; ++i){
     *error = sya(input[i], &varTemp);
-    matrix *inputMat = copyMatrix(&varTemp.ans);
+    matrix *inputMat = copyMatrix(&varTemp.ans, error);
 
     if(inputMat->dimension != 1){
       *error = 13;
@@ -415,7 +415,7 @@ matrix *extractValue(char *buffer, char **input, vari *var, int *error){
 
     if(dimension == 1){ //if the number of inputs is 1
       *error = sya(input[0], &varTemp);
-      out = copyMatrix(&varTemp.ans);
+      out = copyMatrix(&varTemp.ans, error);
 
       for(int i = 0; i < out->length; ++i){
 
@@ -464,7 +464,7 @@ matrix *extractValue(char *buffer, char **input, vari *var, int *error){
 
       //check index is within bound
       if(index < varTemp.value[varIndex]->length){
-	out = initScalar(varTemp.value[varIndex]->elements[index]);
+	out = initScalar(varTemp.value[varIndex]->elements[index], error);
       } else{
 	*error = -11;
       }

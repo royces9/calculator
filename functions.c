@@ -50,77 +50,48 @@ matrix *getSize(matrix *a, int *error){
 }
 
 
-matrix *multiplyMatrix(matrix *a, matrix *b, int *error){
-  int aScalar = isScalar(a);
-  int bScalar = isScalar(b);
+matrix *divideMatrix(matrix *a, matrix *b, int *error){
 
+}
+
+
+matrix *multiplyMatrix(matrix *a, matrix *b, int *error){
   matrix *out = NULL;
 
-  switch(aScalar + bScalar){
-  case 0: //neither a nor b are scalars
-    //matrix multiplication only defined for 2d arrays
-    if((a->dimension != 2) || (b->dimension != 2)){
-      *error = -10;
-      return NULL;
-    }
-
-    //check that the inner dimensions match
-    if(a->size[a->dimension-1] != b->size[0]){
-      *error = -10;
-      return NULL;
-    }
-
-    int newSize[3] = {a->size[0], b->size[1], 0};
-    out = initMatrix(newSize, 2, error);
-
-    matrix *transposeA = transposeMatrix(a, error);
-
-    int l = 0;
-    for(int i = 0; i < b->size[1]; ++i){
-      for(int j = 0; j < transposeA->size[1]; ++j){
-	int tempSum = 0;
-	for(int k = 0; k < transposeA->size[0]; ++k){
-	  tempSum += transposeA->elements[k + j * transposeA->size[0]] * b->elements[k + i * b->size[0]];
-	}
-	out->elements[l] = tempSum;
-	++l;
-      }
-    }
-    
-    freeMatrix(transposeA);
-    return out;
-    break;
-
-
-  case 1: //one of a or b is a scalar
-    {
-      matrix *tempMatrix = NULL;
-      element tempScalar = 0;
-      if(aScalar){
-	tempMatrix = b;
-	tempScalar = a->elements[0];
-      } else{
-	tempMatrix = a;
-	tempScalar = b->elements[0];
-      }
-
-      out = copyMatrix(tempMatrix);
-
-      for(int i = 0; i < tempMatrix->length; ++i){
-	out->elements[i] = tempMatrix->elements[i] * tempScalar;
-      }
-
-      return out;
-    }
-
-
-  case 2: //a and b are both scalars
-    out = initScalar(a->elements[0] * b->elements[0]);
-    return out;
-
-
-  default: *error = -12; return NULL;
+  //matrix multiplication only defined for 2d arrays
+  if((a->dimension != 2) || (b->dimension != 2)){
+    *error = -10;
+    return NULL;
   }
+
+  //check that the inner dimensions match
+  if(a->size[1] != b->size[0]){
+    *error = -10;
+    return NULL;
+  }
+
+  int newSize[3] = {a->size[0], b->size[1], 0};
+  out = initMatrix(newSize, 2, error);
+
+  matrix *transposeA = transposeMatrix(a, error);
+
+  //counter for elements put into out
+  int l = 0;
+
+  //transpose a and then multiply every column with every other column in each matrix
+  for(int i = 0; i < b->size[1]; ++i){
+    for(int j = 0; j < transposeA->size[1]; ++j){
+      int tempSum = 0;
+      for(int k = 0; k < transposeA->size[0]; ++k){
+	tempSum += transposeA->elements[k + j * transposeA->size[0]] * b->elements[k + i * b->size[0]];
+      }
+      out->elements[l] = tempSum;
+      ++l;
+    }
+  }
+    
+  freeMatrix(transposeA);
+  return out;
 }
 
 
@@ -133,11 +104,12 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
 
   switch(aScalar + bScalar){
   case 0: //neither a nor b are scalars
+    *error = -10;
     return out;
 
   case 1: //one of a or b is a scalar
     if(aScalar){ //a is the scalar
-      out = copyMatrix(b);
+      out = copyMatrix(b, error);
       for(int i = 0; i < out->length; ++i){
 	out->elements[i] = pow(a->elements[0],b->elements[i]);
       }
@@ -145,8 +117,7 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
     } else{ //b is the scalar
       //check that b is a whole number, no imaginary numbers (yet?)
 
-      //tempMat = copyMatrix(a);
-      out = initScalar(a->size[0]);
+      out = initScalar(a->size[0], error);
       tempMat = eye(out, error);
       freeMatrix(out);
       //really small number
@@ -161,7 +132,7 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
 	    return NULL;
 	  }
 
-	  tempMat = copyMatrix(out);
+	  tempMat = copyMatrix(out, error);
 	  freeMatrix(out);
 	}
       }
@@ -173,7 +144,7 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
 
 
   case 2: //a and b are both scalar
-    out = initScalar(pow(a->elements[0], b->elements[0]));
+    out = initScalar(pow(a->elements[0], b->elements[0]), error);
     return out;
 
 

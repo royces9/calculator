@@ -41,7 +41,12 @@ int main(int argc, char *argv[]) {
     }
 
     if(error == 0) {
-      printMatrix(var.ans);
+
+      //suppress output if the line ends with ';'
+      if(input[strlen(input) - 1] != ';'){
+	printMatrix(var.ans);
+      }
+
     } else{ //if the error is less than -1, prints an error code
       errorReport(error);
     }

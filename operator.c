@@ -101,45 +101,63 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
     case eMax: out = max(a, error); break;
     case eMin: out = min(a, error); break;
     case eAvg: out = avg(a, error); break;
-    default: out = copyMatrix(a); break;
+    default: out = copyMatrix(a, error); break;
     }
   }
   freeMatrix(a);
   return out;
 }
 
+
 matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   matrix *out = NULL;
   int check = 0;
   twoArg(0, 0, ch.enumeration, &check);
 
+  //check if inputs are scalar
+  int aScalar = isScalar(a);
+  int bScalar = isScalar(b);
+
+  if(((aScalar + bScalar) > 0) && check){
+
+    //if the enum is for a matrix operation
+    switch(ch.enumeration){
+    case eMultiplyMatrix:
+      check = 0;
+      ch.enumeration = eMultiply;
+      break;
+
+    case eDivideMatrix:
+      check = 0;
+      ch.enumeration = eDivide;
+      break;
+    }
+  }
+
   //if ch.enumeration is not in twoArg, check will be 1
   if(!check){
-
-    //check that the matrices are the same size
-    int aScalar = isScalar(a);
-    int bScalar = isScalar(b);
-
     switch(aScalar + bScalar){
     case 0: //neither is a scalar
       if(compareSize(a->size, b->size, a->dimension, b->dimension)){
-      out = initMatrix(a->size, a->dimension, error);
-      for(int i = 0; i < a->length; ++i){
-	out->elements[i] = twoArg(a->elements[i], b->elements[i], ch.enumeration, error);
+	out = initMatrix(a->size, a->dimension, error);
+
+	for(int i = 0; i < a->length; ++i){
+	  out->elements[i] = twoArg(a->elements[i], b->elements[i], ch.enumeration, error);
+	}
+
+      } else{
+	*error = -12;
       }
-    } else{
-      *error = -12;
-    }
 
     case 1: //only a or b is a scalar
       if(aScalar){
-	out = copyMatrix(b);
+	out = copyMatrix(b, error);
 	for(int i = 0; i < out->length; ++i){
 	  out->elements[i] = twoArg(a->elements[0],b->elements[i], ch.enumeration, error);
 	}
 
       } else{
-	out = copyMatrix(a);
+	out = copyMatrix(a, error);
 	for(int i = 0; i < out->length; ++i){
 	  out->elements[i] = twoArg(a->elements[i], b->elements[0], ch.enumeration, error);
 	}
@@ -147,7 +165,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
       break;
 
     case 2: //a and b are scalars
-      out = initScalar(twoArg(a->elements[0], b->elements[0], ch.enumeration, error));
+      out = initScalar(twoArg(a->elements[0], b->elements[0], ch.enumeration, error), error);
       break;
 
     default: *error = -2; break;
@@ -156,6 +174,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
     switch(ch.enumeration){
     case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
     case eExponentMatrix: out = exponentMatrix(a, b, error); break;
+    case eDivideMatrix: out = divideMatrix(a, b, error); break;
     default: *error = -10; break;
     }
   }
@@ -168,10 +187,11 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
 
 
 int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *start, char *input) {
+
   char **separatedString;
-  int i = searchFunctionArray(buffer), error = 0;
+  int i = searchFunctionArray(buffer);
+  int error = 0;
   operatorStruct operator;
-  matrix *out;
 
   switch(i) {
   case eQuit: //quit
@@ -202,19 +222,19 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
     return -1;
 
   case ePi:
-    pushn(initScalar(M_PI), num);
+    pushn(initScalar(M_PI, &error), num);
     *tok = 1;
     return 0;
 
   case eE:
-    pushn(initScalar(M_E), num);
+    pushn(initScalar(M_E, &error), num);
     *tok = 1;
     return 0;
 
   case eAns:
     { //because ans is not a heap variable, make a
       //copy of it and push the copy
-      pushn(copyMatrix(&var->ans), num);
+      pushn(copyMatrix(&var->ans, &error), num);
       *tok = 1;
     }
     return 0;
@@ -287,7 +307,8 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
   case eRun:
     separatedString = separateString(input, "()", '\0', start, &error);
     error = runFile(separatedString, var);
-    pushn(&var->ans, num);
+    //copy matrix for same reason for ans above
+    pushn(copyMatrix(&var->ans, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
@@ -302,13 +323,13 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
     {
       int varLen = strlen(buffer);
       int k = 0;
+      matrix *out = NULL;
       if(buffer[varLen-1] == '('){
 
 	buffer[varLen - 1] = '\0';
 	separatedString = separateString(input, "()", ',', start, &error);
 
-
-	matrix *out = extractValue(buffer, separatedString, var, &error);
+	out = extractValue(buffer, separatedString, var, &error);
 	if(out != NULL){
 	  pushn(out, num);
 	}
@@ -319,7 +340,7 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
       } else{
 	k = varcheck(var, buffer);
 	if(k >= 0) {
-	  pushn(copyMatrix(var->value[k]), num);
+	  pushn(copyMatrix(var->value[k], &error), num);
 	  *tok = 1;
 	  return 0;
 	}
@@ -369,7 +390,7 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
 
     *tok = 0;
     pushch(setOpStack("*", 2, 5, eMultiply), oper);
-    pushn(initScalar(-1), num);
+    pushn(initScalar(-1, &error), num);
     break;
 
   case eExponentMatrix:
@@ -576,7 +597,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   vari tempVari = copyVari(var);
   *error = sya(separatedMatrix[0], &tempVari);
 
-  pushn(copyMatrix(&tempVari.ans), &numStk);
+  pushn(copyMatrix(&tempVari.ans, error), &numStk);
 
   matrix *a, *b, *out;
 
@@ -601,7 +622,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
     case ';':
       *error = sya(separatedMatrix[i] + 1, &tempVari);
 
-      pushn(copyMatrix(&tempVari.ans), &numStk);
+      pushn(copyMatrix(&tempVari.ans, error), &numStk);
       break;
       
     default:
@@ -651,7 +672,6 @@ int varcheck(vari *list, char input[]) {
 void freeDoubleArray(char **input) {
   int i = 0;
   for(i = 0; input[i]; ++i) {
-    //for(i = 0; strcmp(input[i], ""); ++i) {
     free(input[i]);
   }
   free(input[i]);

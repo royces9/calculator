@@ -6,6 +6,7 @@
 
 matrix *initMatrix(int *size, int dimension, int *error){
   matrix *out = malloc(sizeof(*out));
+  __MALLOC_CHECK(out, *error);  
 
   //dimension of the matrix
   out->dimension = dimension;
@@ -13,8 +14,10 @@ matrix *initMatrix(int *size, int dimension, int *error){
   //size of each dimensions
   //the last element of size must end with zero
   out->size = malloc(sizeof(*out->size) * (dimension + 1));
+  __MALLOC_CHECK(out->size, *error);  
+
   out->size = memcpy(out->size, size, sizeof(*out->size) * dimension);
-  //printf("%d %d\n", size[0], size[1]);
+
 
   //get the total length of the array to malloc
   out->length = getLength(size, dimension);
@@ -27,6 +30,8 @@ matrix *initMatrix(int *size, int dimension, int *error){
   }
 
   out->elements = calloc(out->length, sizeof(*out->elements));
+  __MALLOC_CHECK(out->elements, *error);  
+
   if(!out->elements){
     //temp error value
     *error = -12;
@@ -38,32 +43,43 @@ matrix *initMatrix(int *size, int dimension, int *error){
 //define a scalar as just a single dimension matrix
 //also define that a vector is always 2 dimensions, with one of
 //the two dimensions being 1
-matrix *initScalar(element e){
+matrix *initScalar(element e, int *error){
   matrix *out = malloc(sizeof(*out));
+  __MALLOC_CHECK(out, *error);  
+
   out->dimension = 1;
   out->length = 1;
 
   out->size = malloc(sizeof(*out->size) * 2);
+  __MALLOC_CHECK(out->size, *error);  
+
   out->size[0] = 1;
   out->size[1] = 0;
 
   out->elements = malloc(sizeof(*out->elements));
+  __MALLOC_CHECK(out->elements, *error);  
+
   *out->elements = e;
 
   return out;
 }
 
 
-matrix *copyMatrix(matrix *src){
+matrix *copyMatrix(matrix *src, int *error){
   matrix *dest = malloc(sizeof(*dest));
+  __MALLOC_CHECK(dest, *error);  
 
   dest->dimension = src->dimension;
   dest->length = src->length;
 
   dest->elements = malloc(sizeof(*dest->elements) * dest->length);
+  __MALLOC_CHECK(dest->elements, *error);  
+
   dest->elements = memcpy(dest->elements, src->elements, sizeof(*dest->elements) * dest->length);
 
   dest->size = malloc(sizeof(*dest->size) * (dest->dimension + 1));
+  __MALLOC_CHECK(dest->size, *error);  
+
   dest->size = memcpy(dest->size, src->size, sizeof(*dest->size) * (dest->dimension + 1));
   
   return dest;
