@@ -127,12 +127,12 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
 
+  matrix *tempMat = NULL;
   matrix *out = NULL;
+
   switch(aScalar + bScalar){
   case 0: //neither a nor b are scalars
-
     return out;
-
 
   case 1: //one of a or b is a scalar
     if(aScalar){ //a is the scalar
@@ -143,12 +143,19 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
 
     } else{ //b is the scalar
       //check that b is a whole number, no imaginary numbers (yet?)
-      if((b - floor(b)) > 0.00001){
+      //really small number
+
+      tempMat = copyMatrix(a);
+      if((b->elements[0] - floor(b->elements[0])) < 0.00000000001){
+	for(int i = 0; i < b->elements[0]; ++i){
+	  out = multiplyMatrix(tempMat, a, error);
+	  freeMatrix(tempMat);
+	  tempMat = copyMatrix(out);
+	  freeMatrix(out);
+	}
       }
-      out = copyMatrix(a);
-      for(int i = 0; i < out->length; ++i){
-	out->elements[i] = pow(a->elements[i], b->elements[0]);
-      }
+      out = copyMatrix(tempMat);
+      return out;
     }
 
     return out;

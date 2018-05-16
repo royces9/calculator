@@ -85,7 +85,8 @@ const int operatorPrecedence[OPERATOR_COUNT] = {
 
   5,
   5,
-
+  4,
+  
   15,
   8,
   8,

@@ -109,7 +109,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
 }
 
 matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
-  matrix *out;
+  matrix *out = NULL;
   int check = 0;
   twoArg(0, 0, ch.enumeration, &check);
 
@@ -119,6 +119,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
     //check that the matrices are the same size
     int aScalar = isScalar(a);
     int bScalar = isScalar(b);
+
     switch(aScalar + bScalar){
     case 0: //neither is a scalar
       if(compareSize(a->size, b->size, a->dimension, b->dimension)){
@@ -362,6 +363,7 @@ int findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var,
     pushn(initScalar(-1), num);
     break;
 
+  case eMatrixExponent:
   case eExponent:
     *tok = 0;
     pushch(setOpStack("^", 2, 4, eExponent), oper);
