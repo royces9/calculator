@@ -154,6 +154,6 @@ void freeVari(vari *var){
 
 void emptyNumberStack(numberStack *st){
   while(st->occ == 1){
-    free(popn(st));
+    freeMatrix(popn(st));
   }
 }

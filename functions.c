@@ -73,20 +73,21 @@ matrix *multiplyMatrix(matrix *a, matrix *b, int *error){
     int newSize[3] = {a->size[0], b->size[1], 0};
     out = initMatrix(newSize, 2, error);
 
-    matrix *temp = transposeMatrix(a, error);
+    matrix *transposeA = transposeMatrix(a, error);
 
-
-    for(int i = 0; i < temp->size[1]; ++i){
-      for(int j = 0; j < b->size[1]; ++j){
+    int l = 0;
+    for(int i = 0; i < b->size[1]; ++i){
+      for(int j = 0; j < transposeA->size[1]; ++j){
 	int tempSum = 0;
-	for(int k = 0; k < temp->size[0]; ++k){
-	  tempSum += temp->elements[k] * b->elements[k];
+	for(int k = 0; k < transposeA->size[0]; ++k){
+	  tempSum += transposeA->elements[k + j * transposeA->size[0]] * b->elements[k + i * b->size[0]];
 	}
-	out->elements[i + j * out->size[0]] = tempSum;
+	out->elements[l] = tempSum;
+	++l;
       }
     }
     
-    freeMatrix(temp);
+    freeMatrix(transposeA);
     return out;
     break;
 
@@ -144,20 +145,28 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
     } else{ //b is the scalar
       //check that b is a whole number, no imaginary numbers (yet?)
 
-      tempMat = copyMatrix(a);
-
+      //tempMat = copyMatrix(a);
+      out = initScalar(a->size[0]);
+      tempMat = eye(out, error);
+      freeMatrix(out);
       //really small number
+
       if((b->elements[0] - floor(b->elements[0])) < 0.00000000001){
-	for(int i = 1; i < b->elements[0]; ++i){
+	long int power = b->elements[0];
+	for(int i = 0; i < power; ++i){
 	  out = multiplyMatrix(tempMat, a, error);
 	  freeMatrix(tempMat);
+
+	  if(*error){
+	    return NULL;
+	  }
+
 	  tempMat = copyMatrix(out);
 	  freeMatrix(out);
 	}
       }
-      out = copyMatrix(tempMat);
-      freeMatrix(tempMat);
-      return out;
+
+      return tempMat;
     }
 
     return out;

@@ -81,13 +81,14 @@ int sya(char *input, vari *var) {
   //main loop
   //iterators through the input string, apply shunting-yard algorithm
   for(i = 0; input[i]; ++i) {
-    //printf("%c\n", input[i]);
     switch(type[i]){
-      
+
     case 1: //alpha numerics
       k = 0;
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
-      if(((type[i+1] == 2) || (type[i+1] == 0)) && (input[i+1] != '\n')){ //is true if it's a valid number/variable name
+
+      //is true if it's a valid number/variable name
+      if(((type[i+1] == 2) || (type[i+1] == 0)) && (input[i+1] != '\n')){
 	bufferLetters[j] = '\0';
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
@@ -154,7 +155,6 @@ int sya(char *input, vari *var) {
       break;
 
     }//end of switch
-
     if((error < 0) || (error == 1)) { //break if error or quit
       return error;
     }
@@ -216,6 +216,7 @@ void errorReport(int error) {
     case -8: printf("File does not exist"); break;
     case -9: printf("Mismatched quotation marks"); break;
     case -10:printf("Matrix dimensions do not match."); break;
+    case -11:printf("Out of matrix bounds."); break;
     default: break;
     }
   printf("\n\n");

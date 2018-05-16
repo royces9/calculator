@@ -301,14 +301,23 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
   case FUNCTION_COUNT: //variables
     {
       int varLen = strlen(buffer);
+      int k = 0;
       if(buffer[varLen-1] == '('){
-	separatedString = separateString(input, "()", ',', start, &error);
-	pushn(extractValue(buffer, separatedString, var, &error), num);
-	freeDoubleArray(separatedString);
 
+	buffer[varLen - 1] = '\0';
+	separatedString = separateString(input, "()", ',', start, &error);
+
+
+	matrix *out = extractValue(buffer, separatedString, var, &error);
+	if(out != NULL){
+	  pushn(out, num);
+	}
+
+	freeDoubleArray(separatedString);
 	return error;
+
       } else{
-	int k = varcheck(var, buffer);
+	k = varcheck(var, buffer);
 	if(k >= 0) {
 	  pushn(copyMatrix(var->value[k]), num);
 	  *tok = 1;
@@ -572,6 +581,14 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   matrix *a, *b, *out;
 
   for(int i = 1; separatedMatrix[i]; ++i){
+    if(separatedMatrix[i][1] == 0){
+      *error = -4;
+      emptyNumberStack(&numStk);
+      freeVari(&tempVari);
+      freeDoubleArray(separatedMatrix);
+      return NULL;
+    }
+
     switch(separatedMatrix[i][0]){
     case ',':
       *error = sya(separatedMatrix[i] + 1, &tempVari);
@@ -588,7 +605,8 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
       break;
       
     default:
-      *error = -14;
+      *error = -10;
+      emptyNumberStack(&numStk);
       freeDoubleArray(separatedMatrix);
       freeVari(&tempVari);
       return NULL;

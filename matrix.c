@@ -71,6 +71,8 @@ matrix *copyMatrix(matrix *src){
 
 
 //a being concatenated to b along dimension and sent to out
+//the size of out is determined and error checking for sizes of a and b
+//is done in concatMatrix, this function only populates the matrix
 matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
   int aIncrement = 1;
   int bIncrement = 1;
@@ -313,6 +315,7 @@ int getLength(int *size, int dimension){
 
 //functions identically to matlab's sub2ind
 //converts matrix indexing to linear index given the size of the matrix
+//this uses zero indexing
 int sub2ind(int *location, int *size, int dimension){
   int ind = location[0] + size[0];
   int sizeProd = size[0];
@@ -325,40 +328,6 @@ int sub2ind(int *location, int *size, int dimension){
   return ind;
 }
 
-
-//this function checks if the operator enum 'o' is
-//a matrix operator (true) or not (false)
-//if the output matrix is a different size than
-//the input matrices, then it is considered a
-//a matrix operator
-//examples include, dot product, matrix multiplication
-//cross product is one counter example
-//everything else requires the two input matrices to be
-//the same size (per element operation)
-int matrixOperator(int o){
-  switch(o){
-  case eMultiply:
-  case eMin:
-  case eMax:
-    return 1;
-
-  case eAdd:
-  case eSin:
-  case eCos:
-  case eTan:
-  case eLn:
-  case eLog:
-  case eSqrt:
-  case eAsin:
-  case eAcos:
-  case eAtan:
-  case eFloor:
-  case eCeil:
-  case eRound:
-  case eFactorial:
-    return 0;
-  }
-}
 
 //check if a matrix is a scalar (true)
 //else false

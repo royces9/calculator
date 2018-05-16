@@ -400,32 +400,31 @@ input[2] = number of elements
   return out;
 }
 
+
 matrix *extractValue(char *buffer, char **input, vari *var, int *error){
   int varLen = strlen(buffer);
-  matrix *out;
-
-  //change the '(' to a 0
-  buffer[varLen-1] = '\0';
+  matrix *out = NULL;
 
   int varIndex = varcheck(var, buffer);
+
+  //for variables that exist
   if(varIndex >= 0){
     int dimension = numberOfArgs(input);
     vari varTemp = copyVari(var);
     matrix *inputMat;
 
-    if(dimension == 1){
+    if(dimension == 1){ //if the number of inputs is 1
       *error = sya(input[0], &varTemp);
       out = copyMatrix(&varTemp.ans);
-      //inputMat = copyMatrix(&varTemp.ans);
-      //out = copyMatrix(inputMat);
 
       for(int i = 0; i < out->length; ++i){
 
+	//check that the input is within bound
 	if((int)out->elements[i] <= varTemp.value[varIndex]->length){
 	  out->elements[i] = varTemp.value[varIndex]->elements[(int)out->elements[i] - 1];
 
 	} else{
-	  *error = -14;
+	  *error = -11;
 	  freeVari(&varTemp);
 	  freeMatrix(out);
 
@@ -433,21 +432,29 @@ matrix *extractValue(char *buffer, char **input, vari *var, int *error){
 	}
       }
 
-
-      freeVari(&varTemp);
-      return out;
-
-    } else if(dimension == varTemp.ans.dimension){
+    } else if(dimension == varTemp.value[varIndex]->dimension){ //if the number of inputs is equal to dimension
       int *location = malloc(sizeof(*location) * (dimension + 1));
 
       for(int i = 0; i < dimension; ++i){
 	*error = sya(input[i], &varTemp);
+
+	//check that the input is one dimensional
 	if(varTemp.ans.dimension == 1){
-	  location[i] = varTemp.ans.elements[0];
+	  //location is 1 indexed, while sub2ind is 0 indexed
+	  //so subtract 1 to 0 index
+	  location[i] = varTemp.ans.elements[0] - 1;
+
+	  //check that each sublocation is also within bounds
+	  if(location[i] >= varTemp.value[varIndex]->size[i]){
+	    *error = -11;
+	    free(location);
+	    freeVari(&varTemp);
+	    return out;
+	  }
 	} else{
+	  *error = -10;
 	  free(location);
 	  freeVari(&varTemp);
-	  freeMatrix(out);
 	  return NULL;
 	}
       }
@@ -455,20 +462,15 @@ matrix *extractValue(char *buffer, char **input, vari *var, int *error){
       int index = sub2ind(location, varTemp.value[varIndex]->size, varTemp.value[varIndex]->dimension);
       free(location);
 
+      //check index is within bound
       if(index < varTemp.value[varIndex]->length){
 	out = initScalar(varTemp.value[varIndex]->elements[index]);
       } else{
-	freeVari(&varTemp);
-	freeMatrix(out);
-	return NULL;
+	*error = -11;
       }
-
-      return out;
       
     } else{
-      *error  = -14;
-      freeVari(&varTemp);
-      return NULL;
+      *error  = -5;
     }
 
     freeVari(&varTemp);
