@@ -346,28 +346,53 @@ matrix *solve(char **input, vari *var, int *error) {
 
 matrix *zeros(char **input, vari *var, int *error){
   int dimension = numberOfArgs(input);
-  int *size = malloc(sizeof(*size) * (dimension + 1));
+  vari varTemp = copyVari(var, error); //copy global struct to a local variable struct
+  matrix *inputMat = NULL;
+  int *newSize = NULL;
 
-  vari varTemp = copyVari(var, error);; //copy global struct to a local variable struct
+  if(dimension == 1){
+    dimension = 2;
+    newSize = malloc(sizeof(*newSize) * (dimension + 1));
+    *error = sya(input[0], &varTemp);
 
-  for(int i = 0; i < dimension; ++i){
-    *error = sya(input[i], &varTemp);
-    matrix *inputMat = copyMatrix(&varTemp.ans, error);
+    inputMat = copyMatrix(&varTemp.ans, error);
 
     if(inputMat->dimension != 1){
-      *error = 13;
+      *error = 10;
       freeVari(&varTemp);
       return NULL;
     }
-    size[i] = inputMat->elements[0];
+
+    newSize[0] = inputMat->elements[0];
+    newSize[1] = inputMat->elements[1];
     freeMatrix(inputMat);
+
+  } else{
+
+    newSize = malloc(sizeof(*newSize) * (dimension + 1));
+
+    for(int i = 0; i < dimension; ++i){
+      *error = sya(input[i], &varTemp);
+      inputMat = copyMatrix(&varTemp.ans, error);
+
+      if(inputMat->dimension != 1){
+	*error = 10;
+	freeVari(&varTemp);
+	return NULL;
+      }
+      newSize[i] = inputMat->elements[0];
+      freeMatrix(inputMat);
+    }
+
+
+    freeVari(&varTemp);
   }
 
-  size[dimension] = 0;
-  freeVari(&varTemp);
-  matrix *out = initMatrix(size, dimension, error);
+  newSize[dimension] = 0;
+  matrix *out = initMatrix(newSize, dimension, error);
 
-  free(size);
+  free(newSize);
+
   return out;
 }
 
@@ -381,6 +406,10 @@ matrix *ones(char **input, vari *var, int *error){
     out->elements[i] = 1;
   }
   return out;
+}
+
+
+matrix *randMatrix(char **input, vari *var, int *error){
 }
 
 

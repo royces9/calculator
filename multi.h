@@ -13,6 +13,8 @@ matrix *solve(char **input, vari *var, int *error);
 
 matrix *zeros(char **input, vari *var, int *error);
 matrix *ones(char **input, vari *var, int *error);
+matrix *randMatrix(char **input, vari *var, int *error);
+
 matrix *linspace(char **input, vari *var, int *error);
 matrix *extractValue(char *buffer, char **input, vari *var, int *error);
 

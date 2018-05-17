@@ -51,7 +51,6 @@ matrix *getSize(matrix *a, int *error){
 
 
 matrix *divideMatrix(matrix *a, matrix *b, int *error){
-
 }
 
 

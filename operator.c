@@ -289,10 +289,17 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
-
+    
   case eOnes:
     separatedString = separateString(input, "()", ',', start, &error);
     pushn(ones(separatedString, var, &error), num);
+    freeDoubleArray(separatedString);
+    *tok = 0;
+    return error;
+
+  case eRand:
+    separatedString = separateString(input, "()", ',', start, &error);
+    pushn(randMatrix(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;

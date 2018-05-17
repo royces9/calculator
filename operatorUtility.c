@@ -34,6 +34,7 @@ const char FUNCTION_LIST[FUNCTION_COUNT][20] = {
   "zeros(",
   "ones(",
   "eye(",
+  "rand(",
   "size(",
   "transpose(",
   "linspace(",
