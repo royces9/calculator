@@ -273,13 +273,11 @@ char *parseCondition(char *input, int type) {
 //checks conditionals in while/if
 int checkConditional(char *input, int type, vari *var) {
   input = parseCondition(input, type);
-  vari tempVar = copyVari(var);
-  int error = sya(input, &tempVar);
-  if(error){
-    //error can return negative values
-    return error; 
-  }
-
+  int error = 0;
+  vari tempVar = copyVari(var, &error);
+  if(error) return error;
+  error = sya(input, &tempVar);
+  if(error) return error; 
 
   element out = tempVar.ans.elements[0];
 

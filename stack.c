@@ -89,7 +89,7 @@ vari newVari(void) {
 }
 
 
-vari copyVari(vari *var){
+vari copyVari(vari *var, int *error){
   vari out = *var;
 
   out.ans.elements = NULL;
@@ -98,7 +98,7 @@ vari copyVari(vari *var){
   if(var->occ){
     for(int i = 0; i <= var->count; ++i){
       strcpy(out.name[i], var->name[i]);
-      out.value[i] = copyMatrix(var->value[i]);
+      out.value[i] = copyMatrix(var->value[i], error);
     }
   }
   return out;
@@ -108,6 +108,7 @@ vari copyVari(vari *var){
 int setVariable(vari *var, char *name, char check){
   //check is from the output of varcheck
 
+  int error = 0;
   int index = 0;
 
   switch(check){
@@ -128,11 +129,11 @@ int setVariable(vari *var, char *name, char check){
     break;
   }
 
-  var->value[index] = copyMatrix(&var->ans);
+  var->value[index] = copyMatrix(&var->ans, &error);
   strcpy(var->name[index], name);
 
   free(name);
-  return 0;
+  return error;
 }
 
 void freeVari(vari *var){

@@ -146,9 +146,10 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
 	}
 
       } else{
-	*error = -12;
+	*error = -10;
       }
-
+      break;
+      
     case 1: //only a or b is a scalar
       if(aScalar){
 	out = copyMatrix(b, error);
@@ -187,8 +188,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
 
 
 int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *start, char *input) {
-
-  char **separatedString;
+  char **separatedString = NULL;
   int i = searchFunctionArray(buffer);
   int error = 0;
   operatorStruct operator;
@@ -307,7 +307,8 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
   case eRun:
     separatedString = separateString(input, "()", '\0', start, &error);
     error = runFile(separatedString, var);
-    //copy matrix for same reason for ans above
+
+    //copy ans matrix because it's not a heap variable
     pushn(copyMatrix(&var->ans, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
@@ -594,7 +595,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, int *error){
   //free matrixString, not needed anymore
   free(matrixString);
 
-  vari tempVari = copyVari(var);
+  vari tempVari = copyVari(var, error);
   *error = sya(separatedMatrix[0], &tempVari);
 
   pushn(copyMatrix(&tempVari.ans, error), &numStk);

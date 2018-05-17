@@ -51,7 +51,7 @@ numberStack newNumberStack(void);
 operatorStack newOperatorStack(void);
 
 vari newVari(void);
-vari copyVari(vari *var);
+vari copyVari(vari *var, int *error);
 int setVariable(vari *var, char *name, char check);
 void freeVari(vari *var);
 

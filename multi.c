@@ -17,33 +17,76 @@ int numberOfArgs(char **input) {
 }
 
 
-//determines minimum value from the inputs given
+//determinies minimum value in the matrix
 matrix *min(matrix *m, int *error) {
   element out = m->elements[0];
+
   for(int i = 1; i < m->length; ++i) {
     out = fmin(out, m->elements[i]);
   }
+
   return initScalar(out, error);
 }
 
 
-//determines maximum value from the inputs given
+//determines maximum value in the matrix
 matrix *max(matrix *m, int *error) {
   element out = m->elements[0];
+
   for(int i = 1; i < m->length; ++i) {
     out = fmax(out, m->elements[i]);
   }
+
   return initScalar(out, error);
 }
 
 
-//calculates average value from the inputs given
+//calculates average value of the matrix along the last dimensions columns
+//ex:
+//1 2
+//3 4
+//should return
+//2 3
 matrix *avg(matrix *m, int *error) {
-  element sum = 0;
-  for(int i = 0; i < m->length; ++i) {
-    sum += m->elements[i];
+  matrix *out = NULL;
+
+  int newDimension = m->dimension - 1;
+  int *newSize = NULL;
+
+  if(m->dimension == 2){
+    newDimension = 2;
+    newSize = malloc(sizeof(*newSize) * (newDimension + 1));
+    __MALLOC_CHECK(newSize, *error);
+    
+    newSize[0] = m->size[0];
+    newSize[1] = 1;
+    newSize[2] = 0;
+    
+  } else if(m->dimension == 1){
+
+    return copyMatrix(m, error);
+
+  } else{
+    newSize = malloc(sizeof(*newSize) * (newDimension + 1));
+    __MALLOC_CHECK(newSize, *error);
+
+    newSize = memcpy(newSize, m->size, sizeof(*newSize) * (newDimension + 1));
+    newSize[newDimension] = 0;
   }
-  return initScalar(sum/m->length, error);
+
+  out = initMatrix(newSize, newDimension, error);
+  free(newSize);
+
+  for(int i = 0; i < out->length; ++i){
+    element tempAvg = 0;
+    for(int j = 0; j < m->size[m->dimension - 1]; ++j){
+      tempAvg += m->elements[j*out->length + i];
+    }
+
+    out->elements[i] = tempAvg / m->size[m->dimension - 1];
+  }
+
+  return out;
 }
 
 
@@ -51,7 +94,7 @@ matrix *avg(matrix *m, int *error) {
 matrix *deri(char **input, vari *var, int *error) {
   char *str2d;
   element out, inter, h, point;
-  vari varTemp = copyVari(var); //copy global struct to a local variable struct
+  vari varTemp = copyVari(var, error); //copy global struct to a local variable struct
   
   int varIndex = 0;
 
@@ -138,7 +181,7 @@ matrix *inte(char **input, vari *var, int *error) {
 
   element step = 0, sum = 0;
   element out,inter, a, b, number;
-  vari varTemp = copyVari(var); //copy global struct to a local variable struct
+  vari varTemp = copyVari(var, error); //copy global struct to a local variable struct
   int varIndex = 0, iter = 0;
 
   /*
@@ -235,7 +278,7 @@ matrix *solve(char **input, vari *var, int *error) {
   }
 
   char *str2d;
-  vari varTemp = copyVari(var); //copy global struct to a local variable struct
+  vari varTemp = copyVari(var, error); //copy global struct to a local variable struct
   
   element out, inter, h;
   double test = 0, delta = 0.000001;
@@ -305,7 +348,7 @@ matrix *zeros(char **input, vari *var, int *error){
   int dimension = numberOfArgs(input);
   int *size = malloc(sizeof(*size) * (dimension + 1));
 
-  vari varTemp = copyVari(var);; //copy global struct to a local variable struct
+  vari varTemp = copyVari(var, error);; //copy global struct to a local variable struct
 
   for(int i = 0; i < dimension; ++i){
     *error = sya(input[i], &varTemp);
@@ -357,7 +400,7 @@ input[2] = number of elements
     return out;
   }
 
-  vari temp = copyVari(var);
+  vari temp = copyVari(var, error);
 
   element a;
   element b;
@@ -410,7 +453,7 @@ matrix *extractValue(char *buffer, char **input, vari *var, int *error){
   //for variables that exist
   if(varIndex >= 0){
     int dimension = numberOfArgs(input);
-    vari varTemp = copyVari(var);
+    vari varTemp = copyVari(var, error);
     matrix *inputMat;
 
     if(dimension == 1){ //if the number of inputs is 1
@@ -498,7 +541,7 @@ void removeSpaces(char *input, int *front, int *back) {
 //print a line to stdout, formatting is similar to matlab
 int printLine(char **input, vari *var, int *error) {
   int argNo = numberOfArgs(input), front = 0, back = 0;
-  vari varTemp = copyVari(var);
+  vari varTemp = copyVari(var, error);
 
   for(int i = 0; i < argNo; ++i) {
     int len = strlen(input[i]), string = 0;
