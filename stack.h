@@ -51,8 +51,8 @@ numberStack newNumberStack(void);
 operatorStack newOperatorStack(void);
 
 vari newVari(void);
-vari copyVari(vari *var, int *error);
-int setVariable(vari *var, char *name, char check);
+vari copyVari(vari *var, int8_t *error);
+int8_t setVariable(vari *var, char *name, char check);
 void freeVari(vari *var);
 
 void emptyNumberStack(numberStack *st);

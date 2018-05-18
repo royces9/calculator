@@ -18,7 +18,7 @@ int numberOfArgs(char **input) {
 
 
 //determinies minimum value in the matrix
-matrix *min(matrix *m, int *error) {
+matrix *min(matrix *m, int8_t *error) {
   element out = m->elements[0];
 
   for(int i = 1; i < m->length; ++i) {
@@ -30,7 +30,7 @@ matrix *min(matrix *m, int *error) {
 
 
 //determines maximum value in the matrix
-matrix *max(matrix *m, int *error) {
+matrix *max(matrix *m, int8_t *error) {
   element out = m->elements[0];
 
   for(int i = 1; i < m->length; ++i) {
@@ -47,7 +47,7 @@ matrix *max(matrix *m, int *error) {
 //3 4
 //should return
 //2 3
-matrix *avg(matrix *m, int *error) {
+matrix *avg(matrix *m, int8_t *error) {
   matrix *out = NULL;
 
   int newDimension = m->dimension - 1;
@@ -91,7 +91,7 @@ matrix *avg(matrix *m, int *error) {
 
 
 //calculates the derivative of a function at a given point with a given step size
-matrix *deri(char **input, vari *var, int *error) {
+matrix *deri(char **input, vari *var, int8_t *error) {
   char *str2d;
   element out, inter, h, point;
   vari varTemp = copyVari(var, error); //copy global struct to a local variable struct
@@ -168,7 +168,7 @@ matrix *deri(char **input, vari *var, int *error) {
 
 
 //calculates integral of a given function with a given range and partition count
-matrix *inte(char **input, vari *var, int *error) {
+matrix *inte(char **input, vari *var, int8_t *error) {
 
   //check number of arguments
   if(numberOfArgs(input) != 5) {
@@ -269,7 +269,7 @@ matrix *inte(char **input, vari *var, int *error) {
 
 
 //numerically solve an expression f(x)=0 for x
-matrix *solve(char **input, vari *var, int *error) {
+matrix *solve(char **input, vari *var, int8_t *error) {
   //check number of arguments
   if(numberOfArgs(input) != 4) {
     *error = -2;
@@ -343,7 +343,7 @@ matrix *solve(char **input, vari *var, int *error) {
 }
 
 
-matrix *zeros(char **input, vari *var, int *error){
+matrix *zeros(char **input, vari *var, int8_t *error){
   int dimension = numberOfArgs(input);
   vari varTemp = copyVari(var, error); //copy global struct to a local variable struct
   int *newSize = NULL;
@@ -396,7 +396,7 @@ matrix *zeros(char **input, vari *var, int *error){
 }
 
 
-matrix *ones(char **input, vari *var, int *error){
+matrix *ones(char **input, vari *var, int8_t *error){
   matrix *out = zeros(input, var, error);
   if(*error){
     return out;
@@ -408,7 +408,7 @@ matrix *ones(char **input, vari *var, int *error){
 }
 
 
-matrix *randMatrix(char **input, vari *var, int *error){
+matrix *randMatrix(char **input, vari *var, int8_t *error){
   matrix *out = zeros(input, var, error);
   if(*error) return out;
 
@@ -420,7 +420,7 @@ matrix *randMatrix(char **input, vari *var, int *error){
 }
 
 
-matrix *linspace(char **input, vari *var, int *error){
+matrix *linspace(char **input, vari *var, int8_t *error){
   int argNo = numberOfArgs(input);
 
   /*
@@ -480,7 +480,7 @@ input[2] = number of elements
 }
 
 
-matrix *extractValue(char *buffer, char **input, vari *var, int *error){
+matrix *extractValue(char *buffer, char **input, vari *var, int8_t *error){
   int varLen = strlen(buffer);
   matrix *out = NULL;
 
@@ -575,9 +575,10 @@ void removeSpaces(char *input, int *front, int *back) {
 }
 
 //print a line to stdout, formatting is similar to matlab
-int printLine(char **input, vari *var, int *error) {
+int8_t printLine(char **input, vari *var) {
+  int8_t error = 0;
   int argNo = numberOfArgs(input), front = 0, back = 0;
-  vari varTemp = copyVari(var, error);
+  vari varTemp = copyVari(var, &error);
 
   for(int i = 0; i < argNo; ++i) {
     int len = strlen(input[i]), string = 0;
@@ -619,8 +620,8 @@ int printLine(char **input, vari *var, int *error) {
       }
     }
     else { //no quotes, just a variable or expression
-      *error = sya(input[i], &varTemp); //calculate expression and print, print variables this way
-      if(*error) return 0;
+      error = sya(input[i], &varTemp); //calculate expression and print, print variables this way
+      if(error) return error;
       printMatrix(varTemp.ans);
 
     }
@@ -628,11 +629,11 @@ int printLine(char **input, vari *var, int *error) {
 
   freeVari(&varTemp);
 
-  return 0;
+  return error;
 }
 
 //separate a single string into multiple strings by a given delimiter
-char **separateString(char *input, char limits[2], char delimiter, int *start, int *error) {
+char **separateString(char *input, char limits[2], char delimiter, int *start, int8_t *error) {
   char *tok;
   int leftLimit = 0, rightLimit = 0, length = 0, delimiterCount = 0, i = 0;  
 

@@ -89,7 +89,7 @@ vari newVari(void) {
 }
 
 
-vari copyVari(vari *var, int *error){
+vari copyVari(vari *var, int8_t *error){
   vari out = *var;
 
   out.ans.elements = NULL;
@@ -105,10 +105,10 @@ vari copyVari(vari *var, int *error){
 }
 
 
-int setVariable(vari *var, char *name, char check){
+int8_t setVariable(vari *var, char *name, char check){
   //check is from the output of varcheck
 
-  int error = 0;
+  int8_t error = 0;
   int index = 0;
 
   switch(check){

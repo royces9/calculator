@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[]) {
   char *input = NULL;
-  int error = 0;
+  int8_t error = 0;
   
   //initialize variable struct
   vari var = newVari();

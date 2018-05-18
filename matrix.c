@@ -4,7 +4,7 @@
 
 #include "operator.h"
 
-matrix *initMatrix(int *size, int dimension, int *error){
+matrix *initMatrix(int *size, int dimension, int8_t *error){
   matrix *out = malloc(sizeof(*out));
   __MALLOC_CHECK(out, *error);  
 
@@ -43,7 +43,7 @@ matrix *initMatrix(int *size, int dimension, int *error){
 //define a scalar as just a single dimension matrix
 //also define that a vector is always 2 dimensions, with one of
 //the two dimensions being 1
-matrix *initScalar(element e, int *error){
+matrix *initScalar(element e, int8_t *error){
   matrix *out = malloc(sizeof(*out));
   __MALLOC_CHECK(out, *error);  
 
@@ -65,7 +65,7 @@ matrix *initScalar(element e, int *error){
 }
 
 
-matrix *copyMatrix(matrix *src, int *error){
+matrix *copyMatrix(matrix *src, int8_t *error){
   matrix *dest = malloc(sizeof(*dest));
   __MALLOC_CHECK(dest, *error);  
 
@@ -116,7 +116,7 @@ matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
 
 //dimension is a number to specifiy along which direction to concatenate
 //along, it starts from 0
-matrix *concatMatrix(matrix *a, matrix *b, int dimension, int *error){
+matrix *concatMatrix(matrix *a, matrix *b, int dimension, int8_t *error){
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
 
@@ -347,14 +347,14 @@ int sub2ind(int *location, int *size, int dimension){
 
 //check if a matrix is a scalar (true)
 //else false
-int isScalar(matrix *m){
+int8_t isScalar(matrix *m){
   return (m->dimension == 1);
 }
 
 
 //compare two size vectors, return 1 if same
 //0 otherwise
-int compareSize(int *a, int *b, int dimA, int dimB){
+int8_t compareSize(int *a, int *b, int dimA, int dimB){
   if(dimA != dimB){
     return 0;
   }
@@ -370,6 +370,6 @@ int compareSize(int *a, int *b, int dimA, int dimB){
 
 
 //check that the inner dimensions of the matrix match
-int checkInnerDim(matrix *a, matrix *b){
+int8_t checkInnerDim(matrix *a, matrix *b){
   return (a->size[a->dimension-1] == b->size[0]) ? 1 : 0;
 }

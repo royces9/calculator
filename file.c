@@ -7,8 +7,8 @@
 #include "file.h"
 #include "sya.h"
 
-int runFile(char **input, vari *var) {
-  int error = 0; //int to put errors into
+int8_t runFile(char **input, vari *var) {
+  int8_t error = 0; //int to put errors into
   int maxSize = 1024; //maximum size of tree
 
   char **fileString = calloc(maxSize, sizeof(*fileString));
@@ -44,7 +44,7 @@ fileStack newFileStack() {
 
 
 //create and populate tree
-int createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
+int8_t createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
 
   //file to read from
   FILE *inputFile = fopen(fileName, "r");
@@ -57,7 +57,7 @@ int createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
   int direction = 0;
 
   //error checking
-  int error = 0;
+  int8_t error = 0;
 
   //lengh of string
   int length = 0;
@@ -140,7 +140,7 @@ int createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
 }
 
 
-int executeTree(fileTree *tree, vari *var, int maxSize){
+int8_t executeTree(fileTree *tree, vari *var, int maxSize){
   //checking the direction of program flow
   int direction = 0;
 
@@ -148,7 +148,7 @@ int executeTree(fileTree *tree, vari *var, int maxSize){
   int check = 0;
 
   //error 
-  int error = 0;
+  int8_t error = 0;
 
   //create new file stack
   fileStack stk = newFileStack();
@@ -245,7 +245,7 @@ int executeTree(fileTree *tree, vari *var, int maxSize){
 
 
 //determine whether to branch left or right
-int checkProgramFlow(char *input) {
+int8_t checkProgramFlow(char *input) {
   if(strstr(input, "else")) return -2;
   if(strstr(input, "end")) return -1;
   if(strstr(input, "if(")) return 1;
@@ -271,9 +271,9 @@ char *parseCondition(char *input, int type) {
 
 
 //checks conditionals in while/if
-int checkConditional(char *input, int type, vari *var) {
+int8_t checkConditional(char *input, int type, vari *var) {
   input = parseCondition(input, type);
-  int error = 0;
+  int8_t error = 0;
   vari tempVar = copyVari(var, &error);
   if(error) return error;
   error = sya(input, &tempVar);

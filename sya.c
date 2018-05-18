@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -8,7 +9,7 @@
 
 
 //shunting yard algorithm
-int sya(char *input, vari *var) {
+int8_t sya(char *input, vari *var) {
 
   //stack for output numbers
   numberStack out = newNumberStack();
@@ -20,7 +21,7 @@ int sya(char *input, vari *var) {
   int i = 0, j = 0, k = 0;
 
   //error checking int
-  int error = 0;
+  int8_t error = 0;
 
   //length of input
   int length = 0;
@@ -30,14 +31,14 @@ int sya(char *input, vari *var) {
   int bracketCount = 0;
 
   //flag to check if there is an assignment
-  char assignmentFlag = 0;
+  int8_t assignmentFlag = 0;
 
   //to check if the '-' char is subtraction or a negative
   int negativeCheck = 0;
 
   //flag for setVariable, to check whether
   //variable is saved in var or not
-  char variableExist = 0;
+  int8_t variableExist = 0;
 
   //string for strtod function, unused
   char *str2d = NULL;
@@ -70,7 +71,7 @@ int sya(char *input, vari *var) {
   //name of variable if assignment
   char *variableAssign;
 
-  char type[length+1];
+  int8_t type[length+1];
   for(int l = 0; input[l]; ++l){
     type[l] = checkType(input[l]);
 
@@ -212,7 +213,7 @@ int sya(char *input, vari *var) {
 
 
 //print out errors if there are any
-void errorReport(int error) {
+void errorReport(int8_t error) {
   if(error < -1){ //error codes for -2 or lower
     printf("\nError:\n");
     switch(error) {
@@ -234,8 +235,8 @@ void errorReport(int error) {
 }
 
 
-//check if the string is a number or not
-int checkNumbers(char *input) { //check if the input string is a number
+//check if the string is a number/variable
+int8_t checkNumbers(char *input) {
   for(int i = 0; i  < strlen(input); ++i) {
     if(input[i] < '0' && input[i] != '.' || input[i] > '9' || !input[i]) {
       return 0;
@@ -248,14 +249,12 @@ int checkNumbers(char *input) { //check if the input string is a number
 //check if the two chars together make an operator 
 int checkOperator(char a, char b) {
   char buffer[2] = {a, b};
-  //if b is '\0', end of string
-  //if(!b) return OPERATOR_COUNT;
   return searchOperatorArray(buffer);
 }
 
 
 //checks the type of character
-char checkType(char a) {
+int8_t checkType(char a) {
   switch(a) {
     //alpha numeric is 1
     //operators are 2
@@ -306,6 +305,6 @@ char checkType(char a) {
 
 //checks if = and == are in the same spot, relies on strchr and strstr to
 //linearlly check from the beginning of the string
-int isAssign(char *input) {
+int8_t isAssign(char *input) {
   return (strchr(input, '=') == (strstr(input, "=="))) ? 0 : 1;
 }
