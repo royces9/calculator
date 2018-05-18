@@ -629,7 +629,8 @@ error_return printLine(char **input, vari *var) {
 
   freeVari(&varTemp);
 
-  return error;
+  //-1 is the error code for no output from sya
+  return -1;
 }
 
 //separate a single string into multiple strings by a given delimiter
