@@ -9,7 +9,7 @@
 
 
 //shunting yard algorithm
-int8_t sya(char *input, vari *var) {
+error_return sya(char *input, vari *var) {
 
   //stack for output numbers
   numberStack out = newNumberStack();
@@ -21,7 +21,7 @@ int8_t sya(char *input, vari *var) {
   int i = 0, j = 0, k = 0;
 
   //error checking int
-  int8_t error = 0;
+  error_return error = 0;
 
   //length of input
   int length = 0;
@@ -213,7 +213,7 @@ int8_t sya(char *input, vari *var) {
 
 
 //print out errors if there are any
-void errorReport(int8_t error) {
+void errorReport(error_return error) {
   if(error < -1){ //error codes for -2 or lower
     printf("\nError:\n");
     switch(error) {
@@ -236,7 +236,7 @@ void errorReport(int8_t error) {
 
 
 //check if the string is a number/variable
-int8_t checkNumbers(char *input) {
+error_return checkNumbers(char *input) {
   for(int i = 0; i  < strlen(input); ++i) {
     if(input[i] < '0' && input[i] != '.' || input[i] > '9' || !input[i]) {
       return 0;

@@ -1,8 +1,12 @@
 #ifndef MATRIX
 #define MATRIx
 
+
 //typedef double to element
 typedef double element;
+
+//typedef int8_t to error return type
+typedef int8_t error_return;
 
 typedef struct matrix{
   int length; //number of elements 
@@ -12,10 +16,10 @@ typedef struct matrix{
 } matrix; 
 
 
-matrix *initMatrix(int *size, int dimension, int8_t *error);
-matrix *initScalar(element e, int8_t *error);
-matrix *copyMatrix(matrix *src, int8_t *error);
-matrix *concatMatrix(matrix *a, matrix *b, int dimension, int8_t *error);
+matrix *initMatrix(int *size, int dimension, error_return *error);
+matrix *initScalar(element e, error_return *error);
+matrix *copyMatrix(matrix *src, error_return *error);
+matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error);
 
 void freeMatrix(matrix *m);
 void printTwoDMatrix(const matrix m, int offset);

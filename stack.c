@@ -4,7 +4,6 @@
 
 #include "stack.h"
 
-
 void pushn(matrix *inp, numberStack *st) {
   if(st->occ) {
     st->stk[++st->top] = inp;
@@ -89,7 +88,7 @@ vari newVari(void) {
 }
 
 
-vari copyVari(vari *var, int8_t *error){
+vari copyVari(vari *var, error_return *error){
   vari out = *var;
 
   out.ans.elements = NULL;
@@ -105,10 +104,10 @@ vari copyVari(vari *var, int8_t *error){
 }
 
 
-int8_t setVariable(vari *var, char *name, char check){
+error_return setVariable(vari *var, char *name, char check){
   //check is from the output of varcheck
 
-  int8_t error = 0;
+  error_return error = 0;
   int index = 0;
 
   switch(check){

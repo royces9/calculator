@@ -45,7 +45,7 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 
 
 //executes either one argument function or two argument function
-void execNum(numberStack *num, operatorStruct ch, int8_t *error) {
+void execNum(numberStack *num, operatorStruct ch, error_return *error) {
   matrix *a = NULL, *b = NULL;
 
   switch(ch.argNo) {
@@ -83,12 +83,11 @@ void execNum(numberStack *num, operatorStruct ch, int8_t *error) {
 }
 
 
-matrix *matrixOneArg(matrix *a, operatorStruct ch, int8_t *error){
+matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
   matrix *out;
-  int8_t check = 0;
+  error_return check = 0;
   //check if the enumeration is one of the function in oneArg
   oneArg(0, ch.enumeration, &check);
-  printf("test\n");
 
   //check remains 0, is in oneArg
   if(!check){
@@ -119,9 +118,9 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int8_t *error){
 }
 
 
-matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int8_t *error){
+matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *error){
   matrix *out = NULL;
-  int8_t check = 0;
+  error_return check = 0;
   twoArg(0, 0, ch.enumeration, &check);
   //check if inputs are scalar
   int aScalar = isScalar(a);
@@ -200,10 +199,10 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int8_t *error){
 }
 
 
-int8_t findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *start, char *input) {
+error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *start, char *input) {
   char **separatedString = NULL;
   int i = searchFunctionArray(buffer);
-  int8_t error = 0;
+  error_return error = 0;
   operatorStruct operator;
 
   switch(i) {
@@ -384,9 +383,9 @@ int8_t findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var
 }
 
 
-int8_t findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var, int *tok) {
+error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var, int *tok) {
   int i = searchOperatorArray(buffer);
-  int8_t error = 0;
+  error_return error = 0;
   /*                                                                                                                  
   **Precedence values for operators: Reference wiki page of C/C++ operators
   **1                                                
@@ -478,7 +477,7 @@ int8_t findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *v
 
 //separate a matrix, accounting for sub matrices as input in a matrix
 //[[1, 2], 3] or something like that
-char **separateMatrix(char *input, int delimiter, int8_t *error){
+char **separateMatrix(char *input, int delimiter, error_return *error){
   char **out = malloc(sizeof(*out) * (delimiter + 2));
 
   //counter for brackets, parentheses and brackets:
@@ -569,7 +568,7 @@ int countDelimiter(char *input){
 }
 
 
-matrix *extractMatrix(vari *var, int *start, char *input, int8_t *error){
+matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
   //input is incremented to start at input[*start], which is where
   //the first [ should be
   input += (*start);
@@ -706,7 +705,7 @@ void freeDoubleArray(char **input) {
 }
 
 
-void helpPrint() {
+void helpPrint(void) {
   printf("quit - quit program\n");
   printf("list - list variables\n");
   printf("clear - clear variables\n\n");

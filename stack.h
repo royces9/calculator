@@ -10,6 +10,7 @@
   return 0; \
   }
 
+
 typedef struct { //struct for operators, +, -, etc
   char operator[2]; //char holding operator/function
   int precedence; //order of operation, higher is higher priority
@@ -51,8 +52,8 @@ numberStack newNumberStack(void);
 operatorStack newOperatorStack(void);
 
 vari newVari(void);
-vari copyVari(vari *var, int8_t *error);
-int8_t setVariable(vari *var, char *name, char check);
+vari copyVari(vari *var, error_return *error);
+error_return setVariable(vari *var, char *name, char check);
 void freeVari(vari *var);
 
 void emptyNumberStack(numberStack *st);

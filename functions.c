@@ -15,7 +15,7 @@ element factorial(element a) {
 }
 
 
-matrix *eye(matrix *a, int8_t *error){
+matrix *eye(matrix *a, error_return *error){
   if(a->dimension != 1){
     *error = -12;
     return NULL;
@@ -34,7 +34,7 @@ matrix *eye(matrix *a, int8_t *error){
 }
 
 
-matrix *getSize(matrix *a, int8_t *error){
+matrix *getSize(matrix *a, error_return *error){
   int newSize[3];
 
   //output is a row vector
@@ -51,11 +51,11 @@ matrix *getSize(matrix *a, int8_t *error){
 }
 
 
-matrix *divideMatrix(matrix *a, matrix *b, int8_t *error){
+matrix *divideMatrix(matrix *a, matrix *b, error_return *error){
 }
 
 
-matrix *multiplyMatrix(matrix *a, matrix *b, int8_t *error){
+matrix *multiplyMatrix(matrix *a, matrix *b, error_return *error){
   matrix *out = NULL;
 
   //matrix multiplication only defined for 2d arrays
@@ -95,7 +95,7 @@ matrix *multiplyMatrix(matrix *a, matrix *b, int8_t *error){
 }
 
 
-matrix *exponentMatrix(matrix *a, matrix *b, int8_t *error){
+matrix *exponentMatrix(matrix *a, matrix *b, error_return *error){
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
 
@@ -155,7 +155,7 @@ matrix *exponentMatrix(matrix *a, matrix *b, int8_t *error){
 }
 
 
-matrix *transposeMatrix(matrix *a, int8_t *error){
+matrix *transposeMatrix(matrix *a, error_return *error){
   //transpose only defined for 2d matrix
   if(a->dimension != 2){
     *error = -10;
@@ -185,7 +185,7 @@ matrix *transposeMatrix(matrix *a, int8_t *error){
 
 
 //returns value from one argument functions
-element oneArg(element a, int o, int8_t *error) {
+element oneArg(element a, int o, error_return *error) {
 switch(o) {
  case eSin: return sin(a);
  case eCos: return cos(a);
@@ -206,7 +206,7 @@ switch(o) {
 
 
 //returns value from two argument function
-element twoArg(element a, element b, int o, int8_t *error) {
+element twoArg(element a, element b, int o, error_return *error) {
   switch(o) {
   case eAdd: return a + b;
   case eSubtract: return a - b;
