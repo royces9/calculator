@@ -64,14 +64,13 @@ int sya(char *input, vari *var) {
     return error = -4;
   }
 
-
   //buffers for characters and operators
   char bufferLetters[length], bufferOper[length];
 
   //name of variable if assignment
   char *variableAssign;
 
-  int type[length+1];
+  char type[length+1];
   for(int l = 0; input[l]; ++l){
     type[l] = checkType(input[l]);
   }
@@ -150,12 +149,15 @@ int sya(char *input, vari *var) {
       pushn(extractMatrix(var, &i, input, &error), &out);
       break;
 
+      
     case -1:
       error = -4;
       break;
 
+      
     }//end of switch
     if((error < 0) || (error == 1)) { //break if error or quit
+      emptyNumberStack(&out);
       return error;
     }
   }//end of for
@@ -165,6 +167,7 @@ int sya(char *input, vari *var) {
   }
 
   if(error){
+    emptyNumberStack(&out);
     return error;
   }
 
@@ -186,13 +189,6 @@ int sya(char *input, vari *var) {
   var->ans.size = malloc(sizeof(*var->ans.size) * (var->ans.dimension + 1));
   memcpy(var->ans.size, out.stk[0]->size, sizeof(*var->ans.size) * (var->ans.dimension + 1));
 
-  //free out.stk[0]
-  if(out.stk[0] == NULL){
-    printf("test\n");
-  }
-
-  freeMatrix(out.stk[0]);
-
 
   if(assignmentFlag) {
     //set variable if there was an assignment
@@ -200,6 +196,9 @@ int sya(char *input, vari *var) {
     //free it if it has
     error = setVariable(var, variableAssign, variableExist);
   }
+
+  //free everything in the numberStack
+  emptyNumberStack(&out);
 
   return error;
 }
@@ -249,7 +248,7 @@ int checkOperator(char a, char b) {
 
 
 //checks the type of character
-int checkType(char a) {
+char checkType(char a) {
   switch(a) {
     //alpha numeric is 1
     //operators are 2

@@ -176,7 +176,6 @@ matrix *inte(char **input, vari *var, int *error) {
     return 0;
   }
 
-
   char *str2d;
 
   element step = 0, sum = 0;
@@ -347,52 +346,52 @@ matrix *solve(char **input, vari *var, int *error) {
 matrix *zeros(char **input, vari *var, int *error){
   int dimension = numberOfArgs(input);
   vari varTemp = copyVari(var, error); //copy global struct to a local variable struct
-  matrix *inputMat = NULL;
   int *newSize = NULL;
 
   if(dimension == 1){
-    dimension = 2;
-    newSize = malloc(sizeof(*newSize) * (dimension + 1));
+
     *error = sya(input[0], &varTemp);
+    if(*error) return NULL;
 
-    inputMat = copyMatrix(&varTemp.ans, error);
-
-    if(inputMat->dimension != 1){
-      *error = 10;
+    if(varTemp.ans.dimension != 1){
+      *error = -10;
       freeVari(&varTemp);
       return NULL;
     }
 
-    newSize[0] = inputMat->elements[0];
-    newSize[1] = inputMat->elements[1];
-    freeMatrix(inputMat);
+    dimension = 2;
+
+    newSize = malloc(sizeof(*newSize) * (dimension + 1));
+    if(newSize == NULL){
+      *error = -8;
+      return NULL;
+    }
+
+    newSize[0] = varTemp.ans.elements[0];
+    newSize[1] = varTemp.ans.elements[0];
 
   } else{
-
     newSize = malloc(sizeof(*newSize) * (dimension + 1));
 
     for(int i = 0; i < dimension; ++i){
       *error = sya(input[i], &varTemp);
-      inputMat = copyMatrix(&varTemp.ans, error);
 
-      if(inputMat->dimension != 1){
+      if(varTemp.ans.dimension != 1){
 	*error = 10;
 	freeVari(&varTemp);
 	return NULL;
       }
-      newSize[i] = inputMat->elements[0];
-      freeMatrix(inputMat);
+
+      newSize[i] = varTemp.ans.elements[0];
     }
-
-
-    freeVari(&varTemp);
   }
 
+  freeVari(&varTemp);
   newSize[dimension] = 0;
+
   matrix *out = initMatrix(newSize, dimension, error);
 
   free(newSize);
-
   return out;
 }
 
@@ -410,6 +409,14 @@ matrix *ones(char **input, vari *var, int *error){
 
 
 matrix *randMatrix(char **input, vari *var, int *error){
+  matrix *out = zeros(input, var, error);
+  if(*error) return out;
+
+  for(int i = 0; i < out->length; ++i){
+    out->elements[i] = (element)rand() / RAND_MAX;
+  }
+
+  return out;
 }
 
 

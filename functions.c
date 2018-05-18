@@ -80,7 +80,7 @@ matrix *multiplyMatrix(matrix *a, matrix *b, int *error){
   //transpose a and then multiply every column with every other column in each matrix
   for(int i = 0; i < b->size[1]; ++i){
     for(int j = 0; j < transposeA->size[1]; ++j){
-      int tempSum = 0;
+      element tempSum = 0;
       for(int k = 0; k < transposeA->size[0]; ++k){
 	tempSum += transposeA->elements[k + j * transposeA->size[0]] * b->elements[k + i * b->size[0]];
       }
