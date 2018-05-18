@@ -109,6 +109,7 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
   case 1: //one of a or b is a scalar
     if(aScalar){ //a is the scalar
       out = copyMatrix(b, error);
+
       for(int i = 0; i < out->length; ++i){
 	out->elements[i] = pow(a->elements[0],b->elements[i]);
       }
@@ -128,6 +129,7 @@ matrix *exponentMatrix(matrix *a, matrix *b, int *error){
 	  freeMatrix(tempMat);
 
 	  if(*error){
+	    freeMatrix(out);
 	    return NULL;
 	  }
 

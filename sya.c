@@ -73,10 +73,16 @@ int sya(char *input, vari *var) {
   char type[length+1];
   for(int l = 0; input[l]; ++l){
     type[l] = checkType(input[l]);
+
+    if(type[l] == 3){
+      type[l + 1] = checkType(input[l + 1]);
+      type[l] = type[l + 1];
+      ++l;
+    }
   }
 
   type[length] = 0;
-  
+
   //main loop
   //iterators through the input string, apply shunting-yard algorithm
   for(i = 0; input[i]; ++i) {
@@ -87,7 +93,7 @@ int sya(char *input, vari *var) {
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
 
       //is true if it's a valid number/variable name
-      if(((type[i+1] == 2) || (type[i+1] == 0)) && (input[i+1] != '\n')){
+      if((type[i+1] == 2) || (type[i+1] == 0)){
 	bufferLetters[j] = '\0';
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
@@ -111,6 +117,7 @@ int sya(char *input, vari *var) {
 	}
 	j = 0; //reset counter for buffer
       } //end if
+
       negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
       break;
 
@@ -134,7 +141,7 @@ int sya(char *input, vari *var) {
 	char matrixOper[3] = {input[i], input[i+1], 0};
 	error = findOperator(matrixOper, &out, &operatorStack, var, &negativeCheck);
 	++i;
-
+	j = 0;
       } else if(type[i+1] == 1){
 	bufferLetters[j++] = '.';
 

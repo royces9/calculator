@@ -62,6 +62,15 @@ void execNum(numberStack *num, operatorStruct ch, int *error) {
     b = popn(num);
     a = popn(num);
     if((a == NULL) || (b == NULL)){
+
+      if(a != NULL){
+	freeMatrix(a);
+      }
+
+      if(b != NULL){
+	freeMatrix(b);
+      }
+
       *error = -10;
       return;
     }
@@ -79,6 +88,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, int *error){
   int check = 0;
   //check if the enumeration is one of the function in oneArg
   oneArg(0, ch.enumeration, &check);
+  printf("test\n");
 
   //check remains 0, is in oneArg
   if(!check){
@@ -113,7 +123,6 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
   matrix *out = NULL;
   int check = 0;
   twoArg(0, 0, ch.enumeration, &check);
-
   //check if inputs are scalar
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
@@ -151,6 +160,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
       break;
       
     case 1: //only a or b is a scalar
+
       if(aScalar){
 	out = copyMatrix(b, error);
 	for(int i = 0; i < out->length; ++i){
@@ -169,7 +179,10 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, int *error){
       out = initScalar(twoArg(a->elements[0], b->elements[0], ch.enumeration, error), error);
       break;
 
-    default: *error = -2; break;
+    default:
+      *error = -2;
+      break;
+
     }
   } else{
     switch(ch.enumeration){
@@ -198,7 +211,11 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
     return 1;
 
   case eClear: //clear
-    freeVari(var);
+    if(var->occ != 0){
+      for(int i = 0; i <= var->count; ++i){
+	freeMatrix(var->value[i]);
+      }
+    }
     var->occ = 0;
     var->count = 0;
     printf("\nAll variables cleared\n\n");
@@ -340,6 +357,8 @@ int findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 	out = extractValue(buffer, separatedString, var, &error);
 	if(out != NULL){
 	  pushn(out, num);
+	} else{
+	  error = -5;
 	}
 
 	freeDoubleArray(separatedString);
