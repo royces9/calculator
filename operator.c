@@ -188,6 +188,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
     case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
     case eExponentMatrix: out = exponentMatrix(a, b, error); break;
     case eDivideMatrix: out = divideMatrix(a, b, error); break;
+    case eAssign: out = assign(a, b, error); break;
     default: *error = -10; break;
     }
   }
@@ -445,6 +446,8 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
 
   case eAssign:
+    *tok = 0;
+    pushch(setOpstack("=", 2, 16, eAssign));
     break;
 
   case eAdd:

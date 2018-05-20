@@ -51,6 +51,10 @@ matrix *getSize(matrix *a, error_return *error){
 }
 
 
+matrix *assign(matrix *a, matrix *b, error_return *error){
+
+}
+
 matrix *divideMatrix(matrix *a, matrix *b, error_return *error){
 }
 

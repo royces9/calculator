@@ -100,7 +100,7 @@ error_return sya(char *input, vari *var) {
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
 	  pushn(initScalar(strtod(bufferLetters, &str2d), &error), &out);
 
-	} else if(!assignmentFlag && isAssign(input)) { //checks if the command is an assignment
+	} /*else if(!assignmentFlag && isAssign(input)) { //checks if the command is an assignment
 
 	  variableExist = varcheck(var, bufferLetters); //checks that the variable exists
 	  assignmentFlag = 1; //flag for assignment at the end of the sya loop
@@ -108,7 +108,7 @@ error_return sya(char *input, vari *var) {
 	  variableAssign = malloc(sizeof(*variableAssign) * (j + 1));
 	  strcpy(variableAssign, bufferLetters);
 
-	} else { //check if command is a function or variable
+	  } */else { //check if command is a function or variable
 	  if(input[i+1] == '(') {
 	    bufferLetters[j++] = '(';
 	  }

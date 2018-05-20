@@ -49,7 +49,6 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
   //file to read from
   FILE *inputFile = fopen(fileName, "r");
 
-
   //size of char buffer that each line of the file is copied too
   char buffer[1024];
 
@@ -73,9 +72,11 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
     return error = -8;
   }
 
+  
   //creates the tree structure
   for(int i = 0; fgets(buffer, 1024, inputFile); ++i) {
     int offset = 0;
+
     //removing trailing spaces
     if(buffer[0] == ' ') {
       //empty for loop
