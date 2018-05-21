@@ -494,15 +494,18 @@ matrix *extractValue(char *buffer, char **input, vari *var, error_return *error)
 
     if(dimension == 1){ //if the number of inputs is 1
       *error = sya(input[0], &varTemp);
-      out = copyMatrix(&varTemp.ans, error);
+      if(*error) return NULL;
 
+      out = copyMatrix(&varTemp.ans, error);
+      if(*error) return NULL;
+
+      //out is a matrix that holds indices
       for(int i = 0; i < out->length; ++i){
 
-	//check that the input is within bound
-	if((int)out->elements[i] <= varTemp.value[varIndex]->length){
-	  out->elements[i] = varTemp.value[varIndex]->elements[(int)out->elements[i] - 1];
+	--out->elements[i];
 
-	} else{
+	//check that the input is within bound
+	if((int)out->elements[i] >= varTemp.value[varIndex]->length){
 	  *error = -11;
 	  freeVari(&varTemp);
 	  freeMatrix(out);

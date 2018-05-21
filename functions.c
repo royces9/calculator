@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 
 #include "operator.h"
@@ -51,8 +52,35 @@ matrix *getSize(matrix *a, error_return *error){
 }
 
 
-matrix *assign(matrix *a, matrix *b, error_return *error){
+matrix *assign(matrix *a, matrix *b, matrix *c, error_return *error){
+  /*
+a - pointer to variable (left side of '=')
+b - pointer to index (if applicable)
+c - pointer to new value (right side of '=')
+   */
 
+  matrix *out = NULL;
+
+  if(b == NULL){
+    a->dimension = c->dimension;
+    a->length = c->length;
+    
+    free(a->elements);
+    free(a->size);
+
+    a->size = c->size;
+    a->elements = c->elements;
+
+    out = copyMatrix(a, error);
+  } else{
+    for(int i = 0; i < b->length; ++i){
+      a->elements[(int) b->elements[i]] = c->elements[(int) c->elements[i]];
+    }
+
+    out = copyMatrix(a, error);
+  }
+
+  return out;
 }
 
 matrix *divideMatrix(matrix *a, matrix *b, error_return *error){

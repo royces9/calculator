@@ -77,6 +77,13 @@ void execNum(numberStack *num, operatorStruct ch, error_return *error) {
     pushn(matrixTwoArg(a, b, ch, error), num);
     break;
 
+  case 3:
+    a = popn(num);
+    b = popn(num);
+    matrix *c = popn(num);
+    pushn(assign(c, b, a, error), num);
+    break;
+
   default:
     break;
   }
@@ -188,7 +195,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
     case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
     case eExponentMatrix: out = exponentMatrix(a, b, error); break;
     case eDivideMatrix: out = divideMatrix(a, b, error); break;
-    case eAssign: out = assign(a, b, error); break;
+      //case eAssign: out = assign(a, b, error); break;
     default: *error = -10; break;
     }
   }
@@ -356,6 +363,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 
 	out = extractValue(buffer, separatedString, var, &error);
 	if(out != NULL){
+	  pushn(var->value[k], num);
 	  pushn(out, num);
 	} else{
 	  error = -5;
@@ -367,7 +375,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
       } else{
 	k = varcheck(var, buffer);
 	if(k >= 0) {
-	  pushn(copyMatrix(var->value[k], &error), num);
+	  pushn(var->value[k], num);
+	  pushn(NULL, num);
 	  *tok = 1;
 	  return 0;
 	}
@@ -447,7 +456,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
   case eAssign:
     *tok = 0;
-    pushch(setOpstack("=", 2, 16, eAssign));
+    pushch(setOpStack("=", 3, 16, eAssign), oper);
     break;
 
   case eAdd:
