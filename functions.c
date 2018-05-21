@@ -52,9 +52,9 @@ matrix *getSize(matrix *a, error_return *error){
 }
 
 
-matrix *assign(matrix *a, matrix *b, matrix *c, error_return *error){
+matrix *assign(matrix **a, matrix *b, matrix *c, error_return *error){
   /*
-a - pointer to variable (left side of '=')
+a - pointer to address of variable (left side of '=')
 b - pointer to index (if applicable)
 c - pointer to new value (right side of '=')
    */
@@ -62,23 +62,22 @@ c - pointer to new value (right side of '=')
   matrix *out = NULL;
 
   if(b == NULL){
-    a->dimension = c->dimension;
-    a->length = c->length;
-    
-    free(a->elements);
-    free(a->size);
+    if(*a != NULL){
+      freeMatrix(*a);
+    }
+    *a = copyMatrix(c, error);
 
-    a->size = c->size;
-    a->elements = c->elements;
-
-    out = copyMatrix(a, error);
+    out = copyMatrix(*a, error);
   } else{
     for(int i = 0; i < b->length; ++i){
-      a->elements[(int) b->elements[i]] = c->elements[(int) c->elements[i]];
+      (*a)->elements[(int) b->elements[i]] = c->elements[(int) c->elements[i]];
     }
 
-    out = copyMatrix(a, error);
+    out = copyMatrix(*a, error);
+    freeMatrix(b);
   }
+
+  freeMatrix(c);
 
   return out;
 }

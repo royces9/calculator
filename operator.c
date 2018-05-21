@@ -78,10 +78,11 @@ void execNum(numberStack *num, operatorStruct ch, error_return *error) {
     break;
 
   case 3:
+
     a = popn(num);
     b = popn(num);
     matrix *c = popn(num);
-    pushn(assign(c, b, a, error), num);
+    pushn(assign(&c, b, a, error), num);
     break;
 
   default:
@@ -360,8 +361,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 
 	buffer[varLen - 1] = '\0';
 	separatedString = separateString(input, "()", ',', start, &error);
-
 	out = extractValue(buffer, separatedString, var, &error);
+
 	if(out != NULL){
 	  pushn(var->value[k], num);
 	  pushn(out, num);
@@ -370,7 +371,6 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	}
 
 	freeDoubleArray(separatedString);
-	return error;
 
       } else{
 	k = varcheck(var, buffer);
@@ -378,11 +378,29 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	  pushn(var->value[k], num);
 	  pushn(NULL, num);
 	  *tok = 1;
-	  return 0;
+	  return error;
+
+	} else{
+	  if(k == -1){
+	    k = 0;
+	    var->occ = 1;
+
+	  } else if(k == -1){
+	    k = ++var->count;
+
+	  } else{
+	    error = -5;
+	    k = var->count + 1;
+	  }
+
+	  strcpy(var->name[k], buffer);
+	  var->value[k] = NULL;
+	  pushn(var->value[k], num);
+	  pushn(NULL, num);
 	}
       }
     }
-    break;
+    return error;
 
   default:
     break;

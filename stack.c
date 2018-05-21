@@ -107,8 +107,8 @@ vari copyVari(vari *var, error_return *error){
 error_return setVariable(vari *var, char *name, char check){
   //check is from the output of varcheck
 
-  error_return error = 0;
   int index = 0;
+  error_return error = 0;
 
   switch(check){
   case -1: //new variable, struct is empty
@@ -121,17 +121,12 @@ error_return setVariable(vari *var, char *name, char check){
     break;
 
   default: //variable exists already
-    index = check;
-
-    //free the already existing variable
-    freeMatrix(var->value[index]);
+    error = -5;
     break;
   }
 
-  var->value[index] = copyMatrix(&var->ans, &error);
   strcpy(var->name[index], name);
 
-  free(name);
   return error;
 }
 
