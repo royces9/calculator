@@ -171,7 +171,7 @@ error_return sya(char *input, vari *var) {
   }//end of for
 
   while(out.occ && operatorStack.occ) { //while the operator and number stack are occupied, keep executing
-    execNum(&out, popch(&operatorStack), &error);
+    execNum(&out, var, popch(&operatorStack), &error);
   }
 
   if(error){

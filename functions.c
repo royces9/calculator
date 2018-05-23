@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "operator.h"
 #include "functions.h"
@@ -52,35 +53,51 @@ matrix *getSize(matrix *a, error_return *error){
 }
 
 
-matrix *assign(matrix **a, matrix *b, matrix *c, error_return *error){
-  /*
-a - pointer to address of variable (left side of '=')
-b - pointer to index (if applicable)
-c - pointer to new value (right side of '=')
-   */
+matrix *reference(matrix *a, matrix *b, error_return *error){
 
-  matrix *out = NULL;
+  matrix *out = copyMatrix(b, error);
 
-  if(b == NULL){
-    if(*a != NULL){
-      freeMatrix(*a);
-    }
-    *a = copyMatrix(c, error);
-
-    out = copyMatrix(*a, error);
-  } else{
-    for(int i = 0; i < b->length; ++i){
-      (*a)->elements[(int) b->elements[i]] = c->elements[(int) c->elements[i]];
-    }
-
-    out = copyMatrix(*a, error);
-    freeMatrix(b);
+  for(int i = 0; i < b->length; ++i){
+    out->elements[i] = a->elements[(int) b->elements[i]];
   }
-
-  freeMatrix(c);
 
   return out;
 }
+
+
+matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
+  /*
+a - pointer to address of variable (left side of '=')
+b - pointer to new value (right side of '=')
+   */
+
+
+  matrix *out = NULL;
+  matrix *temp = NULL;
+  if(var->assignIndex == NULL){
+    a->length = b->length;
+    a->dimension = b->dimension;
+
+    a->elements = malloc(sizeof(*a->elements) * a->length);
+    memcpy(a->elements, b->elements, sizeof(*a->elements) * a->length);
+
+    a->size = malloc(sizeof(*a->size) * (a->dimension + 1));
+    memcpy(a->size, b->size, sizeof(*a->size) * (a->dimension + 1));
+
+    out = copyMatrix(a, error);
+
+  } else{
+    for(int i = 0; i < var->assignIndex->length; ++i){
+      (a)->elements[(int) var->assignIndex->elements[i]] = b->elements[i];
+    }
+
+    out = copyMatrix(a, error);
+  }
+
+
+  return out;
+}
+
 
 matrix *divideMatrix(matrix *a, matrix *b, error_return *error){
 }

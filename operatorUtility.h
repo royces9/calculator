@@ -5,7 +5,7 @@
 //enums/constants/etc
 
 #define FUNCTION_COUNT 35
-#define OPERATOR_COUNT 21
+#define OPERATOR_COUNT 22
 
 extern const char OPERATOR_LIST[OPERATOR_COUNT][5];
 extern const char FUNCTION_LIST[FUNCTION_COUNT][20];
@@ -80,7 +80,9 @@ enum operatorEnum {
 
   eAnd,
   eOr,
-  eNot
+  eNot,
+
+  eReference
 };
 
 

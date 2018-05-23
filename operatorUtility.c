@@ -69,7 +69,9 @@ const char OPERATOR_LIST[OPERATOR_COUNT][5] = {
 
   "&&",
   "||",
-  "~"
+  "~",
+
+  "r"
 };
 
 
@@ -99,4 +101,6 @@ const int operatorPrecedence[OPERATOR_COUNT] = {
   9,
   11,
   12,
+
+  0
 }; //~is not implemented at the moment

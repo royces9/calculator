@@ -7,7 +7,7 @@
 int searchFunctionArray(char *buffer);
 int searchOperatorArray(char *buffer);
 operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration);
-void execNum(numberStack *num, operatorStruct ch, error_return *error);
+void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error);
 
 matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error);
 matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *error);

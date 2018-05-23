@@ -23,6 +23,7 @@ matrix *popn(numberStack *st) { //pop a matrix from the stack
       st->top = 0;
     }
   }
+
   return out;
 }
 
@@ -84,6 +85,8 @@ vari newVari(void) {
 
   var.ans.size = NULL;
   var.ans.elements = NULL;
+
+  var.assignIndex = NULL;
   return var;
 }
 
@@ -143,6 +146,10 @@ void freeVari(vari *var){
 
   if(var->ans.elements != NULL){
     free(var->ans.elements);
+  }
+
+  if(var->assignIndex != NULL){
+    freeMatrix(var->assignIndex);
   }
 }
 

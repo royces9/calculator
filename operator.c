@@ -45,7 +45,7 @@ operatorStruct setOpStack(const char *operator, int argNo, int precedence, int e
 
 
 //executes either one argument function or two argument function
-void execNum(numberStack *num, operatorStruct ch, error_return *error) {
+void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error) {
   matrix *a = NULL, *b = NULL;
 
   switch(ch.argNo) {
@@ -78,11 +78,10 @@ void execNum(numberStack *num, operatorStruct ch, error_return *error) {
     break;
 
   case 3:
-
-    a = popn(num);
     b = popn(num);
-    matrix *c = popn(num);
-    pushn(assign(&c, b, a, error), num);
+    a = popn(num);
+    pushn(assign(a, b, var, error), num);
+    freeMatrix(b);
     break;
 
   default:
@@ -196,6 +195,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
     case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
     case eExponentMatrix: out = exponentMatrix(a, b, error); break;
     case eDivideMatrix: out = divideMatrix(a, b, error); break;
+    case eReference: out = reference(a, b, error); break;
       //case eAssign: out = assign(a, b, error); break;
     default: *error = -10; break;
     }
@@ -357,7 +357,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
       int varLen = strlen(buffer);
       int k = 0;
       matrix *out = NULL;
-      if(buffer[varLen-1] == '('){
+      if(buffer[varLen - 1] == '('){
 
 	buffer[varLen - 1] = '\0';
 	separatedString = separateString(input, "()", ',', start, &error);
@@ -366,6 +366,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	if(out != NULL){
 	  pushn(var->value[k], num);
 	  pushn(out, num);
+
+	  pushch(setOpStack("r", 2, 0, eReference), ch);
 	} else{
 	  error = -5;
 	}
@@ -375,8 +377,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
       } else{
 	k = varcheck(var, buffer);
 	if(k >= 0) {
-	  pushn(var->value[k], num);
-	  pushn(NULL, num);
+	  pushn(copyMatrix(var->value[k], &error), num);
 	  *tok = 1;
 	  return error;
 
@@ -394,9 +395,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	  }
 
 	  strcpy(var->name[k], buffer);
-	  var->value[k] = NULL;
+	  var->value[k] = malloc(sizeof(*var->value[k]));
 	  pushn(var->value[k], num);
-	  pushn(NULL, num);
 	}
       }
     }
@@ -437,7 +437,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eSubtract:
     if(*tok == 1) {
       while((oper->stk[oper->top].precedence <= 6) && oper->occ == 1) {
-	execNum(num, popch(oper), &error);
+	execNum(num, var, popch(oper), &error);
       }
       pushch(setOpStack("+", 2, 6, eAdd), oper);
     }
@@ -464,7 +464,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
   case eRightParen:
     do {
-      execNum(num, popch(oper), &error);
+      execNum(num, var, popch(oper), &error);
     } while(strcmp(oper->stk[oper->top].operator, "(") && oper->occ == 1);
 
     *tok = 1;
@@ -474,6 +474,9 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
   case eAssign:
     *tok = 0;
+    if(oper->stk[oper->top].enumeration == eReference){
+      var->assignIndex = popn(num);
+    }
     pushch(setOpStack("=", 3, 16, eAssign), oper);
     break;
 
@@ -491,7 +494,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eMultiplyMatrix:
   case eDivideMatrix:
     while((oper->stk[oper->top].precedence <= operatorPrecedence[i]) && (oper->occ == 1)) {
-      execNum(num, popch(oper), &error);
+      execNum(num, var, popch(oper), &error);
     }
     *tok = 0;
     pushch(setOpStack(buffer, 2, operatorPrecedence[i], i), oper);
