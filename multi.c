@@ -480,11 +480,9 @@ input[2] = number of elements
 }
 
 
-matrix *extractValue(char *buffer, char **input, vari *var, error_return *error){
+matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_return *error){
   int varLen = strlen(buffer);
   matrix *out = NULL;
-
-  int varIndex = varcheck(var, buffer);
 
   //for variables that exist
   if(varIndex >= 0){
@@ -552,10 +550,12 @@ matrix *extractValue(char *buffer, char **input, vari *var, error_return *error)
       }
       
     } else{
-      *error  = -5;
+      *error  = -11;
     }
 
     freeVari(&varTemp);
+  } else {
+    *error = -5;
   }
 
   return out;

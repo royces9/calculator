@@ -97,6 +97,8 @@ vari copyVari(vari *var, error_return *error){
   out.ans.elements = NULL;
   out.ans.size = NULL;
   
+  out.assignIndex = NULL;
+  
   if(var->occ){
     for(int i = 0; i <= var->count; ++i){
       strcpy(out.name[i], var->name[i]);

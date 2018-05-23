@@ -30,9 +30,6 @@ error_return sya(char *input, vari *var) {
   int parenthesisCount = 0; 
   int bracketCount = 0;
 
-  //flag to check if there is an assignment
-  int8_t assignmentFlag = 0;
-
   //to check if the '-' char is subtraction or a negative
   int negativeCheck = 0;
 
@@ -100,15 +97,7 @@ error_return sya(char *input, vari *var) {
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
 	  pushn(initScalar(strtod(bufferLetters, &str2d), &error), &out);
 
-	} /*else if(!assignmentFlag && isAssign(input)) { //checks if the command is an assignment
-
-	  variableExist = varcheck(var, bufferLetters); //checks that the variable exists
-	  assignmentFlag = 1; //flag for assignment at the end of the sya loop
-
-	  variableAssign = malloc(sizeof(*variableAssign) * (j + 1));
-	  strcpy(variableAssign, bufferLetters);
-
-	  } */else { //check if command is a function or variable
+	} else { //check if command is a function or variable
 	  if(input[i+1] == '(') {
 	    bufferLetters[j++] = '(';
 	  }
@@ -197,13 +186,6 @@ error_return sya(char *input, vari *var) {
   var->ans.size = malloc(sizeof(*var->ans.size) * (var->ans.dimension + 1));
   memcpy(var->ans.size, out.stk[0]->size, sizeof(*var->ans.size) * (var->ans.dimension + 1));
 
-
-  if(assignmentFlag) {
-    //set variable if there was an assignment
-    //check that the newly assigned variable hasn't been assigned before
-    //free it if it has
-    error = setVariable(var, variableAssign, variableExist);
-  }
 
   //free everything in the numberStack
   emptyNumberStack(&out);

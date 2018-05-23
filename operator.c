@@ -74,6 +74,7 @@ void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error
       *error = -10;
       return;
     }
+
     pushn(matrixTwoArg(a, b, ch, error), num);
     break;
 
@@ -196,7 +197,6 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
     case eExponentMatrix: out = exponentMatrix(a, b, error); break;
     case eDivideMatrix: out = divideMatrix(a, b, error); break;
     case eReference: out = reference(a, b, error); break;
-      //case eAssign: out = assign(a, b, error); break;
     default: *error = -10; break;
     }
   }
@@ -361,15 +361,16 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 
 	buffer[varLen - 1] = '\0';
 	separatedString = separateString(input, "()", ',', start, &error);
-	out = extractValue(buffer, separatedString, var, &error);
+
+	k = varcheck(var, buffer);
+
+	out = extractValue(buffer, separatedString, k, var, &error);
 
 	if(out != NULL){
 	  pushn(var->value[k], num);
 	  pushn(out, num);
 
 	  pushch(setOpStack("r", 2, 0, eReference), ch);
-	} else{
-	  error = -5;
 	}
 
 	freeDoubleArray(separatedString);
@@ -379,14 +380,12 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	if(k >= 0) {
 	  pushn(copyMatrix(var->value[k], &error), num);
 	  *tok = 1;
-	  return error;
 
 	} else{
 	  if(k == -1){
 	    k = 0;
-	    var->occ = 1;
 
-	  } else if(k == -1){
+	  } else if(k == -2){
 	    k = ++var->count;
 
 	  } else{
@@ -476,6 +475,8 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
     *tok = 0;
     if(oper->stk[oper->top].enumeration == eReference){
       var->assignIndex = popn(num);
+
+      popch(oper);
     }
     pushch(setOpStack("=", 3, 16, eAssign), oper);
     break;

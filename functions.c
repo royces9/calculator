@@ -54,7 +54,6 @@ matrix *getSize(matrix *a, error_return *error){
 
 
 matrix *reference(matrix *a, matrix *b, error_return *error){
-
   matrix *out = copyMatrix(b, error);
 
   for(int i = 0; i < b->length; ++i){
@@ -67,35 +66,41 @@ matrix *reference(matrix *a, matrix *b, error_return *error){
 
 matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
   /*
-a - pointer to address of variable (left side of '=')
+a - pointer to variable (left side of '=')
 b - pointer to new value (right side of '=')
    */
 
 
-  matrix *out = NULL;
-  matrix *temp = NULL;
+  var->occ = 1;
+
   if(var->assignIndex == NULL){
+    //init new matrix
+    //copyMatrix not done because the
+    //pointer 'a' is malloc'd in findFunction
+
     a->length = b->length;
     a->dimension = b->dimension;
 
+
     a->elements = malloc(sizeof(*a->elements) * a->length);
+    __MALLOC_CHECK(a->elements, *error);
+
     memcpy(a->elements, b->elements, sizeof(*a->elements) * a->length);
 
+
     a->size = malloc(sizeof(*a->size) * (a->dimension + 1));
+    __MALLOC_CHECK(a->size, *error);
+
     memcpy(a->size, b->size, sizeof(*a->size) * (a->dimension + 1));
 
-    out = copyMatrix(a, error);
-
   } else{
+
     for(int i = 0; i < var->assignIndex->length; ++i){
       (a)->elements[(int) var->assignIndex->elements[i]] = b->elements[i];
     }
-
-    out = copyMatrix(a, error);
   }
 
-
-  return out;
+  return copyMatrix(a, error);
 }
 
 
