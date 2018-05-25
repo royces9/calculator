@@ -13,6 +13,7 @@ typedef struct matrix{
   int dimension; //number of dimensions
   int *size; //size of the array
   element *elements; //elements of vector
+  int8_t variable; //variable flag
 } matrix; 
 
 

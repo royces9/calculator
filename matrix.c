@@ -18,6 +18,7 @@ matrix *initMatrix(int *size, int dimension, error_return *error){
 
   out->size = memcpy(out->size, size, sizeof(*out->size) * dimension);
 
+  out->variable = 0;
 
   //get the total length of the array to malloc
   out->length = getLength(size, dimension);
@@ -61,6 +62,8 @@ matrix *initScalar(element e, error_return *error){
 
   *out->elements = e;
 
+  out->variable = 0;
+
   return out;
 }
 
@@ -71,6 +74,7 @@ matrix *copyMatrix(matrix *src, error_return *error){
 
   dest->dimension = src->dimension;
   dest->length = src->length;
+  dest->variable = 0;
 
   dest->elements = malloc(sizeof(*dest->elements) * dest->length);
   __MALLOC_CHECK(dest->elements, *error);  
@@ -253,9 +257,11 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error){
 //free the matrix and all of the data
 //associated with it
 void freeMatrix(matrix *m){
-  free(m->size);
-  free(m->elements);
-  free(m);
+  if(!m->variable){
+    free(m->size);
+    free(m->elements);
+    free(m);
+  }
 }
 
 

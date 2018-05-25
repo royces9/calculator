@@ -12,7 +12,7 @@
 error_return sya(char *input, vari *var) {
 
   //stack for output numbers
-  numberStack out = newNumberStack();
+  numberStack *out = newNumberStack();
 
   //stack for operators
   operatorStack operatorStack = newOperatorStack();
@@ -95,7 +95,7 @@ error_return sya(char *input, vari *var) {
 	bufferLetters[j] = '\0';
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
-	  pushn(initScalar(strtod(bufferLetters, &str2d), &error), &out);
+	  pushn(initScalar(strtod(bufferLetters, &str2d), &error), out);
 
 	} else { //check if command is a function or variable
 	  if(input[i+1] == '(') {
@@ -103,7 +103,7 @@ error_return sya(char *input, vari *var) {
 	  }
 
 	  bufferLetters[j] = '\0';
-	  error = findFunction(bufferLetters, &out, &operatorStack, var, &negativeCheck, &i, input);
+	  error = findFunction(bufferLetters, out, &operatorStack, var, &negativeCheck, &i, input);
 	}
 	j = 0; //reset counter for buffer
       } //end if
@@ -120,7 +120,7 @@ error_return sya(char *input, vari *var) {
       //valid operator, if it is not, then go into the if and find the correct operator in findOperator
       if(checkOperator(input[i], input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, &out, &operatorStack, var, &negativeCheck); //find the corresponding operator
+	error = findOperator(bufferOper, out, &operatorStack, var, &negativeCheck); //find the corresponding operator
 	k = 0;
       }
       break;
@@ -129,7 +129,7 @@ error_return sya(char *input, vari *var) {
     case 3: //'.'
       if(type[i+1] == 2){
 	char matrixOper[3] = {input[i], input[i+1], 0};
-	error = findOperator(matrixOper, &out, &operatorStack, var, &negativeCheck);
+	error = findOperator(matrixOper, out, &operatorStack, var, &negativeCheck);
 	++i;
 	j = 0;
       } else if(type[i+1] == 1){
@@ -143,7 +143,7 @@ error_return sya(char *input, vari *var) {
 
       
     case 4: //"[]"
-      pushn(extractMatrix(var, &i, input, &error), &out);
+      pushn(extractMatrix(var, &i, input, &error), out);
       break;
 
       
@@ -154,41 +154,42 @@ error_return sya(char *input, vari *var) {
       
     }//end of switch
     if((error < 0) || (error == 1)) { //break if error or quit
-      emptyNumberStack(&out);
+      freeNumberStack(out);
       return error;
     }
   }//end of for
 
-  while(out.occ && operatorStack.occ) { //while the operator and number stack are occupied, keep executing
-    execNum(&out, var, popch(&operatorStack), &error);
+  while(out->occ && operatorStack.occ) { //while the operator and number stack are occupied, keep executing
+    execNum(out, var, popch(&operatorStack), &error);
   }
 
   if(error){
-    emptyNumberStack(&out);
+    freeNumberStack(out);
     return error;
   }
 
-  if(var->ans.elements != NULL){
-    free(var->ans.elements);
+  if(var->ans->elements != NULL){
+    free(var->ans->elements);
   }
-  if(var->ans.size != NULL){
-    free(var->ans.size);
+  if(var->ans->size != NULL){
+    free(var->ans->size);
   }
 
   
   //copy out.stk[0] to var->ans
-  var->ans.length = out.stk[0]->length;
-  var->ans.dimension = out.stk[0]->dimension;
+  var->ans->length = out->stk[0]->length;
+  var->ans->dimension = out->stk[0]->dimension;
 
-  var->ans.elements = malloc(sizeof(*var->ans.elements) * var->ans.length);
-  memcpy(var->ans.elements, out.stk[0]->elements, sizeof(*var->ans.elements) * var->ans.length);
+  var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
+  memcpy(var->ans->elements, out->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
   
-  var->ans.size = malloc(sizeof(*var->ans.size) * (var->ans.dimension + 1));
-  memcpy(var->ans.size, out.stk[0]->size, sizeof(*var->ans.size) * (var->ans.dimension + 1));
+  var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
+  memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
+
 
 
   //free everything in the numberStack
-  emptyNumberStack(&out);
+  freeNumberStack(out);
 
   return error;
 }

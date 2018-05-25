@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
   error_return error = 0;
   
   //initialize variable struct
-  vari var = newVari();
+  vari *var = newVari();
 
   //init random seed
   srand(time(0));
@@ -20,10 +20,10 @@ int main(int argc, char *argv[]) {
   if(argc > 1) {
     for(int i = 1; i < argc; ++i){
       printf(">>%s\n", *(argv+i));
-      error = sya(argv[i], &var);
+      error = sya(argv[i], var);
 
       if(error == 0) {
-	printMatrix(var.ans);
+	printMatrix(*var->ans);
       } else{
 	errorReport(error);
       }
@@ -40,14 +40,14 @@ int main(int argc, char *argv[]) {
       free(input);
       continue;
     } else{ //parses string and does all the calculations
-      error = sya(input, &var);
+      error = sya(input, var);
     }
 
     if(error == 0) {
 
       //suppress output if the line ends with ';'
       if(input[strlen(input) - 1] != ';'){
-	printMatrix(var.ans);
+	printMatrix(*var->ans);
       }
 
     } else{ //if the error is less than -1, prints an error code
@@ -56,6 +56,6 @@ int main(int argc, char *argv[]) {
     free(input); //readline mallocs the input line
   }
 
-  freeVari(&var);
+  freeVari(var);
   return 0;
 }

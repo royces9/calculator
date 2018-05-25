@@ -259,7 +259,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
   case eAns:
     { //because ans is not a heap variable, make a
       //copy of it and push the copy
-      pushn(copyMatrix(&var->ans, &error), num);
+      pushn(copyMatrix(var->ans, &error), num);
       *tok = 1;
     }
     return 0;
@@ -341,7 +341,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     error = runFile(separatedString, var);
 
     //copy ans matrix because it's not a heap variable
-    pushn(copyMatrix(&var->ans, &error), num);
+    pushn(copyMatrix(var->ans, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
@@ -378,7 +378,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
       } else{
 	k = varcheck(var, buffer);
 	if(k >= 0) {
-	  pushn(copyMatrix(var->value[k], &error), num);
+	  var->value[k]->variable = 1;
+	  pushn(var->value[k], num);
 	  *tok = 1;
 
 	} else{
@@ -393,8 +394,14 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	    k = var->count + 1;
 	  }
 
+	  var->name[k] = malloc(sizeof(*var->name[k]) * (varLen + 1));
 	  strcpy(var->name[k], buffer);
+
 	  var->value[k] = malloc(sizeof(*var->value[k]));
+	  var->value[k]->variable = 1;
+	  var->value[k]->size = NULL;
+	  var->value[k]->elements = NULL;
+
 	  pushn(var->value[k], num);
 	}
       }
@@ -647,68 +654,69 @@ matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
   }
 
   //number stack for creating the matrix
-  numberStack numStk = newNumberStack();
+  numberStack *numStk = newNumberStack();
 
   char **separatedMatrix = separateMatrix(matrixString, countDelimiter(matrixString), error);
 
   //free matrixString, not needed anymore
   free(matrixString);
 
-  vari tempVari = copyVari(var, error);
-  *error = sya(separatedMatrix[0], &tempVari);
+  vari *tempVari = copyVari(var, error);
+  *error = sya(separatedMatrix[0], tempVari);
 
-  pushn(copyMatrix(&tempVari.ans, error), &numStk);
+  pushn(copyMatrix(tempVari->ans, error), numStk);
 
   matrix *a, *b, *out;
 
   for(int i = 1; separatedMatrix[i]; ++i){
     if(separatedMatrix[i][1] == 0){
       *error = -4;
-      emptyNumberStack(&numStk);
-      freeVari(&tempVari);
+      freeNumberStack(numStk);
+      freeVari(tempVari);
       freeDoubleArray(separatedMatrix);
       return NULL;
     }
 
     switch(separatedMatrix[i][0]){
     case ',':
-      *error = sya(separatedMatrix[i] + 1, &tempVari);
-      a = popn(&numStk);
+      *error = sya(separatedMatrix[i] + 1, tempVari);
+      a = popn(numStk);
 
-      pushn(concatMatrix(a, &tempVari.ans, 1, error), &numStk);
+      pushn(concatMatrix(a, tempVari->ans, 1, error), numStk);
       freeMatrix(a);
       break;
 
     case ';':
-      *error = sya(separatedMatrix[i] + 1, &tempVari);
+      *error = sya(separatedMatrix[i] + 1, tempVari);
 
-      pushn(copyMatrix(&tempVari.ans, error), &numStk);
+      pushn(copyMatrix(tempVari->ans, error), numStk);
       break;
       
     default:
       *error = -10;
-      emptyNumberStack(&numStk);
+      freeNumberStack(numStk);
       freeDoubleArray(separatedMatrix);
-      freeVari(&tempVari);
+      freeVari(tempVari);
       return NULL;
     }
   }
 
-  while(numStk.occ && (numStk.top != 0)){
-    b = popn(&numStk);
-    a = popn(&numStk);
+  while(numStk->occ && (numStk->top != 0)){
+    b = popn(numStk);
+    a = popn(numStk);
 
-    pushn(concatMatrix(a, b, 0, error), &numStk);
+    pushn(concatMatrix(a, b, 0, error), numStk);
 
     freeMatrix(a);
     freeMatrix(b);
   }
 
-  freeVari(&tempVari);
+  freeVari(tempVari);
 
   freeDoubleArray(separatedMatrix);
 
-  out = popn(&numStk);
+  out = popn(numStk);
+  free(numStk);
 
   return out;
 }

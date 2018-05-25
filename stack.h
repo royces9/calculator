@@ -12,10 +12,10 @@
 
 
 typedef struct { //struct for operators, +, -, etc
-  char operator[2]; //char holding operator/function
   int precedence; //order of operation, higher is higher priority
   int argNo; //number of arguments it takes, generally two or one
   int enumeration; //corresponding enum
+  char operator[2]; //char holding operator/function
 } operatorStruct;
 
 
@@ -34,12 +34,12 @@ typedef struct { //same as numberStack, except for operators
 
 
 typedef struct { //variable storage
-  char name[256][256]; //stores variable names
+  matrix *assignIndex; //pointer to matrix index to assign to, if assignment
   matrix *value[256]; //stores variable values
-  matrix ans;
-  matrix *assignIndex;
-  char occ; //same as numberStack
+  char *name[256]; //stores variable names
+  matrix *ans; //answer matrix
   int count; //index for the newest variable
+  char occ; //same as numberStack
 } vari;
 
 
@@ -49,14 +49,15 @@ matrix *popn(numberStack *st);
 void pushch(operatorStruct inp, operatorStack *st);
 operatorStruct popch(operatorStack *st);
 
-numberStack newNumberStack(void);
+numberStack *newNumberStack(void);
 operatorStack newOperatorStack(void);
 
-vari newVari(void);
-vari copyVari(vari *var, error_return *error);
+vari *newVari(void);
+vari *copyVari(vari *var, error_return *error);
+
 error_return setVariable(vari *var, char *name, char check);
 void freeVari(vari *var);
 
-void emptyNumberStack(numberStack *st);
+void freeNumberStack(numberStack *st);
 
 #endif //STACK

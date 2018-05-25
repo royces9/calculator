@@ -58,11 +58,11 @@ operatorStruct popch(operatorStack *st) {
 }
 
 
-numberStack newNumberStack(void) { //make new number stack
-  numberStack out;
-  out.top = 0;
-  out.occ = 0;
-  memset(out.stk, 0, sizeof(out.stk));
+numberStack *newNumberStack(void) { //make new number stack
+  numberStack *out = malloc(sizeof(*out));
+  out->top = 0;
+  out->occ = 0;
+  memset(out->stk, 0, sizeof(out->stk));
   return out;
 }
 
@@ -76,33 +76,42 @@ operatorStack newOperatorStack(void) { //make new operator stack
 }
 
 
-vari newVari(void) {
-  vari var;
-  var.count = 0;
-  var.occ = 0;
-  memset(var.name, '\0', sizeof(var.name));
-  memset(var.value, 0, sizeof(var.value));
+vari *newVari(void) {
+  vari *var = malloc(sizeof(*var));
+  var->count = 0;
+  var->occ = 0;
+  memset(var->name, '\0', sizeof(var->name));
+  memset(var->value, 0, sizeof(var->value));
 
-  var.ans.size = NULL;
-  var.ans.elements = NULL;
+  var->ans = malloc(sizeof(*var->ans));
+  var->ans->size = NULL;
+  var->ans->elements = NULL;
+  var->ans->variable = 0;
 
-  var.assignIndex = NULL;
+  var->assignIndex = NULL;
+
   return var;
 }
 
 
-vari copyVari(vari *var, error_return *error){
-  vari out = *var;
+vari *copyVari(vari *var, error_return *error){
+  vari *out = malloc(sizeof(*out));
 
-  out.ans.elements = NULL;
-  out.ans.size = NULL;
+  out->ans = malloc(sizeof(*out->ans));
+  out->ans->elements = NULL;
+  out->ans->size = NULL;
   
-  out.assignIndex = NULL;
+  out->assignIndex = NULL;
   
+  out->count = var->count;
+  out->occ = var->occ;
+
   if(var->occ){
     for(int i = 0; i <= var->count; ++i){
-      strcpy(out.name[i], var->name[i]);
-      out.value[i] = copyMatrix(var->value[i], error);
+      out->value[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
+      strcpy(out->name[i], var->name[i]);
+
+      out->value[i] = copyMatrix(var->value[i], error);
     }
   }
   return out;
@@ -138,26 +147,35 @@ error_return setVariable(vari *var, char *name, char check){
 void freeVari(vari *var){
   if(var->occ != 0){
     for(int i = 0; i <= var->count; ++i){
+      var->value[i]->variable = 0;
       freeMatrix(var->value[i]);
+      free(var->name[i]);
     }
   }
 
-  if(var->ans.size != NULL){
-    free(var->ans.size);
+
+  if(var->ans->size != NULL){
+    free(var->ans->size);
   }
 
-  if(var->ans.elements != NULL){
-    free(var->ans.elements);
+  if(var->ans->elements != NULL){
+    free(var->ans->elements);
   }
+
+  free(var->ans);
 
   if(var->assignIndex != NULL){
     freeMatrix(var->assignIndex);
   }
+
+  free(var);
 }
 
 
-void emptyNumberStack(numberStack *st){
+void freeNumberStack(numberStack *st){
   while(st->occ == 1){
     freeMatrix(popn(st));
   }
+
+  free(st);
 }

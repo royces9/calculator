@@ -70,34 +70,45 @@ a - pointer to variable (left side of '=')
 b - pointer to new value (right side of '=')
    */
 
-
   var->occ = 1;
+  if(a->variable){
+    if(var->assignIndex == NULL){
+      //init new matrix
+      //copyMatrix not done because the
+      //pointer 'a' is malloc'd in findFunction
 
-  if(var->assignIndex == NULL){
-    //init new matrix
-    //copyMatrix not done because the
-    //pointer 'a' is malloc'd in findFunction
+      if(a->elements != NULL){
+	free(a->elements);
+      }
 
-    a->length = b->length;
-    a->dimension = b->dimension;
-
-
-    a->elements = malloc(sizeof(*a->elements) * a->length);
-    __MALLOC_CHECK(a->elements, *error);
-
-    memcpy(a->elements, b->elements, sizeof(*a->elements) * a->length);
+      if(a->size != NULL){
+	free(a->size);
+      }
+      
+      a->length = b->length;
+      a->dimension = b->dimension;
 
 
-    a->size = malloc(sizeof(*a->size) * (a->dimension + 1));
-    __MALLOC_CHECK(a->size, *error);
+      a->elements = malloc(sizeof(*a->elements) * a->length);
+      __MALLOC_CHECK(a->elements, *error);
 
-    memcpy(a->size, b->size, sizeof(*a->size) * (a->dimension + 1));
+      memcpy(a->elements, b->elements, sizeof(*a->elements) * a->length);
 
-  } else{
 
-    for(int i = 0; i < var->assignIndex->length; ++i){
-      (a)->elements[(int) var->assignIndex->elements[i]] = b->elements[i];
+      a->size = malloc(sizeof(*a->size) * (a->dimension + 1));
+      __MALLOC_CHECK(a->size, *error);
+
+      memcpy(a->size, b->size, sizeof(*a->size) * (a->dimension + 1));
+
+    } else{
+
+      for(int i = 0; i < var->assignIndex->length; ++i){
+	(a)->elements[(int) var->assignIndex->elements[i]] = b->elements[i];
+      }
     }
+  } else{
+    *error = -12;
+    return NULL;
   }
 
   return copyMatrix(a, error);

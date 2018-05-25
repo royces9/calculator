@@ -154,7 +154,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
   //create new file stack
   fileStack stk = newFileStack();
 
-  vari tempVar = copyVari(var, &error);
+  vari *tempVar = copyVari(var, &error);
   
   //executes the tree
   //checks that the current leaf and the string it holds are not NULL
@@ -170,7 +170,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
     switch(direction) {
     case 1: //if
-      check = checkConditional(tree->line, direction, &tempVar);
+      check = checkConditional(tree->line, direction, tempVar);
       if(check < 0) { //if there is an error in the if
 	return check;
       }
@@ -188,7 +188,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
       break;
 
     case 2: //while
-      check = checkConditional(tree->line, direction, &tempVar);
+      check = checkConditional(tree->line, direction, tempVar);
       if(check < 0) {
 	return check;
       }
@@ -228,16 +228,16 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
       
     default: //for executing non conditional lines
-      error = sya(tree->line, &tempVar);
+      error = sya(tree->line, tempVar);
 
       if(error < -1) {
-	freeVari(&tempVar);
+	freeVari(tempVar);
 	return error;
       }
 
       //print output
       if((tree->line[strlen(tree->line)-1] != ';') && direction == 0) {
-	printMatrix(tempVar.ans);
+	printMatrix(*tempVar->ans);
       }
 
       //continue execution going left
@@ -246,21 +246,21 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
     }
   }
 
-  if((var->ans.elements != NULL) && (var->ans.size != NULL)){
-    free(var->ans.elements);
-    free(var->ans.size);
+  if((var->ans->elements != NULL) && (var->ans->size != NULL)){
+    free(var->ans->elements);
+    free(var->ans->size);
   }
 
-  var->ans.length = tempVar.ans.length;
-  var->ans.dimension = tempVar.ans.dimension;
+  var->ans->length = tempVar->ans->length;
+  var->ans->dimension = tempVar->ans->dimension;
 
-  var->ans.elements = malloc(sizeof(*var->ans.elements) * var->ans.length);
-  memcpy(var->ans.elements, tempVar.ans.elements, sizeof(*var->ans.elements) * var->ans.length);
+  var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
+  memcpy(var->ans->elements, tempVar->ans->elements, sizeof(*var->ans->elements) * var->ans->length);
 
-  var->ans.size = malloc(sizeof(*var->ans.size) * (var->ans.dimension + 1));
-  memcpy(var->ans.size, tempVar.ans.size, sizeof(*var->ans.size) * (var->ans.dimension + 1));
+  var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
+  memcpy(var->ans->size, tempVar->ans->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
   
-  freeVari(&tempVar);
+  freeVari(tempVar);
 
   return error;
 }
@@ -302,7 +302,7 @@ int8_t checkConditional(char *input, int type, vari *var) {
   if(error) return error; 
 
   //element out = tempVar.ans.elements[0];
-  element out = var->ans.elements[0];
+  element out = var->ans->elements[0];
 
   //freeVari(&tempVar);
 
