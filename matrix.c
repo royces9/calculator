@@ -69,6 +69,10 @@ matrix *initScalar(element e, error_return *error){
 
 
 matrix *copyMatrix(matrix *src, error_return *error){
+  if(src == NULL){
+    return NULL;
+  }
+
   matrix *dest = malloc(sizeof(*dest));
   __MALLOC_CHECK(dest, *error);  
 

@@ -172,6 +172,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
     case 1: //if
       check = checkConditional(tree->line, direction, tempVar);
       if(check < 0) { //if there is an error in the if
+	freeVari(tempVar);
 	return check;
       }
 
@@ -246,9 +247,12 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
     }
   }
 
-  if((var->ans->elements != NULL) && (var->ans->size != NULL)){
+  if(var->ans->size != NULL){
     free(var->ans->elements);
     free(var->ans->size);
+
+    var->ans->size = NULL;
+    var->ans->elements = NULL;
   }
 
   var->ans->length = tempVar->ans->length;
@@ -296,15 +300,11 @@ char *parseCondition(char *input, int type) {
 int8_t checkConditional(char *input, int type, vari *var) {
   input = parseCondition(input, type);
   error_return error = 0;
-  //vari tempVar = copyVari(var, &error);
-  //if(error) return error;
+
   error = sya(input, var);
   if(error) return error; 
 
-  //element out = tempVar.ans.elements[0];
   element out = var->ans->elements[0];
-
-  //freeVari(&tempVar);
 
   //guarantee that the output is 1 or 0
   return !!out;

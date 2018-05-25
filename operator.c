@@ -40,27 +40,30 @@ void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error
   switch(ch.argNo) {
   case 1:
     a = popn(num);
-    if(a == NULL){
-      *error = -15;
+    if(a->size == NULL){
+      free(a);
+      *error = -5;
       return;
     }
+
     pushn(matrixOneArg(a, ch, error), num);
     break;
 
   case 2:
     b = popn(num);
+    if(b->size == NULL){
+      free(b);
+      b = NULL;
+      *error = -5;
+      return;
+    }
+
+
     a = popn(num);
-    if((a == NULL) || (b == NULL)){
-
-      if(a != NULL){
-	freeMatrix(a);
-      }
-
-      if(b != NULL){
-	freeMatrix(b);
-      }
-
-      *error = -10;
+    if(a->size == NULL){
+      free(a);
+      a = NULL;
+      *error = -5;
       return;
     }
 
@@ -69,7 +72,15 @@ void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error
 
   case 3:
     b = popn(num);
+    if(b->size == NULL){
+      free(b);
+      b = NULL;
+      *error = -5;
+      return;
+    }
+
     a = popn(num);
+
     pushn(assign(a, b, var, error), num);
     freeMatrix(b);
     break;
@@ -328,12 +339,13 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
   case eRun:
     separatedString = separateString(input, "()", '\0', start, &error);
     error = runFile(separatedString, var);
+    freeDoubleArray(separatedString);
+    if(error) return error;
 
     //copy ans matrix because it's not a heap variable
     pushn(copyMatrix(var->ans, &error), num);
-    freeDoubleArray(separatedString);
     *tok = 0;
-    return error;
+    break;
 
   case ePrint:
     separatedString = separateString(input, "()", ',', start, &error);
@@ -367,6 +379,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 
       } else{
 	k = varcheck(var, buffer);
+
 	if(k >= 0) {
 	  var->value[k]->variable = 1;
 	  pushn(var->value[k], num);
@@ -377,18 +390,15 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	    k = 0;
 
 	  } else if(k == -2){
-	    k = ++var->count;
-
+	    k = var->count + 1;
 	  } else{
 	    error = -5;
-
-	    k = var->count + 1;
 	  }
 
 	  //if assignment goes wrong, the variable name gets malloc'd
 	  //but doesn't get assigned to, this ensures that if another
 	  //assignment happens, the previous failed assignment is free'd
-	  if((var->name[k] != NULL) && (var->value[k]->size == NULL)){
+	  if(var->name[k] != NULL){
 	    free(var->name[k]);
 	    free(var->value[k]);
 	  }
@@ -465,7 +475,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
   case eLeftParen:
     *tok = 0;
-    pushch(initOperatorStruct("(", 1, 15, eLeftParen), oper);
+    pushch(initOperatorStruct("(", 0, 15, eLeftParen), oper);
     break;
 
   case eRightParen:

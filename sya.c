@@ -168,29 +168,34 @@ error_return sya(char *input, vari *var) {
     return error;
   }
 
-  if(var->ans->elements != NULL){
-    free(var->ans->elements);
-  }
   if(var->ans->size != NULL){
     free(var->ans->size);
+    free(var->ans->elements);
+
+    var->ans->size = NULL;
+    var->ans->elements = NULL;
   }
 
   
   //copy out->stk[0] to var->ans
   if(out->stk[0]->size != NULL){
-  var->ans->length = out->stk[0]->length;
-  var->ans->dimension = out->stk[0]->dimension;
+    var->ans->length = out->stk[0]->length;
+    var->ans->dimension = out->stk[0]->dimension;
 
-  var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
-  memcpy(var->ans->elements, out->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
-  
-  var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
-  memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
+    var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
+    memcpy(var->ans->elements, out->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
+
+    var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
+    memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
 
   } else{
     error = -5;
   }
     
+  if(var->assignFlag){
+    //adds 1 if var->count is not 0, adds 0 if it's 0
+    var->count += !!(var->count);
+  }
 
   //free everything in the numberStack
   freeNumberStack(out);

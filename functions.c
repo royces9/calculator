@@ -79,21 +79,15 @@ a - pointer to variable (left side of '=')
 b - pointer to new value (right side of '=')
 */
 matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
-
-
-  var->occ = 1;
   if(a->variable){
     if(var->assignIndex == NULL){
       //init new matrix
       //copyMatrix not done because the
       //pointer 'a' is malloc'd in findFunction
 
-      if(a->elements != NULL){
-	free(a->elements);
-      }
-
       if(a->size != NULL){
 	free(a->size);
+	free(a->elements);
       }
       
       a->length = b->length;
@@ -118,9 +112,12 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
       }
     }
   } else{
-    *error = -12;
+    *error = -5;
     return NULL;
   }
+
+  var->occ = 1;
+  var->assignFlag = 1;
 
   return copyMatrix(a, error);
 }

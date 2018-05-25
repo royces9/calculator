@@ -99,6 +99,7 @@ vari *newVari(void) {
   var->ans->variable = 0;
 
   var->assignIndex = NULL;
+  var->assignFlag = 0;
 
   return var;
 }
@@ -112,9 +113,11 @@ vari *copyVari(vari *var, error_return *error){
   out->ans->size = NULL;
   
   out->assignIndex = NULL;
+  out->assignFlag = var->assignFlag;
   
   out->count = var->count;
   out->occ = var->occ;
+
 
   if(var->occ){
     int i = 0;
@@ -123,10 +126,10 @@ vari *copyVari(vari *var, error_return *error){
 	strcpy(out->name[i], var->name[i]);
 
 	out->value[i] = copyMatrix(var->value[i], error);
+	out->value[i]->variable = 1;
     }
 
     if(var->value[i]->size != NULL){
-      //if(!((var->name[i] != NULL) && (var->value[i]->size == NULL))){
       out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
       strcpy(out->name[i], var->name[i]);
 
@@ -141,6 +144,7 @@ vari *copyVari(vari *var, error_return *error){
     memset(out->name, '\0', sizeof(out->name));
     memset(out->value, 0, sizeof(out->value));
   }
+
   return out;
 }
 
@@ -172,10 +176,14 @@ error_return setVariable(vari *var, char *name, char check){
 }
 
 void freeVari(vari *var){
-  for(int i = 0; var->name[i] != NULL; ++i){
+  for(int i = 0; i <= var->count; ++i){
+    if(var->value[i] != NULL){
       var->value[i]->variable = 0;
       freeMatrix(var->value[i]);
+	}
+    if(var->name[i] != NULL){
       free(var->name[i]);
+    }
   }
 
   if(var->ans->size != NULL){

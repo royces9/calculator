@@ -39,6 +39,7 @@ typedef struct { //variable storage
   char *name[256]; //stores variable names
   matrix *ans; //answer matrix
   int count; //index for the newest variable
+  int8_t assignFlag; //flag if an assignment occured
   char occ; //same as numberStack
 } vari;
 
