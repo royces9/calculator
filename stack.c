@@ -57,6 +57,16 @@ operatorStruct popch(operatorStack *st) {
   return out;
 }
 
+//initialize operatorStruct
+operatorStruct initOperatorStruct(const char *operator, int argNo, int precedence, int enumeration){
+  operatorStruct out;
+  strcpy(out.operator, operator);
+  out.precedence = precedence;
+  out.argNo = argNo;
+  out.enumeration = enumeration;
+  return out;
+}
+
 
 numberStack *newNumberStack(void) { //make new number stack
   numberStack *out = malloc(sizeof(*out));
@@ -107,12 +117,29 @@ vari *copyVari(vari *var, error_return *error){
   out->occ = var->occ;
 
   if(var->occ){
-    for(int i = 0; i <= var->count; ++i){
+    int i = 0;
+    for(; i < var->count; ++i){
+	out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
+	strcpy(out->name[i], var->name[i]);
+
+	out->value[i] = copyMatrix(var->value[i], error);
+    }
+
+    if(var->value[i]->size != NULL){
+      //if(!((var->name[i] != NULL) && (var->value[i]->size == NULL))){
       out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
       strcpy(out->name[i], var->name[i]);
 
       out->value[i] = copyMatrix(var->value[i], error);
+      ++i;
     }
+
+    out->name[i] = NULL;
+    out->value[i] = NULL;
+
+  } else{
+    memset(out->name, '\0', sizeof(out->name));
+    memset(out->value, 0, sizeof(out->value));
   }
   return out;
 }
@@ -145,14 +172,11 @@ error_return setVariable(vari *var, char *name, char check){
 }
 
 void freeVari(vari *var){
-  if(var->occ != 0){
-    for(int i = 0; i <= var->count; ++i){
+  for(int i = 0; var->name[i] != NULL; ++i){
       var->value[i]->variable = 0;
       freeMatrix(var->value[i]);
       free(var->name[i]);
-    }
   }
-
 
   if(var->ans->size != NULL){
     free(var->ans->size);

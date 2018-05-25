@@ -176,7 +176,8 @@ error_return sya(char *input, vari *var) {
   }
 
   
-  //copy out.stk[0] to var->ans
+  //copy out->stk[0] to var->ans
+  if(out->stk[0]->size != NULL){
   var->ans->length = out->stk[0]->length;
   var->ans->dimension = out->stk[0]->dimension;
 
@@ -186,7 +187,10 @@ error_return sya(char *input, vari *var) {
   var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
   memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
 
-
+  } else{
+    error = -5;
+  }
+    
 
   //free everything in the numberStack
   freeNumberStack(out);

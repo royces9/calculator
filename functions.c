@@ -53,6 +53,16 @@ matrix *getSize(matrix *a, error_return *error){
 }
 
 
+/*function for matrix referencing
+ex:
+a = linspace(0,1,3)
+    0, 0.5, 1
+b = a(2) + 1
+    1.5
+
+a - the matrix
+b - the index
+*/
 matrix *reference(matrix *a, matrix *b, error_return *error){
   matrix *out = copyMatrix(b, error);
 
@@ -64,11 +74,12 @@ matrix *reference(matrix *a, matrix *b, error_return *error){
 }
 
 
-matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
-  /*
+/*
 a - pointer to variable (left side of '=')
 b - pointer to new value (right side of '=')
-   */
+*/
+matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
+
 
   var->occ = 1;
   if(a->variable){

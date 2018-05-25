@@ -47,6 +47,7 @@ matrix *max(matrix *m, error_return *error) {
 //3 4
 //should return
 //2 3
+
 matrix *avg(matrix *m, error_return *error) {
   matrix *out = NULL;
 
@@ -58,8 +59,8 @@ matrix *avg(matrix *m, error_return *error) {
     newSize = malloc(sizeof(*newSize) * (newDimension + 1));
     __MALLOC_CHECK(newSize, *error);
     
-    newSize[0] = m->size[0];
-    newSize[1] = 1;
+    newSize[0] = 1;
+    newSize[1] = m->size[0];
     newSize[2] = 0;
     
   } else if(m->dimension == 1){

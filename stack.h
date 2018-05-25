@@ -15,7 +15,7 @@ typedef struct { //struct for operators, +, -, etc
   int precedence; //order of operation, higher is higher priority
   int argNo; //number of arguments it takes, generally two or one
   int enumeration; //corresponding enum
-  char operator[2]; //char holding operator/function
+  char operator[16]; //char holding operator/function
 } operatorStruct;
 
 
@@ -48,6 +48,8 @@ matrix *popn(numberStack *st);
 
 void pushch(operatorStruct inp, operatorStack *st);
 operatorStruct popch(operatorStack *st);
+
+operatorStruct initOperatorStruct(const char *operator, int argNo, int precedence, int enumeration);
 
 numberStack *newNumberStack(void);
 operatorStack newOperatorStack(void);

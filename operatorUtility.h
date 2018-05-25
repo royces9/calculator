@@ -7,8 +7,8 @@
 #define FUNCTION_COUNT 35
 #define OPERATOR_COUNT 22
 
-extern const char OPERATOR_LIST[OPERATOR_COUNT][5];
-extern const char FUNCTION_LIST[FUNCTION_COUNT][20];
+extern const char OPERATOR_LIST[OPERATOR_COUNT][4];
+extern const char FUNCTION_LIST[FUNCTION_COUNT][16];
 extern const int operatorPrecedence[OPERATOR_COUNT];
 
 enum functionEnums {
@@ -26,16 +26,20 @@ enum functionEnums {
   eTan,
   eLn,
   eLog,
+
   eSqrt,
+
   eAsin,
   eAcos,
   eAtan,
+
   eFloor,
   eCeil,
   eRound,
   eMin,
   eMax,
   eAvg,
+
   eFactorial,
 
   eDeri,

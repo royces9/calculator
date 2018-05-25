@@ -1,6 +1,6 @@
 #include "operatorUtility.h"
 
-const char FUNCTION_LIST[FUNCTION_COUNT][20] = {
+const char FUNCTION_LIST[FUNCTION_COUNT][16] = {
   "quit",
   "clear",
   "list",
@@ -15,16 +15,20 @@ const char FUNCTION_LIST[FUNCTION_COUNT][20] = {
   "tan(",
   "ln(",
   "log(",
+
   "sqrt(",
+
   "asin(",
   "acos(",
   "atan(",
+
   "floor(",
   "ceil(",
   "round(",
   "min(",
   "max(",
   "avg(",
+
   "factorial(",
 
   "derivative(",
@@ -44,7 +48,7 @@ const char FUNCTION_LIST[FUNCTION_COUNT][20] = {
 };
 
 
-const char OPERATOR_LIST[OPERATOR_COUNT][5] = {
+const char OPERATOR_LIST[OPERATOR_COUNT][4] = {
   "+",
   "-",
   ".*",
