@@ -108,7 +108,7 @@ vari *copyVari(vari *var, error_return *error){
 
   if(var->occ){
     for(int i = 0; i <= var->count; ++i){
-      out->value[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
+      out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
       strcpy(out->name[i], var->name[i]);
 
       out->value[i] = copyMatrix(var->value[i], error);
