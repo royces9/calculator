@@ -175,22 +175,21 @@ error_return setVariable(vari *var, char *name, char check){
   return error;
 }
 
+
 void freeVari(vari *var){
-  for(int i = 0; i <= var->count; ++i){
-    if(var->value[i] != NULL){
-      var->value[i]->variable = 0;
-      freeMatrix(var->value[i]);
-	}
-    if(var->name[i] != NULL){
-      free(var->name[i]);
-    }
+
+  for(int i = 0; var->name[i]; ++i){
+    free(var->name[i]);
   }
+
+  for(int i = 0; var->value[i]; ++i){
+    var->value[i]->variable = 0;
+    freeMatrix(var->value[i]);
+  }
+
 
   if(var->ans->size != NULL){
     free(var->ans->size);
-  }
-
-  if(var->ans->elements != NULL){
     free(var->ans->elements);
   }
 

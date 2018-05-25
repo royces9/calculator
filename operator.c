@@ -41,8 +41,6 @@ void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error
   case 1:
     a = popn(num);
     if(a->size == NULL){
-      free(a);
-      *error = -5;
       return;
     }
 
@@ -52,21 +50,17 @@ void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error
   case 2:
     b = popn(num);
     if(b->size == NULL){
-      free(b);
-      b = NULL;
       *error = -5;
       return;
     }
-
 
     a = popn(num);
     if(a->size == NULL){
-      free(a);
-      a = NULL;
+      freeMatrix(b);
       *error = -5;
       return;
     }
-
+    
     pushn(matrixTwoArg(a, b, ch, error), num);
     break;
 

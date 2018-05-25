@@ -1,16 +1,25 @@
 FLAGS = -lm -lreadline -I. -flto
 MOREFLAGS = 
 CC = gcc $(MOREFLAGS)
+CCC = gcc
 
 HEADERS = $(wildcard *.h)
 CFILES = $(wildcard *.c)
 OFILES = $(wildcard *.o)
 
-all: matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o calc.o
-all: calc2
+CALC2 = calc2
+USR = /usr/local/bin/calc
+TARGET =
 
-calc2: $(CFILES) $(HEADERS) $(OFILES)
-	$(CC) $(OFILES) -o calc2 $(FLAGS)
+all: MOREFLAGS += -static -g
+all: matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o calc.o
+all: TARGET = $(CALC2)
+all: calc
+
+usr: matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o calc.o
+usr: TARGET = $(USR)
+usr: calc
+
 
 matrix.o: matrix.c matrix.h operator.c operator.h
 	$(CC) -c matrix.c
@@ -42,13 +51,10 @@ fileStruct.o: fileStruct.c fileStruct.h
 calc.o: calc.c stack.c stack.h sya.c sya.h
 	$(CC) -c calc.c
 
-debug: MOREFLAGS += -static -g
-debug: all
+calc: $(OFILES)
+	$(CCC) $(OFILES) -o $(TARGET) $(FLAGS)
 
-
-usr: $(OFILES)
-	$(CC) $(OFILES) -o /usr/local/bin/calc $(FLAGS)
 
 del: $(OFILES)
-	del $(OFILES)
+	del $(OFILES) $(CALC2)
 

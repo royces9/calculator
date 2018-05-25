@@ -161,12 +161,13 @@ error_return sya(char *input, vari *var) {
 
   while(out->occ && operatorStack.occ) { //while the operator and number stack are occupied, keep executing
     execNum(out, var, popch(&operatorStack), &error);
+
+    if(error){
+      freeNumberStack(out);
+      return error;
+    }
   }
 
-  if(error){
-    freeNumberStack(out);
-    return error;
-  }
 
   if(var->ans->size != NULL){
     free(var->ans->size);
