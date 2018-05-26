@@ -127,7 +127,6 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
   //check if inputs are scalar
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
-
   if(((aScalar + bScalar) > 0) && check){
 
     //if the enum is for a matrix operation

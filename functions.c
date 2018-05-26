@@ -116,8 +116,9 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
     return NULL;
   }
 
+
+  var->count += !!(var->occ);
   var->occ = 1;
-  var->assignFlag = 1;
 
   return copyMatrix(a, error);
 }

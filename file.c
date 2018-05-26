@@ -191,6 +191,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
     case 2: //while
       check = checkConditional(tree->line, direction, tempVar);
       if(check < 0) {
+	freeVari(tempVar);
 	return check;
       }
 
@@ -229,7 +230,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
       
     default: //for executing non conditional lines
-      error = sya(tree->line, tempVar);
+      error = sya(tree->line, var);
 
       if(error < -1) {
 	freeVari(tempVar);
@@ -238,7 +239,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
       //print output
       if((tree->line[strlen(tree->line)-1] != ';') && direction == 0) {
-	printMatrix(*tempVar->ans);
+	printMatrix(*var->ans);
       }
 
       //continue execution going left
@@ -301,6 +302,7 @@ int8_t checkConditional(char *input, int type, vari *var) {
   input = parseCondition(input, type);
   error_return error = 0;
 
+  printf("%s\n", input);
   error = sya(input, var);
   if(error) return error; 
 

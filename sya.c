@@ -63,7 +63,8 @@ error_return sya(char *input, vari *var) {
   }
 
   //buffers for characters and operators
-  char bufferLetters[length], bufferOper[length];
+  char *bufferLetters = calloc(length + 1, sizeof(*bufferLetters));
+  char *bufferOper = calloc(length + 1, sizeof(*bufferOper));
 
   //name of variable if assignment
   char *variableAssign;
@@ -118,7 +119,7 @@ error_return sya(char *input, vari *var) {
 
       //assumes operators are only two characters wide, checks the current char and the next to see if it's a
       //valid operator, if it is not, then go into the if and find the correct operator in findOperator
-      if(checkOperator(input[i], input[i+1]) == OPERATOR_COUNT) {
+      if(checkOperator(bufferOper, input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
 	error = findOperator(bufferOper, out, &operatorStack, var, &negativeCheck); //find the corresponding operator
 	k = 0;
@@ -155,9 +156,14 @@ error_return sya(char *input, vari *var) {
     }//end of switch
     if((error < 0) || (error == 1)) { //break if error or quit
       freeNumberStack(out);
+      free(bufferLetters);
+      free(bufferOper);
       return error;
     }
   }//end of for
+
+  free(bufferLetters);
+  free(bufferOper);
 
   while(out->occ && operatorStack.occ) { //while the operator and number stack are occupied, keep executing
     execNum(out, var, popch(&operatorStack), &error);
@@ -191,11 +197,6 @@ error_return sya(char *input, vari *var) {
 
   } else{
     error = -5;
-  }
-    
-  if(var->assignFlag){
-    //adds 1 if var->count is not 0, adds 0 if it's 0
-    var->count += !!(var->count);
   }
 
   //free everything in the numberStack
@@ -240,8 +241,13 @@ error_return checkNumbers(char *input) {
 
 
 //check if the two chars together make an operator 
-int checkOperator(char a, char b) {
-  char buffer[2] = {a, b};
+int checkOperator(char *a, char b) {
+  int length = strlen(a);
+  char buffer[length + 3];
+  strcpy(buffer, a);
+  buffer[length] = b;
+  buffer[length + 1] = '\0';
+  
   return searchOperatorArray(buffer);
 }
 
