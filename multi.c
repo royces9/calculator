@@ -104,7 +104,7 @@ matrix *deri(char **input, vari *var, error_return *error) {
   input[1] = variable
   input[2] = point
   input[3] = step size
-   */
+f   */
 
   //check the number of inputs is correct
   if(numberOfArgs(input) != 4) {
@@ -142,6 +142,7 @@ matrix *deri(char **input, vari *var, error_return *error) {
   }
 
   //set the variable into the local variable struct
+  varTemp->name[varIndex] = malloc(sizeof(*varTemp->name[varIndex]) * (strlen(input[1]) + 1));
   strcpy(varTemp->name[varIndex], input[1]);
 
   //sets the dummy variable equal to x+h
@@ -230,6 +231,8 @@ matrix *inte(char **input, vari *var, error_return *error) {
   } else if(varIndex == -2) { //if there are variables
     varIndex = ++varTemp->count;
   }
+
+  varTemp->name[varIndex] = malloc(sizeof(*varTemp->name[varIndex]) * (strlen(input[1]) + 1));
   strcpy(varTemp->name[varIndex],input[1]); //copy the dummy variable into struct
 
   //init scalar for the temp variable
@@ -300,6 +303,8 @@ matrix *solve(char **input, vari *var, error_return *error) {
   } else if(varc == -2) { //if there are other variables
     varc = ++varTemp->count;
   }
+
+  varTemp->name[varc] = malloc(sizeof(*varTemp->name[varc]) * (strlen(input[1]) + 1));
   strcpy(varTemp->name[varc],input[1]);
 
   //set initial guess and the tolerance
