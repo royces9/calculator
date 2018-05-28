@@ -132,7 +132,8 @@ f   */
 
   
   //set up a dummy variable specified by user  
-  varIndex = varcheck(varTemp, input[1]);
+  char *dummyVariable = removeSpaces(input[1]);
+  varIndex = varcheck(varTemp, dummyVariable);
 
   if(varIndex == -1){ //if there are no other variables 
     varIndex = 0;
@@ -142,8 +143,8 @@ f   */
   }
 
   //set the variable into the local variable struct
-  varTemp->name[varIndex] = malloc(sizeof(*varTemp->name[varIndex]) * (strlen(input[1]) + 1));
-  strcpy(varTemp->name[varIndex], input[1]);
+  varTemp->name[varIndex] = malloc(sizeof(*varTemp->name[varIndex]) * (strlen(dummyVariable) + 1));
+  strcpy(varTemp->name[varIndex], dummyVariable);
 
   //sets the dummy variable equal to x+h
   varTemp->value[varIndex] = initScalar(point + h, error);
@@ -223,7 +224,8 @@ matrix *inte(char **input, vari *var, error_return *error) {
 
 
   //set dummy variable
-  varIndex = varcheck(varTemp, input[1]); //checks if variable exists or not, return value used as index
+  char *dummyVariable = removeSpaces(input[1]);
+  varIndex = varcheck(varTemp, dummyVariable); //checks if variable exists or not, return value used as index
     
   if(varIndex == -1) { //if there are no other variables
     varIndex = 0;
@@ -232,8 +234,8 @@ matrix *inte(char **input, vari *var, error_return *error) {
     varIndex = ++varTemp->count;
   }
 
-  varTemp->name[varIndex] = malloc(sizeof(*varTemp->name[varIndex]) * (strlen(input[1]) + 1));
-  strcpy(varTemp->name[varIndex],input[1]); //copy the dummy variable into struct
+  varTemp->name[varIndex] = malloc(sizeof(*varTemp->name[varIndex]) * (strlen(dummyVariable) + 1));
+  strcpy(varTemp->name[varIndex],dummyVariable); //copy the dummy variable into struct
 
   //init scalar for the temp variable
   varTemp->value[varIndex] = initScalar(0, error);
@@ -295,7 +297,8 @@ matrix *solve(char **input, vari *var, error_return *error) {
    */
 
   //set dummy variable
-  varc = varcheck(varTemp, input[1]);
+  char *dummyVariable = removeSpaces(input[1]);
+  varc = varcheck(varTemp, dummyVariable);
 
   if(varc == -1) { //if there are no other variables
     varc = 0;
@@ -304,8 +307,8 @@ matrix *solve(char **input, vari *var, error_return *error) {
     varc = ++varTemp->count;
   }
 
-  varTemp->name[varc] = malloc(sizeof(*varTemp->name[varc]) * (strlen(input[1]) + 1));
-  strcpy(varTemp->name[varc],input[1]);
+  varTemp->name[varc] = malloc(sizeof(*varTemp->name[varc]) * (strlen(dummyVariable) + 1));
+  strcpy(varTemp->name[varc], dummyVariable);
 
   //set initial guess and the tolerance
   *error = sya(input[2], varTemp);
@@ -332,20 +335,22 @@ matrix *solve(char **input, vari *var, error_return *error) {
   //solve f(x)=0 for x using Newton's method
   while(fabs(test) > h) { //if the difference between iterations is less than the tolerance, break out of loop
     *error = sya(input[0], varTemp);
-    if(*error) return 0;
+    if(*error) return NULL;
     out = varTemp->ans->elements[0];
 
     varTemp->value[varc]->elements[0] -= delta;
     *error = sya(input[0], varTemp);
-    if(*error) return 0;
+    if(*error) return NULL;
     inter = varTemp->ans->elements[0];
 
     test = (delta * out) / (out - inter);
     varTemp->value[varc]->elements[0] -= test;
   }
 
+
+  matrix *output = copyMatrix(varTemp->value[varc], error);
   freeVari(varTemp);
-  return varTemp->value[varc];
+  return output;
 }
 
 
@@ -568,19 +573,19 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
 }
 
 //remove spaces from char input
-void removeSpaces(char *input, int *front, int *back) {
-  if(input[0] == ' ') {
-    int i = 1;
-    for(i = 1; input[i] != ' '; ++i);
-    *front = i;
-  }
+char *removeSpaces(char *input) {
+  int length = strlen(input);
 
-  int len = strlen(input);
-  if(input[len-1] == ' ') {
-    int i = 1;
-    for(i = 1; input[len - i] != ' '; ++i);
-    *back = i;
-  }
+  int i = 0;
+  int j = 0;
+
+  for(; *(input + i) == ' '; ++i);
+
+  for(; *((input + length) - j) == ' '; -- j);
+
+  *((input + length) - j) = '\0';
+
+  return (input + i);
 }
 
 //print a line to stdout, formatting is similar to matlab
