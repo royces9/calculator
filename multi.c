@@ -359,17 +359,21 @@ matrix *zeros(char **input, vari *var, error_return *error){
   vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
   int *newSize = NULL;
 
+
+  //only one input, make a square matrix of that size
   if(dimension == 1){
 
     *error = sya(input[0], varTemp);
     if(*error) return NULL;
 
+    //check that the one input is a scalar
     if(varTemp->ans->dimension != 1){
       *error = -10;
       freeVari(varTemp);
       return NULL;
     }
 
+    //change dimension to make square matrix
     dimension = 2;
 
     newSize = malloc(sizeof(*newSize) * (dimension + 1));
@@ -381,7 +385,7 @@ matrix *zeros(char **input, vari *var, error_return *error){
     newSize[0] = varTemp->ans->elements[0];
     newSize[1] = varTemp->ans->elements[0];
 
-  } else{
+  } else{ //
     newSize = malloc(sizeof(*newSize) * (dimension + 1));
 
     for(int i = 0; i < dimension; ++i){
@@ -407,18 +411,22 @@ matrix *zeros(char **input, vari *var, error_return *error){
 }
 
 
+//make a matrix of all ones
 matrix *ones(char **input, vari *var, error_return *error){
+  //call zeros and just replace all the input
   matrix *out = zeros(input, var, error);
-  if(*error){
-    return out;
-  }
+
+  if(*error) return out;
+
   for(int i = 0; i < out->length; ++i){
     out->elements[i] = 1;
   }
+
   return out;
 }
 
 
+//make a matrix of random numbers from 0 to 1
 matrix *randMatrix(char **input, vari *var, error_return *error){
   matrix *out = zeros(input, var, error);
   if(*error) return out;
