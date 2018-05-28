@@ -302,7 +302,6 @@ int8_t checkConditional(char *input, int type, vari *var) {
   input = parseCondition(input, type);
   error_return error = 0;
 
-  printf("%s\n", input);
   error = sya(input, var);
   if(error) return error; 
 
