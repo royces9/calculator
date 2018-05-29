@@ -79,6 +79,8 @@ a - pointer to variable (left side of '=')
 b - pointer to new value (right side of '=')
 */
 matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
+
+  uint8_t incrementFlag = 1;
   if(a->variable){
     if(var->assignIndex == NULL){
       //init new matrix
@@ -88,6 +90,7 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
       if(a->size != NULL){
 	free(a->size);
 	free(a->elements);
+	incrementFlag = 0;
       }
       
       a->length = b->length;
@@ -108,7 +111,7 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
     } else{
 
       for(int i = 0; i < var->assignIndex->length; ++i){
-	(a)->elements[(int) var->assignIndex->elements[i]] = b->elements[i];
+	a->elements[(int) var->assignIndex->elements[i]] = b->elements[i];
       }
     }
   } else{
@@ -117,7 +120,9 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
   }
 
 
-  var->count += !!(var->occ);
+  if(incrementFlag){
+    var->count += !!(var->occ);
+  }
   var->occ = 1;
 
   return copyMatrix(a, error);

@@ -154,7 +154,6 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
   //create new file stack
   fileStack stk = newFileStack();
 
-  vari *tempVar = copyVari(var, &error);
   
   //executes the tree
   //checks that the current leaf and the string it holds are not NULL
@@ -170,9 +169,8 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
     switch(direction) {
     case 1: //if
-      check = checkConditional(tree->line, direction, tempVar);
+      check = checkConditional(tree->line, direction, var);
       if(check < 0) { //if there is an error in the if
-	freeVari(tempVar);
 	return check;
       }
 
@@ -189,9 +187,8 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
       break;
 
     case 2: //while
-      check = checkConditional(tree->line, direction, tempVar);
+      check = checkConditional(tree->line, direction, var);
       if(check < 0) {
-	freeVari(tempVar);
 	return check;
       }
 
@@ -233,7 +230,6 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
       error = sya(tree->line, var);
 
       if(error < -1) {
-	freeVari(tempVar);
 	return error;
       }
 
@@ -247,25 +243,6 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
       break;
     }
   }
-
-  if(var->ans->size != NULL){
-    free(var->ans->elements);
-    free(var->ans->size);
-
-    var->ans->size = NULL;
-    var->ans->elements = NULL;
-  }
-
-  var->ans->length = tempVar->ans->length;
-  var->ans->dimension = tempVar->ans->dimension;
-
-  var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
-  memcpy(var->ans->elements, tempVar->ans->elements, sizeof(*var->ans->elements) * var->ans->length);
-
-  var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
-  memcpy(var->ans->size, tempVar->ans->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
-  
-  freeVari(tempVar);
 
   return error;
 }
@@ -300,9 +277,8 @@ char *parseCondition(char *input, int type) {
 //checks conditionals in while/if
 int8_t checkConditional(char *input, int type, vari *var) {
   input = parseCondition(input, type);
-  error_return error = 0;
 
-  error = sya(input, var);
+  error_return error = sya(input, var);
   if(error) return error; 
 
   element out = var->ans->elements[0];
