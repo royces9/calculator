@@ -69,37 +69,25 @@ operatorStruct initOperatorStruct(const char *operator, int argNo, int precedenc
 
 
 numberStack *newNumberStack(void) { //make new number stack
-  numberStack *out = malloc(sizeof(*out));
-  out->top = 0;
-  out->occ = 0;
-  memset(out->stk, 0, sizeof(out->stk));
+  numberStack *out = calloc(1, sizeof(*out));
   return out;
 }
 
 
 operatorStack newOperatorStack(void) { //make new operator stack
   operatorStack out;
+
   out.top = 0;
   out.occ = 0;
   memset(out.stk, '\0', sizeof(out.stk));
+
   return out;
 }
 
 
 vari *newVari(void) {
-  vari *var = malloc(sizeof(*var));
-  var->count = 0;
-  var->occ = 0;
-  memset(var->name, '\0', sizeof(var->name));
-  memset(var->value, 0, sizeof(var->value));
-
-  var->ans = malloc(sizeof(*var->ans));
-  var->ans->size = NULL;
-  var->ans->elements = NULL;
-  var->ans->variable = 0;
-
-  var->assignIndex = NULL;
-  var->assignFlag = 0;
+  vari *var = calloc(1, sizeof(*var));
+  var->ans = calloc(1, sizeof(*var->ans));
 
   return var;
 }
@@ -108,9 +96,7 @@ vari *newVari(void) {
 vari *copyVari(vari *var, error_return *error){
   vari *out = malloc(sizeof(*out));
 
-  out->ans = malloc(sizeof(*out->ans));
-  out->ans->elements = NULL;
-  out->ans->size = NULL;
+  out->ans = calloc(1, sizeof(*out->ans));
   
   out->assignIndex = NULL;
   out->assignFlag = var->assignFlag;

@@ -7,6 +7,10 @@
 #include "file.h"
 #include "sya.h"
 
+void printTree(fileTree *tree, int level){
+}
+
+
 error_return runFile(char **input, vari *var) {
   error_return error = 0; //int to put errors into
   int maxSize = 1024; //maximum size of tree
@@ -20,6 +24,7 @@ error_return runFile(char **input, vari *var) {
   error = createTree(input[0], tree, fileString, &maxSize);
   if(error) return error;
 
+  
   //execute tree
   error = executeTree(tree, var, maxSize);
 
@@ -146,8 +151,11 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
   int direction = 0;
 
   //checking conditionals: if/while
+  //stack structure for nested conditionals
   int8_t check = 0;
-
+  int8_t checkIndex = 0;
+  int8_t *checkStack = calloc(maxSize, sizeof(*checkStack));
+  
   //error 
   error_return error = 0;
 
@@ -174,28 +182,36 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 	return check;
       }
 
+      checkStack[checkIndex++] = check;
+
       //if the condition inside the if is true
       //push tree->left, and continue execution from tree->right, the line after the if
       //everything inside the if executes
       //otherwise go directly to tree->left
+
       if(check) {
 	fPush(&stk, tree->left);
 	tree = tree->right;
+
       } else {
 	tree = tree->left;
       }
       break;
 
     case 2: //while
+
       check = checkConditional(tree->line, direction, var);
       if(check < 0) {
 	return check;
       }
 
+      checkStack[checkIndex++] = check;
+
       //push tree to continue execution from the while
       //continue execution from tree->right
       //when the loop comes back, the condition is rechecked
       //when the condition becomes false, go to the line after the while block
+
       if(check) {
 	fPush(&stk, tree);
 	tree = tree->right;
@@ -212,14 +228,19 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
       
     case -2: //else
+
       //checks the value from the previous if iteration
       //when check is 0, the if condition was false, so the else block
       //executes
       //when the check is non 0, the if condition executed
       //the else block is skipped
+
+      check = checkStack[--checkIndex];
+
       if(check == 0) {
 	fPush(&stk, tree->left);
 	tree = tree->right;
+
       } else { //check is true, continue after the else
 	tree = tree->left;
       }
@@ -234,7 +255,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
       }
 
       //print output
-      if((tree->line[strlen(tree->line)-1] != ';') && direction == 0) {
+      if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0)) {
 	printMatrix(*var->ans);
       }
 
@@ -244,6 +265,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
     }
   }
 
+  free(checkStack);
   return error;
 }
 
@@ -260,9 +282,13 @@ int8_t checkProgramFlow(char *input) {
 
 //determine if input string is while or if
 char *parseCondition(char *input, int type) {
+
+  //take advantage of the fact that strchr
+  //searchs for first occurence of a letter
+
   switch(type){
   case 1: //if
-    input = strchr(input, 'i'); //take advantage of the fact that it searches for first occurence
+    input = strchr(input, 'i');
     input += 2;
     return input;
 

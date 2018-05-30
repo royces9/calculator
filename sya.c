@@ -11,12 +11,6 @@
 //shunting yard algorithm
 error_return sya(char *input, vari *var) {
 
-  //stack for output numbers
-  numberStack *out = newNumberStack();
-
-  //stack for operators
-  operatorStack operatorStack = newOperatorStack();
-
   //iterators
   int i = 0, j = 0, k = 0;
 
@@ -64,7 +58,11 @@ error_return sya(char *input, vari *var) {
 
   //buffers for characters and operators
   char *bufferLetters = calloc(length + 1, sizeof(*bufferLetters));
+  __MALLOC_CHECK(bufferLetters, error);
+
   char *bufferOper = calloc(length + 1, sizeof(*bufferOper));
+  __MALLOC_CHECK(bufferOper, error);
+
 
   //name of variable if assignment
   char *variableAssign;
@@ -81,6 +79,14 @@ error_return sya(char *input, vari *var) {
   }
 
   type[length] = 0;
+
+
+  //stack for output numbers
+  numberStack *out = newNumberStack();
+
+  //stack for operators
+  operatorStack operatorStack = newOperatorStack();
+
 
   //main loop
   //iterators through the input string, apply shunting-yard algorithm

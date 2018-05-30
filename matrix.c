@@ -25,7 +25,6 @@ matrix *initMatrix(int *size, int dimension, error_return *error){
 
   //if there is a 0 element in size
   if(!out->length){
-    //temp value for the error
     *error = -10;
     return out;
   }
@@ -33,10 +32,6 @@ matrix *initMatrix(int *size, int dimension, error_return *error){
   out->elements = calloc(out->length, sizeof(*out->elements));
   __MALLOC_CHECK(out->elements, *error);  
 
-  if(!out->elements){
-    //temp error value
-    *error = -12;
-  }
   return out;
 }
 
