@@ -113,6 +113,11 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
       for(int i = 0; i < var->assignIndex->length; ++i){
 	a->elements[(int) var->assignIndex->elements[i]] = b->elements[i];
       }
+
+      incrementFlag = 0;
+      freeMatrix(var->assignIndex);
+      var->assignIndex = NULL;
+
     }
   } else{
     *error = -5;

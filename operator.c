@@ -250,8 +250,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     return 0;
 
   case eAns:
-    { //because ans is not a heap variable, make a
-      //copy of it and push the copy
+    { //copy ans so it doesn't get freed
       pushn(copyMatrix(var->ans, &error), num);
       *tok = 1;
     }
@@ -335,7 +334,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     freeDoubleArray(separatedString);
     if(error) return error;
 
-    //copy ans matrix because it's not a heap variable
+    //copy ans matrix so it doesn't get freed
     pushn(copyMatrix(var->ans, &error), num);
     *tok = 0;
     break;

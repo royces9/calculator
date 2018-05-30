@@ -506,15 +506,28 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
   //for variables that exist
   if(varIndex >= 0){
     int dimension = numberOfArgs(input);
+
+    if(input[0][0] == 0){
+      *error = -4;
+      return NULL;
+    }
+    
     vari *varTemp = copyVari(var, error);
     matrix *inputMat;
 
+
     if(dimension == 1){ //if the number of inputs is 1
       *error = sya(input[0], varTemp);
-      if(*error) return NULL;
+      if(*error){
+	freeVari(varTemp);
+	return NULL;
+      }
 
       out = copyMatrix(varTemp->ans, error);
-      if(*error) return NULL;
+      if(*error){
+	freeVari(varTemp);
+	return NULL;
+      }
 
       //out is a matrix that holds indices
       for(int i = 0; i < out->length; ++i){
@@ -536,6 +549,11 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
 
       for(int i = 0; i < dimension; ++i){
 	*error = sya(input[i], varTemp);
+	if(*error){
+	  free(location);
+	  freeVari(varTemp);
+	  return NULL;
+	}
 
 	//check that the input is one dimensional
 	if(varTemp->ans->dimension == 1){
@@ -557,13 +575,14 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
 	  return NULL;
 	}
       }
+      location[dimension] = 0;
 
       int index = sub2ind(location, varTemp->value[varIndex]->size, varTemp->value[varIndex]->dimension);
       free(location);
 
       //check index is within bound
       if(index < varTemp->value[varIndex]->length){
-	out = initScalar(varTemp->value[varIndex]->elements[index], error);
+	out = initScalar(index, error);
       } else{
 	*error = -11;
       }
@@ -658,17 +677,29 @@ error_return printLine(char **input, vari *var) {
 //separate a single string into multiple strings by a given delimiter
 char **separateString(char *input, char limits[2], char delimiter, int *start, error_return *error) {
   char *tok;
-  int leftLimit = 0, rightLimit = 0, length = 0, delimiterCount = 0, i = 0;  
 
+  //counter for left and right bounds
+  int leftLimit = 0;
+  int rightLimit = 0;
+
+  //length of string
+  int length = 0;
+
+  //counter for number of delimiters
+  int delimiterCount = 0;
+
+  //delimiter string
   char strDelimiter[2] = {delimiter, 0};
   
   input += (*start+1);
   
   if(limits != NULL){
     for(length = 0; input[length]; ++length) {
+
       //increment count if char is left or right end parenthesis
       leftLimit += (input[length] == limits[0]);
       rightLimit += (input[length] == limits[1]);
+
       //increment count if char is the delimiter
       delimiterCount += (input[length] == delimiter);
 
@@ -689,7 +720,7 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
   strncpy(input2,input, sizeof(*input2) * (length + 3));
   input2[length] = 0;
 
-  //allocate double array output and populate it the strings
+  //allocate double array output and populate it with strings
   char **separatedString = malloc((delimiterCount + 2) * sizeof(*separatedString));
   __MALLOC_CHECK(separatedString, *error);
 
@@ -703,8 +734,10 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
 
   tok = strtok(NULL, strDelimiter);
 
+
+  int i = 1;
   //every loop populates separateString with another string
-  for(i = 1; tok != NULL; ++i) {
+  for(; tok != NULL; ++i) {
     separatedString[i] = malloc((strlen(tok) + 1) * sizeof(**separatedString));
     __MALLOC_CHECK(separatedString[i], *error);
     strcpy(separatedString[i], tok);
@@ -712,10 +745,6 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
   }
 
   separatedString[i] = NULL;
-  //separatedString[i] = malloc(sizeof(**separatedString)); //allocate an end string that is just a char
-  //__MALLOC_CHECK(separatedString[i], *error);
-
-  //separatedString[i][0]= '\0'; //end string
 
   free(input2);
   return separatedString;
