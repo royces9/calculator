@@ -126,9 +126,8 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
 
 
   if(incrementFlag){
-    var->count += !!(var->occ);
+    ++var->count;
   }
-  var->occ = 1;
 
   return copyMatrix(a, error);
 }

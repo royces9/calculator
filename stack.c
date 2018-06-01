@@ -5,23 +5,15 @@
 #include "stack.h"
 
 void pushn(matrix *inp, numberStack *st) {
-  if(st->occ) {
-    st->stk[++st->top] = inp;
-  } else { //if stack is empty put it into 0, st.top is guaranteed to be 0 at initialization
-    st->stk[0] = inp;
-    st->occ = 1;
-  }
+  st->stk[++st->top] = inp;
 }
 
 
 matrix *popn(numberStack *st) { //pop a matrix from the stack
   matrix *out = NULL;
-  if(st->occ) {
+
+  if(st->top > -1){
     out = st->stk[st->top--];
-    if((st->top) == -1) { //if top is -1, the stack is now empty, set occ and top back to 0
-      st->occ = 0;
-      st->top = 0;
-    }
   }
 
   return out;
@@ -30,46 +22,42 @@ matrix *popn(numberStack *st) { //pop a matrix from the stack
 
 //characters
 void pushch(operatorStruct inp, operatorStack *st) {
-  if(st->occ) {
     st->stk[++st->top] = inp;
-  }
-
-  else { //if stack is empty put it into 0
-    st->stk[0] = inp;
-    st->occ= 1;
-  }
 }
 
 
 operatorStruct popch(operatorStack *st) {
   operatorStruct out;
-  if(st->occ) {
+
+  if(st->top > -1){
     out = st->stk[st->top--];
 
-    if(st->top == -1) { //if top is -1, then the stack is empty, set occ and top to 0
-      st->occ = 0;
-      st->top = 0;
-    }
   } else {
     out.operator[0] = '\0';
     out.argNo = 0;
   }
+
   return out;
 }
 
+
 //initialize operatorStruct
-operatorStruct initOperatorStruct(const char *operator, int argNo, int precedence, int enumeration){
+operatorStruct initOperatorStruct(const char *operator, uint8_t argNo, uint8_t precedence, uint8_t enumeration){
   operatorStruct out;
+
   strcpy(out.operator, operator);
+
   out.precedence = precedence;
   out.argNo = argNo;
   out.enumeration = enumeration;
+
   return out;
 }
 
 
 numberStack *newNumberStack(void) { //make new number stack
   numberStack *out = calloc(1, sizeof(*out));
+  out->top = -1;
   return out;
 }
 
@@ -77,8 +65,7 @@ numberStack *newNumberStack(void) { //make new number stack
 operatorStack newOperatorStack(void) { //make new operator stack
   operatorStack out;
 
-  out.top = 0;
-  out.occ = 0;
+  out.top = -1;
   memset(out.stk, '\0', sizeof(out.stk));
 
   return out;
@@ -88,7 +75,7 @@ operatorStack newOperatorStack(void) { //make new operator stack
 vari *newVari(void) {
   vari *var = calloc(1, sizeof(*var));
   var->ans = calloc(1, sizeof(*var->ans));
-
+  var->count = -1;
   return var;
 }
 
@@ -102,12 +89,11 @@ vari *copyVari(vari *var, error_return *error){
   out->assignFlag = var->assignFlag;
   
   out->count = var->count;
-  out->occ = var->occ;
 
 
-  if(var->occ){
+  if(var->count > -1){
     int i = 0;
-    for(; i < var->count; ++i){
+    for(; i <= var->count; ++i){
 	out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
 	strcpy(out->name[i], var->name[i]);
 
@@ -115,14 +101,15 @@ vari *copyVari(vari *var, error_return *error){
 	out->value[i]->variable = 1;
     }
 
-    if(var->value[i]->size != NULL){
+    /*
+    if((var->value[i] != NULL) && (var->value[i]->size != NULL)){
       out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
       strcpy(out->name[i], var->name[i]);
 
       out->value[i] = copyMatrix(var->value[i], error);
       ++i;
     }
-
+    */
     out->name[i] = NULL;
     out->value[i] = NULL;
 
@@ -144,7 +131,7 @@ error_return setVariable(vari *var, char *name, char check){
   switch(check){
   case -1: //new variable, struct is empty
     index = 0;
-    var->occ = 1;
+    var->count = 0;
     break;
     
   case -2: //new variable, struct is not empty
@@ -190,7 +177,7 @@ void freeVari(vari *var){
 
 
 void freeNumberStack(numberStack *st){
-  while(st->occ == 1){
+  while(st->top > -1){
     freeMatrix(popn(st));
   }
 

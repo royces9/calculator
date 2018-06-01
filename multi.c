@@ -1,6 +1,5 @@
 #include <math.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -138,7 +137,7 @@ f   */
 
   if(varIndex == -1){ //if there are no other variables 
     varIndex = 0;
-    varTemp->occ = 1;
+    varTemp->count = 0;
   } else if(varIndex == -2){ //if there are other variables
     varIndex = ++varTemp->count;
   }
@@ -230,7 +229,7 @@ matrix *inte(char **input, vari *var, error_return *error) {
     
   if(varIndex == -1) { //if there are no other variables
     varIndex = 0;
-    varTemp->occ = 1;
+    varTemp->count = 0;
   } else if(varIndex == -2) { //if there are variables
     varIndex = ++varTemp->count;
   }
@@ -303,7 +302,7 @@ matrix *solve(char **input, vari *var, error_return *error) {
 
   if(varc == -1) { //if there are no other variables
     varc = 0;
-    varTemp->occ = 1;
+    varTemp->count = 0;
   } else if(varc == -2) { //if there are other variables
     varc = ++varTemp->count;
   }
@@ -610,6 +609,80 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
   return out;
 }
 
+
+//start is the counter for the main loop in sya
+error_return checkVariable(char *buffer, int *tok, char *input, int *start, vari *var, numberStack *num, operatorStack *ch){
+
+  int varLen = strlen(buffer);
+  int k = 0;
+
+  matrix *out = NULL;
+  char **separatedString = NULL;
+
+  error_return error = 0;
+
+  if(buffer[varLen - 1] == '('){
+
+    buffer[varLen - 1] = '\0';
+    separatedString = separateString(input, "()", ',', start, &error);
+
+    k = varcheck(var, buffer);
+
+    out = extractValue(buffer, separatedString, k, var, &error);
+
+    if(!(error < 0)){
+      pushn(var->value[k], num);
+      pushn(out, num);
+
+      pushch(initOperatorStruct("r", 2, 0, eReference), ch);
+    }
+
+    freeDoubleArray(separatedString);
+
+  } else{
+    k = varcheck(var, buffer);
+
+    if(k >= 0) {
+      var->value[k]->variable = 1;
+      pushn(var->value[k], num);
+      *tok = 1;
+
+    } else{
+      if(k == -1){
+	k = 0;
+
+      } else if(k == -2){
+	k = var->count + 1;
+
+      } else{
+	error = -5;
+
+      }
+
+      //if assignment goes wrong, the variable name gets malloc'd
+      //but doesn't get assigned to, this ensures that if another
+      //assignment happens, the previous failed assignment is free'd
+      if(var->name[k] != NULL){
+	free(var->name[k]);
+	free(var->value[k]);
+      }
+
+      var->name[k] = malloc(sizeof(*var->name[k]) * (varLen + 1));
+      strcpy(var->name[k], buffer);
+
+      var->value[k] = malloc(sizeof(*var->value[k]));
+      var->value[k]->variable = 1;
+      var->value[k]->size = NULL;
+      var->value[k]->elements = NULL;
+
+      pushn(var->value[k], num);
+    }
+  }
+
+  return error;
+}
+
+
 //remove spaces from char input
 char *removeSpaces(char *input) {
   int length = strlen(input);
@@ -625,6 +698,7 @@ char *removeSpaces(char *input) {
 
   return (input + i);
 }
+
 
 //print a line to stdout, formatting is similar to matlab
 error_return printLine(char **input, vari *var) {
@@ -685,7 +759,10 @@ error_return printLine(char **input, vari *var) {
   return -1;
 }
 
+
 //separate a single string into multiple strings by a given delimiter
+//input is the entire input string
+//start is the counter for the main loop in sya
 char **separateString(char *input, char limits[2], char delimiter, int *start, error_return *error) {
   char *tok;
 

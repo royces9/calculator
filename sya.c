@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -160,6 +159,7 @@ error_return sya(char *input, vari *var) {
 
       
     }//end of switch
+
     if((error < 0) || (error == 1)) { //break if error or quit
       freeNumberStack(out);
       free(bufferLetters);
@@ -171,7 +171,8 @@ error_return sya(char *input, vari *var) {
   free(bufferLetters);
   free(bufferOper);
 
-  while(out->occ && operatorStack.occ) { //while the operator and number stack are occupied, keep executing
+  //while the operator and number stack are occupied, keep executing
+  while((out->top > -1) && (operatorStack.top > -1)) {
     execNum(out, var, popch(&operatorStack), &error);
 
     if(error){
@@ -191,7 +192,8 @@ error_return sya(char *input, vari *var) {
 
   
   //copy out->stk[0] to var->ans
-  //  if(out->stk[0]->size != NULL){
+  if(out->top > -1){
+    //if(out->occ != 0){
     var->ans->length = out->stk[0]->length;
     var->ans->dimension = out->stk[0]->dimension;
 
@@ -200,10 +202,7 @@ error_return sya(char *input, vari *var) {
 
     var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
     memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
-
-    /*  } else{
-    error = -5;
-    }*/
+  }
 
   //free everything in the numberStack
   freeNumberStack(out);

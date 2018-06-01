@@ -88,10 +88,11 @@ void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error
 matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
   matrix *out;
   error_return check = 0;
-  //check if the enumeration is one of the function in oneArg
+
+  //check if ch.enumeration is a scalar operator
   oneArg(0, ch.enumeration, &check);
 
-  //check remains 0, is in oneArg
+  //ch.enumeration is in oneArg if check is 0
   if(!check){
     int j = 0;
 
@@ -104,6 +105,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
     for(int i = 0; i < out->length; ++i){
       out->elements[i] = oneArg(a->elements[i], ch.enumeration, error);
     }
+
   } else{
     switch(ch.enumeration){
     case eEye: out = eye(a, error); break;
@@ -123,13 +125,17 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
 matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *error){
   matrix *out = NULL;
   error_return check = 0;
+
+  //check if ch.enumeration is a scalar operator
   twoArg(0, 0, ch.enumeration, &check);
+
   //check if inputs are scalar
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
   if(((aScalar + bScalar) > 0) && check){
 
     //if the enum is for a matrix operation
+    //change to the scalar operator
     switch(ch.enumeration){
     case eMultiplyMatrix:
       check = 0;
@@ -143,10 +149,12 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
     }
   }
 
-  //if ch.enumeration is not in twoArg, check will be 1
+  //ch.enumeration is in twoArg if check is 0
   if(!check){
     switch(aScalar + bScalar){
     case 0: //neither is a scalar
+
+      //check if a and b are the same size
       if(compareSize(a->size, b->size, a->dimension, b->dimension)){
 	out = initMatrix(a->size, a->dimension, error);
 
@@ -175,7 +183,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
       }
       break;
 
-    case 2: //a and b are scalars
+    case 2: //a and b are both scalars
       out = initScalar(twoArg(a->elements[0], b->elements[0], ch.enumeration, error), error);
       break;
 
@@ -205,25 +213,23 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
   char **separatedString = NULL;
   int i = searchFunctionArray(buffer);
   error_return error = 0;
-  operatorStruct operator;
 
   switch(i) {
   case eQuit: //quit
     return 1;
 
   case eClear: //clear
-    if(var->occ != 0){
+    if(var->count > -1){
       for(int i = 0; i <= var->count; ++i){
 	freeMatrix(var->value[i]);
       }
     }
-    var->occ = 0;
     var->count = 0;
     printf("\nAll variables cleared\n\n");
     return -1;
 
   case eList: //list
-    if(var->occ) {
+    if(var->count > -1) {
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; ++j) {
 	printf("%s =", var->name[j]);
@@ -346,70 +352,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     return error;
 
   case FUNCTION_COUNT: //variables
-    {
-      int varLen = strlen(buffer);
-      int k = 0;
-      matrix *out = NULL;
+    return checkVariable(buffer, tok, input, start, var, num, ch);
 
-      if(buffer[varLen - 1] == '('){
-
-	buffer[varLen - 1] = '\0';
-	separatedString = separateString(input, "()", ',', start, &error);
-
-	k = varcheck(var, buffer);
-	
-	out = extractValue(buffer, separatedString, k, var, &error);
-
-	if(!(error < 0)){
-	  pushn(var->value[k], num);
-	  pushn(out, num);
-
-	  pushch(initOperatorStruct("r", 2, 0, eReference), ch);
-	}
-
-	freeDoubleArray(separatedString);
-
-      } else{
-	k = varcheck(var, buffer);
-
-	if(k >= 0) {
-	  var->value[k]->variable = 1;
-	  pushn(var->value[k], num);
-	  *tok = 1;
-
-	} else{
-	  if(k == -1){
-	    k = 0;
-
-	  } else if(k == -2){
-	    k = var->count + 1;
-	    
-	  } else{
-	    error = -5;
-	    
-	  }
-
-	  //if assignment goes wrong, the variable name gets malloc'd
-	  //but doesn't get assigned to, this ensures that if another
-	  //assignment happens, the previous failed assignment is free'd
-	  if(var->name[k] != NULL){
-	    free(var->name[k]);
-	    free(var->value[k]);
-	  }
-
-	  var->name[k] = malloc(sizeof(*var->name[k]) * (varLen + 1));
-	  strcpy(var->name[k], buffer);
-
-	  var->value[k] = malloc(sizeof(*var->value[k]));
-	  var->value[k]->variable = 1;
-	  var->value[k]->size = NULL;
-	  var->value[k]->elements = NULL;
-
-	  pushn(var->value[k], num);
-	}
-      }
-    }
-    break;
 
   default:
     error = -5;
@@ -424,6 +368,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var, int *tok) {
   int i = searchOperatorArray(buffer);
   error_return error = 0;
+
   /*                                                                                                                  
   **Precedence values for operators: Reference wiki page of C/C++ operators
   **1                                                
@@ -443,10 +388,12 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   **15 parens
   **16 =
 */
+
   switch(i) {
+
   case eSubtract:
     if(*tok == 1) {
-      while((oper->stk[oper->top].precedence <= 6) && oper->occ == 1) {
+      while((oper->stk[oper->top].precedence <= 6) && (oper->top > -1)) {
 	execNum(num, var, popch(oper), &error);
       }
       pushch(initOperatorStruct("+", 2, 6, eAdd), oper);
@@ -475,7 +422,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eRightParen:
     do {
       execNum(num, var, popch(oper), &error);
-    } while(strcmp(oper->stk[oper->top].operator, "(") && oper->occ == 1);
+    } while(strcmp(oper->stk[oper->top].operator, "(") && (oper->top > -1));
 
     *tok = 1;
     popch(oper);
@@ -484,7 +431,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
   case eAssign:
     *tok = 0;
-    if(oper->stk[oper->top].enumeration == eReference){
+    if((oper->top > -1) && (oper->stk[oper->top].enumeration == eReference)){
       var->assignIndex = popn(num);
 
       popch(oper);
@@ -505,9 +452,11 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eOr:
   case eMultiplyMatrix:
   case eDivideMatrix:
-    while((oper->stk[oper->top].precedence <= operatorPrecedence[i]) && (oper->occ == 1)) {
+
+    while((oper->top > -1) && (oper->stk[oper->top].precedence <= operatorPrecedence[i])) {
       execNum(num, var, popch(oper), &error);
     }
+
     *tok = 0;
     pushch(initOperatorStruct(buffer, 2, operatorPrecedence[i], i), oper);
     break;
@@ -613,6 +562,7 @@ int countDelimiter(char *input){
 }
 
 
+//start is the counter for the main loop in sya
 matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
   //input is incremented to start at input[*start], which is where
   //the first [ should be
@@ -660,6 +610,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
   //number stack for creating the matrix
   numberStack *numStk = newNumberStack();
 
+  //char array that holds each element of the array and a delimiter (, or ;) at the beginning
   char **separatedMatrix = separateMatrix(matrixString, countDelimiter(matrixString), error);
 
   //free matrixString, not needed anymore
@@ -705,7 +656,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
     }
   }
 
-  while(numStk->occ && (numStk->top != 0)){
+  while(numStk->top > 0){
     b = popn(numStk);
     a = popn(numStk);
 
@@ -716,7 +667,6 @@ matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
   }
 
   freeVari(tempVari);
-
   freeDoubleArray(separatedMatrix);
 
   out = popn(numStk);
@@ -727,7 +677,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
 
 
 int varcheck(vari *list, char input[]) {
-  if(list->occ == 0) {
+  if(list->count < 0) {
     return -1;
   }
 

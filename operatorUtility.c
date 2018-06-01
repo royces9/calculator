@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "operatorUtility.h"
 
 const char FUNCTION_LIST[FUNCTION_COUNT][16] = {
@@ -79,7 +81,7 @@ const char OPERATOR_LIST[OPERATOR_COUNT][4] = {
 };
 
 
-const int operatorPrecedence[OPERATOR_COUNT] = {
+const uint8_t operatorPrecedence[OPERATOR_COUNT] = {
   6,
   6,
   5,

@@ -1,6 +1,8 @@
 #ifndef STACK
 #define STACK
 
+#include <stdint.h>
+
 #include "matrix.h"
 
 //macro for malloc failure
@@ -12,35 +14,61 @@
 
 
 typedef struct { //struct for operators, +, -, etc
-  int precedence; //order of operation, higher is higher priority
-  int argNo; //number of arguments it takes, generally two or one
-  int enumeration; //corresponding enum
-  char operator[16]; //char holding operator/function
+  //operator/function string
+  char operator[16];
+
+  //order of operation, higher is higher priority
+  uint8_t precedence;
+
+  //number of arguments it takes, generally two or one
+  uint8_t argNo;
+
+  //corresponding enum, in operatorUtility.h
+  uint8_t enumeration;
+
 } operatorStruct;
 
 
 typedef struct { //struct for stack of numbers
-  matrix *stk[1024]; //stack
-  int top; //index for where the top is
-  char occ; //boolean, 0 if empty, 1 if occupied
+  //stack array
+  matrix *stk[1024];
+
+  //index for the top index
+  //-1 is empty
+  int top;
+
 } numberStack;
 
 
 typedef struct { //same as numberStack, except for operators
+  //stack array
   operatorStruct stk[1024];
+
+  //index for the top index
+  //-1 is empty
   int top;
-  char occ;
 } operatorStack;
 
 
 typedef struct { //variable storage
-  matrix *assignIndex; //pointer to matrix index to assign to, if assignment
-  matrix *value[256]; //stores variable values
-  char *name[256]; //stores variable names
-  matrix *ans; //answer matrix
-  int count; //index for the newest variable
-  int8_t assignFlag; //flag if an assignment occured
-  char occ; //same as numberStack
+  //pointer to matrix index to assign to, if assignment
+  matrix *assignIndex;
+
+  //stores variable values
+  matrix *value[256];
+
+  //stores variable names
+  char *name[256];
+
+  //answer matrix
+  matrix *ans;
+
+  //index for the newest variable
+  //-1 if empty
+  int count;
+
+  //flag if an assignment occured
+  int8_t assignFlag;
 } vari;
 
 
@@ -50,7 +78,7 @@ matrix *popn(numberStack *st);
 void pushch(operatorStruct inp, operatorStack *st);
 operatorStruct popch(operatorStack *st);
 
-operatorStruct initOperatorStruct(const char *operator, int argNo, int precedence, int enumeration);
+operatorStruct initOperatorStruct(const char *operator, uint8_t argNo, uint8_t precedence, uint8_t enumeration);
 
 numberStack *newNumberStack(void);
 operatorStack newOperatorStack(void);
