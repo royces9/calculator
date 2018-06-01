@@ -7,9 +7,6 @@
 #include "file.h"
 #include "sya.h"
 
-void printTree(fileTree *tree, int level){
-}
-
 
 error_return runFile(char **input, vari *var) {
   error_return error = 0; //int to put errors into
@@ -179,6 +176,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
     case 1: //if
       check = checkConditional(tree->line, direction, var);
       if(check < 0) { //if there is an error in the if
+	free(checkStack);
 	return check;
       }
 
@@ -202,6 +200,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
       check = checkConditional(tree->line, direction, var);
       if(check < 0) {
+	free(checkStack);
 	return check;
       }
 
@@ -251,6 +250,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
       error = sya(tree->line, var);
 
       if(error < -1) {
+	free(checkStack);
 	return error;
       }
 

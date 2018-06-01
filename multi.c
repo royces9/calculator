@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -333,7 +334,7 @@ matrix *solve(char **input, vari *var, error_return *error) {
   test = h + 1;
 
   //incase the while loop gets stuck
-  u_int16_t counter = 1;
+  uint16_t counter = 1;
 
   //solve f(x)=0 for x using Newton's method
   while(fabs(test) > h) { //if the difference between iterations is less than the tolerance, break out of loop
@@ -572,7 +573,7 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
 	  location[i] = varTemp->ans->elements[0] - 1;
 
 	  //check that each sublocation is also within bounds
-	  if(location[i] >= varTemp->value[varIndex]->size[i]){
+	  if((location[i] >= varTemp->value[varIndex]->size[i]) || (location[i] < 0)){
 	    *error = -11;
 	    free(location);
 	    freeVari(varTemp);
