@@ -357,10 +357,10 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	separatedString = separateString(input, "()", ',', start, &error);
 
 	k = varcheck(var, buffer);
-
+	
 	out = extractValue(buffer, separatedString, k, var, &error);
 
-	if(out != NULL){
+	if(!(error < 0)){
 	  pushn(var->value[k], num);
 	  pushn(out, num);
 
@@ -383,8 +383,10 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 
 	  } else if(k == -2){
 	    k = var->count + 1;
+	    
 	  } else{
 	    error = -5;
+	    
 	  }
 
 	  //if assignment goes wrong, the variable name gets malloc'd

@@ -332,6 +332,9 @@ matrix *solve(char **input, vari *var, error_return *error) {
   //on start
   test = h + 1;
 
+  //incase the while loop gets stuck
+  u_int16_t counter = 1;
+
   //solve f(x)=0 for x using Newton's method
   while(fabs(test) > h) { //if the difference between iterations is less than the tolerance, break out of loop
     *error = sya(input[0], varTemp);
@@ -345,6 +348,13 @@ matrix *solve(char **input, vari *var, error_return *error) {
 
     test = (delta * out) / (out - inter);
     varTemp->value[varc]->elements[0] -= test;
+
+    //if counter overflows and goes back to 0
+    //this is true, max value is 65535 (2 bytes)
+    if(!(++counter)){
+      *error = -12;
+      return NULL;
+    }
   }
 
 
