@@ -9,6 +9,7 @@
 #include "operator.h"
 #include "sya.h"
 
+
 //counts number of input arguments
 int numberOfArgs(char **input) {
   int i = 0;
@@ -47,7 +48,6 @@ matrix *max(matrix *m, error_return *error) {
 //3 4
 //should return
 //2 3
-
 matrix *avg(matrix *m, error_return *error) {
   matrix *out = NULL;
 
@@ -135,19 +135,7 @@ f   */
   char *dummyVariable = removeSpaces(input[1]);
   varIndex = varcheck(varTemp, dummyVariable);
 
-  if(varIndex == -1){ //if there are no other variables 
-    varIndex = 0;
-    varTemp->count = 0;
-  } else if(varIndex == -2){ //if there are other variables
-    varIndex = ++varTemp->count;
-  }
-
-  //set the variable into the local variable struct
-  varTemp->name[varIndex] = malloc(sizeof(*varTemp->name[varIndex]) * (strlen(dummyVariable) + 1));
-  strcpy(varTemp->name[varIndex], dummyVariable);
-
-  //sets the dummy variable equal to x+h
-  varTemp->value[varIndex] = initScalar(point + h, error);
+  *error = setVariable(varTemp, dummyVariable, initScalar(point + h, error), &varIndex);
   
   //f(x+h)
   *error = sya(input[0], varTemp);
@@ -226,20 +214,8 @@ matrix *inte(char **input, vari *var, error_return *error) {
   //set dummy variable
   char *dummyVariable = removeSpaces(input[1]);
   varIndex = varcheck(varTemp, dummyVariable); //checks if variable exists or not, return value used as index
-    
-  if(varIndex == -1) { //if there are no other variables
-    varIndex = 0;
-    varTemp->count = 0;
-  } else if(varIndex == -2) { //if there are variables
-    varIndex = ++varTemp->count;
-  }
 
-  varTemp->name[varIndex] = malloc(sizeof(*varTemp->name[varIndex]) * (strlen(dummyVariable) + 1));
-  strcpy(varTemp->name[varIndex],dummyVariable); //copy the dummy variable into struct
-
-  //init scalar for the temp variable
-  varTemp->value[varIndex] = initScalar(0, error);
-
+  *error = setVariable(varTemp, dummyVariable, initScalar(0, error), &varIndex);    
 
   //calculate integral using composite Simpson's
 
@@ -287,7 +263,7 @@ matrix *solve(char **input, vari *var, error_return *error) {
   
   element out, inter, h;
   double test = 0, delta = 0.000001;
-  int varc = 0;
+  int varIndex = 0;
 
   /*
   input[0] = function
@@ -297,18 +273,6 @@ matrix *solve(char **input, vari *var, error_return *error) {
    */
 
   //set dummy variable
-  char *dummyVariable = removeSpaces(input[1]);
-  varc = varcheck(varTemp, dummyVariable);
-
-  if(varc == -1) { //if there are no other variables
-    varc = 0;
-    varTemp->count = 0;
-  } else if(varc == -2) { //if there are other variables
-    varc = ++varTemp->count;
-  }
-
-  varTemp->name[varc] = malloc(sizeof(*varTemp->name[varc]) * (strlen(dummyVariable) + 1));
-  strcpy(varTemp->name[varc], dummyVariable);
 
   //set initial guess and the tolerance
   *error = sya(input[2], varTemp);
@@ -317,7 +281,12 @@ matrix *solve(char **input, vari *var, error_return *error) {
     *error = -10;
     return NULL;
   }
-  varTemp->value[varc] = copyMatrix(varTemp->ans, error);
+
+
+  char *dummyVariable = removeSpaces(input[1]);
+  varIndex = varcheck(varTemp, dummyVariable);
+
+  *error = setVariable(varTemp, dummyVariable, copyMatrix(varTemp->ans, error), &varIndex);    
 
 
   *error = sya(input[3], varTemp);
@@ -328,6 +297,8 @@ matrix *solve(char **input, vari *var, error_return *error) {
   }
   h = varTemp->ans->elements[0];
 
+
+  
   //ensure test is always greater than h
   //on start
   test = h + 1;
@@ -341,13 +312,13 @@ matrix *solve(char **input, vari *var, error_return *error) {
     if(*error) return NULL;
     out = varTemp->ans->elements[0];
 
-    varTemp->value[varc]->elements[0] -= delta;
+    varTemp->value[varIndex]->elements[0] -= delta;
     *error = sya(input[0], varTemp);
     if(*error) return NULL;
     inter = varTemp->ans->elements[0];
 
     test = (delta * out) / (out - inter);
-    varTemp->value[varc]->elements[0] -= test;
+    varTemp->value[varIndex]->elements[0] -= test;
 
     //if counter overflows and goes back to 0
     //this is true, max value is 65535 (2 bytes)
@@ -358,7 +329,7 @@ matrix *solve(char **input, vari *var, error_return *error) {
   }
 
 
-  matrix *output = copyMatrix(varTemp->value[varc], error);
+  matrix *output = copyMatrix(varTemp->value[varIndex], error);
   freeVari(varTemp);
   return output;
 }

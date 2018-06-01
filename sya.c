@@ -26,10 +26,12 @@ error_return sya(char *input, vari *var) {
   //to check if the '-' char is subtraction or a negative
   int negativeCheck = 0;
 
+  /*
   //flag for setVariable, to check whether
   //variable is saved in var or not
   int8_t variableExist = 0;
-
+  */
+  
   //string for strtod function, unused
   char *str2d = NULL;
 

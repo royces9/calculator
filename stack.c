@@ -93,7 +93,7 @@ vari *copyVari(vari *var, error_return *error){
 
   if(var->count > -1){
     int i = 0;
-    for(; i <= var->count; ++i){
+    for(; i < var->count; ++i){
 	out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
 	strcpy(out->name[i], var->name[i]);
 
@@ -101,7 +101,7 @@ vari *copyVari(vari *var, error_return *error){
 	out->value[i]->variable = 1;
     }
 
-    /*
+
     if((var->value[i] != NULL) && (var->value[i]->size != NULL)){
       out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
       strcpy(out->name[i], var->name[i]);
@@ -109,10 +109,9 @@ vari *copyVari(vari *var, error_return *error){
       out->value[i] = copyMatrix(var->value[i], error);
       ++i;
     }
-    */
+
     out->name[i] = NULL;
     out->value[i] = NULL;
-
   } else{
     memset(out->name, '\0', sizeof(out->name));
     memset(out->value, 0, sizeof(out->value));
@@ -122,13 +121,13 @@ vari *copyVari(vari *var, error_return *error){
 }
 
 
-error_return setVariable(vari *var, char *name, char check){
+error_return setVariable(vari *var, char *name, matrix *a, int *check){
   //check is from the output of varcheck
 
   int index = 0;
   error_return error = 0;
 
-  switch(check){
+  switch(*check){
   case -1: //new variable, struct is empty
     index = 0;
     var->count = 0;
@@ -139,11 +138,22 @@ error_return setVariable(vari *var, char *name, char check){
     break;
 
   default: //variable exists already
-    error = -5;
+    index = *check;
+    free(var->name[index]);
+    var->value[index]->variable = 0;
+    freeMatrix(var->value[index]);
     break;
   }
 
+  *check = index;
+
+  var->name[index] = malloc(sizeof(*var->name[index]) * (strlen(name) + 1));
+  __MALLOC_CHECK(var->name[index], error);
   strcpy(var->name[index], name);
+  var->value[index] = a;
+
+  var->name[index + 1] = NULL;
+  var->value[index + 1] = NULL;
 
   return error;
 }

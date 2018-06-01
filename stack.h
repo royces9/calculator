@@ -86,7 +86,7 @@ operatorStack newOperatorStack(void);
 vari *newVari(void);
 vari *copyVari(vari *var, error_return *error);
 
-error_return setVariable(vari *var, char *name, char check);
+error_return setVariable(vari *var, char *name, matrix *a, int *check);
 void freeVari(vari *var);
 
 void freeNumberStack(numberStack *st);
