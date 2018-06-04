@@ -25,12 +25,6 @@ error_return sya(char *input, vari *var) {
 
   //to check if the '-' char is subtraction or a negative
   int negativeCheck = 0;
-
-  /*
-  //flag for setVariable, to check whether
-  //variable is saved in var or not
-  int8_t variableExist = 0;
-  */
   
   //string for strtod function, unused
   char *str2d = NULL;
@@ -133,23 +127,6 @@ error_return sya(char *input, vari *var) {
       }
       break;
 
-      
-    case 3: //'.'
-      if(type[i+1] == 2){
-	char matrixOper[3] = {input[i], input[i+1], 0};
-	error = findOperator(matrixOper, out, &operatorStack, var, &negativeCheck);
-	++i;
-	j = 0;
-      } else if(type[i+1] == 1){
-	bufferLetters[j++] = '.';
-
-      } else if(type[i+1] == 0){
-	error = -4;
-      }
-
-      break;
-
-      
     case 4: //"[]"
       pushn(extractMatrix(var, &i, input, &error), out);
       break;
@@ -159,7 +136,6 @@ error_return sya(char *input, vari *var) {
       error = -4;
       break;
 
-      
     }//end of switch
 
     if((error < 0) || (error == 1)) { //break if error or quit
