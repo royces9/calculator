@@ -34,54 +34,56 @@ int searchOperatorArray(char *buffer) {
 
 
 //executes either one argument function or two argument function
-void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error) {
+error_return execNum(numberStack *num, vari *var, operatorStruct ch) {
   matrix *a = NULL, *b = NULL;
+  error_return error = 0;
 
   switch(ch.argNo) {
   case 1:
     a = popn(num);
     if(a->size == NULL){
-      return;
+      break;
     }
 
-    pushn(matrixOneArg(a, ch, error), num);
+    pushn(matrixOneArg(a, ch, &error), num);
     break;
 
   case 2:
     b = popn(num);
     if(b->size == NULL){
-      *error = -5;
-      return;
+      error = -5;
+      break;
     }
 
     a = popn(num);
     if(a->size == NULL){
       freeMatrix(b);
-      *error = -5;
-      return;
+      break;
     }
     
-    pushn(matrixTwoArg(a, b, ch, error), num);
+    pushn(matrixTwoArg(a, b, ch, &error), num);
     break;
 
   case 3:
     b = popn(num);
     if(b->size == NULL){
       free(b);
+      error = -5;
       b = NULL;
-      *error = -5;
-      return;
+      break;
     }
 
     a = popn(num);
 
-    pushn(assign(a, b, var, error), num);
+    pushn(assign(a, b, var, &error), num);
     freeMatrix(b);
     break;
 
   default:
     break;
   }
+
+  return error;
 }
 
 
@@ -394,7 +396,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eSubtract:
     if(*tok == 1) {
       while((oper->stk[oper->top].precedence <= 6) && (oper->top > -1)) {
-	execNum(num, var, popch(oper), &error);
+	error = execNum(num, var, popch(oper));
       }
       pushch(initOperatorStruct("+", 2, 6, eAdd), oper);
     }
@@ -421,7 +423,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
   case eRightParen:
     do {
-      execNum(num, var, popch(oper), &error);
+      error = execNum(num, var, popch(oper));
     } while(strcmp(oper->stk[oper->top].operator, "(") && (oper->top > -1));
 
     *tok = 1;
@@ -454,7 +456,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eDivideMatrix:
 
     while((oper->top > -1) && (oper->stk[oper->top].precedence <= operatorPrecedence[i])) {
-      execNum(num, var, popch(oper), &error);
+      error = execNum(num, var, popch(oper));
     }
 
     *tok = 0;
