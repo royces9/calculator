@@ -151,7 +151,7 @@ error_return sya(char *input, vari *var) {
 
   //while the operator and number stack are occupied, keep executing
   while((out->top > -1) && (operatorStack.top > -1)) {
-    execNum(out, var, popch(&operatorStack), &error);
+    error = execNum(out, var, popch(&operatorStack));
 
     if(error){
       freeNumberStack(out);
