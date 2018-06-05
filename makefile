@@ -34,7 +34,7 @@ sya.o: sya.c sya.h stack.c stack.h operator.c operator.h
 	$(CC) -c sya.c
 
 file.o: file.c file.h stack.c stack.h sya.c sya.h fileStruct.c fileStruct.h
-	$(CC) -static -g -c file.c
+	$(CC) -c file.c
 
 operator.o: operator.c operator.h operatorUtility.c operatorUtility.h stack.c stack.h functions.c functions.h multi.c multi.h file.c file.h sya.c sya.h
 	$(CC) -c operator.c
