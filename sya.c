@@ -25,9 +25,6 @@ error_return sya(char *input, vari *var) {
 
   //to check if the '-' char is subtraction or a negative
   int negativeCheck = 0;
-  
-  //string for strtod function, unused
-  char *str2d = NULL;
 
   //Error checking
   //check that the number of left end and right end parentheses are the same
@@ -97,7 +94,7 @@ error_return sya(char *input, vari *var) {
 	bufferLetters[j] = '\0';
 
 	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
-	  pushn(initScalar(strtod(bufferLetters, &str2d), &error), out);
+	  pushn(initScalar(strtod(bufferLetters, NULL), &error), out);
 
 	} else { //check if command is a function or variable
 	  if(input[i+1] == '(') {
