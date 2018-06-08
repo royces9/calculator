@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
       printf(">>%s\n", *(argv+i));
       error = sya(argv[i], var);
 
-      if(error == 0) {
+      if( !error ){
 	printMatrix(*var->ans);
       } else{
 	errorReport(error);
@@ -32,27 +32,29 @@ int main(int argc, char *argv[]) {
 
   //main loop
   while(error <= 0) {
+
+    error = 0;
+
     //user input and history
     input = readline(">>");
     add_history(input);
 
-    if(*input == 0) { //if the user enters an empty line, go to top of loop
-      free(input);
-      continue;
-    } else{ //parses string and does all the calculations
+    if( (*input) ) { //if the user enters an empty line, go to top of loop
+      //else{ //parses string and does all the calculations
       error = sya(input, var);
-    }
 
-    if(error == 0) {
+      if( !error ){
 
-      //suppress output if the line ends with ';'
-      if(input[strlen(input) - 1] != ';'){
-	printMatrix(*var->ans);
+	//suppress output if the line ends with ';'
+	if( input[strlen(input) - 1] != ';' ){
+	  printMatrix(*var->ans);
+	}
+
+      } else{ //if the error is less than -1, prints an error code
+	errorReport(error);
       }
-
-    } else{ //if the error is less than -1, prints an error code
-      errorReport(error);
     }
+
     free(input); //readline mallocs the input line
   }
 

@@ -11,7 +11,15 @@
 error_return sya(char *input, vari *var) {
 
   //iterators
-  int i = 0, j = 0, k = 0;
+  //main loop iterator
+  int i = 0;
+
+  //character buffer iterator
+  int j = 0;
+
+  //operator buffer iterator
+  int k = 0;
+
 
   //error checking int
   error_return error = 0;
@@ -26,10 +34,12 @@ error_return sya(char *input, vari *var) {
   //to check if the '-' char is subtraction or a negative
   int negativeCheck = 0;
 
+
   //Error checking
   //check that the number of left end and right end parentheses are the same
   for(length = 0; input[length]; ++length) {
-    //increment counter when the current char is a left end or right end parenthese
+    //increment for left end
+    //decrement for right end
     parenthesisCount += (input[length] == '(');
     parenthesisCount -= (input[length] == ')');
 
@@ -37,15 +47,17 @@ error_return sya(char *input, vari *var) {
     bracketCount -= (input[length] == ']');
   }
 
-  
+
+  //if the number of left and right ends are the same
+  //the count variables will be 0
   if(parenthesisCount || bracketCount) {
-    return error = -3;
+    return -3;
   }
 
 
   //if input string ends in an operator, return error
   if(strchr(".[,+-/*^(=&|~<>",input[length-1])) {
-    return error = -4;
+    return -4;
   }
 
   //buffers for characters and operators
@@ -56,13 +68,15 @@ error_return sya(char *input, vari *var) {
   __MALLOC_CHECK(bufferOper, error);
 
 
-  //name of variable if assignment
-  char *variableAssign;
-
   int8_t type[length+1];
   for(int l = 0; input[l]; ++l){
     type[l] = checkType(input[l]);
 
+    //3 is the '.' character
+    //it's possible to determine if
+    //it is a decimal point or
+    //part of a scalar operator
+    //by checking the next character
     if(type[l] == 3){
       type[l + 1] = checkType(input[l + 1]);
       type[l] = type[l + 1];
@@ -115,8 +129,8 @@ error_return sya(char *input, vari *var) {
       j = 0;
       bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
 
-      //assumes operators are only two characters wide, checks the current char and the next to see if it's a
-      //valid operator, if it is not, then go into the if and find the correct operator in findOperator
+      //checks if the current buffer concatenated with the
+      //next character is an operator
       if(checkOperator(bufferOper, input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
 	error = findOperator(bufferOper, out, &operatorStack, var, &negativeCheck); //find the corresponding operator
@@ -148,9 +162,7 @@ error_return sya(char *input, vari *var) {
 
   //while the operator and number stack are occupied, keep executing
   while((out->top > -1) && (operatorStack.top > -1)) {
-    error = execNum(out, var, popch(&operatorStack));
-
-    if(error){
+    if( error = execNum(out, var, popch(&operatorStack)) ) {
       freeNumberStack(out);
       return error;
     }
@@ -167,8 +179,9 @@ error_return sya(char *input, vari *var) {
 
   
   //copy out->stk[0] to var->ans
-  if(out->top > -1){
-    //if(out->occ != 0){
+  //if out->stk is occupied, and
+  //if out->stk[0] is not NULL
+  if((out->top > -1) && (out->stk[0]->size)){
     var->ans->length = out->stk[0]->length;
     var->ans->dimension = out->stk[0]->dimension;
 
@@ -177,6 +190,10 @@ error_return sya(char *input, vari *var) {
 
     var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
     memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
+
+  } else{
+    error = -5;
+
   }
 
   //free everything in the numberStack
@@ -211,7 +228,7 @@ void errorReport(error_return error) {
 
 //check if the string is a number/variable
 error_return checkNumbers(char *input) {
-  for(int i = 0; i  < strlen(input); ++i) {
+  for(int i = 0; input[i]; ++i) {
     if(input[i] < '0' && input[i] != '.' || input[i] > '9' || !input[i]) {
       return 0;
     }
@@ -220,7 +237,8 @@ error_return checkNumbers(char *input) {
 }
 
 
-//check if the two chars together make an operator 
+//check if "a" concatenated with "b"
+//is in the operator array
 int checkOperator(char *a, char b) {
   int length = strlen(a);
   char buffer[length + 3];
@@ -233,14 +251,16 @@ int checkOperator(char *a, char b) {
 
 
 //checks the type of character
+
+//alpha numeric is 1
+//operators are 2
+//'.' is 3, can be either operator or alpha
+//"[]" is 4, matrix operator
+//misc characters are 0, just ignore em
+//nonsupported characters are -1?
 int8_t checkType(char a) {
   switch(a) {
-    //alpha numeric is 1
-    //operators are 2
-    //'.' is 3, can be either operator or alpha
-    //"[]" is 4, matrix operator
-    //misc characters are 0, just ignore em    
-    //nonsupported characters are -1?
+
   case '0' ... '9':
   case 'a' ... 'z':
   case 'A' ... 'Z':
@@ -279,11 +299,4 @@ int8_t checkType(char a) {
   default:
     return -1;
   }
-}
-
-
-//checks if = and == are in the same spot, relies on strchr and strstr to
-//linearlly check from the beginning of the string
-int8_t isAssign(char *input) {
-  return (strchr(input, '=') == (strstr(input, "=="))) ? 0 : 1;
 }
