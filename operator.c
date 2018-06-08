@@ -116,6 +116,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
     case eMax: out = max(a, error); break;
     case eMin: out = min(a, error); break;
     case eAvg: out = avg(a, error); break;
+    case eSum: out = sum(a, error); break;
     default: out = copyMatrix(a, error); break;
     }
   }
@@ -134,6 +135,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
   //check if inputs are scalar
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
+
   if(((aScalar + bScalar) > 0) && check){
 
     //if the enum is for a matrix operation
@@ -283,6 +285,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
   case eMin:
   case eMax:
   case eAvg:
+  case eSum:
   case eEye:
   case eSize:
   case eTranspose:
@@ -398,7 +401,8 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
   case eSubtract:
     if(*tok == 1) {
-      while((oper->stk[oper->top].precedence <= 6) && (oper->top > -1)) {
+      //check first, if the stack is occupied, should short-circuit
+      while((oper->top > -1) && (oper->stk[oper->top].precedence <= 6)) {
 	error = execNum(num, var, popch(oper));
       }
       pushch(initOperatorStruct("+", 2, 6, eAdd), oper);

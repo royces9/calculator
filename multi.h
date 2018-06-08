@@ -3,10 +3,6 @@
 
 int numberOfArgs(char **input);
 
-matrix *min(matrix *m, error_return *error);
-matrix *max(matrix *m, error_return *error);
-matrix *avg(matrix *m, error_return *error);
-
 matrix *deri(char **input, vari *var, error_return *error);
 matrix *inte(char **input, vari *var, error_return *error);
 matrix *solve(char **input, vari *var, error_return *error);
