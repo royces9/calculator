@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
     input = readline(">>");
     add_history(input);
 
-    if( (*input) ) { //if the user enters an empty line, go to top of loop
-      //else{ //parses string and does all the calculations
+    if( (*input) ) { //skip if the input is empty
+      //parses string and does all the calculations
       error = sya(input, var);
 
       if( !error ){

@@ -221,12 +221,15 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     return 1;
 
   case eClear: //clear
-    if(var->count > -1){
-      for(int i = 0; i <= var->count; ++i){
-	freeMatrix(var->value[i]);
-      }
+    for(int i = 0; i <= var->count; ++i){
+      var->value[i]->variable = 0;
+      freeMatrix(var->value[i]);
+      var->value[i] = NULL;
+
+      free(var->name[i]);
+      var->name[i] = NULL;
     }
-    var->count = 0;
+    var->count =  -1;
     printf("\nAll variables cleared\n\n");
     return -1;
 
