@@ -240,7 +240,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; ++j) {
 	printf("%s =", var->name[j]);
-	printMatrix(*var->value[j]);
+	printMatrix(var->value[j]);
       }
       printf("\n");
     } else {

@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
       error = sya(argv[i], var);
 
       if( !error ){
-	printMatrix(*var->ans);
+	printMatrix(var->ans);
       } else{
 	errorReport(error);
       }
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
 	//suppress output if the line ends with ';'
 	if( input[strlen(input) - 1] != ';' ){
-	  printMatrix(*var->ans);
+	  printMatrix(var->ans);
 	}
 
       } else{ //if the error is less than -1, prints an error code

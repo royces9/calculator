@@ -31,7 +31,7 @@ matrix *deri(char **input, vari *var, error_return *error) {
   input[1] = variable
   input[2] = point
   input[3] = step size
-f   */
+   */
 
   //check the number of inputs is correct
   if(numberOfArgs(input) != 4) {
@@ -365,9 +365,9 @@ input[2] = number of elements
 
   vari *varTemp = copyVari(var, error);
 
-  element a;
-  element b;
-  element length;
+  element a = 0;
+  element b = 0;
+  element length = 0;
 
   *error = sya(input[0], varTemp);
   if(varTemp->ans->dimension != 1){
@@ -508,7 +508,10 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
 }
 
 
-//start is the counter for the main loop in sya
+//buffer -  holds the character buffer from sya
+//tok - is a pointer which determines whether '-' is negative or subtraction
+//input -  is the entire input string
+//start -  is the counter for the main loop in sya
 error_return checkVariable(char *buffer, int *tok, char *input, int *start, vari *var, numberStack *num, operatorStack *ch){
 
   int varLen = strlen(buffer);
@@ -646,7 +649,7 @@ error_return printLine(char **input, vari *var) {
     else { //no quotes, just a variable or expression
       error = sya(input[i], varTemp); //calculate expression and print, print variables this way
       if(error) return error;
-      printMatrix(*varTemp->ans);
+      printMatrix(varTemp->ans);
 
     }
   }

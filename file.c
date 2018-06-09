@@ -257,7 +257,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
       //print output
       if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0)) {
-	printMatrix(*var->ans);
+	printMatrix(var->ans);
       }
 
       //continue execution going left

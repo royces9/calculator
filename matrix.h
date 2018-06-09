@@ -32,8 +32,8 @@ matrix *copyMatrix(matrix *src, error_return *error);
 matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error);
 
 void freeMatrix(matrix *m);
-void printTwoDMatrix(const matrix m, int offset);
-void printMatrix(const matrix m);
+void printTwoDMatrix(const matrix *m, int offset);
+void printMatrix(const matrix *m);
 
 int getLength(int *size, int dimension);
 int sub2ind(int *location, int *size, int dimension);

@@ -16,7 +16,8 @@ matrix *initMatrix(int *size, int dimension, error_return *error){
   out->size = malloc(sizeof(*out->size) * (dimension + 1));
   __MALLOC_CHECK(out->size, *error);  
 
-  out->size = memcpy(out->size, size, sizeof(*out->size) * dimension);
+  out->size = memcpy(out->size, size, sizeof(*out->size) * (dimension + 1));
+  out->size[dimension] = 0;
 
   out->variable = 0;
 
@@ -276,27 +277,14 @@ void freeMatrix(matrix *m){
 //the second print will have an offset of 4 and print:
 //5 7
 //6 8
-void printTwoDMatrix(const matrix m, int offset){
-  /*  another way that could work? I'll just keep it here for now
-  int i = 0;
-  int j = 0;
-  int *loc[2] = {&i, &j};
-  printf("\n");
-  for(i = 0; i < m.size[0]; ++i){
-    for(j = 0; j < m.size[1]; ++j){
-        printf("%lf ", m.elements[offset + ((*loc[0]) + m.size[0] * (*loc[1]))]);
-    }
-    printf("\n");
-  }
-  printf("\n");*/
+void printTwoDMatrix(const matrix *m, int offset){
 
   printf("\n");
-  for(int i = 0; i < m.size[0]; ++i){
-    for(int j = 0; j < m.size[1]; ++j){
-      int location[2] = {i, j};
+  for(int columns = 0; columns < m->size[0]; ++columns){
+    for(int rows = 0; rows < m->size[1]; ++rows){
       //the below is the same as sub2ind for a 2d matrix
-      //location[0] + m.size[0] * location[1]
-      printf("%lf ", m.elements[offset + (location[0] + m.size[0] * location[1])]);
+      //columns + m.size[0] * rows
+      printf("%lf ", m->elements[offset + (columns + m->size[0] * rows)]);
     }
     printf("\n");
   }
@@ -308,18 +296,23 @@ void printTwoDMatrix(const matrix m, int offset){
 
 //print out a matrix of any size
 //prints out 2d slices of the matrix
-void printMatrix(const matrix m){
+void printMatrix(const matrix *m){
   int offset = 0;
-  if(m.dimension > 2){
-    int twoDimSize = m.size[0] * m.size[1];
-    for(int i = 1; i < m.dimension; ++i){
+  if(m->dimension > 2){
+    int twoDimSize = m->size[0] * m->size[1];
+    for(int i = 2; i < m->dimension; ++i){
+      for(int j = 0; j < m->size[i]; ++j){
 	printTwoDMatrix(m, offset);
 	offset += twoDimSize;
+      }
     }
-  } else if(m.dimension == 2){ //2d mat
+
+  } else if(m->dimension == 2){ //2d mat
     printTwoDMatrix(m, 0);
+
   } else{ //scalar
-    printf("\n%lf\n\n", m.elements[0]);
+    printf("\n%lf\n\n", m->elements[0]);
+
   }
   return;
 }
@@ -338,11 +331,11 @@ int getLength(int *size, int dimension){
 //converts matrix indexing to linear index given the size of the matrix
 //this uses zero indexing
 int sub2ind(int *location, int *size, int dimension){
-  int ind = location[0] + size[0];
+  int ind = location[0];
   int sizeProd = size[0];
 
   for(int i = 1; i < dimension; ++i){
-    ind = ind + sizeProd * (location[i] - 1);
+    ind += (location[i] * sizeProd);
     sizeProd *= size[i];
   }
 
