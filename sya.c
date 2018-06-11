@@ -43,8 +43,18 @@ error_return sya(char *input, vari *var) {
     parenthesisCount += (input[length] == '(');
     parenthesisCount -= (input[length] == ')');
 
+    //if the counter is negative, that means there were more right ends
+    //than left ends, which means the parenthesis aren't properly
+    //closed
+    if(parenthesisCount < 0){
+      return -3;
+    }
+
     bracketCount += (input[length] == '[');
     bracketCount -= (input[length] == ']');
+    if(bracketCount < 0){
+      return -3;
+    }
   }
 
 
@@ -100,14 +110,16 @@ error_return sya(char *input, vari *var) {
     switch(type[i]){
 
     case 1: //alpha numerics
+      //reset bufferOper counter
       k = 0;
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
 
-      //is true if it's a valid number/variable name
+      //for valid numbers/variables/functions
       if((type[i+1] == 2) || (type[i+1] == 0)){
 	bufferLetters[j] = '\0';
 
-	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
+	//if the buffer is all numbers
+	if(checkNumbers(bufferLetters)) {
 	  pushn(initScalar(strtod(bufferLetters, NULL), &error), out);
 
 	} else { //check if command is a function or variable
@@ -118,7 +130,10 @@ error_return sya(char *input, vari *var) {
 	  bufferLetters[j] = '\0';
 	  error = findFunction(bufferLetters, out, &operatorStack, var, &negativeCheck, &i, input);
 	}
-	j = 0; //reset counter for buffer
+
+	//rest bufferLetters counter
+	j = 0;
+
       } //end if
 
       negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
@@ -126,6 +141,7 @@ error_return sya(char *input, vari *var) {
 
       
     case 2: //operator characters
+      //reset bufferLetters counter
       j = 0;
       bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
 
@@ -133,12 +149,19 @@ error_return sya(char *input, vari *var) {
       //next character is an operator
       if(checkOperator(bufferOper, input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, out, &operatorStack, var, &negativeCheck); //find the corresponding operator
+
+	//find the corresponding operator
+	error = findOperator(bufferOper, out, &operatorStack, var, &negativeCheck);
+
+	//reset bufferOper counter
 	k = 0;
       }
       break;
 
     case 4: //"[]"
+      //reset letters and oper counters
+      j = 0;
+      k = 0;
       pushn(extractMatrix(var, &i, input, &error), out);
       break;
 
@@ -148,11 +171,6 @@ error_return sya(char *input, vari *var) {
       break;
 
     }//end of switch
-
-    if((error < 0) || (error == 1)) { //break if error or quit
-      break;
-    }
-
   }//end of for
 
   free(type);
