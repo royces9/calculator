@@ -102,14 +102,14 @@ matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
     bIncrement *= b->size[i];
   }
 
-  for(int i = 0, j = 0, aa = 0, bb = 0, k = 0; k < out->length; ++aa, ++bb){
-    for(i = 0; i < aIncrement; ++i){
-      out->elements[k] = a->elements[i + aIncrement * aa];
+  for(int aIterator = 0, bIterator = 0, sizeOffset = 0, k = 0; k < out->length; ++sizeOffset){
+    for(aIterator = 0; aIterator < aIncrement; ++aIterator){
+      out->elements[k] = a->elements[aIterator + aIncrement * sizeOffset];
       ++k;
     }
       
-    for(j = 0; j < bIncrement; ++j){
-      out->elements[k] = b->elements[j + bIncrement * bb];
+    for(bIterator = 0; bIterator < bIncrement; ++bIterator){
+      out->elements[k] = b->elements[bIterator + bIncrement * sizeOffset];
       ++k;
     }
   }
@@ -134,12 +134,17 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error){
 
       //a and b are the same dimension
       if(!diff){
-	int sizeA[a->dimension];
-	int sizeB[b->dimension];
+	int *sizeA = malloc(sizeof(*sizeA) * (a->dimension + 1));
+	__MALLOC_CHECK(sizeA, *error);
+
+	int *sizeB = malloc(sizeof(*sizeB) * (b->dimension + 1));
+	__MALLOC_CHECK(sizeB, *error);
 
 	sizeA[a->dimension] = 0;
 	sizeB[b->dimension] = 0;
 
+	//creates a new size matrix, that skips the dimension that
+	//is being concatenated against
 	for(int i = 0, j = 0; i < ( a->dimension - 1); ++i, ++j){
 	  if(i == dimension){
 	    ++i;
@@ -151,6 +156,8 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error){
 
 	if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimension - 1)){
 	  int *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
+	  __MALLOC_CHECK(newSize, *error);
+
 	  newSize[a->dimension] = 0;
 
 	  for(int i = 0; i < a->dimension; ++i){
@@ -165,12 +172,15 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error){
 
 	  assignConcat(out, a, b, dimension);
 
-	  return out;
-
 	} else{
 	  *error = -15;
-	  return NULL;
+	  out = NULL;
 	}
+
+	free(sizeA);
+	free(sizeB);
+
+	return out;
       }
       break;
 

@@ -242,7 +242,6 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	printf("%s =", var->name[j]);
 	printMatrix(var->value[j]);
       }
-      printf("\n");
     } else {
       printf("\nNo variables set\n\n");
     }
@@ -483,8 +482,8 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 char **separateMatrix(char *input, int delimiter, error_return *error){
   char **out = malloc(sizeof(*out) * (delimiter + 2));
 
-  //counter for brackets, parentheses and brackets:
-  int bracketCount[4] = {0, 0};
+  //counter for "()[]"
+  int bracketCount[2] = {0, 0};
 
   //the last index where a ',' or ';' was found
   int currentLength = 0;

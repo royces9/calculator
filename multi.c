@@ -20,7 +20,6 @@ int numberOfArgs(char **input) {
 
 //calculates the derivative of a function at a given point with a given step size
 matrix *deri(char **input, vari *var, error_return *error) {
-  char *str2d;
   element out, inter, h, point;
   vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
   
@@ -47,6 +46,7 @@ matrix *deri(char **input, vari *var, error_return *error) {
     *error = -10;
     return NULL;
   }
+
   point = varTemp->ans->elements[0];
 
   *error = sya(input[3], varTemp);
@@ -55,6 +55,7 @@ matrix *deri(char **input, vari *var, error_return *error) {
     *error = -10;
     return NULL;
   }
+
   h = varTemp->ans->elements[0];
 
   
@@ -94,10 +95,8 @@ matrix *inte(char **input, vari *var, error_return *error) {
     return 0;
   }
 
-  char *str2d;
-
   element step = 0, sum = 0;
-  element out,inter, a, b, number;
+  element out, inter, a, b, number;
   vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
   int varIndex = 0, iter = 0;
 
@@ -185,7 +184,6 @@ matrix *solve(char **input, vari *var, error_return *error) {
     return 0;
   }
 
-  char *str2d;
   vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
   
   element out, inter, h;
@@ -230,7 +228,8 @@ matrix *solve(char **input, vari *var, error_return *error) {
   //on start
   test = h + 1;
 
-  //incase the while loop gets stuck
+  //counter to keep track of the amount of iterations
+  //if it overflows, then break from the loop
   uint16_t counter = 1;
 
   //solve f(x)=0 for x using Newton's method
@@ -315,6 +314,7 @@ matrix *zeros(char **input, vari *var, error_return *error){
   matrix *out = initMatrix(newSize, dimension, error);
 
   free(newSize);
+
   return out;
 }
 

@@ -68,7 +68,7 @@ error_return sya(char *input, vari *var) {
   __MALLOC_CHECK(bufferOper, error);
 
 
-  int8_t type[length+1];
+  int8_t *type = malloc(sizeof(*type) * (length + 1));
   for(int l = 0; input[l]; ++l){
     type[l] = checkType(input[l]);
 
@@ -96,7 +96,7 @@ error_return sya(char *input, vari *var) {
 
   //main loop
   //iterators through the input string, apply shunting-yard algorithm
-  for(i = 0; input[i]; ++i) {
+  for(i = 0; input[i] || error; ++i) {
     switch(type[i]){
 
     case 1: //alpha numerics
@@ -150,50 +150,50 @@ error_return sya(char *input, vari *var) {
     }//end of switch
 
     if((error < 0) || (error == 1)) { //break if error or quit
-      freeNumberStack(out);
-      free(bufferLetters);
-      free(bufferOper);
-      return error;
+      break;
     }
+
   }//end of for
 
+  free(type);
   free(bufferLetters);
   free(bufferOper);
 
-  //while the operator and number stack are occupied, keep executing
-  while((out->top > -1) && (operatorStack.top > -1)) {
-    if( error = execNum(out, var, popch(&operatorStack)) ) {
-      freeNumberStack(out);
-      return error;
+  if(!error){
+
+    //while the operator and number stack are occupied, keep executing
+    while((out->top > -1) && (operatorStack.top > -1)) {
+      if( error = execNum(out, var, popch(&operatorStack)) ) {
+	freeNumberStack(out);
+	return error;
+      }
     }
-  }
 
+    if(var->ans->size != NULL){
+      free(var->ans->size);
+      free(var->ans->elements);
 
-  if(var->ans->size != NULL){
-    free(var->ans->size);
-    free(var->ans->elements);
-
-    var->ans->size = NULL;
-    var->ans->elements = NULL;
-  }
-
+      var->ans->size = NULL;
+      var->ans->elements = NULL;
+    }
   
-  //copy out->stk[0] to var->ans
-  //if out->stk is occupied, and
-  //if out->stk[0] is not NULL
-  if((out->top > -1) && (out->stk[0]->size)){
-    var->ans->length = out->stk[0]->length;
-    var->ans->dimension = out->stk[0]->dimension;
+    //copy out->stk[0] to var->ans
+    //if out->stk is occupied, and
+    //if out->stk[0] is not NULL
+    if((out->top > -1) && (out->stk[0]->size)){
+      var->ans->length = out->stk[0]->length;
+      var->ans->dimension = out->stk[0]->dimension;
 
-    var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
-    memcpy(var->ans->elements, out->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
+      var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
+      memcpy(var->ans->elements, out->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
 
-    var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
-    memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
+      var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
+      memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
 
-  } else{
-    error = -5;
+    } else{
+      error = -5;
 
+    }
   }
 
   //free everything in the numberStack
@@ -241,12 +241,16 @@ error_return checkNumbers(char *input) {
 //is in the operator array
 int checkOperator(char *a, char b) {
   int length = strlen(a);
-  char buffer[length + 3];
+  char *buffer = malloc(sizeof(*buffer) * (length + 4));
   strcpy(buffer, a);
+
   buffer[length] = b;
   buffer[length + 1] = '\0';
-  
-  return searchOperatorArray(buffer);
+
+  int out = searchOperatorArray(buffer);
+  free(buffer);
+
+  return out;
 }
 
 

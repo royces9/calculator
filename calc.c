@@ -24,8 +24,10 @@ int main(int argc, char *argv[]) {
 
       if( !error ){
 	printMatrix(var->ans);
+
       } else{
 	errorReport(error);
+
       }
     }
   } 
