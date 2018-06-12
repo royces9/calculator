@@ -24,20 +24,20 @@ error_return sya(char *input, vari *var) {
   //error checking int
   error_return error = 0;
 
-  //length of input
-  int length = 0;
-
-  //count for the number of parentheses and brackets
-  int parenthesisCount = 0; 
-  int bracketCount = 0;
 
   //to check if the '-' char is subtraction or a negative
   int negativeCheck = 0;
 
-
   //Error checking
+  //count for the number of parentheses and brackets
+  int parenthesisCount = 0; 
+  int bracketCount = 0;
+
+  int length = 0;
+
   //check that the number of left end and right end parentheses are the same
-  for(length = 0; input[length]; ++length) {
+  //also measure length of string
+  for(; input[length]; ++length) {
     //increment for left end
     //decrement for right end
     parenthesisCount += (input[length] == '(');

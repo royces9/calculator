@@ -213,7 +213,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
 }
 
 
-error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *start, char *input) {
+error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *iterator, char *input) {
   char **separatedString = NULL;
   int i = searchFunctionArray(buffer);
   error_return error = 0;
@@ -293,56 +293,56 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     return 0;
 
   case eDeri:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(deri(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
 
   case eInte:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(inte(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
 
   case eSolve:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(solve(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
 
   case eZeros:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(zeros(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
     
   case eOnes:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(ones(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
 
   case eRand:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(randMatrix(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
 
   case eLinspace:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(linspace(separatedString, var, &error), num);
     freeDoubleArray(separatedString);
     *tok = 0;
     return error;
 
   case eRun:
-    separatedString = separateString(input, "()", '\0', start, &error);
+    separatedString = separateString(input, "()", '\0', iterator, &error);
     error = runFile(separatedString, var);
     freeDoubleArray(separatedString);
     if(error) return error;
@@ -353,13 +353,13 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     break;
 
   case ePrint:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     error = printLine(separatedString, var);
     freeDoubleArray(separatedString);
     return error;
 
   case FUNCTION_COUNT: //variables
-    return checkVariable(buffer, tok, input, start, var, num, ch);
+    return checkVariable(buffer, tok, input, iterator, var, num, ch);
 
 
   default:
@@ -570,11 +570,11 @@ int countDelimiter(char *input){
 }
 
 
-//start is the counter for the main loop in sya
-matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
-  //input is incremented to start at input[*start], which is where
+//iterator is the counter for the main loop in sya
+matrix *extractMatrix(vari *var, int *iterator, char *input, error_return *error){
+  //input is incremented to start at input[*iterator], which is where
   //the first [ should be
-  input += (*start);
+  input += (*iterator);
 
   //find where the matrix declaration ends
   //count brackets until they match
@@ -598,7 +598,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
   }
 
   //increment the main loop counter up to the ']' 
-  *start += (length);
+  *iterator += (length);
 
   //the string that will contain every character that contains elements of the matrix
   char *matrixString = malloc(sizeof(*matrixString) * (length));

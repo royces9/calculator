@@ -502,6 +502,7 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
     freeVari(varTemp);
   } else {
     *error = -5;
+
   }
 
   return out;
@@ -511,8 +512,8 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
 //buffer -  holds the character buffer from sya
 //tok - is a pointer which determines whether '-' is negative or subtraction
 //input -  is the entire input string
-//start -  is the counter for the main loop in sya
-error_return checkVariable(char *buffer, int *tok, char *input, int *start, vari *var, numberStack *num, operatorStack *ch){
+//iterator -  is the counter for the main loop in sya
+error_return checkVariable(char *buffer, int *tok, char *input, int *iterator, vari *var, numberStack *num, operatorStack *ch){
 
   int varLen = strlen(buffer);
   int k = 0;
@@ -525,7 +526,7 @@ error_return checkVariable(char *buffer, int *tok, char *input, int *start, vari
   if(buffer[varLen - 1] == '('){
 
     buffer[varLen - 1] = '\0';
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
 
     k = varcheck(var, buffer);
 
@@ -593,7 +594,7 @@ char *removeSpaces(char *input) {
 
   for(; *(input + i) == ' '; ++i);
 
-  for(; *((input + length) - j) == ' '; -- j);
+  for(; *((input + length) - j) == ' '; --j);
 
   *((input + length) - j) = '\0';
 
@@ -604,11 +605,19 @@ char *removeSpaces(char *input) {
 //print a line to stdout, formatting is similar to matlab
 error_return printLine(char **input, vari *var) {
   error_return error = 0;
-  int argNo = numberOfArgs(input), front = 0, back = 0;
+
+  int argNo = numberOfArgs(input);
+  int front = 0;
+  int back = 0;
+
   vari *varTemp = copyVari(var, &error);
 
+  //loop over every argument
   for(int i = 0; i < argNo; ++i) {
-    int len = strlen(input[i]), string = 0;
+    int len = strlen(input[i]);
+
+    //check if the string is quote limited
+    int string = 0;
 
     //check if there is a quote in beginning of string, or spaces then a quote
     if(input[i][0] == '"') {
@@ -617,6 +626,7 @@ error_return printLine(char **input, vari *var) {
       for(front = 0; input[i][front] == ' '; ++front) {
 	if(input[i][front+1] == '"') {
 	  string = 1;
+
 	}
       }
     }
@@ -628,27 +638,32 @@ error_return printLine(char **input, vari *var) {
       for(back = 0; input[i][len-(back+1)] == ' '; ++back) {
 	if(input[i][len-(back+1)] == '"') {
 	  ++string;
+
 	}
       }
     }
 
-    //if there are quotes the the beginning/end of string, this is true
+
+    //if there are quotes at the beginning/end of string, this is true
     if(string) {
       input[i][len-(back+1)] = '\0'; //null terminate it to write over the quote
       if(string == 2) {
 	if((input[i][len-(back+3)] == '\\') && (input[i][len-(back+2)] == 'n')) { //check if there's a new line
 	  input[i][len-(back+3)] = '\0'; //write over the \ in new line
 	  printf("%s\n", input[i]+front+1); //print with new line
+
 	} else {
 	  printf("%s", input[i]+front+1); //print without new line
+
 	}
       } else {
 	return -9; //there's no second quote to match, error
+
       }
-    }
-    else { //no quotes, just a variable or expression
+    } else { //no quotes, just a variable or expression
       error = sya(input[i], varTemp); //calculate expression and print, print variables this way
       if(error) return error;
+
       printMatrix(varTemp->ans);
 
     }
@@ -664,7 +679,7 @@ error_return printLine(char **input, vari *var) {
 //separate a single string into multiple strings by a given delimiter
 //input is the entire input string
 //start is the counter for the main loop in sya
-char **separateString(char *input, char limits[2], char delimiter, int *start, error_return *error) {
+char **separateString(char *input, char limits[2], char delimiter, int *iterator, error_return *error) {
   char *tok;
 
   //counter for left and right bounds
@@ -680,7 +695,7 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
   //delimiter string
   char strDelimiter[2] = {delimiter, 0};
   
-  input += (*start+1);
+  input += (*iterator + 1);
   
   if(limits != NULL){
     for(length = 0; input[length]; ++length) {
@@ -696,8 +711,10 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
 	break;
       }
     }
+
   } else{
     length = strlen(input);
+
   }
 
   //temp variable that strtok will take in, since strtok mangles original pointer
@@ -713,7 +730,7 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
   char **separatedString = malloc((delimiterCount + 2) * sizeof(*separatedString));
   __MALLOC_CHECK(separatedString, *error);
 
-  *start += (length+1);
+  *iterator += (length+1);
   tok = strtok(input2, strDelimiter);
 
   //fill the first index with a string
@@ -722,7 +739,6 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
   strcpy(separatedString[0], ++tok);
 
   tok = strtok(NULL, strDelimiter);
-
 
   int i = 1;
   //every loop populates separateString with another string
