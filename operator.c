@@ -6,6 +6,7 @@
 #include "stack.h"
 #include "functions.h"
 #include "operator.h"
+#include "userFunctions.h"
 #include "multi.h"
 #include "file.h"
 #include "sya.h"
@@ -362,7 +363,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
       //buffer includes the '(', if it's there, replaced with 0
       if(buffer[bufferLength - 1] == '('){
 	buffer[bufferLength - 1] = 0;
-	pushn(findUserFunction(buffer, separatedString, tok, var, num, ch), num);
+	pushn(findUserFunction(buffer, separatedString, var, &error), num);
 
       } else{
 	error = -5;

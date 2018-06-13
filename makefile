@@ -12,7 +12,7 @@ USR = /usr/local/bin/calc
 TARGET =
 
 all: MOREFLAGS += -static -g
-all: matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o calc.o
+all: userFunctions.o matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o calc.o 
 all: TARGET = $(CALC2)
 all: calc
 
@@ -20,6 +20,8 @@ usr: matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o fil
 usr: TARGET = $(USR)
 usr: calc
 
+userFunctions.o: userFunctions.h matrix.h multi.h
+	$(CC) -c userFunctions.c
 
 matrix.o: matrix.c matrix.h operator.c operator.h
 	$(CC) -c matrix.c

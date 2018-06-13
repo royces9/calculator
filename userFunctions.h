@@ -2,7 +2,9 @@
 #define USER_FUNCTIONS
 
 matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, error_return *error);
+
 char *findFunctionPath(char *functionName);
+
 matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, error_return *error);
 
 #endif //USER_FUNCTIONS

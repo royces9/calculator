@@ -4,16 +4,16 @@
 
 #include <dirent.h>
 
-#include "userFunctions.h"
-#include "matrix.h"
+#include "stack.h"
 #include "multi.h"
+#include "userFunctions.h"
 
 char *configFilePath = "~/.calc.cfg";
 
 matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, error_return *error){
 
   char *functionPath = findFunctionPath(functionName);
-  if(!filePath){
+  if(!functionPath){
     *error = -5;
     return NULL;
   }
@@ -22,6 +22,7 @@ matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, err
   matrix *out = executeUserFunction(functionPath, functionArgs, var, error);
 
   free(functionPath);
+
   return out;  
 }
 
@@ -51,16 +52,23 @@ char *findFunctionPath(char *functionName){
     }
   }
   closedir(currentDirectory);
-
+  char *configFilePath = NULL;
   //checks config file paths
   //if foundFlag is still 0
+
+  char *filePaths = NULL;
+
   if(!foundFlag){
-    char *filePaths = malloc(sizeof(*filePaths) * 1024);
+
+    filePaths = malloc(sizeof(*filePaths) * 1024);
+
+    DIR *filePathsDIR = opendir(filePaths);
+
     FILE *config = fopen(configFilePath, "r");
 
     while(!foundFlag && fgets(filePaths, 1024, config)){
 
-      while((!foundFlag) && ((d = readdir(filePaths)) != NULL)){
+      while((!foundFlag) && ((d = readdir(filePathsDIR)) != NULL)){
 	length = strlen(d->d_name);
 
 	if(!memcmp(d->d_name, functionName, length - 3) &&
@@ -73,25 +81,26 @@ char *findFunctionPath(char *functionName){
     }
 
     fclose(config);
-    free(filePaths);
 
   }
 
   if(foundFlag){
-    out = malloc(sizeof(d->d_name) * (strlen(functionName) + strlen(filePath) + 2));
+    out = malloc(sizeof(d->d_name) * (strlen(functionName) + strlen(filePaths) + 2));
     strcpy(out, d->d_name);
     strcat(out, "/");
     strcat(out, functionName);
 
   }
 
+  free(filePaths);
+
   return out;
 }
 
 
 matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, error_return *error){
-
   int argNo = numberOfArgs(functionArgs);
+
   FILE *userFunction = fopen(functionPath, "r");
 
   char title[9];
@@ -99,6 +108,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
   if(!strcmp(title, "function")){
 
   }
+  matrix *out = NULL;
 
   return out;  
 }
