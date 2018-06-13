@@ -52,7 +52,7 @@ char *findFunctionPath(char *functionName){
     }
   }
   closedir(currentDirectory);
-  char *configFilePath = NULL;
+
   //checks config file paths
   //if foundFlag is still 0
 
