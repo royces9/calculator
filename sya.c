@@ -11,50 +11,63 @@
 error_return sya(char *input, vari *var) {
 
   //iterators
-  int i = 0, j = 0, k = 0;
+  //main loop iterator
+  int i = 0;
+
+  //character buffer iterator
+  int j = 0;
+
+  //operator buffer iterator
+  int k = 0;
+
 
   //error checking int
   error_return error = 0;
 
-  //length of input
-  int length = 0;
-
-  //count for the number of parentheses and brackets
-  int parenthesisCount = 0; 
-  int bracketCount = 0;
 
   //to check if the '-' char is subtraction or a negative
   int negativeCheck = 0;
 
-  /*
-  //flag for setVariable, to check whether
-  //variable is saved in var or not
-  int8_t variableExist = 0;
-  */
-  
-  //string for strtod function, unused
-  char *str2d = NULL;
-
   //Error checking
+  //count for the number of parentheses and brackets
+  int parenthesisCount = 0; 
+  int bracketCount = 0;
+
+  int length = 0;
+
   //check that the number of left end and right end parentheses are the same
-  for(length = 0; input[length]; ++length) {
-    //increment counter when the current char is a left end or right end parenthese
+  //also measure length of string
+  for(; input[length]; ++length) {
+    //increment for left end
+    //decrement for right end
     parenthesisCount += (input[length] == '(');
     parenthesisCount -= (input[length] == ')');
 
+    //if the counter is negative, that means there were more right ends
+    //than left ends, which means the parenthesis aren't properly
+    //closed
+    if(parenthesisCount < 0){
+      return -3;
+    }
+
     bracketCount += (input[length] == '[');
     bracketCount -= (input[length] == ']');
+    if(bracketCount < 0){
+      return -3;
+    }
   }
 
-  
+
+  //if the number of left and right ends are the same
+  //the count variables will be 0
   if(parenthesisCount || bracketCount) {
-    return error = -3;
+    return -3;
   }
 
 
   //if input string ends in an operator, return error
   if(strchr(".[,+-/*^(=&|~<>",input[length-1])) {
-    return error = -4;
+    return -4;
   }
 
   //buffers for characters and operators
@@ -65,13 +78,15 @@ error_return sya(char *input, vari *var) {
   __MALLOC_CHECK(bufferOper, error);
 
 
-  //name of variable if assignment
-  char *variableAssign;
-
-  int8_t type[length+1];
+  int8_t *type = malloc(sizeof(*type) * (length + 1));
   for(int l = 0; input[l]; ++l){
     type[l] = checkType(input[l]);
 
+    //3 is the '.' character
+    //it's possible to determine if
+    //it is a decimal point or
+    //part of a scalar operator
+    //by checking the next character
     if(type[l] == 3){
       type[l + 1] = checkType(input[l + 1]);
       type[l] = type[l + 1];
@@ -91,19 +106,21 @@ error_return sya(char *input, vari *var) {
 
   //main loop
   //iterators through the input string, apply shunting-yard algorithm
-  for(i = 0; input[i]; ++i) {
+  for(i = 0; input[i] || error; ++i) {
     switch(type[i]){
 
     case 1: //alpha numerics
+      //reset bufferOper counter
       k = 0;
       bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
 
-      //is true if it's a valid number/variable name
+      //for valid numbers/variables/functions
       if((type[i+1] == 2) || (type[i+1] == 0)){
 	bufferLetters[j] = '\0';
 
-	if(checkNumbers(bufferLetters)) { //if the buffer is all numbers, it's a number, otherwise a variable
-	  pushn(initScalar(strtod(bufferLetters, &str2d), &error), out);
+	//if the buffer is all numbers
+	if(checkNumbers(bufferLetters)) {
+	  pushn(initScalar(strtod(bufferLetters, NULL), &error), out);
 
 	} else { //check if command is a function or variable
 	  if(input[i+1] == '(') {
@@ -113,7 +130,10 @@ error_return sya(char *input, vari *var) {
 	  bufferLetters[j] = '\0';
 	  error = findFunction(bufferLetters, out, &operatorStack, var, &negativeCheck, &i, input);
 	}
-	j = 0; //reset counter for buffer
+
+	//rest bufferLetters counter
+	j = 0;
+
       } //end if
 
       negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
@@ -121,36 +141,27 @@ error_return sya(char *input, vari *var) {
 
       
     case 2: //operator characters
+      //reset bufferLetters counter
       j = 0;
       bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
 
-      //assumes operators are only two characters wide, checks the current char and the next to see if it's a
-      //valid operator, if it is not, then go into the if and find the correct operator in findOperator
+      //checks if the current buffer concatenated with the
+      //next character is an operator
       if(checkOperator(bufferOper, input[i+1]) == OPERATOR_COUNT) {
 	bufferOper[k] = '\0';
-	error = findOperator(bufferOper, out, &operatorStack, var, &negativeCheck); //find the corresponding operator
+
+	//find the corresponding operator
+	error = findOperator(bufferOper, out, &operatorStack, var, &negativeCheck);
+
+	//reset bufferOper counter
 	k = 0;
       }
       break;
 
-      
-    case 3: //'.'
-      if(type[i+1] == 2){
-	char matrixOper[3] = {input[i], input[i+1], 0};
-	error = findOperator(matrixOper, out, &operatorStack, var, &negativeCheck);
-	++i;
-	j = 0;
-      } else if(type[i+1] == 1){
-	bufferLetters[j++] = '.';
-
-      } else if(type[i+1] == 0){
-	error = -4;
-      }
-
-      break;
-
-      
     case 4: //"[]"
+      //reset letters and oper counters
+      j = 0;
+      k = 0;
       pushn(extractMatrix(var, &i, input, &error), out);
       break;
 
@@ -159,51 +170,48 @@ error_return sya(char *input, vari *var) {
       error = -4;
       break;
 
-      
     }//end of switch
-
-    if((error < 0) || (error == 1)) { //break if error or quit
-      freeNumberStack(out);
-      free(bufferLetters);
-      free(bufferOper);
-      return error;
-    }
   }//end of for
 
+  free(type);
   free(bufferLetters);
   free(bufferOper);
 
-  //while the operator and number stack are occupied, keep executing
-  while((out->top > -1) && (operatorStack.top > -1)) {
-    execNum(out, var, popch(&operatorStack), &error);
+  if(!error){
 
-    if(error){
-      freeNumberStack(out);
-      return error;
+    //while the operator and number stack are occupied, keep executing
+    while((out->top > -1) && (operatorStack.top > -1)) {
+      if( error = execNum(out, var, popch(&operatorStack)) ) {
+	freeNumberStack(out);
+	return error;
+      }
     }
-  }
 
+    if(var->ans->size != NULL){
+      free(var->ans->size);
+      free(var->ans->elements);
 
-  if(var->ans->size != NULL){
-    free(var->ans->size);
-    free(var->ans->elements);
-
-    var->ans->size = NULL;
-    var->ans->elements = NULL;
-  }
-
+      var->ans->size = NULL;
+      var->ans->elements = NULL;
+    }
   
-  //copy out->stk[0] to var->ans
-  if(out->top > -1){
-    //if(out->occ != 0){
-    var->ans->length = out->stk[0]->length;
-    var->ans->dimension = out->stk[0]->dimension;
+    //copy out->stk[0] to var->ans
+    //if out->stk is occupied, and
+    //if out->stk[0] is not NULL
+    if((out->top > -1) && (out->stk[0]->size)){
+      var->ans->length = out->stk[0]->length;
+      var->ans->dimension = out->stk[0]->dimension;
 
-    var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
-    memcpy(var->ans->elements, out->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
+      var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
+      memcpy(var->ans->elements, out->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
 
-    var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
-    memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
+      var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
+      memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
+
+    } else{
+      error = -5;
+
+    }
   }
 
   //free everything in the numberStack
@@ -238,7 +246,7 @@ void errorReport(error_return error) {
 
 //check if the string is a number/variable
 error_return checkNumbers(char *input) {
-  for(int i = 0; i  < strlen(input); ++i) {
+  for(int i = 0; input[i]; ++i) {
     if(input[i] < '0' && input[i] != '.' || input[i] > '9' || !input[i]) {
       return 0;
     }
@@ -247,27 +255,34 @@ error_return checkNumbers(char *input) {
 }
 
 
-//check if the two chars together make an operator 
+//check if "a" concatenated with "b"
+//is in the operator array
 int checkOperator(char *a, char b) {
   int length = strlen(a);
-  char buffer[length + 3];
+  char *buffer = malloc(sizeof(*buffer) * (length + 4));
   strcpy(buffer, a);
+
   buffer[length] = b;
   buffer[length + 1] = '\0';
-  
-  return searchOperatorArray(buffer);
+
+  int out = searchOperatorArray(buffer);
+  free(buffer);
+
+  return out;
 }
 
 
 //checks the type of character
+
+//alpha numeric is 1
+//operators are 2
+//'.' is 3, can be either operator or alpha
+//"[]" is 4, matrix operator
+//misc characters are 0, just ignore em
+//nonsupported characters are -1?
 int8_t checkType(char a) {
   switch(a) {
-    //alpha numeric is 1
-    //operators are 2
-    //'.' is 3, can be either operator or alpha
-    //"[]" is 4, matrix operator
-    //misc characters are 0, just ignore em    
-    //nonsupported characters are -1?
+
   case '0' ... '9':
   case 'a' ... 'z':
   case 'A' ... 'Z':
@@ -306,11 +321,4 @@ int8_t checkType(char a) {
   default:
     return -1;
   }
-}
-
-
-//checks if = and == are in the same spot, relies on strchr and strstr to
-//linearlly check from the beginning of the string
-int8_t isAssign(char *input) {
-  return (strchr(input, '=') == (strstr(input, "=="))) ? 0 : 1;
 }

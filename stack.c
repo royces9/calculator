@@ -22,7 +22,7 @@ matrix *popn(numberStack *st) { //pop a matrix from the stack
 
 //characters
 void pushch(operatorStruct inp, operatorStack *st) {
-    st->stk[++st->top] = inp;
+  st->stk[++st->top] = inp;
 }
 
 
@@ -188,7 +188,11 @@ void freeVari(vari *var){
 
 void freeNumberStack(numberStack *st){
   while(st->top > -1){
-    freeMatrix(popn(st));
+    if(st->stk[st->top] != NULL){
+      freeMatrix(popn(st));
+    } else{
+      st->top--;
+    }
   }
 
   free(st);

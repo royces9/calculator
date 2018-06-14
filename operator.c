@@ -6,6 +6,7 @@
 #include "stack.h"
 #include "functions.h"
 #include "operator.h"
+#include "userFunctions.h"
 #include "multi.h"
 #include "file.h"
 #include "sya.h"
@@ -34,54 +35,56 @@ int searchOperatorArray(char *buffer) {
 
 
 //executes either one argument function or two argument function
-void execNum(numberStack *num, vari *var, operatorStruct ch, error_return *error) {
+error_return execNum(numberStack *num, vari *var, operatorStruct ch) {
   matrix *a = NULL, *b = NULL;
+  error_return error = 0;
 
   switch(ch.argNo) {
   case 1:
     a = popn(num);
     if(a->size == NULL){
-      return;
+      break;
     }
 
-    pushn(matrixOneArg(a, ch, error), num);
+    pushn(matrixOneArg(a, ch, &error), num);
     break;
 
   case 2:
     b = popn(num);
     if(b->size == NULL){
-      *error = -5;
-      return;
+      error = -5;
+      break;
     }
 
     a = popn(num);
     if(a->size == NULL){
       freeMatrix(b);
-      *error = -5;
-      return;
+      break;
     }
     
-    pushn(matrixTwoArg(a, b, ch, error), num);
+    pushn(matrixTwoArg(a, b, ch, &error), num);
     break;
 
   case 3:
     b = popn(num);
     if(b->size == NULL){
       free(b);
+      error = -5;
       b = NULL;
-      *error = -5;
-      return;
+      break;
     }
 
     a = popn(num);
 
-    pushn(assign(a, b, var, error), num);
+    pushn(assign(a, b, var, &error), num);
     freeMatrix(b);
     break;
 
   default:
     break;
   }
+
+  return error;
 }
 
 
@@ -114,6 +117,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
     case eMax: out = max(a, error); break;
     case eMin: out = min(a, error); break;
     case eAvg: out = avg(a, error); break;
+    case eSum: out = sum(a, error); break;
     default: out = copyMatrix(a, error); break;
     }
   }
@@ -132,6 +136,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
   //check if inputs are scalar
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
+
   if(((aScalar + bScalar) > 0) && check){
 
     //if the enum is for a matrix operation
@@ -209,7 +214,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
 }
 
 
-error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *start, char *input) {
+error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *iterator, char *input) {
   char **separatedString = NULL;
   int i = searchFunctionArray(buffer);
   error_return error = 0;
@@ -219,12 +224,15 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     return 1;
 
   case eClear: //clear
-    if(var->count > -1){
-      for(int i = 0; i <= var->count; ++i){
-	freeMatrix(var->value[i]);
-      }
+    for(int i = 0; i <= var->count; ++i){
+      var->value[i]->variable = 0;
+      freeMatrix(var->value[i]);
+      var->value[i] = NULL;
+
+      free(var->name[i]);
+      var->name[i] = NULL;
     }
-    var->count = 0;
+    var->count =  -1;
     printf("\nAll variables cleared\n\n");
     return -1;
 
@@ -233,9 +241,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
       printf("\nVariable List:\n");
       for(int j = 0; j <= var->count; ++j) {
 	printf("%s =", var->name[j]);
-	printMatrix(*var->value[j]);
+	printMatrix(var->value[j]);
       }
-      printf("\n");
     } else {
       printf("\nNo variables set\n\n");
     }
@@ -248,19 +255,19 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
   case ePi:
     pushn(initScalar(M_PI, &error), num);
     *tok = 1;
-    return 0;
+    break;
 
   case eE:
     pushn(initScalar(M_E, &error), num);
     *tok = 1;
-    return 0;
+    break;
 
   case eAns:
     { //copy ans so it doesn't get freed
       pushn(copyMatrix(var->ans, &error), num);
       *tok = 1;
     }
-    return 0;
+    break;
 
   case eSin:
   case eCos:
@@ -278,67 +285,60 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
   case eMin:
   case eMax:
   case eAvg:
+  case eSum:
   case eEye:
   case eSize:
   case eTranspose:
     pushch(initOperatorStruct(FUNCTION_LIST[i], 1, 2, i), ch);
     *tok = 0;
-    return 0;
+    break;
 
   case eDeri:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(deri(separatedString, var, &error), num);
-    freeDoubleArray(separatedString);
     *tok = 0;
-    return error;
+    break;
 
   case eInte:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(inte(separatedString, var, &error), num);
-    freeDoubleArray(separatedString);
     *tok = 0;
-    return error;
+    break;
 
   case eSolve:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(solve(separatedString, var, &error), num);
-    freeDoubleArray(separatedString);
     *tok = 0;
-    return error;
+    break;
 
   case eZeros:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(zeros(separatedString, var, &error), num);
-    freeDoubleArray(separatedString);
     *tok = 0;
-    return error;
+    break;
     
   case eOnes:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(ones(separatedString, var, &error), num);
-    freeDoubleArray(separatedString);
     *tok = 0;
-    return error;
+    break;
 
   case eRand:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(randMatrix(separatedString, var, &error), num);
-    freeDoubleArray(separatedString);
     *tok = 0;
-    return error;
+    break;
 
   case eLinspace:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     pushn(linspace(separatedString, var, &error), num);
-    freeDoubleArray(separatedString);
     *tok = 0;
-    return error;
+    break;
 
   case eRun:
-    separatedString = separateString(input, "()", '\0', start, &error);
+    separatedString = separateString(input, "()", '\0', iterator, &error);
     error = runFile(separatedString, var);
-    freeDoubleArray(separatedString);
-    if(error) return error;
+    if(error) break;
 
     //copy ans matrix so it doesn't get freed
     pushn(copyMatrix(var->ans, &error), num);
@@ -346,13 +346,31 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     break;
 
   case ePrint:
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
     error = printLine(separatedString, var);
-    freeDoubleArray(separatedString);
-    return error;
+    break;
 
   case FUNCTION_COUNT: //variables
-    return checkVariable(buffer, tok, input, start, var, num, ch);
+
+    //if the variable does not exist
+    if((error = checkVariable(buffer, tok, input, iterator, var, num, ch)) == -5){
+      break;
+
+    } else{
+      separatedString = separateString(input, "()", ',', iterator, &error);
+
+      int bufferLength = strlen(buffer);
+
+      //buffer includes the '(', if it's there, replaced with 0
+      if(buffer[bufferLength - 1] == '('){
+	buffer[bufferLength - 1] = 0;
+	pushn(findUserFunction(buffer, separatedString, var, &error), num);
+
+      } else{
+	error = -5;
+      }
+
+    }
 
 
   default:
@@ -360,6 +378,11 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     break;
 
   }//end of switch
+
+  //if the separated string is not NULL, free it
+  if(separatedString){
+    freeDoubleArray(separatedString);
+  }
 
   return error;
 }
@@ -393,8 +416,9 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
   case eSubtract:
     if(*tok == 1) {
-      while((oper->stk[oper->top].precedence <= 6) && (oper->top > -1)) {
-	execNum(num, var, popch(oper), &error);
+      //check first, if the stack is occupied, should short-circuit
+      while((oper->top > -1) && (oper->stk[oper->top].precedence <= 6)) {
+	error = execNum(num, var, popch(oper));
       }
       pushch(initOperatorStruct("+", 2, 6, eAdd), oper);
     }
@@ -421,7 +445,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
   case eRightParen:
     do {
-      execNum(num, var, popch(oper), &error);
+      error = execNum(num, var, popch(oper));
     } while(strcmp(oper->stk[oper->top].operator, "(") && (oper->top > -1));
 
     *tok = 1;
@@ -454,7 +478,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eDivideMatrix:
 
     while((oper->top > -1) && (oper->stk[oper->top].precedence <= operatorPrecedence[i])) {
-      execNum(num, var, popch(oper), &error);
+      error = execNum(num, var, popch(oper));
     }
 
     *tok = 0;
@@ -474,8 +498,8 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 char **separateMatrix(char *input, int delimiter, error_return *error){
   char **out = malloc(sizeof(*out) * (delimiter + 2));
 
-  //counter for brackets, parentheses and brackets:
-  int bracketCount[4] = {0, 0};
+  //counter for "()[]"
+  int bracketCount[2] = {0, 0};
 
   //the last index where a ',' or ';' was found
   int currentLength = 0;
@@ -562,11 +586,11 @@ int countDelimiter(char *input){
 }
 
 
-//start is the counter for the main loop in sya
-matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
-  //input is incremented to start at input[*start], which is where
+//iterator is the counter for the main loop in sya
+matrix *extractMatrix(vari *var, int *iterator, char *input, error_return *error){
+  //input is incremented to start at input[*iterator], which is where
   //the first [ should be
-  input += (*start);
+  input += (*iterator);
 
   //find where the matrix declaration ends
   //count brackets until they match
@@ -590,7 +614,7 @@ matrix *extractMatrix(vari *var, int *start, char *input, error_return *error){
   }
 
   //increment the main loop counter up to the ']' 
-  *start += (length);
+  *iterator += (length);
 
   //the string that will contain every character that contains elements of the matrix
   char *matrixString = malloc(sizeof(*matrixString) * (length));

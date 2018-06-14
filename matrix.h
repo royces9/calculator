@@ -1,7 +1,6 @@
 #ifndef MATRIX
 #define MATRIx
 
-
 //typedef double to element
 typedef double element;
 
@@ -9,11 +8,20 @@ typedef double element;
 typedef int8_t error_return;
 
 typedef struct matrix{
-  int length; //number of elements 
-  int dimension; //number of dimensions
-  int *size; //size of the array
-  element *elements; //elements of vector
-  int8_t variable; //variable flag
+  //number of elements;
+  int length;
+
+  //number of dimensions
+  int dimension;
+
+  //size of the array
+  int *size;
+
+  //elements of the matrix
+  element *elements;
+
+  //variable flag
+  int8_t variable;
 } matrix; 
 
 
@@ -23,8 +31,8 @@ matrix *copyMatrix(matrix *src, error_return *error);
 matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error);
 
 void freeMatrix(matrix *m);
-void printTwoDMatrix(const matrix m, int offset);
-void printMatrix(const matrix m);
+void printTwoDMatrix(const matrix *m, int offset);
+void printMatrix(const matrix *m);
 
 int getLength(int *size, int dimension);
 int sub2ind(int *location, int *size, int dimension);

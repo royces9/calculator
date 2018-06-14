@@ -30,7 +30,8 @@ const char FUNCTION_LIST[FUNCTION_COUNT][16] = {
   "min(",
   "max(",
   "avg(",
-
+  "sum(",
+  
   "factorial(",
 
   "derivative(",

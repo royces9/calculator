@@ -45,7 +45,7 @@ matrix *getSize(matrix *a, error_return *error){
   newSize[2] = 0;
   
   matrix *out = initMatrix(newSize, 2, error);
-  for(int i = 0; i < a->dimension; ++i){
+  for(int i = 0; a->size[i]; ++i){
     out->elements[i] = a->size[i];
   }
 
@@ -256,10 +256,102 @@ matrix *transposeMatrix(matrix *a, error_return *error){
   int subLoc = 0;
   
   for(int i = 0; i < out->length; ++i){
+    //subLoc is an int and gets rounded down
     subLoc = i/a->size[0];
     newInd = subLoc + a->size[1] * (i - subLoc * a->size[0]);
 
     out->elements[newInd] = a->elements[i];
+  }
+
+  return out;
+}
+
+
+//determinies minimum value in the matrix
+matrix *min(matrix *m, error_return *error) {
+  element out = m->elements[0];
+
+  for(int i = 1; i < m->length; ++i) {
+    out = fmin(out, m->elements[i]);
+  }
+
+  return initScalar(out, error);
+}
+
+
+//determines maximum value in the matrix
+matrix *max(matrix *m, error_return *error) {
+  element out = m->elements[0];
+
+  for(int i = 1; i < m->length; ++i) {
+    out = fmax(out, m->elements[i]);
+  }
+
+  return initScalar(out, error);
+}
+
+
+//sums along the last dimension of the matrix
+matrix *sum(matrix *m, error_return *error){
+  matrix *out = NULL;
+
+  int newDimension = m->dimension - 1;
+  int *newSize = NULL;
+
+  if(m->dimension == 2){
+
+    //for vector
+    if((m->size[0] == 1) || (m->size[1] == 1)){
+      newSize = malloc(sizeof(*newSize) * (newDimension + 1));
+      __MALLOC_CHECK(newSize, *error);
+
+    } else{
+      newDimension = 2;
+      newSize = malloc(sizeof(*newSize) * (newDimension + 1));
+      __MALLOC_CHECK(newSize, *error);
+      newSize[1] = m->size[0];
+
+    }
+    newSize[0] = 1;
+
+  } else if(m->dimension == 1){
+    return copyMatrix(m, error);
+
+  } else{
+    newSize = malloc(sizeof(*newSize) * (newDimension + 1));
+    __MALLOC_CHECK(newSize, *error);
+
+    newSize = memcpy(newSize, m->size, sizeof(*newSize) * (newDimension + 1));
+    newSize[newDimension] = 0;
+  }
+
+  out = initMatrix(newSize, newDimension, error);
+  free(newSize);
+
+  for(int i = 0; i < out->length; ++i){
+    element tempSum = 0;
+
+    for(int j = 0; j < m->size[m->dimension - 1]; ++j){
+      tempSum += m->elements[i*out->length + j];
+    }
+
+    out->elements[i] = tempSum;
+  }
+
+  return out;
+}
+
+//calculates average value of the matrix along the last dimensions columns
+//ex:
+//1 2
+//3 4
+//should return
+//2 3
+matrix *avg(matrix *m, error_return *error) {
+  matrix *out = sum(m, error);
+
+  for(int i = 0; i < out->length; ++i){
+    out->elements[i] /= m->size[m->dimension - 1];
   }
 
   return out;

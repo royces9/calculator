@@ -18,82 +18,8 @@ int numberOfArgs(char **input) {
 }
 
 
-//determinies minimum value in the matrix
-matrix *min(matrix *m, error_return *error) {
-  element out = m->elements[0];
-
-  for(int i = 1; i < m->length; ++i) {
-    out = fmin(out, m->elements[i]);
-  }
-
-  return initScalar(out, error);
-}
-
-
-//determines maximum value in the matrix
-matrix *max(matrix *m, error_return *error) {
-  element out = m->elements[0];
-
-  for(int i = 1; i < m->length; ++i) {
-    out = fmax(out, m->elements[i]);
-  }
-
-  return initScalar(out, error);
-}
-
-
-//calculates average value of the matrix along the last dimensions columns
-//ex:
-//1 2
-//3 4
-//should return
-//2 3
-matrix *avg(matrix *m, error_return *error) {
-  matrix *out = NULL;
-
-  int newDimension = m->dimension - 1;
-  int *newSize = NULL;
-
-  if(m->dimension == 2){
-    newDimension = 2;
-    newSize = malloc(sizeof(*newSize) * (newDimension + 1));
-    __MALLOC_CHECK(newSize, *error);
-    
-    newSize[0] = 1;
-    newSize[1] = m->size[0];
-    newSize[2] = 0;
-    
-  } else if(m->dimension == 1){
-
-    return copyMatrix(m, error);
-
-  } else{
-    newSize = malloc(sizeof(*newSize) * (newDimension + 1));
-    __MALLOC_CHECK(newSize, *error);
-
-    newSize = memcpy(newSize, m->size, sizeof(*newSize) * (newDimension + 1));
-    newSize[newDimension] = 0;
-  }
-
-  out = initMatrix(newSize, newDimension, error);
-  free(newSize);
-
-  for(int i = 0; i < out->length; ++i){
-    element tempAvg = 0;
-    for(int j = 0; j < m->size[m->dimension - 1]; ++j){
-      tempAvg += m->elements[j*out->length + i];
-    }
-
-    out->elements[i] = tempAvg / m->size[m->dimension - 1];
-  }
-
-  return out;
-}
-
-
 //calculates the derivative of a function at a given point with a given step size
 matrix *deri(char **input, vari *var, error_return *error) {
-  char *str2d;
   element out, inter, h, point;
   vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
   
@@ -104,7 +30,7 @@ matrix *deri(char **input, vari *var, error_return *error) {
   input[1] = variable
   input[2] = point
   input[3] = step size
-f   */
+   */
 
   //check the number of inputs is correct
   if(numberOfArgs(input) != 4) {
@@ -120,6 +46,7 @@ f   */
     *error = -10;
     return NULL;
   }
+
   point = varTemp->ans->elements[0];
 
   *error = sya(input[3], varTemp);
@@ -128,6 +55,7 @@ f   */
     *error = -10;
     return NULL;
   }
+
   h = varTemp->ans->elements[0];
 
   
@@ -167,10 +95,8 @@ matrix *inte(char **input, vari *var, error_return *error) {
     return 0;
   }
 
-  char *str2d;
-
   element step = 0, sum = 0;
-  element out,inter, a, b, number;
+  element out, inter, a, b, number;
   vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
   int varIndex = 0, iter = 0;
 
@@ -258,7 +184,6 @@ matrix *solve(char **input, vari *var, error_return *error) {
     return 0;
   }
 
-  char *str2d;
   vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
   
   element out, inter, h;
@@ -303,7 +228,8 @@ matrix *solve(char **input, vari *var, error_return *error) {
   //on start
   test = h + 1;
 
-  //incase the while loop gets stuck
+  //counter to keep track of the amount of iterations
+  //if it overflows, then break from the loop
   uint16_t counter = 1;
 
   //solve f(x)=0 for x using Newton's method
@@ -388,6 +314,7 @@ matrix *zeros(char **input, vari *var, error_return *error){
   matrix *out = initMatrix(newSize, dimension, error);
 
   free(newSize);
+
   return out;
 }
 
@@ -438,9 +365,9 @@ input[2] = number of elements
 
   vari *varTemp = copyVari(var, error);
 
-  element a;
-  element b;
-  element length;
+  element a = 0;
+  element b = 0;
+  element length = 0;
 
   *error = sya(input[0], varTemp);
   if(varTemp->ans->dimension != 1){
@@ -575,14 +502,18 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
     freeVari(varTemp);
   } else {
     *error = -5;
+
   }
 
   return out;
 }
 
 
-//start is the counter for the main loop in sya
-error_return checkVariable(char *buffer, int *tok, char *input, int *start, vari *var, numberStack *num, operatorStack *ch){
+//buffer -  holds the character buffer from sya
+//tok - is a pointer which determines whether '-' is negative or subtraction
+//input -  is the entire input string
+//iterator -  is the counter for the main loop in sya
+error_return checkVariable(char *buffer, int *tok, char *input, int *iterator, vari *var, numberStack *num, operatorStack *ch){
 
   int varLen = strlen(buffer);
   int k = 0;
@@ -595,7 +526,7 @@ error_return checkVariable(char *buffer, int *tok, char *input, int *start, vari
   if(buffer[varLen - 1] == '('){
 
     buffer[varLen - 1] = '\0';
-    separatedString = separateString(input, "()", ',', start, &error);
+    separatedString = separateString(input, "()", ',', iterator, &error);
 
     k = varcheck(var, buffer);
 
@@ -663,7 +594,7 @@ char *removeSpaces(char *input) {
 
   for(; *(input + i) == ' '; ++i);
 
-  for(; *((input + length) - j) == ' '; -- j);
+  for(; *((input + length) - j) == ' '; --j);
 
   *((input + length) - j) = '\0';
 
@@ -674,11 +605,19 @@ char *removeSpaces(char *input) {
 //print a line to stdout, formatting is similar to matlab
 error_return printLine(char **input, vari *var) {
   error_return error = 0;
-  int argNo = numberOfArgs(input), front = 0, back = 0;
+
+  int argNo = numberOfArgs(input);
+  int front = 0;
+  int back = 0;
+
   vari *varTemp = copyVari(var, &error);
 
+  //loop over every argument
   for(int i = 0; i < argNo; ++i) {
-    int len = strlen(input[i]), string = 0;
+    int len = strlen(input[i]);
+
+    //check if the string is quote limited
+    int string = 0;
 
     //check if there is a quote in beginning of string, or spaces then a quote
     if(input[i][0] == '"') {
@@ -687,6 +626,7 @@ error_return printLine(char **input, vari *var) {
       for(front = 0; input[i][front] == ' '; ++front) {
 	if(input[i][front+1] == '"') {
 	  string = 1;
+
 	}
       }
     }
@@ -698,28 +638,33 @@ error_return printLine(char **input, vari *var) {
       for(back = 0; input[i][len-(back+1)] == ' '; ++back) {
 	if(input[i][len-(back+1)] == '"') {
 	  ++string;
+
 	}
       }
     }
 
-    //if there are quotes the the beginning/end of string, this is true
+
+    //if there are quotes at the beginning/end of string, this is true
     if(string) {
       input[i][len-(back+1)] = '\0'; //null terminate it to write over the quote
       if(string == 2) {
 	if((input[i][len-(back+3)] == '\\') && (input[i][len-(back+2)] == 'n')) { //check if there's a new line
 	  input[i][len-(back+3)] = '\0'; //write over the \ in new line
 	  printf("%s\n", input[i]+front+1); //print with new line
+
 	} else {
 	  printf("%s", input[i]+front+1); //print without new line
+
 	}
       } else {
 	return -9; //there's no second quote to match, error
+
       }
-    }
-    else { //no quotes, just a variable or expression
+    } else { //no quotes, just a variable or expression
       error = sya(input[i], varTemp); //calculate expression and print, print variables this way
       if(error) return error;
-      printMatrix(*varTemp->ans);
+
+      printMatrix(varTemp->ans);
 
     }
   }
@@ -734,7 +679,7 @@ error_return printLine(char **input, vari *var) {
 //separate a single string into multiple strings by a given delimiter
 //input is the entire input string
 //start is the counter for the main loop in sya
-char **separateString(char *input, char limits[2], char delimiter, int *start, error_return *error) {
+char **separateString(char *input, const char limits[2], const char delimiter, int *iterator, error_return *error) {
   char *tok;
 
   //counter for left and right bounds
@@ -750,7 +695,7 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
   //delimiter string
   char strDelimiter[2] = {delimiter, 0};
   
-  input += (*start+1);
+  input += (*iterator + 1);
   
   if(limits != NULL){
     for(length = 0; input[length]; ++length) {
@@ -766,8 +711,10 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
 	break;
       }
     }
+
   } else{
     length = strlen(input);
+
   }
 
   //temp variable that strtok will take in, since strtok mangles original pointer
@@ -783,7 +730,7 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
   char **separatedString = malloc((delimiterCount + 2) * sizeof(*separatedString));
   __MALLOC_CHECK(separatedString, *error);
 
-  *start += (length+1);
+  *iterator += (length+1);
   tok = strtok(input2, strDelimiter);
 
   //fill the first index with a string
@@ -792,7 +739,6 @@ char **separateString(char *input, char limits[2], char delimiter, int *start, e
   strcpy(separatedString[0], ++tok);
 
   tok = strtok(NULL, strDelimiter);
-
 
   int i = 1;
   //every loop populates separateString with another string

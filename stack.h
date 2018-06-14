@@ -47,6 +47,7 @@ typedef struct { //same as numberStack, except for operators
   //index for the top index
   //-1 is empty
   int top;
+
 } operatorStack;
 
 

@@ -9,7 +9,10 @@
 
 
 error_return runFile(char **input, vari *var) {
-  error_return error = 0; //int to put errors into
+  //error variable
+  error_return error = 0;
+
+  //maximum size of tree
   int maxSize = 1024; //maximum size of tree
 
   char **fileString = calloc(maxSize, sizeof(*fileString));
@@ -18,9 +21,12 @@ error_return runFile(char **input, vari *var) {
   fileTree *tree = createLeaf();
 
   //make tree structure
-  error = createTree(input[0], tree, fileString, &maxSize);
-  if(error) return error;
+  if( error = createTree(input[0], tree, fileString, &maxSize)) {
+    cutDownTree(tree);
+    freeString(fileString, maxSize);
 
+    return error;
+  }
   
   //execute tree
   error = executeTree(tree, var, maxSize);
@@ -55,7 +61,7 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
   char buffer[1024];
 
   //direction to branch in tree
-  int direction = 0;
+  int8_t direction = 0;
 
   //error checking
   error_return error = 0;
@@ -145,7 +151,7 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
 
 error_return executeTree(fileTree *tree, vari *var, int maxSize){
   //checking the direction of program flow
-  int direction = 0;
+  int8_t direction = 0;
 
   //checking conditionals: if/while
   //stack structure for nested conditionals
@@ -174,13 +180,13 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
     switch(direction) {
     case 1: //if
-      check = checkConditional(tree->line, direction, var);
-      if(check < 0) { //if there is an error in the if
+
+      checkStack[checkIndex - 1] = checkConditional(tree->line, direction, var);
+    
+      if(checkStack[checkIndex - 1] < 0) { //if there is an error in the if
 	free(checkStack);
 	return check;
       }
-
-      checkStack[checkIndex++] = check;
 
       //if the condition inside the if is true
       //push tree->left, and continue execution from tree->right, the line after the if
@@ -198,26 +204,26 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
     case 2: //while
 
-      check = checkConditional(tree->line, direction, var);
-      if(check < 0) {
+      checkStack[checkIndex++] = checkConditional(tree->line, direction, var);
+
+      if(checkStack[checkIndex - 1] < 0){
 	free(checkStack);
 	return check;
+
+      } else if(checkStack[checkIndex - 1]){
+	fPush(&stk, tree);
+	tree = tree->right;
+	
+      } else{
+	tree = tree->left;
       }
 
-      checkStack[checkIndex++] = check;
+      //checkStack[checkIndex++] = check;
 
       //push tree to continue execution from the while
       //continue execution from tree->right
       //when the loop comes back, the condition is rechecked
       //when the condition becomes false, go to the line after the while block
-
-      if(check) {
-	fPush(&stk, tree);
-	tree = tree->right;
-
-      } else {
-	tree = tree->left;
-      }
       break;
 
 	
@@ -234,9 +240,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
       //when the check is non 0, the if condition executed
       //the else block is skipped
 
-      check = checkStack[--checkIndex];
-
-      if(check == 0) {
+      if(checkStack[--checkIndex] == 0){
 	fPush(&stk, tree->left);
 	tree = tree->right;
 
@@ -256,7 +260,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 
       //print output
       if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0)) {
-	printMatrix(*var->ans);
+	printMatrix(var->ans);
       }
 
       //continue execution going left
