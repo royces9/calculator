@@ -103,10 +103,25 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
   FILE *userFunction = fopen(functionPath, "r");
 
-  char title[9];
-  fgets(title, 9, userFunction);
-  if(!strcmp(title, "function")){
+  char title[1024];
+  fgets(title, 1024, userFunction);
 
+  vari *functionVar = newVari();
+
+  if(!memcmp(title, "function", 8)){
+
+    int i = 9;
+    char outBuffer[1024];
+
+    for(; title[i] == '='; ++i){
+      outValue[i] = title[i];
+    }
+
+    char *outName = removeSpaces(outBuffer);
+
+    *error = setVariable(functionVar, outName, NULL, -1);
+
+    char **functionArgNames = separateString(*(title+ 
   }
   matrix *out = NULL;
 

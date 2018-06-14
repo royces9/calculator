@@ -22,7 +22,7 @@ matrix *popn(numberStack *st) { //pop a matrix from the stack
 
 //characters
 void pushch(operatorStruct inp, operatorStack *st) {
-    st->stk[++st->top] = inp;
+  st->stk[++st->top] = inp;
 }
 
 
