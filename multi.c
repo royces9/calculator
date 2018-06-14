@@ -679,7 +679,7 @@ error_return printLine(char **input, vari *var) {
 //separate a single string into multiple strings by a given delimiter
 //input is the entire input string
 //start is the counter for the main loop in sya
-char **separateString(char *input, char limits[2], char delimiter, int *iterator, error_return *error) {
+char **separateString(char *input, const char limits[2], const char delimiter, int *iterator, error_return *error) {
   char *tok;
 
   //counter for left and right bounds

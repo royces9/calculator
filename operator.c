@@ -355,6 +355,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     //if the variable does not exist
     if((error = checkVariable(buffer, tok, input, iterator, var, num, ch)) == -5){
       break;
+
     } else{
       separatedString = separateString(input, "()", ',', iterator, &error);
 

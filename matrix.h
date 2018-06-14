@@ -1,7 +1,6 @@
 #ifndef MATRIX
 #define MATRIx
 
-
 //typedef double to element
 typedef double element;
 

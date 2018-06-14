@@ -18,6 +18,6 @@ error_return checkVariable(char *buffer, int *tok, char *input, int *iterator, v
 
 char *removeSpaces(char *input);
 error_return printLine(char **input, vari *var);
-char **separateString(char *input, char limits[2], char delimiter, int *iterator, error_return *error);
+char **separateString(char *input, const char limits[2], const char delimiter, int *iterator, error_return *error);
 
 #endif //MULTI

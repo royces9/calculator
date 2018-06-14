@@ -9,7 +9,10 @@
 
 
 error_return runFile(char **input, vari *var) {
-  error_return error = 0; //int to put errors into
+  //error variable
+  error_return error = 0;
+
+  //maximum size of tree
   int maxSize = 1024; //maximum size of tree
 
   char **fileString = calloc(maxSize, sizeof(*fileString));

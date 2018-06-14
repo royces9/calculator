@@ -4,7 +4,10 @@
 
 #include <dirent.h>
 
+#include "operator.h"
+#include "sya.h"
 #include "stack.h"
+#include "file.h"
 #include "multi.h"
 #include "userFunctions.h"
 
@@ -107,23 +110,52 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
   fgets(title, 1024, userFunction);
 
   vari *functionVar = newVari();
-
+  matrix *out = NULL;
+  
   if(!memcmp(title, "function", 8)){
-
     int i = 9;
     char outBuffer[1024];
 
     for(; title[i] == '='; ++i){
-      outValue[i] = title[i];
+      outBuffer[i] = title[i];
     }
 
     char *outName = removeSpaces(outBuffer);
 
-    *error = setVariable(functionVar, outName, NULL, -1);
+    int temp = -1;
+    *error = setVariable(functionVar, outName, NULL, &temp);
 
-    char **functionArgNames = separateString(*(title+ 
+    char **functionArgNames = separateString(title, "()", ',', &i, error);
+
+    int functionArgNo = numberOfArgs(functionArgNames);
+
+    if(functionArgNo == argNo){
+      for(int j = 0; j < functionArgNo; ++j){
+	*error = sya(functionArgs[j], var);
+	if(*error) break;
+
+	temp = -2;
+	*error = setVariable(functionVar, functionArgNames[j], var->ans, &temp);
+	if(*error) break;
+
+      }
+
+    } else{
+      *error = -2;
+
+    }
+
+    fclose(userFunction);
+    freeDoubleArray(functionArgNames);
+
+    *error = runFile(&functionPath, functionVar);
+    out = copyMatrix(var->ans, error);
+
+  } else{
+    *error = -13;
+
   }
-  matrix *out = NULL;
+
 
   return out;  
 }
