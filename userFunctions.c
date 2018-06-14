@@ -14,7 +14,6 @@
 char *configFilePath = "~/.calc.cfg";
 
 matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, error_return *error){
-
   char *functionPath = findFunctionPath(functionName);
   if(!functionPath){
     *error = -5;
