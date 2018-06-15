@@ -138,7 +138,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
     int temp = -1;
     *error = setVariable(functionVar, outName, NULL, &temp);
-    printf("%s\n", title);
+
     char **functionArgNames = separateString(title + 9, "()", ',', &i, error);
 
     int functionArgNo = numberOfArgs(functionArgNames);
@@ -163,13 +163,14 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
     freeDoubleArray(functionArgNames);
 
     *error = runFile(&functionPath, functionVar);
-    out = copyMatrix(var->ans, error);
+    out = copyMatrix(functionVar->ans, error);
 
   } else{
     *error = -13;
 
   }
 
+  freeVari(functionVar);
 
   return out;  
 }
