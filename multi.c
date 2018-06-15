@@ -513,24 +513,37 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
 //tok - is a pointer which determines whether '-' is negative or subtraction
 //input -  is the entire input string
 //iterator -  is the counter for the main loop in sya
-error_return checkVariable(char *buffer, int *tok, char *input, int *iterator, vari *var, numberStack *num, operatorStack *ch){
+error_return checkVariable(const char *buffer, int *tok, char *input, int *iterator, vari *var, numberStack *num, operatorStack *ch){
+
+  error_return error = 0;
 
   int varLen = strlen(buffer);
+
+  char *nameBuffer = malloc(sizeof(*nameBuffer) * (varLen + 1));
+  __MALLOC_CHECK(nameBuffer, error);
+
+  //copy buffer so we don't change the original string
+  strcpy(nameBuffer, buffer);
+
   int k = 0;
 
   matrix *out = NULL;
   char **separatedString = NULL;
 
-  error_return error = 0;
 
-  if(buffer[varLen - 1] == '('){
+  if(nameBuffer[varLen - 1] == '('){
 
-    buffer[varLen - 1] = '\0';
+    nameBuffer[varLen - 1] = '\0';
+
+    k = varcheck(var, nameBuffer);
+    if(k < 0){
+      free(nameBuffer);
+      return -5;
+    }
+
     separatedString = separateString(input, "()", ',', iterator, &error);
 
-    k = varcheck(var, buffer);
-
-    out = extractValue(buffer, separatedString, k, var, &error);
+    out = extractValue(nameBuffer, separatedString, k, var, &error);
 
     if(!(error < 0)){
       pushn(var->value[k], num);
@@ -542,7 +555,7 @@ error_return checkVariable(char *buffer, int *tok, char *input, int *iterator, v
     freeDoubleArray(separatedString);
 
   } else{
-    k = varcheck(var, buffer);
+    k = varcheck(var, nameBuffer);
 
     if(k >= 0) {
       var->value[k]->variable = 1;
@@ -570,9 +583,13 @@ error_return checkVariable(char *buffer, int *tok, char *input, int *iterator, v
       }
 
       var->name[k] = malloc(sizeof(*var->name[k]) * (varLen + 1));
-      strcpy(var->name[k], buffer);
+      __MALLOC_CHECK(var->name[k], error);
+
+      strcpy(var->name[k], nameBuffer);
 
       var->value[k] = malloc(sizeof(*var->value[k]));
+      __MALLOC_CHECK(var->value[k], error);
+
       var->value[k]->variable = 1;
       var->value[k]->size = NULL;
       var->value[k]->elements = NULL;
@@ -580,6 +597,8 @@ error_return checkVariable(char *buffer, int *tok, char *input, int *iterator, v
       pushn(var->value[k], num);
     }
   }
+
+  free(nameBuffer);
 
   return error;
 }

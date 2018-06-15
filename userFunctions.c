@@ -31,12 +31,18 @@ matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, err
 
 //returns the path to the function
 char *findFunctionPath(char *functionName){
+
+  error_return error = 0;
+
   struct dirent *d;
   DIR *currentDirectory = opendir(".");
 
   uint8_t foundFlag = 0;
 
   int length = 0;
+
+  char *fileDirectory = malloc(sizeof(*fileDirectory) * 1024);
+  __MALLOC_CHECK(fileDirectory, error);
 
   char *out = NULL;
 
@@ -48,6 +54,7 @@ char *findFunctionPath(char *functionName){
     if(!memcmp(d->d_name, functionName, length - 3) &&
        !strcmp(d->d_name + (length - 3), ".cr")){
 
+      strcpy(fileDirectory, d->d_name);
       foundFlag = 1;
       break;
 
@@ -76,6 +83,7 @@ char *findFunctionPath(char *functionName){
 	if(!memcmp(d->d_name, functionName, length - 3) &&
 	   !strcmp(d->d_name + (length - 3), ".cr")){
 
+	  strcpy(fileDirectory, d->d_name);
 	  foundFlag = 1;
 	}
       }
@@ -83,25 +91,32 @@ char *findFunctionPath(char *functionName){
     }
 
     fclose(config);
-
+    closedir(filePathsDIR);
   }
 
   if(foundFlag){
-    out = malloc(sizeof(d->d_name) * (strlen(functionName) + strlen(filePaths) + 2));
-    strcpy(out, d->d_name);
-    strcat(out, "/");
-    strcat(out, functionName);
+    int filePathLength = 0;
+
+    if(filePaths){
+      filePathLength = strlen(filePaths);
+    }
+
+    out = malloc(sizeof(out) * (strlen(functionName) + filePathLength + 5));
+    strcpy(out, fileDirectory);
 
   }
 
   free(filePaths);
-
+  free(fileDirectory);
+  
   return out;
 }
 
 
 matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, error_return *error){
   int argNo = numberOfArgs(functionArgs);
+
+  printf("%s\n", functionPath);
 
   FILE *userFunction = fopen(functionPath, "r");
 
@@ -123,8 +138,8 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
     int temp = -1;
     *error = setVariable(functionVar, outName, NULL, &temp);
-
-    char **functionArgNames = separateString(title, "()", ',', &i, error);
+    printf("%s\n", title);
+    char **functionArgNames = separateString(title + 9, "()", ',', &i, error);
 
     int functionArgNo = numberOfArgs(functionArgNames);
 

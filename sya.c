@@ -96,7 +96,6 @@ error_return sya(char *input, vari *var) {
 
   type[length] = 0;
 
-
   //stack for output numbers
   numberStack *out = newNumberStack();
 
@@ -106,7 +105,7 @@ error_return sya(char *input, vari *var) {
 
   //main loop
   //iterators through the input string, apply shunting-yard algorithm
-  for(i = 0; input[i] || !error; ++i) {
+  for(i = 0; input[i] && !error; ++i) {
     switch(type[i]){
 
     case 1: //alpha numerics

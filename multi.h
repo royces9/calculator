@@ -14,7 +14,7 @@ matrix *randMatrix(char **input, vari *var, error_return *error);
 matrix *linspace(char **input, vari *var, error_return *error);
 
 matrix *extractValue(char *buffer, char **input, int k, vari *var, error_return *error);
-error_return checkVariable(char *buffer, int *tok, char *input, int *iterator, vari *var, numberStack *num, operatorStack *ch);
+error_return checkVariable(const char *buffer, int *tok, char *input, int *iterator, vari *var, numberStack *num, operatorStack *ch);
 
 char *removeSpaces(char *input);
 error_return printLine(char **input, vari *var);

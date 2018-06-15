@@ -353,17 +353,16 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
   case FUNCTION_COUNT: //variables
 
     //if the variable does not exist
-    if((error = checkVariable(buffer, tok, input, iterator, var, num, ch)) == -5){
+    if((error = checkVariable(buffer, tok, input, iterator, var, num, ch)) == 0){
       break;
 
     } else{
-      separatedString = separateString(input, "()", ',', iterator, &error);
-
       int bufferLength = strlen(buffer);
 
       //buffer includes the '(', if it's there, replaced with 0
       if(buffer[bufferLength - 1] == '('){
-	buffer[bufferLength - 1] = 0;
+	separatedString = separateString(input, "()", ',', iterator, &error);
+	buffer[bufferLength - 1] = '\0';
 	pushn(findUserFunction(buffer, separatedString, var, &error), num);
 
       } else{
