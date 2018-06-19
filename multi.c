@@ -717,7 +717,7 @@ char **separateString(char *input, const char limits[2], const char delimiter, i
   input += (*iterator + 1);
   
   if(limits != NULL){
-    for(length = 0; input[length]; ++length) {
+    for(; input[length]; ++length) {
 
       //increment count if char is left or right end parenthesis
       leftLimit += (input[length] == limits[0]);

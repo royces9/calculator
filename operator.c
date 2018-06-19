@@ -337,7 +337,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 
   case eRun:
     separatedString = separateString(input, "()", '\0', iterator, &error);
-    error = runFile(separatedString, var);
+    error = runFile(separatedString, var, 0);
     if(error) break;
 
     //copy ans matrix so it doesn't get freed

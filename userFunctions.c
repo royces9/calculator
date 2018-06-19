@@ -116,8 +116,6 @@ char *findFunctionPath(char *functionName){
 matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, error_return *error){
   int argNo = numberOfArgs(functionArgs);
 
-  printf("%s\n", functionPath);
-
   FILE *userFunction = fopen(functionPath, "r");
 
   char title[1024];
@@ -130,8 +128,9 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
     int i = 9;
     char outBuffer[1024];
 
-    for(; title[i] == '='; ++i){
-      outBuffer[i] = title[i];
+    for(int j = 0; title[i] != '='; ++i, ++j){
+      outBuffer[j] = title[i];
+      outBuffer[j + 1] = '\0';
     }
 
     char *outName = removeSpaces(outBuffer);
@@ -139,7 +138,13 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
     int temp = -1;
     *error = setVariable(functionVar, outName, NULL, &temp);
 
-    char **functionArgNames = separateString(title + 9, "()", ',', &i, error);
+    for(;title[i] != '('; ++i);
+    int j = i;
+    for(; title[j] != ')'; ++j);
+    title[j + 1.] = '\0';
+
+    printf("%s\n", title + i);
+    char **functionArgNames = separateString(title + i, "()", ',', &i, error);
 
     int functionArgNo = numberOfArgs(functionArgNames);
 
@@ -162,7 +167,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
     fclose(userFunction);
     freeDoubleArray(functionArgNames);
 
-    *error = runFile(&functionPath, functionVar);
+    *error = runFile(&functionPath, functionVar, 1);
     out = copyMatrix(functionVar->ans, error);
 
   } else{

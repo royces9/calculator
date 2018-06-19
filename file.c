@@ -8,7 +8,7 @@
 #include "sya.h"
 
 
-error_return runFile(char **input, vari *var) {
+error_return runFile(char **input, vari *var, int offset) {
   //error variable
   error_return error = 0;
 
@@ -21,7 +21,7 @@ error_return runFile(char **input, vari *var) {
   fileTree *tree = createLeaf();
 
   //make tree structure
-  if( error = createTree(input[0], tree, fileString, &maxSize)) {
+  if( error = createTree(input[0], tree, fileString, &maxSize, offset) ) {
     cutDownTree(tree);
     freeString(fileString, maxSize);
 
@@ -52,7 +52,7 @@ fileStack newFileStack() {
 
 
 //create and populate tree
-error_return createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
+error_return createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize, int offset){
 
   //file to read from
   FILE *inputFile = fopen(fileName, "r");
@@ -78,6 +78,10 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
     free(tree);
     free(fileString);
     return error = -8;
+  }
+
+  for(int i = 0; i < offset; ++i){
+    fgets(buffer, 1024, inputFile);
   }
 
   

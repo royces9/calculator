@@ -3,9 +3,9 @@
 
 #include "fileStruct.h"
 
-error_return runFile(char **input, vari *var);
+error_return runFile(char **input, vari *var, int offset);
 fileStack newFileStack();
-error_return createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize);
+error_return createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize, int offset);
 error_return executeTree(fileTree *tree, vari *var, int maxSize); 
 error_return checkProgramFlow(char *input);
 error_return checkConditional(char *input, int type, vari *var);
