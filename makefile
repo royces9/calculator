@@ -16,7 +16,7 @@ all: userFunctions.o matrix.o stack.o functions.o operatorUtility.o operator.o m
 all: TARGET = $(CALC2)
 all: calc
 
-usr: matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o calc.o
+usr: userFunctions.o matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o calc.o
 usr: TARGET = $(USR)
 usr: calc
 

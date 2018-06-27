@@ -43,6 +43,7 @@ error_return execNum(numberStack *num, vari *var, operatorStruct ch) {
   case 1:
     a = popn(num);
     if(a->size == NULL){
+      error = -5;
       break;
     }
 
@@ -59,6 +60,7 @@ error_return execNum(numberStack *num, vari *var, operatorStruct ch) {
     a = popn(num);
     if(a->size == NULL){
       freeMatrix(b);
+      error = -5;
       break;
     }
     
@@ -370,7 +372,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
       }
 
     }
-
+    break;
 
   default:
     error = -5;

@@ -15,11 +15,11 @@ char *configFilePath = "~/.calc.cfg";
 
 matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, error_return *error){
   char *functionPath = findFunctionPath(functionName);
+
   if(!functionPath){
     *error = -5;
     return NULL;
   }
-
 
   matrix *out = executeUserFunction(functionPath, functionArgs, var, error);
 
@@ -60,6 +60,7 @@ char *findFunctionPath(char *functionName){
 
     }
   }
+
   closedir(currentDirectory);
 
   //checks config file paths
@@ -119,7 +120,9 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
   FILE *userFunction = fopen(functionPath, "r");
 
   char title[1024];
+  memset(title, 0, 1024);
   fgets(title, 1024, userFunction);
+  fclose(userFunction);
 
   vari *functionVar = newVari();
   matrix *out = NULL;
@@ -136,25 +139,32 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
     char *outName = removeSpaces(outBuffer);
 
     int temp = -1;
-    *error = setVariable(functionVar, outName, NULL, &temp);
 
     for(;title[i] != '('; ++i);
-    int j = i;
+    int j = i--;
     for(; title[j] != ')'; ++j);
-    title[j + 1.] = '\0';
+    title[j + 1] = '\0';
 
-    printf("%s\n", title + i);
-    char **functionArgNames = separateString(title + i, "()", ',', &i, error);
+    char **functionArgNames = separateString(title, "()", ',', &i, error);
 
     int functionArgNo = numberOfArgs(functionArgNames);
 
+    char *inputName;
+
     if(functionArgNo == argNo){
-      for(int j = 0; j < functionArgNo; ++j){
+      inputName = removeSpaces(functionArgNames[0]);
+      *error = sya(functionArgs[0], var);
+
+      temp = -1;
+      *error = setVariable(functionVar, inputName, copyMatrix(var->ans, error), &temp);
+      
+      for(int j = 1; j < functionArgNo; ++j){
+	inputName = removeSpaces(functionArgNames[j]);
 	*error = sya(functionArgs[j], var);
 	if(*error) break;
 
 	temp = -2;
-	*error = setVariable(functionVar, functionArgNames[j], var->ans, &temp);
+	*error = setVariable(functionVar, inputName, copyMatrix(var->ans, error), &temp);
 	if(*error) break;
 
       }
@@ -164,11 +174,17 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
     }
 
-    fclose(userFunction);
     freeDoubleArray(functionArgNames);
 
     *error = runFile(&functionPath, functionVar, 1);
-    out = copyMatrix(functionVar->ans, error);
+
+    int outVariable = varcheck(functionVar, outName);
+
+    if(outVariable < 0){
+      *error = -14;
+    }
+
+    out = copyMatrix(functionVar->value[outVariable], error);
 
   } else{
     *error = -13;

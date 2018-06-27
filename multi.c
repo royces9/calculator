@@ -613,9 +613,10 @@ char *removeSpaces(char *input) {
 
   for(; *(input + i) == ' '; ++i);
 
-  for(; *((input + length) - j) == ' '; --j);
+  for(j = length - 1; input[j] == ' '; --j){
+    input[j] = 0;
+  }
 
-  *((input + length) - j) = '\0';
 
   return (input + i);
 }
@@ -718,7 +719,6 @@ char **separateString(char *input, const char limits[2], const char delimiter, i
   
   if(limits != NULL){
     for(; input[length]; ++length) {
-
       //increment count if char is left or right end parenthesis
       leftLimit += (input[length] == limits[0]);
       rightLimit += (input[length] == limits[1]);
@@ -733,16 +733,14 @@ char **separateString(char *input, const char limits[2], const char delimiter, i
 
   } else{
     length = strlen(input);
-
   }
 
   //temp variable that strtok will take in, since strtok mangles original pointer
-
   char *input2 = malloc((length + 3)* sizeof(*input2));
   __MALLOC_CHECK(input2, *error);
 
   //only copy up to length # of characters
-  strncpy(input2,input, sizeof(*input2) * (length + 3));
+  strncpy(input2, input, sizeof(*input2) * (length + 3));
   input2[length] = 0;
 
   //allocate double array output and populate it with strings

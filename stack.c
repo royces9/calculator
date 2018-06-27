@@ -152,8 +152,10 @@ error_return setVariable(vari *var, char *name, matrix *a, int *check){
   strcpy(var->name[index], name);
   var->value[index] = a;
 
-  var->name[index + 1] = NULL;
-  var->value[index + 1] = NULL;
+  if((*check == -1) || (*check == -2)){
+    var->name[index + 1] = NULL;
+    var->value[index + 1] = NULL;
+  }
 
   return error;
 }
