@@ -236,6 +236,7 @@ void errorReport(error_return error) {
     case -9: printf("Mismatched quotation marks"); break;
     case -10:printf("Matrix dimensions do not match."); break;
     case -11:printf("Out of matrix bounds."); break;
+    case -12:printf("No output variable."); break;
     default: break;
     }
   printf("\n\n");
