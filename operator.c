@@ -296,49 +296,49 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     break;
 
   case eDeri:
-    separatedString = separateString(input, "()", ',', iterator, &error);
+    separatedString = separateString(input, "()", ",", iterator, &error);
     pushn(deri(separatedString, var, &error), num);
     *tok = 0;
     break;
 
   case eInte:
-    separatedString = separateString(input, "()", ',', iterator, &error);
+    separatedString = separateString(input, "()", ",", iterator, &error);
     pushn(inte(separatedString, var, &error), num);
     *tok = 0;
     break;
 
   case eSolve:
-    separatedString = separateString(input, "()", ',', iterator, &error);
+    separatedString = separateString(input, "()", "," , iterator, &error);
     pushn(solve(separatedString, var, &error), num);
     *tok = 0;
     break;
 
   case eZeros:
-    separatedString = separateString(input, "()", ',', iterator, &error);
+    separatedString = separateString(input, "()", ",", iterator, &error);
     pushn(zeros(separatedString, var, &error), num);
     *tok = 0;
     break;
     
   case eOnes:
-    separatedString = separateString(input, "()", ',', iterator, &error);
+    separatedString = separateString(input, "()", ",", iterator, &error);
     pushn(ones(separatedString, var, &error), num);
     *tok = 0;
     break;
 
   case eRand:
-    separatedString = separateString(input, "()", ',', iterator, &error);
+    separatedString = separateString(input, "()", ",", iterator, &error);
     pushn(randMatrix(separatedString, var, &error), num);
     *tok = 0;
     break;
 
   case eLinspace:
-    separatedString = separateString(input, "()", ',', iterator, &error);
+    separatedString = separateString(input, "()", ",", iterator, &error);
     pushn(linspace(separatedString, var, &error), num);
     *tok = 0;
     break;
 
   case eRun:
-    separatedString = separateString(input, "()", '\0', iterator, &error);
+    separatedString = separateString(input, "()", "\0", iterator, &error);
     error = runFile(separatedString, var, 0);
     if(error) break;
 
@@ -348,22 +348,21 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     break;
 
   case ePrint:
-    separatedString = separateString(input, "()", ',', iterator, &error);
+    separatedString = separateString(input, "()", ",", iterator, &error);
     error = printLine(separatedString, var);
     break;
 
   case FUNCTION_COUNT: //variables
 
     //if the variable does not exist
-    if((error = checkVariable(buffer, tok, input, iterator, var, num, ch)) == 0){
+    if(checkVariable(buffer, tok, input, iterator, var, num, ch) == 0){
       break;
 
     } else{
       int bufferLength = strlen(buffer);
-
       //buffer includes the '(', if it's there, replaced with 0
       if(buffer[bufferLength - 1] == '('){
-	separatedString = separateString(input, "()", ',', iterator, &error);
+	separatedString = separateString(input, "()", ",", iterator, &error);
 	buffer[bufferLength - 1] = '\0';
 	pushn(findUserFunction(buffer, separatedString, var, &error), num);
 

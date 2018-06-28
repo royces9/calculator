@@ -20,7 +20,7 @@ usr: userFunctions.o matrix.o stack.o functions.o operatorUtility.o operator.o m
 usr: TARGET = $(USR)
 usr: calc
 
-userFunctions.o: userFunctions.c userFunctions.h matrix.h multi.h
+userFunctions.o: userFunctions.c userFunctions.h matrix.c matrix.h multi.c multi.h
 	$(CC) -c userFunctions.c
 
 matrix.o: matrix.c matrix.h operator.c operator.h

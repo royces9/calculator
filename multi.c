@@ -541,7 +541,7 @@ error_return checkVariable(const char *buffer, int *tok, char *input, int *itera
       return -5;
     }
 
-    separatedString = separateString(input, "()", ',', iterator, &error);
+    separatedString = separateString(input, "()", ",", iterator, &error);
 
     out = extractValue(nameBuffer, separatedString, k, var, &error);
 
@@ -696,9 +696,126 @@ error_return printLine(char **input, vari *var) {
 }
 
 
-//separate a single string into multiple strings by a given delimiter
-//input is the entire input string
-//iterator is the counter for the main loop in sya
+//separate a string
+//input: string to separate, string comes from sya input
+//limiter: things like parenthesis or brackets, outer most limiter is assumed to be ()
+//delimiter: the different types of chars that may be delimiting the string
+//iterator: offset of input to the first parenthesis
+
+char **separateString(char *input, char const * const limiter, char const * const delimiter, int *iterator, error_return *error) {
+
+  //increment input to the first parenthesis
+  input += (*iterator + 1);
+
+  uint16_t length = 0;
+  //find where the parenthesis are closed
+  //can assume that they are closed correctly
+  for(int16_t a = 0; input[length]; ++length){
+    a += (input[length] == '(');
+    a -= (input[length] == ')');
+
+    //if a is 0, break
+    if(!a){
+      break;
+    }
+  }
+
+  //increment iterator length amount, to the
+  //char after the end paren
+  *iterator += (length + 1);
+
+  //get a copy of the input to mangle
+  char *input2 = calloc(length + 1, sizeof(*input2));
+  strncpy(input2, input + 1, length - 1);
+
+  //the number of types of delimiters
+  uint8_t delimiterType = strlen(delimiter);
+
+  //the number of delimiters
+  uint16_t delimiterCount = 0;
+
+  //number of types of limiters
+  //assume that the number of limiters is going to be even
+  //there will always be a left and right end
+  uint8_t limiterType = strlen(limiter) / 2;
+
+  //count the total number of delimiters
+  for(uint16_t i = 0; input2[i]; ++i){
+    for(uint8_t j = 0; j < delimiterType; ++j){
+      if(input[i] == delimiter[j]){
+	++delimiterCount;
+	break;
+      }
+    }
+  }
+
+  if(!delimiterCount){
+    char **separatedString = malloc(sizeof(*separatedString) * 2);
+    separatedString[0] = malloc(sizeof(**separatedString) * (length + 1));
+    strcpy(*separatedString, input2);
+
+    separatedString[1] = NULL;
+
+    free(input2);
+    return separatedString;
+  }
+
+  //assume that each delimiter will have its own string
+  //also account for an end NULL pointer
+  char **separatedString = malloc(sizeof(*separatedString) * (delimiterCount + 2));
+
+  //counter for each of the limiters
+  int16_t *limiterCount = calloc(limiterType, sizeof(*limiterCount));
+
+  //last index where a delimiter was found
+  uint16_t currentLength = 0;
+
+  //count of the number of elements
+  uint16_t subString = 0;
+
+
+  //loop counter
+  uint16_t k = 0;
+  for(; input2[k]; ++k){
+    //byte to check that all the limiters are balanced
+    uint8_t limiterOr = 0;
+
+    //check that each limiter is balanced
+    //limiterCount is 0 if the pair is balanced
+    for(uint8_t l = 0; l < limiterType; ++l){
+      limiterCount[l] += (input2[k] == limiter[l]);
+      limiterCount[l] -= (input2[k] == limiter[l+1]);
+
+      limiterOr |= limiterCount[l];
+    }
+
+    //if the current char is a delimiter
+    //and the limiters are balanced, means
+    //that the delimiter delimits the arguments of the main function
+    if(strchr(delimiter, input2[k]) && !limiterOr){
+      separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength)) + 1);
+
+      strncpy(separatedString[subString], input2 + currentLength, k - currentLength);
+      separatedString[subString][k - currentLength] = '\0';
+      currentLength = k;
+
+      ++subString;
+    }
+  }
+
+  free(limiterCount);
+
+  separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength) + 1));
+  strncpy(separatedString[subString], input2 + currentLength + 1, k - currentLength);
+  separatedString[subString][k - currentLength] = '\0';
+  
+  separatedString[++subString] = NULL;
+
+  free(input2);
+  return separatedString;
+}
+
+/*
 char **separateString(char *input, const char limits[2], const char delimiter, int *iterator, error_return *error) {
   char *tok;
 
@@ -771,3 +888,4 @@ char **separateString(char *input, const char limits[2], const char delimiter, i
   free(input2);
   return separatedString;
 }
+*/

@@ -140,15 +140,13 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
     char *outName = removeSpaces(outBuffer);
 
-
-
     for(;title[i] != '('; ++i);
     int j = i--;
 
     for(; title[j] != ')'; ++j);
     title[j + 1] = '\0';
 
-    char **functionArgNames = separateString(title, "()", ',', &i, error);
+    char **functionArgNames = separateString(title, "()", ",", &i, error);
     int functionArgNo = numberOfArgs(functionArgNames);
 
     if(functionArgNo == argNo){
