@@ -726,12 +726,13 @@ char **separateString(char *input, char const * const limiter, char const * cons
 
   //get a copy of the input to mangle
   char *input2 = calloc(length + 1, sizeof(*input2));
+  __MALLOC_CHECK(input2, *error);
   strncpy(input2, input + 1, length - 1);
 
   //the number of types of delimiters
   uint8_t delimiterType = strlen(delimiter);
 
-  //the number of delimiters
+  //the number of delimiters in input
   uint16_t delimiterCount = 0;
 
   //number of types of limiters
@@ -749,69 +750,81 @@ char **separateString(char *input, char const * const limiter, char const * cons
     }
   }
 
-  if(!delimiterCount){
-    char **separatedString = malloc(sizeof(*separatedString) * 2);
-    separatedString[0] = malloc(sizeof(**separatedString) * (length + 1));
-    strcpy(*separatedString, input2);
-
-    separatedString[1] = NULL;
-
-    free(input2);
-    return separatedString;
-  }
 
   //assume that each delimiter will have its own string
   //also account for an end NULL pointer
   char **separatedString = malloc(sizeof(*separatedString) * (delimiterCount + 2));
-
-  //counter for each of the limiters
-  int16_t *limiterCount = calloc(limiterType, sizeof(*limiterCount));
-
-  //last index where a delimiter was found
-  uint16_t currentLength = 0;
+  __MALLOC_CHECK(separatedString, *error);
 
   //count of the number of elements
   uint16_t subString = 0;
 
+  if(!delimiterCount){
+    separatedString[0] = malloc(sizeof(**separatedString) * (length + 1));
+    __MALLOC_CHECK(separatedString[0], *error);    
+    strcpy(*separatedString, input2);
 
-  //loop counter
-  uint16_t k = 0;
-  for(; input2[k]; ++k){
-    //byte to check that all the limiters are balanced
-    uint8_t limiterOr = 0;
+  } else{
 
-    //check that each limiter is balanced
-    //limiterCount is 0 if the pair is balanced
-    for(uint8_t l = 0; l < limiterType; ++l){
-      limiterCount[l] += (input2[k] == limiter[l]);
-      limiterCount[l] -= (input2[k] == limiter[l+1]);
+    //counter for each of the limiters
+    int16_t *limiterCount = calloc(limiterType, sizeof(*limiterCount));
+    __MALLOC_CHECK(limiterCount, error);
 
-      limiterOr |= limiterCount[l];
+    //last index where a delimiter was found
+    uint16_t currentLength = 0;
+
+
+    //loop counter
+    uint16_t k = 0;
+    for(; input2[k]; ++k){
+      //byte to check that all the limiters are balanced
+      uint8_t limiterOr = 0;
+
+      //check that each limiter is balanced
+      //limiterCount is 0 if the pair is balanced
+      for(uint8_t l = 0; l < limiterType; ++l){
+	limiterCount[l] += (input2[k] == limiter[l]);
+	limiterCount[l] -= (input2[k] == limiter[l+1]);
+
+	limiterOr |= limiterCount[l];
+      }
+
+      //if the current char is a delimiter
+      //and the limiters are balanced, means
+      //that the delimiter delimits the arguments
+      //of the main function, and not arguments of
+      //any sub functions within
+      if(strchr(delimiter, input2[k]) && !limiterOr){
+	//malloc the number of characters in between each delimiter
+	separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength)) + 1);
+	__MALLOC_CHECK(separatedString[subString], *error);
+
+	//copy from the previous delimiter to the next one
+	strncpy(separatedString[subString], input2 + currentLength, k - currentLength);
+
+	//null terminate string
+	separatedString[subString][k - currentLength] = '\0';
+
+	//set the current delimiter to the one just found
+	currentLength = k;
+
+	//increment the number of subStrings
+	++subString;
+      }
     }
 
-    //if the current char is a delimiter
-    //and the limiters are balanced, means
-    //that the delimiter delimits the arguments of the main function
-    if(strchr(delimiter, input2[k]) && !limiterOr){
-      separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength)) + 1);
+    free(limiterCount);
 
-      strncpy(separatedString[subString], input2 + currentLength, k - currentLength);
-      separatedString[subString][k - currentLength] = '\0';
-      currentLength = k;
-
-      ++subString;
-    }
+    separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength) + 1));
+    __MALLOC_CHECK(separatedString[subString], *error);
+    strncpy(separatedString[subString], input2 + currentLength + 1, k - currentLength);
+    separatedString[subString][k - currentLength] = '\0';
   }
 
-  free(limiterCount);
-
-  separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength) + 1));
-  strncpy(separatedString[subString], input2 + currentLength + 1, k - currentLength);
-  separatedString[subString][k - currentLength] = '\0';
-  
   separatedString[++subString] = NULL;
 
   free(input2);
+
   return separatedString;
 }
 
