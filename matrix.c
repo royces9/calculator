@@ -4,7 +4,7 @@
 
 #include "operator.h"
 
-matrix *initMatrix(int *size, int dimension, error_return *error){
+matrix *initMatrix(uint16_t *size, uint8_t dimension, error_return *error){
   matrix *out = malloc(sizeof(*out));
   __MALLOC_CHECK(out, *error);  
 
@@ -93,7 +93,7 @@ matrix *copyMatrix(matrix *src, error_return *error){
 //a being concatenated to b along dimension and sent to out
 //the size of out is determined and error checking for sizes of a and b
 //is done in concatMatrix, this function only populates the matrix
-matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
+matrix *assignConcat(matrix *out, matrix *a, matrix *b, uint8_t dimension){
   int aIncrement = 1;
   int bIncrement = 1;
 
@@ -120,7 +120,7 @@ matrix *assignConcat(matrix *out, matrix *a, matrix *b, int dimension){
 
 //dimension is a number to specifiy along which direction to concatenate
 //along, it starts from 0
-matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error){
+matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *error){
   int aScalar = isScalar(a);
   int bScalar = isScalar(b);
 
@@ -134,10 +134,10 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error){
 
       //a and b are the same dimension
       if(!diff){
-	int *sizeA = malloc(sizeof(*sizeA) * (a->dimension + 1));
+	uint16_t *sizeA = malloc(sizeof(*sizeA) * (a->dimension + 1));
 	__MALLOC_CHECK(sizeA, *error);
 
-	int *sizeB = malloc(sizeof(*sizeB) * (b->dimension + 1));
+	uint16_t *sizeB = malloc(sizeof(*sizeB) * (b->dimension + 1));
 	__MALLOC_CHECK(sizeB, *error);
 
 	sizeA[a->dimension] = 0;
@@ -155,7 +155,7 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error){
 	}
 
 	if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimension - 1)){
-	  int *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
+	  uint16_t *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
 	  __MALLOC_CHECK(newSize, *error);
 
 	  newSize[a->dimension] = 0;
@@ -211,7 +211,7 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error){
 	}
 
 	//new size vector
-	int newSize[3];
+	uint16_t newSize[3];
 	memcpy(newSize, tempVector->size, sizeof(*newSize) * 3);
 
 	//increment size because of the concatenation
@@ -239,7 +239,7 @@ matrix *concatMatrix(matrix *a, matrix *b, int dimension, error_return *error){
       {
 	//create and set new size vector
 
-	int newSize[2] = {1, 1};
+	uint16_t newSize[2] = {1, 1};
 	if(dimension == 0){
 	  ++newSize[0]; //set newSize to [2, 1]
 	} else if(dimension == 1){
@@ -309,7 +309,7 @@ void printTwoDMatrix(const matrix *m, int offset){
 void printMatrix(const matrix *m){
   int offset = 0;
   if(m->dimension > 2){
-    int twoDimSize = m->size[0] * m->size[1];
+    uint64_t twoDimSize = m->size[0] * m->size[1];
     for(int i = 2; i < m->dimension; ++i){
       for(int j = 0; j < m->size[i]; ++j){
 	printTwoDMatrix(m, offset);
@@ -328,9 +328,9 @@ void printMatrix(const matrix *m){
 }
 
 
-int getLength(int *size, int dimension){
-  int out = 1;
-  for(int i = 0; i < dimension; ++i){
+uint64_t getLength(uint16_t *size, uint8_t dimension){
+  uint64_t out = 1;
+  for(uint8_t i = 0; i < dimension; ++i){
     out = out * size[i];
   }
   return out;
@@ -340,9 +340,9 @@ int getLength(int *size, int dimension){
 //functions identically to matlab's sub2ind
 //converts matrix indexing to linear index given the size of the matrix
 //this uses zero indexing
-int sub2ind(int *location, int *size, int dimension){
-  int ind = location[0];
-  int sizeProd = size[0];
+uint64_t sub2ind(uint16_t *location, uint16_t *size, uint8_t dimension){
+  uint64_t ind = location[0];
+  uint64_t sizeProd = size[0];
 
   for(int i = 1; i < dimension; ++i){
     ind += (location[i] * sizeProd);
@@ -362,7 +362,7 @@ error_return isScalar(matrix *m){
 
 //compare two size vectors, return 1 if same
 //0 otherwise
-error_return compareSize(int *a, int *b, int dimA, int dimB){
+error_return compareSize(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB){
   if(dimA != dimB){
     return 0;
   }

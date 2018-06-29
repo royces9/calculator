@@ -23,7 +23,7 @@ matrix *eye(matrix *a, error_return *error){
     return NULL;
   }
 
-  int newSize[3] = {a->elements[0], a->elements[0], 0};
+  uint16_t newSize[3] = {a->elements[0], a->elements[0], 0};
   matrix *out = initMatrix(newSize, 2, error);
 
   int index = 0;
@@ -37,7 +37,7 @@ matrix *eye(matrix *a, error_return *error){
 
 
 matrix *getSize(matrix *a, error_return *error){
-  int newSize[3];
+  uint16_t newSize[3];
 
   //output is a row vector
   newSize[0] = 1;
@@ -67,7 +67,7 @@ matrix *reference(matrix *a, matrix *b, error_return *error){
   matrix *out = copyMatrix(b, error);
 
   for(int i = 0; i < b->length; ++i){
-    out->elements[i] = a->elements[(int) b->elements[i]];
+    out->elements[i] = a->elements[(uint64_t) (b->elements[i])];
   }
 
   return out;
@@ -152,7 +152,7 @@ matrix *multiplyMatrix(matrix *a, matrix *b, error_return *error){
     return NULL;
   }
 
-  int newSize[3] = {a->size[0], b->size[1], 0};
+  uint16_t newSize[3] = {a->size[0], b->size[1], 0};
   out = initMatrix(newSize, 2, error);
 
   matrix *transposeA = transposeMatrix(a, error);
@@ -246,7 +246,7 @@ matrix *transposeMatrix(matrix *a, error_return *error){
 
   //new transposed size is same as a->size
   //but the dimensions are swapped
-  int newSize[3] = {a->size[1], a->size[0], 0};
+  uint16_t newSize[3] = {a->size[1], a->size[0], 0};
   matrix *out = initMatrix(newSize, 2, error);
 
   //new index
@@ -296,7 +296,7 @@ matrix *sum(matrix *m, error_return *error){
   matrix *out = NULL;
 
   int newDimension = m->dimension - 1;
-  int *newSize = NULL;
+  uint16_t *newSize = NULL;
 
   if(m->dimension == 2){
 

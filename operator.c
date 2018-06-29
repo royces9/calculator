@@ -101,11 +101,11 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
   if(!check){
     int j = 0;
 
-    int *size = malloc(sizeof(*size) * (a->dimension + 1));
-    memcpy(size, a->size, sizeof(*size) * (a->dimension + 1));
+    uint16_t *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
+    memcpy(newSize, a->size, sizeof(*newSize) * (a->dimension + 1));
 
-    out = initMatrix(size, a->dimension, error);
-    free(size);
+    out = initMatrix(newSize, a->dimension, error);
+    free(newSize);
 
     for(int i = 0; i < out->length; ++i){
       out->elements[i] = oneArg(a->elements[i], ch.enumeration, error);
@@ -355,9 +355,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
   case FUNCTION_COUNT: //variables
 
     //if the variable does not exist
-    if(checkVariable(buffer, tok, input, iterator, var, num, ch) == 0){
+    if(checkVariable(buffer, tok, input, iterator, var, num, ch) <= 0){
       break;
-
     } else{
       int bufferLength = strlen(buffer);
       //buffer includes the '(', if it's there, replaced with 0
@@ -446,7 +445,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eRightParen:
     do {
       error = execNum(num, var, popch(oper));
-    } while(strcmp(oper->stk[oper->top].operator, "(") && (oper->top > -1));
+    } while( (oper->top > -1) && strcmp(oper->stk[oper->top].operator, "(") );
 
     *tok = 1;
     popch(oper);

@@ -30,10 +30,10 @@ error_return sya(char *input, vari *var) {
 
   //Error checking
   //count for the number of parentheses and brackets
-  int parenthesisCount = 0; 
-  int bracketCount = 0;
+  int16_t parenthesisCount = 0; 
+  int16_t bracketCount = 0;
 
-  int length = 0;
+  int16_t length = 0;
 
   //check that the number of left end and right end parentheses are the same
   //also measure length of string
@@ -100,7 +100,7 @@ error_return sya(char *input, vari *var) {
   numberStack *out = newNumberStack();
 
   //stack for operators
-  operatorStack operatorStack = newOperatorStack();
+  operatorStack *operatorStack = newOperatorStack();
 
 
   //main loop
@@ -127,7 +127,7 @@ error_return sya(char *input, vari *var) {
 	  }
 
 	  bufferLetters[j] = '\0';
-	  error = findFunction(bufferLetters, out, &operatorStack, var, &negativeCheck, &i, input);
+	  error = findFunction(bufferLetters, out, operatorStack, var, &negativeCheck, &i, input);
 	}
 
 	//rest bufferLetters counter
@@ -150,7 +150,7 @@ error_return sya(char *input, vari *var) {
 	bufferOper[k] = '\0';
 
 	//find the corresponding operator
-	error = findOperator(bufferOper, out, &operatorStack, var, &negativeCheck);
+	error = findOperator(bufferOper, out, operatorStack, var, &negativeCheck);
 
 	//reset bufferOper counter
 	k = 0;
@@ -179,8 +179,9 @@ error_return sya(char *input, vari *var) {
   if(!error){
 
     //while the operator and number stack are occupied, keep executing
-    while((out->top > -1) && (operatorStack.top > -1)) {
-      if( error = execNum(out, var, popch(&operatorStack)) ) {
+    while((out->top > -1) && (operatorStack->top > -1)) {
+      if( error = execNum(out, var, popch(operatorStack)) ) {
+	freeOperatorStack(operatorStack);
 	freeNumberStack(out);
 	return error;
       }
@@ -213,7 +214,8 @@ error_return sya(char *input, vari *var) {
     }
   }
 
-  //free everything in the numberStack
+  //free stacks
+  freeOperatorStack(operatorStack);
   freeNumberStack(out);
 
   return error;

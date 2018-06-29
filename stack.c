@@ -62,11 +62,9 @@ numberStack *newNumberStack(void) { //make new number stack
 }
 
 
-operatorStack newOperatorStack(void) { //make new operator stack
-  operatorStack out;
-
-  out.top = -1;
-  memset(out.stk, '\0', sizeof(out.stk));
+operatorStack *newOperatorStack(void) { //make new operator stack
+  operatorStack *out = calloc(1, sizeof(*out));
+  out->top = -1;
 
   return out;
 }
@@ -107,9 +105,9 @@ vari *copyVari(vari *var, error_return *error){
       strcpy(out->name[i], var->name[i]);
 
       out->value[i] = copyMatrix(var->value[i], error);
-      ++i;
+      out->value[i]->variable = 1;
     }
-
+    ++i;
     out->name[i] = NULL;
     out->value[i] = NULL;
   } else{
@@ -197,5 +195,9 @@ void freeNumberStack(numberStack *st){
     }
   }
 
+  free(st);
+}
+
+void freeOperatorStack(operatorStack *st){
   free(st);
 }

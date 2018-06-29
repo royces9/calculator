@@ -82,7 +82,7 @@ operatorStruct popch(operatorStack *st);
 operatorStruct initOperatorStruct(const char *operator, uint8_t argNo, uint8_t precedence, uint8_t enumeration);
 
 numberStack *newNumberStack(void);
-operatorStack newOperatorStack(void);
+operatorStack *newOperatorStack(void);
 
 vari *newVari(void);
 vari *copyVari(vari *var, error_return *error);
@@ -91,5 +91,6 @@ error_return setVariable(vari *var, char *name, matrix *a, int *check);
 void freeVari(vari *var);
 
 void freeNumberStack(numberStack *st);
+void freeOperatorStack(operatorStack *st);
 
 #endif //STACK

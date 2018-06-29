@@ -264,7 +264,7 @@ matrix *solve(char **input, vari *var, error_return *error) {
 matrix *zeros(char **input, vari *var, error_return *error){
   int dimension = numberOfArgs(input);
   vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
-  int *newSize = NULL;
+  uint16_t *newSize = NULL;
 
 
   //only one input, make a square matrix of that size
@@ -391,7 +391,8 @@ input[2] = number of elements
   }
   length = varTemp->ans->elements[0];
 
-  int newSize[3] = {length, 1, 0};
+
+  uint16_t newSize[3] = {length, 1, 0};
 
   out = initMatrix(newSize, 2, error);
 
@@ -440,10 +441,9 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
       //out is a matrix that holds indices
       for(int i = 0; i < out->length; ++i){
 
-	--out->elements[i];
-
+	--(out->elements[i]);
 	//check that the input is within bound
-	if((int)out->elements[i] >= varTemp->value[varIndex]->length){
+	if((uint64_t)out->elements[i] >= varTemp->value[varIndex]->length){
 	  *error = -11;
 	  freeVari(varTemp);
 	  freeMatrix(out);
@@ -453,7 +453,7 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
       }
 
     } else if(dimension == varTemp->value[varIndex]->dimension){ //if the number of inputs is equal to dimension
-      int *location = malloc(sizeof(*location) * (dimension + 1));
+      uint16_t *location = malloc(sizeof(*location) * (dimension + 1));
 
       for(int i = 0; i < dimension; ++i){
 	*error = sya(input[i], varTemp);
@@ -470,7 +470,7 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
 	  location[i] = varTemp->ans->elements[0] - 1;
 
 	  //check that each sublocation is also within bounds
-	  if((location[i] >= varTemp->value[varIndex]->size[i]) || (location[i] < 0)){
+	  if(location[i] >= varTemp->value[varIndex]->size[i]){
 	    *error = -11;
 	    free(location);
 	    freeVari(varTemp);
@@ -485,7 +485,7 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
       }
       location[dimension] = 0;
 
-      int index = sub2ind(location, varTemp->value[varIndex]->size, varTemp->value[varIndex]->dimension);
+      uint64_t index = sub2ind(location, varTemp->value[varIndex]->size, varTemp->value[varIndex]->dimension);
       free(location);
 
       //check index is within bound
@@ -530,7 +530,6 @@ error_return checkVariable(const char *buffer, int *tok, char *input, int *itera
   matrix *out = NULL;
   char **separatedString = NULL;
 
-
   if(nameBuffer[varLen - 1] == '('){
 
     nameBuffer[varLen - 1] = '\0';
@@ -550,7 +549,7 @@ error_return checkVariable(const char *buffer, int *tok, char *input, int *itera
       pushn(out, num);
 
       pushch(initOperatorStruct("r", 2, 0, eReference), ch);
-    }
+    } 
 
     freeDoubleArray(separatedString);
 
@@ -768,7 +767,7 @@ char **separateString(char *input, char const * const limiter, char const * cons
 
     //counter for each of the limiters
     int16_t *limiterCount = calloc(limiterType, sizeof(*limiterCount));
-    __MALLOC_CHECK(limiterCount, error);
+    __MALLOC_CHECK(limiterCount, *error);
 
     //last index where a delimiter was found
     uint16_t currentLength = 0;
