@@ -355,9 +355,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
   case FUNCTION_COUNT: //variables
 
     //if the variable does not exist
-    if(checkVariable(buffer, tok, input, iterator, var, num, ch) <= 0){
-      break;
-    } else{
+    error = checkVariable(buffer, tok, input, iterator, var, num, ch);
+    if(error == -5){
       int bufferLength = strlen(buffer);
       //buffer includes the '(', if it's there, replaced with 0
       if(buffer[bufferLength - 1] == '('){
@@ -447,7 +446,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
       error = execNum(num, var, popch(oper));
     } while( (oper->top > -1) && strcmp(oper->stk[oper->top].operator, "(") );
 
-    *tok = 1;
+ *tok = 1;
     popch(oper);
     break;
 
