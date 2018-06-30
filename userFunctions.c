@@ -13,7 +13,9 @@
 
 char *configFilePath = "~/.calc.cfg";
 
+//find and execute a user made function
 matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, error_return *error){
+  //get the path to the file
   char *functionPath = findFunctionPath(functionName, error);
 
   if(!functionPath){
@@ -21,11 +23,58 @@ matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, err
     return NULL;
   }
 
+  //execute function
   matrix *out = executeUserFunction(functionPath, functionArgs, var, error);
 
   free(functionPath);
 
   return out;  
+}
+
+
+//checks a config file with a list of paths to check if functionName exists
+char *checkConfig(char *functionName, char *configPath, error_return *error){
+  struct dirent *d;
+  char filePaths[1024];
+  uint8_t foundFlag = 0;
+
+  char *fileDirectory = NULL;
+
+  FILE *config = fopen(configPath, "r");
+  if(config == NULL){
+    *error = 8;
+    fclose(config);
+    return NULL;
+  }
+
+  //read directories from config
+  while(!foundFlag && fgets(filePaths, 1024, config)){
+    //for each path, search directory
+    DIR *filePathsDirectory = opendir(filePaths);
+    if(filePathsDirectory == NULL){
+      *error = -8;
+      break;
+    }
+
+    //check each directory for file
+    while((!foundFlag) && ((d = readdir(filePathsDirectory)) != NULL)){
+      uint16_t length = strlen(d->d_name);
+
+      //file ends in .cr, and its name matches
+      if(!memcmp(d->d_name, functionName, length - 3) &&
+	 !strcmp(d->d_name + (length - 3), ".cr")){
+
+	fileDirectory = malloc(sizeof(*fileDirectory) * (length + 1));
+	strcpy(fileDirectory, d->d_name);
+	foundFlag = 1;
+      }
+    }
+    closedir(filePathsDirectory);
+  }
+
+  fclose(config);
+
+  return fileDirectory;
 }
 
 
@@ -65,32 +114,10 @@ char *findFunctionPath(char *functionName, error_return *error){
   //checks config file paths
   //if foundFlag is still 0
   if(!foundFlag){
-    filePaths = malloc(sizeof(*filePaths) * 1024);
-    __MALLOC_CHECK(filePaths, *error);
 
-    DIR *filePathsDIR = opendir(filePaths);
-
-    FILE *config = fopen(configFilePath, "r");
-    //read directories from config
-    while(!foundFlag && fgets(filePaths, 1024, config)){
-      //check each directory for file
-      while((!foundFlag) && ((d = readdir(filePathsDIR)) != NULL)){
-	length = strlen(d->d_name);
-	//file ends in .cr, and its name matches
-	if(!memcmp(d->d_name, functionName, length - 3) &&
-	   !strcmp(d->d_name + (length - 3), ".cr")){
-
-	  strcpy(fileDirectory, d->d_name);
-	  foundFlag = 1;
-	}
-      }
-
-    }
-
-    fclose(config);
-    closedir(filePathsDIR);
+    char *configPath = "";
+    out = checkConfig(functionName, configPath, error);
   }
-
 
   //if the file was found
   if(foundFlag){
@@ -100,7 +127,7 @@ char *findFunctionPath(char *functionName, error_return *error){
       filePathLength = strlen(filePaths);
     }
 
-    out = malloc(sizeof(out) * (strlen(functionName) + filePathLength + 5));
+    out = malloc(sizeof(*out) * (strlen(functionName) + filePathLength + 5));
     __MALLOC_CHECK(out, *error);
 
     strcpy(out, fileDirectory);
@@ -121,41 +148,76 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
   FILE *userFunction = fopen(functionPath, "r");
 
+  //get the header for the function
+  //right now it's hardcoded to get the first line
   char title[1024];
   memset(title, 0, 1024);
   fgets(title, 1024, userFunction);
   fclose(userFunction);
 
+  //variable struct for the function
+  //essentially a new scope
   vari *functionVar = newVari();
   matrix *out = NULL;
   
+  //confirm that the function is the first word in the file
   if(!memcmp(title, "function", 8)){
-    int i = 9;
     char outBuffer[1024];
 
+    int i = 9;
+    //finds the name of the output variable
+    //starts from the first char after function
+    //to where the equal is
     for(int j = 0; title[i] != '='; ++i, ++j){
       outBuffer[j] = title[i];
       outBuffer[j + 1] = '\0';
     }
 
+    //remove spaces from the name
     char *outName = removeSpaces(outBuffer);
 
+    //increment title to where input arguments are
+    //first find left end paren
     for(;title[i] != '('; ++i);
     int j = i--;
 
+    //then find right end paren
     for(; title[j] != ')'; ++j);
     title[j + 1] = '\0';
 
+    //separate the string, to know what the variable names are
     char **functionArgNames = separateString(title, "()", ",", &i, error);
+
+    //count the number of arguments required
     int functionArgNo = numberOfArgs(functionArgNames);
 
+    //check that the given arguments match with the
+    //require number of arguments
     if(functionArgNo == argNo){
+      //remove spaces from the names
       char *inputName = removeSpaces(functionArgNames[0]);
-      *error = sya(functionArgs[0], var);
 
+      //calcuate value of first input argument
+      //gets stored in var->ans
+      //use var instead of functionVar because the input
+      //arguments might have variable in them
+      *error = sya(functionArgs[0], var);
+      if(*error){
+	freeDoubleArray(functionArgNames);
+	freeVari(functionVar);
+	return NULL;
+      }
+
+      //set the first variable to the corresponding name and value
       int variableIndex = -1;
       *error = setVariable(functionVar, inputName, copyMatrix(var->ans, error), &variableIndex);
+      if(*error){
+	freeDoubleArray(functionArgNames);
+	freeVari(functionVar);
+	return NULL;
+      }
       
+      //do the rest for the other variables, if necessary
       for(int j = 1; j < functionArgNo; ++j){
 	inputName = removeSpaces(functionArgNames[j]);
 	*error = sya(functionArgs[j], var);
@@ -167,17 +229,26 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
       }
 
+      //make sure no errors in for loop
+      if(!(*error)){
+	//run the file
+	//offset by one line
+	*error = runFile(&functionPath, functionVar, 1);
+	if(*error){
+	  freeDoubleArray(functionArgNames);
+	  freeVari(functionVar);
+	  return NULL;
+	}
 
+	//check that the out variable exists
+	int outVariable = varcheck(functionVar, outName);
 
-      *error = runFile(&functionPath, functionVar, 1);
+	if(outVariable < 0){
+	  *error = -12;
+	}
 
-      int outVariable = varcheck(functionVar, outName);
-
-      if(outVariable < 0){
-	*error = -12;
+	out = copyMatrix(functionVar->value[outVariable], error);
       }
-
-      out = copyMatrix(functionVar->value[outVariable], error);
 
     } else{
       *error = -2;
