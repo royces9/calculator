@@ -262,7 +262,6 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
   }
 
-
   freeVari(functionVar);
 
   return out;  

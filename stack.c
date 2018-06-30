@@ -147,6 +147,7 @@ error_return setVariable(vari *var, char *name, matrix *a, int *check){
 
   var->name[index] = malloc(sizeof(*var->name[index]) * (strlen(name) + 1));
   __MALLOC_CHECK(var->name[index], error);
+
   strcpy(var->name[index], name);
   var->value[index] = a;
 
@@ -154,6 +155,8 @@ error_return setVariable(vari *var, char *name, matrix *a, int *check){
     var->name[index + 1] = NULL;
     var->value[index + 1] = NULL;
   }
+
+  var->value[index]->variable = 1;
 
   return error;
 }
