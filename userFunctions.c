@@ -147,7 +147,9 @@ char *findFunctionPath(char *functionName, error_return *error){
 
 matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, error_return *error){
   int argNo = numberOfArgs(functionArgs);
-
+  for(int i = 0; *functionArgs[i]; ++i){
+    printf("%d: %s\n", i, *functionArgs[i]);
+  }
   FILE *userFunction = fopen(functionPath, "r");
 
   //get the header for the function

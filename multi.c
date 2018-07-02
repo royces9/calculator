@@ -681,7 +681,10 @@ error_return printLine(char **input, vari *var) {
       }
     } else { //no quotes, just a variable or expression
       error = sya(input[i], varTemp); //calculate expression and print, print variables this way
-      if(error) return error;
+      if(error){
+	freeVari(varTemp);
+	return error;
+      }
 
       printMatrix(varTemp->ans);
 

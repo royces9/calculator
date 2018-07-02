@@ -5,6 +5,8 @@ element factorial(element a);
 
 matrix *eye(matrix *a, error_return *error);
 matrix *getSize(matrix *a, error_return *error);
+matrix *magnitude(matrix *a, error_return *error);
+matrix *numel(matrix *a, error_return *error);
 
 matrix *reference(matrix *a, matrix *b, error_return *error);
 matrix *assign(matrix *a, matrix *b, vari *var, error_return *error);
