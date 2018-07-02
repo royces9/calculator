@@ -7,10 +7,10 @@
 int searchFunctionArray(char *buffer);
 int searchOperatorArray(char *buffer);
 operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration);
-error_return execNum(numberStack *num, vari *var, operatorStruct ch);
+error_return execNum(numberStack *num, vari *var, operatorStruct *ch);
 
-matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error);
-matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *error);
+matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error);
+matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *error);
 
 error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *iterator, char *input);
 error_return findOperator(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok);

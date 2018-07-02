@@ -35,11 +35,11 @@ int searchOperatorArray(char *buffer) {
 
 
 //executes either one argument function or two argument function
-error_return execNum(numberStack *num, vari *var, operatorStruct ch) {
+error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
   matrix *a = NULL, *b = NULL;
   error_return error = 0;
 
-  switch(ch.argNo) {
+  switch(ch->argNo) {
   case 1:
     a = popn(num);
     if(a->size == NULL){
@@ -86,16 +86,17 @@ error_return execNum(numberStack *num, vari *var, operatorStruct ch) {
     break;
   }
 
+  free(ch);
   return error;
 }
 
 
-matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
+matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error){
   matrix *out;
   error_return check = 0;
 
   //check if ch.enumeration is a scalar operator
-  oneArg(0, ch.enumeration, &check);
+  oneArg(0, ch->enumeration, &check);
 
   //ch.enumeration is in oneArg if check is 0
   if(!check){
@@ -108,11 +109,11 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
     free(newSize);
 
     for(int i = 0; i < out->length; ++i){
-      out->elements[i] = oneArg(a->elements[i], ch.enumeration, error);
+      out->elements[i] = oneArg(a->elements[i], ch->enumeration, error);
     }
 
   } else{
-    switch(ch.enumeration){
+    switch(ch->enumeration){
     case eEye: out = eye(a, error); break;
     case eSize: out = getSize(a, error); break;
     case eTranspose: out = transposeMatrix(a, error); break;
@@ -128,12 +129,12 @@ matrix *matrixOneArg(matrix *a, operatorStruct ch, error_return *error){
 }
 
 
-matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *error){
+matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *error){
   matrix *out = NULL;
   error_return check = 0;
 
   //check if ch.enumeration is a scalar operator
-  twoArg(0, 0, ch.enumeration, &check);
+  twoArg(0, 0, ch->enumeration, &check);
 
   //check if inputs are scalar
   int aScalar = isScalar(a);
@@ -143,15 +144,15 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
 
     //if the enum is for a matrix operation
     //change to the scalar operator
-    switch(ch.enumeration){
+    switch(ch->enumeration){
     case eMultiplyMatrix:
       check = 0;
-      ch.enumeration = eMultiply;
+      ch->enumeration = eMultiply;
       break;
 
     case eDivideMatrix:
       check = 0;
-      ch.enumeration = eDivide;
+      ch->enumeration = eDivide;
       break;
     }
   }
@@ -166,7 +167,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
 	out = initMatrix(a->size, a->dimension, error);
 
 	for(int i = 0; i < a->length; ++i){
-	  out->elements[i] = twoArg(a->elements[i], b->elements[i], ch.enumeration, error);
+	  out->elements[i] = twoArg(a->elements[i], b->elements[i], ch->enumeration, error);
 	}
 
       } else{
@@ -179,19 +180,19 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
       if(aScalar){
 	out = copyMatrix(b, error);
 	for(int i = 0; i < out->length; ++i){
-	  out->elements[i] = twoArg(a->elements[0],b->elements[i], ch.enumeration, error);
+	  out->elements[i] = twoArg(a->elements[0],b->elements[i], ch->enumeration, error);
 	}
 
       } else{
 	out = copyMatrix(a, error);
 	for(int i = 0; i < out->length; ++i){
-	  out->elements[i] = twoArg(a->elements[i], b->elements[0], ch.enumeration, error);
+	  out->elements[i] = twoArg(a->elements[i], b->elements[0], ch->enumeration, error);
 	}
       }
       break;
 
     case 2: //a and b are both scalars
-      out = initScalar(twoArg(a->elements[0], b->elements[0], ch.enumeration, error), error);
+      out = initScalar(twoArg(a->elements[0], b->elements[0], ch->enumeration, error), error);
       break;
 
     default:
@@ -200,7 +201,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct ch, error_return *erro
 
     }
   } else{
-    switch(ch.enumeration){
+    switch(ch->enumeration){
     case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
     case eExponentMatrix: out = exponentMatrix(a, b, error); break;
     case eDivideMatrix: out = divideMatrix(a, b, error); break;
@@ -415,7 +416,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eSubtract:
     if(*tok == 1) {
       //check first, if the stack is occupied, should short-circuit
-      while((oper->top > -1) && (oper->stk[oper->top].precedence <= 6)) {
+      while((oper->top > -1) && (oper->stk[oper->top]->precedence <= 6)) {
 	error = execNum(num, var, popch(oper));
       }
       pushch(initOperatorStruct("+", 2, 6, eAdd), oper);
@@ -444,19 +445,19 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eRightParen:
     do {
       error = execNum(num, var, popch(oper));
-    } while( (oper->top > -1) && strcmp(oper->stk[oper->top].operator, "(") );
+    } while( (oper->top > -1) && strcmp(oper->stk[oper->top]->operator, "(") );
 
- *tok = 1;
-    popch(oper);
+    *tok = 1;
+    free(popch(oper));
     break;
 
 
   case eAssign:
     *tok = 0;
-    if((oper->top > -1) && (oper->stk[oper->top].enumeration == eReference)){
+    if((oper->top > -1) && (oper->stk[oper->top]->enumeration == eReference)){
       var->assignIndex = popn(num);
 
-      popch(oper);
+      free(popch(oper));
     }
     pushch(initOperatorStruct("=", 3, 16, eAssign), oper);
     break;
@@ -475,7 +476,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
   case eMultiplyMatrix:
   case eDivideMatrix:
 
-    while((oper->top > -1) && (oper->stk[oper->top].precedence <= operatorPrecedence[i])) {
+    while((oper->top > -1) && (oper->stk[oper->top]->precedence <= operatorPrecedence[i])) {
       error = execNum(num, var, popch(oper));
     }
 

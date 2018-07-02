@@ -42,7 +42,7 @@ typedef struct { //struct for stack of numbers
 
 typedef struct { //same as numberStack, except for operators
   //stack array
-  operatorStruct stk[1024];
+  operatorStruct *stk[1024];
 
   //index for the top index
   //-1 is empty
@@ -72,14 +72,13 @@ typedef struct { //variable storage
   int8_t assignFlag;
 } vari;
 
-
 void pushn(matrix *inp, numberStack *st);
 matrix *popn(numberStack *st);
 
-void pushch(operatorStruct inp, operatorStack *st);
-operatorStruct popch(operatorStack *st);
+void pushch(operatorStruct *inp, operatorStack *st);
+operatorStruct *popch(operatorStack *st);
 
-operatorStruct initOperatorStruct(const char *operator, uint8_t argNo, uint8_t precedence, uint8_t enumeration);
+operatorStruct *initOperatorStruct(const char *operator, uint8_t argNo, uint8_t precedence, uint8_t enumeration);
 
 numberStack *newNumberStack(void);
 operatorStack *newOperatorStack(void);

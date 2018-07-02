@@ -21,20 +21,17 @@ matrix *popn(numberStack *st) { //pop a matrix from the stack
 
 
 //characters
-void pushch(operatorStruct inp, operatorStack *st) {
+void pushch(operatorStruct *inp, operatorStack *st) {
   st->stk[++st->top] = inp;
 }
 
 
-operatorStruct popch(operatorStack *st) {
-  operatorStruct out;
+operatorStruct *popch(operatorStack *st) {
+  operatorStruct *out = NULL;
 
   if(st->top > -1){
     out = st->stk[st->top--];
 
-  } else {
-    out.operator[0] = '\0';
-    out.argNo = 0;
   }
 
   return out;
@@ -42,14 +39,14 @@ operatorStruct popch(operatorStack *st) {
 
 
 //initialize operatorStruct
-operatorStruct initOperatorStruct(const char *operator, uint8_t argNo, uint8_t precedence, uint8_t enumeration){
-  operatorStruct out;
+operatorStruct *initOperatorStruct(const char *operator, uint8_t argNo, uint8_t precedence, uint8_t enumeration){
+  operatorStruct *out = malloc(sizeof(*out));
 
-  strcpy(out.operator, operator);
+  strcpy(out->operator, operator);
 
-  out.precedence = precedence;
-  out.argNo = argNo;
-  out.enumeration = enumeration;
+  out->precedence = precedence;
+  out->argNo = argNo;
+  out->enumeration = enumeration;
 
   return out;
 }
@@ -202,5 +199,8 @@ void freeNumberStack(numberStack *st){
 }
 
 void freeOperatorStack(operatorStack *st){
+  while(st->top > -1){
+    free(popch(st));
+  }
   free(st);
 }
