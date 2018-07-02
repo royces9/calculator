@@ -358,7 +358,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
     //if the variable does not exist
     error = checkVariable(buffer, tok, input, iterator, var, num, ch);
     if(error == -5){
-      int bufferLength = strlen(buffer);
+      uint16_t bufferLength = strlen(buffer);
       //buffer includes the '(', if it's there, replaced with 0
       if(buffer[bufferLength - 1] == '('){
 	separatedString = separateString(input, "()", ",", iterator, &error);

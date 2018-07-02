@@ -23,7 +23,9 @@ int main(int argc, char *argv[]) {
       error = sya(argv[i], var);
 
       if( !error ){
-	printMatrix(var->ans);
+	if( *(*(argv + i) + (strlen( *(argv + i)) - 1)) != ';') {
+	  printMatrix(var->ans);
+	}
 
       } else{
 	errorReport(error);

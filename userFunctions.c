@@ -19,7 +19,6 @@ matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, err
   char *functionPath = findFunctionPath(functionName, error);
 
   if(!functionPath){
-    *error = -5;
     return NULL;
   }
 
@@ -42,8 +41,7 @@ char *checkConfig(char *functionName, char *configPath, error_return *error){
 
   FILE *config = fopen(configPath, "r");
   if(config == NULL){
-    *error = 8;
-    fclose(config);
+    *error = -8;
     return NULL;
   }
 
@@ -114,9 +112,12 @@ char *findFunctionPath(char *functionName, error_return *error){
   //checks config file paths
   //if foundFlag is still 0
   if(!foundFlag){
-
     char *configPath = "";
     out = checkConfig(functionName, configPath, error);
+
+    if(out){
+      foundFlag = 1;
+    }
   }
 
   //if the file was found
@@ -134,6 +135,7 @@ char *findFunctionPath(char *functionName, error_return *error){
 
   } else{
     *error = -8;
+
   }
 
   free(filePaths);
