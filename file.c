@@ -21,7 +21,7 @@ error_return runFile(char **input, vari *var, int offset) {
   fileTree *tree = createLeaf();
 
   //make tree structure
-  if( error = createTree(input[0], tree, fileString, &maxSize, offset) ) {
+  if( (error = createTree(input[0], tree, fileString, &maxSize, offset)) ) {
     cutDownTree(tree);
     freeString(fileString, maxSize);
 
@@ -305,13 +305,16 @@ char *parseCondition(char *input, int type) {
   case 1: //if
     input = strchr(input, 'i');
     input += 2;
-    return input;
+    break;
 
   case 2: //while
     input = strchr(input, 'w');
     input += 5;
-    return input;
+    break;
   }
+
+
+  return input;
 }
 
 

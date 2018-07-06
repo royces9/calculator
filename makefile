@@ -1,6 +1,6 @@
 FLAGS = -lm -lreadline -I. -flto
 MOREFLAGS = 
-CC = gcc $(MOREFLAGS)
+CC = gcc -Wall $(MOREFLAGS)
 CCC = gcc
 
 HEADERS = $(wildcard *.h)

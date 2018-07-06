@@ -180,7 +180,7 @@ error_return sya(char *input, vari *var) {
 
     //while the operator and number stack are occupied, keep executing
     while((out->top > -1) && (operatorStack->top > -1)) {
-      if( error = execNum(out, var, popch(operatorStack)) ) {
+      if( (error = execNum(out, var, popch(operatorStack))) ) {
 	freeOperatorStack(operatorStack);
 	freeNumberStack(out);
 	return error;
@@ -249,7 +249,7 @@ void errorReport(error_return error) {
 //check if the string is a number/variable
 error_return checkNumbers(char *input) {
   for(int i = 0; input[i]; ++i) {
-    if(input[i] < '0' && input[i] != '.' || input[i] > '9' || !input[i]) {
+    if( (!input[i]) || (input[i] > '9') || ((input[i] < '0') && (input[i] != '.')) ){
       return 0;
     }
   }

@@ -100,8 +100,6 @@ matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error){
 
   //ch.enumeration is in oneArg if check is 0
   if(!check){
-    int j = 0;
-
     uint16_t *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
     memcpy(newSize, a->size, sizeof(*newSize) * (a->dimension + 1));
 

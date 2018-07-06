@@ -166,6 +166,7 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
 
 
 matrix *divideMatrix(matrix *a, matrix *b, error_return *error){
+  return NULL;
 }
 
 

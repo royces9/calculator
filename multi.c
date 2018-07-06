@@ -96,9 +96,9 @@ matrix *inte(char **input, vari *var, error_return *error) {
   }
 
   element step = 0, sum = 0;
-  element out, inter, a, b, number;
+  element a, b, number;
   vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
-  int varIndex = 0, iter = 0;
+  int varIndex = 0;
 
   /*
   input[0] = function
@@ -409,7 +409,6 @@ input[2] = number of elements
 
 
 matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_return *error){
-  int varLen = strlen(buffer);
   matrix *out = NULL;
 
   //for variables that exist
@@ -422,8 +421,6 @@ matrix *extractValue(char *buffer, char **input, int varIndex, vari *var, error_
     }
     
     vari *varTemp = copyVari(var, error);
-    matrix *inputMat;
-
 
     if(dimension == 1){ //if the number of inputs is 1
       *error = sya(input[0], varTemp);
