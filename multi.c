@@ -244,18 +244,16 @@ matrix *solve(char **input, vari *var, error_return *error) {
 matrix *zeros(char **input, vari *var, error_return *error) {
 	int dimension = numberOfArgs(input);
 	vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
-	//varTemp->ans = copyMatrix(var->ans, error);
+
 	uint16_t *newSize = NULL;
 
-
-	//matrix that shows size of input
-	matrix *sizeMatrix = extractValue(input, 0, var, error);
+	//varTemp->ans = copyMatrix(var->ans, error);
 
 	//only one input, make a square matrix of that size
 	//or if it's a matrix, make one of that size
 	switch(dimension) {
 	case 1:
-		*error = sya(input[0], var);
+		*error = sya(input[0], varTemp);
 		if(*error) return NULL;
 
 		//check that the one input is a scalar
@@ -271,8 +269,7 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 
 			newSize[0] = varTemp->ans->elements[0];
 			newSize[1] = varTemp->ans->elements[0];
-
-
+			newSize[2] = 0;
 		} else {
 			dimension = varTemp->ans->dimension;
 			newSize = malloc(sizeof(*newSize) * (dimension + 1));
@@ -280,7 +277,7 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 				*error = -8;
 				return NULL;
 			}
-
+	
 			int i = 0;
 			for(; i < varTemp->ans->length; ++i) {
 				newSize[i] = varTemp->ans->elements[i];
@@ -293,7 +290,7 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 		newSize = malloc(sizeof(*newSize) * (dimension + 1));
 
 		for(int i = 0; i < dimension; ++i) {
-			*error = sya(input[i], var);
+			*error = sya(input[i], varTemp);
 
 			if(varTemp->ans->dimension != 1) {
 				*error = -10;
@@ -490,13 +487,6 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 }
 
 
-//buffer -  holds the character buffer from sya
-//tok - is a pointer which determines whether '-' is negative or subtraction
-//input -  is the entire input string
-//iterator -  is the counter for the main loop in sya
-/*
- * check if input variable is a variable
- */
 error_return checkVariable(const char *buffer, int *tok, char *input, int *iterator, vari *var, numberStack *num, operatorStack *ch) {
 
 	error_return error = 0;
@@ -685,14 +675,6 @@ error_return printLine(char **input, vari *var) {
 }
 
 
-//separate a string
-//input: string to separate, string comes from sya input
-//limiter: things like parenthesis or brackets, outer most limiter is assumed to be ()
-//delimiter: the different types of chars that may be delimiting the string
-//iterator: offset of input to the first parenthesis
-/*
- * separate a string
- */
 char **separateString(char *input, char const * const limiter, char const * const delimiter, int *iterator, error_return *error) {
 
 	//increment input to the first parenthesis
@@ -779,20 +761,20 @@ char **separateString(char *input, char const * const limiter, char const * cons
 			//check that each limiter is balanced
 			//limiterCount is 0 if the pair is balanced
 			for(uint8_t l = 0; l < limiterType; ++l) {
-				if(input2[k] == limiter[l])
+				if(input2[k] == limiter[l * 2])
 					++limiterCount[l];
-				if(input2[k] == limiter[l + 1])
+
+				if(input2[k] == limiter[(l * 2) + 1])
 					--limiterCount[l];
 
 				allCount += limiterCount[l];
 			}
-
 			//if the current char is a delimiter
 			//and the limiters are balanced, means
 			//that the delimiter delimits the arguments
 			//of the main function, and not arguments of
 			//any sub functions within
-			if(strchr(delimiter, input2[k]) && allCount) {
+			if(strchr(delimiter, input2[k]) && !allCount) {
 				//malloc the number of characters in between each delimiter
 				separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength)) + 1);
 				__MALLOC_CHECK(separatedString[subString], *error);
@@ -816,7 +798,11 @@ char **separateString(char *input, char const * const limiter, char const * cons
 
 		separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength) + 1));
 		__MALLOC_CHECK(separatedString[subString], *error);
-		strncpy(separatedString[subString], input2 + currentLength, k - currentLength);
+		uint8_t offset = 0;
+		if(strchr(delimiter, input2[currentLength]))
+			offset = 1;
+		
+		strncpy(separatedString[subString], input2 + currentLength + offset, k - currentLength);
 		separatedString[subString][k - currentLength] = '\0';
 	}
 

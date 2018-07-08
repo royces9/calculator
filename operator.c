@@ -313,7 +313,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		break;
 
 	case eZeros:
-		separatedString = separateString(input, "()", ",", iterator, &error);
+		separatedString = separateString(input, "()[]", ",", iterator, &error);
 		pushn(zeros(separatedString, var, &error), num);
 		*tok = 0;
 		break;

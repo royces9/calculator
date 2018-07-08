@@ -1,6 +1,9 @@
 #ifndef MULTI
 #define MULTI
 
+/*
+ * count number of strings in the double array
+ */
 int numberOfArgs(char **input);
 
 /*
@@ -59,7 +62,7 @@ matrix *ones(char **input, vari *var, error_return *error);
 matrix *randMatrix(char **input, vari *var, error_return *error);
 
 /*
- * make a column vector with linearlly changing values
+ * make a column vector with linearlly spaced values
  *
  * Arguments:
  * char **input
@@ -68,8 +71,6 @@ matrix *randMatrix(char **input, vari *var, error_return *error);
  *   input[2]: number of elements
  */
 matrix *linspace(char **input, vari *var, error_return *error);
-
-matrix *matrixString(char **input, vari *var, error_return *error);
 
 /*
  * get value of variable
@@ -102,11 +103,29 @@ char *removeSpaces(char *input);
 
 /*
  * print output to stdout
+ *
+ * Arguments:
+ * char **input
+ *   formatting is similar to matlab print
  */
 error_return printLine(char **input, vari *var);
 
 /*
  * separate string
+ *
+ * Arguments
+ * char *input
+ *   string to separate
+ *
+ * char const * const limiter
+ *   things like parenthesis and brackets, any delimiters found will be
+ *    ignored if the limiters are open
+ *
+ * char const * const delimiter
+ *   the separation points of the string
+ *
+ * int *iterator
+ *   the main loop counter in sya, so it can be incremented the appropriate amount
  */
 char **separateString(char *input, char const * const limiter, char const * const delimiter, int *iterator, error_return *error);
 
