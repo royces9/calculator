@@ -319,7 +319,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		break;
     
 	case eOnes:
-		separatedString = separateString(input, "()", ",", iterator, &error);
+		separatedString = separateString(input, "()[]", ",", iterator, &error);
 		pushn(ones(separatedString, var, &error), num);
 		*tok = 0;
 		break;
@@ -347,7 +347,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		break;
 
 	case ePrint:
-		separatedString = separateString(input, "()", ",", iterator, &error);
+		separatedString = separateString(input, "()[]", ",", iterator, &error);
 		error = printLine(separatedString, var);
 		break;
 
@@ -359,7 +359,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 			int bufferLength = strlen(buffer);
 			//buffer includes the '(', if it's there, replaced with 0
 			if(buffer[bufferLength - 1] == '('){
-				separatedString = separateString(input, "()", ",", iterator, &error);
+				separatedString = separateString(input, "()[]", ",", iterator, &error);
 				buffer[bufferLength - 1] = '\0';
 				pushn(findUserFunction(buffer, separatedString, var, &error), num);
 
