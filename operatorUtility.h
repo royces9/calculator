@@ -12,82 +12,82 @@ extern const char FUNCTION_LIST[FUNCTION_COUNT][16];
 extern const uint8_t operatorPrecedence[OPERATOR_COUNT];
 
 enum functionEnums {
-  eQuit,
-  eClear,
-  eList,
-  eHelp,
+	eQuit,
+	eClear,
+	eList,
+	eHelp,
 
-  ePi,
-  eE,
-  eAns,
+	ePi,
+	eE,
+	eAns,
 
-  eSin,
-  eCos,
-  eTan,
-  eLn,
-  eLog,
+	eSin,
+	eCos,
+	eTan,
+	eLn,
+	eLog,
 
-  eSqrt,
+	eSqrt,
 
-  eAsin,
-  eAcos,
-  eAtan,
+	eAsin,
+	eAcos,
+	eAtan,
 
-  eFloor,
-  eCeil,
-  eRound,
-  eMin,
-  eMax,
-  eAvg,
-  eSum,
+	eFloor,
+	eCeil,
+	eRound,
+	eMin,
+	eMax,
+	eAvg,
+	eSum,
 
-  eFactorial,
+	eFactorial,
 
-  eDeri,
-  eInte,
-  eSolve,
+	eDeri,
+	eInte,
+	eSolve,
 
-  eZeros,
-  eOnes,
-  eEye,
-  eRand,
-  eSize,
-  eTranspose,
-  eLinspace,
+	eZeros,
+	eOnes,
+	eEye,
+	eRand,
+	eSize,
+	eTranspose,
+	eLinspace,
 
-  eRun,
-  ePrint
+	eRun,
+	ePrint
 };
 
 
 enum operatorEnum {
-  eAdd,
-  eSubtract,
-  eMultiply,
-  eDivide,
+	eAdd,
+	eSubtract,
+	eMultiply,
+	eDivide,
 
-  eExponent,
-  eAssign,
-  eLeftParen,
-  eRightParen,
+	eExponent,
+	eAssign,
+	eLeftParen,
+	eRightParen,
 
-  eMultiplyMatrix,
-  eDivideMatrix,
-  eExponentMatrix,
+	eMultiplyMatrix,
+	eDivideMatrix,
+	eExponentMatrix,
 
-  eLess,
-  eGreater,
-  eLessEqual,
-  eGreaterEqual,
+	eLess,
+	eGreater,
+	eLessEqual,
+	eGreaterEqual,
 
-  eNotEqual,
-  eEqual,
+	eNotEqual,
+	eEqual,
 
-  eAnd,
-  eOr,
-  eNot,
+	eAnd,
+	eOr,
+	eNot,
 
-  eReference
+	eReference
 };
 
 

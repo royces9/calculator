@@ -3,111 +3,111 @@
 #include "operatorUtility.h"
 
 const char FUNCTION_LIST[FUNCTION_COUNT][16] = {
-  "quit",
-  "clear",
-  "list",
-  "help",
+	"quit",
+	"clear",
+	"list",
+	"help",
 
-  "pi",
-  "e",
-  "ans",
+	"pi",
+	"e",
+	"ans",
 
-  "sin(",
-  "cos(",
-  "tan(",
-  "ln(",
-  "log(",
+	"sin(",
+	"cos(",
+	"tan(",
+	"ln(",
+	"log(",
 
-  "sqrt(",
+	"sqrt(",
 
-  "asin(",
-  "acos(",
-  "atan(",
+	"asin(",
+	"acos(",
+	"atan(",
 
-  "floor(",
-  "ceil(",
-  "round(",
-  "min(",
-  "max(",
-  "avg(",
-  "sum(",
+	"floor(",
+	"ceil(",
+	"round(",
+	"min(",
+	"max(",
+	"avg(",
+	"sum(",
   
-  "factorial(",
+	"factorial(",
 
-  "derivative(",
-  "integral(",
-  "solve(",
+	"derivative(",
+	"integral(",
+	"solve(",
 
-  "zeros(",
-  "ones(",
-  "eye(",
-  "rand(",
-  "size(",
-  "transpose(",
-  "linspace(",
+	"zeros(",
+	"ones(",
+	"eye(",
+	"rand(",
+	"size(",
+	"transpose(",
+	"linspace(",
   
-  "run(",
-  "print("
+	"run(",
+	"print("
 };
 
 
 const char OPERATOR_LIST[OPERATOR_COUNT][4] = {
-  "+",
-  "-",
-  ".*",
-  "./",
+	"+",
+	"-",
+	".*",
+	"./",
 
-  ".^",
-  "=",
-  "(",
-  ")",
+	".^",
+	"=",
+	"(",
+	")",
 
-  "*",
-  "/",
-  "^",
+	"*",
+	"/",
+	"^",
 
-  "<",
-  ">",
-  "<=",
-  ">=",
+	"<",
+	">",
+	"<=",
+	">=",
 
-  "!=",
-  "==",
+	"!=",
+	"==",
 
-  "&&",
-  "||",
-  "~",
+	"&&",
+	"||",
+	"~",
 
-  "r"
+	"r"
 };
 
 
 const uint8_t operatorPrecedence[OPERATOR_COUNT] = {
-  6,
-  6,
-  5,
-  5,
+	6,
+	6,
+	5,
+	5,
 
-  4,
-  4,
-  16,
-  15,
+	4,
+	4,
+	16,
+	15,
 
-  5,
-  5,
-  4,
+	5,
+	5,
+	4,
   
-  15,
-  8,
-  8,
-  8,
+	15,
+	8,
+	8,
+	8,
 
-  8,
-  9,
+	8,
+	9,
 
-  9,
-  11,
-  12,
+	9,
+	11,
+	12,
 
-  0
+	0
 }; //~is not implemented at the moment

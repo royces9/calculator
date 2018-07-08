@@ -8,20 +8,20 @@ typedef double element;
 typedef int8_t error_return;
 
 typedef struct matrix{
-  //number of elements;
-  uint64_t length;
+	//number of elements;
+	uint64_t length;
 
-  //number of dimensions
-  uint8_t dimension;
+	//number of dimensions
+	uint8_t dimension;
 
-  //size of the array
-  uint16_t *size;
+	//size of the array
+	uint16_t *size;
 
-  //elements of the matrix
-  element *elements;
+	//elements of the matrix
+	element *elements;
 
-  //variable flag
-  int8_t variable;
+	//variable flag
+	int8_t variable;
 } matrix; 
 
 
