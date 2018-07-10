@@ -355,14 +355,17 @@ uint64_t sub2ind(uint16_t *location, uint16_t *size, uint8_t dimension){
 
 //check if a matrix is a scalar (true)
 //else false
-error_return isScalar(matrix *m){
+error_return isScalar(matrix *m) {
 	return (m->dimension == 1);
 }
 
+error_return isVector(matrix *m) {
+	return (m->dimension == 2) && ( (m->size[0] == 1) || (m->size[1] == 1) );
+}
 
 //compare two size vectors, return 1 if same
 //0 otherwise
-error_return compareSize(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB){
+error_return compareSize(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB) {
 	if(dimA != dimB){
 		return 0;
 	}

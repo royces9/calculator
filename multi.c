@@ -243,46 +243,53 @@ matrix *solve(char **input, vari *var, error_return *error) {
 
 matrix *zeros(char **input, vari *var, error_return *error) {
 	int dimension = numberOfArgs(input);
-	vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
-
 	uint16_t *newSize = NULL;
-
-	//varTemp->ans = copyMatrix(var->ans, error);
 
 	//only one input, make a square matrix of that size
 	//or if it's a matrix, make one of that size
 	switch(dimension) {
 	case 1:
-		*error = sya(input[0], varTemp);
-		if(*error) return NULL;
+ 		*error = sya(input[0], var);
+		if(*error) break;
 
 		//check that the one input is a scalar
-		if(varTemp->ans->dimension == 1) {
+		if(var->ans->dimension == 1) {
 			//change dimension to make square matrix
 			dimension = 2;
 
 			newSize = malloc(sizeof(*newSize) * (dimension + 1));
 			if(newSize == NULL) {
 				*error = -8;
-				return NULL;
 			}
 
-			newSize[0] = varTemp->ans->elements[0];
-			newSize[1] = varTemp->ans->elements[0];
-			newSize[2] = 0;
-		} else {
-			dimension = varTemp->ans->dimension;
+			if( !(var->ans->elements[0]) ) {
+				newSize[0] = var->ans->elements[0];
+				newSize[1] = var->ans->elements[0];
+				newSize[2] = 0;
+			} else {
+				*error = -11;
+			}
+
+		} else if(isVector(var->ans)) {
+			dimension = var->ans->dimension;
 			newSize = malloc(sizeof(*newSize) * (dimension + 1));
 			if(newSize == NULL) {
 				*error = -8;
-				return NULL;
 			}
 	
 			int i = 0;
-			for(; i < varTemp->ans->length; ++i) {
-				newSize[i] = varTemp->ans->elements[i];
+			for(; i < var->ans->length; ++i) {
+				if( !(var->ans->elements[i]) ) {
+					newSize[i] = var->ans->elements[i];
+				} else {
+					*error = -11;
+					break;
+				}
 			}
+
 			newSize[i] = 0;
+		} else {
+			*error = -11;
 		}
 		break;
 
@@ -290,23 +297,21 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 		newSize = malloc(sizeof(*newSize) * (dimension + 1));
 
 		for(int i = 0; i < dimension; ++i) {
-			*error = sya(input[i], varTemp);
+			*error = sya(input[i], var);
 
-			if(varTemp->ans->dimension != 1) {
+			if(var->ans->dimension != 1) {
 				*error = -10;
-				freeVari(varTemp);
-				free(newSize);
-				return NULL;
+				break;
 			}
 
-			newSize[i] = varTemp->ans->elements[0];
+			newSize[i] = var->ans->elements[0];
 		}
 	}
 
-	freeVari(varTemp);
-	newSize[dimension] = 0;
-
-	matrix *out = initMatrix(newSize, dimension, error);
+	if( *(!error)) {
+		newSize[dimension] = 0;
+		matrix *out = initMatrix(newSize, dimension, error);
+	}
 
 	free(newSize);
 
@@ -317,11 +322,10 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 matrix *ones(char **input, vari *var, error_return *error) {
 	//call zeros and just replace all the input
 	matrix *out = zeros(input, var, error);
-
-	if(*error) return out;
-
-	for(int i = 0; i < out->length; ++i) {
-		out->elements[i] = 1;
+	if( !(*error) ) {
+		for(int i = 0; i < out->length; ++i) {
+			out->elements[i] = 1;
+		}
 	}
 
 	return out;
@@ -330,10 +334,11 @@ matrix *ones(char **input, vari *var, error_return *error) {
 
 matrix *randMatrix(char **input, vari *var, error_return *error) {
 	matrix *out = zeros(input, var, error);
-	if(*error) return out;
+	if( !(*error) ) {
+		for(int i = 0; i < out->length; ++i) {
+			out->elements[i] = (element)rand() / RAND_MAX;
+		}
 
-	for(int i = 0; i < out->length; ++i) {
-		out->elements[i] = (element)rand() / RAND_MAX;
 	}
 
 	return out;
@@ -680,28 +685,8 @@ char **separateString(char *input, char const * const limiter, char const * cons
 	//increment input to the first parenthesis
 	input += (*iterator + 1);
 
+	//length of string
 	uint16_t length = 0;
-	//find where the parenthesis are closed
-	//can assume that they are closed correctly
-	for(int16_t a = 0; input[length]; ++length) {
-		if(input[length] == '(')
-			++a;
-
-		if(input[length] == ')')
-			--a;
-
-		//if a is 0, break
-		if(!a) break;
-	}
-
-	//increment iterator length amount, to the
-	//char after the end paren
-	*iterator += (length + 1);
-
-	//get a copy of the input to mangle
-	char *input2 = calloc(length + 1, sizeof(*input2));
-	__MALLOC_CHECK(input2, *error);
-	strncpy(input2, input + 1, length - 1);
 
 	//the number of types of delimiters
 	uint8_t delimiterType = strlen(delimiter);
@@ -714,15 +699,39 @@ char **separateString(char *input, char const * const limiter, char const * cons
 	//there will always be a left and right end
 	uint8_t limiterType = strlen(limiter) / 2;
 
-	//count the total number of delimiters
-	for(uint16_t i = 0; input2[i]; ++i) {
+	
+	//find where parenthesis are closed
+	//also count delimiters
+	for(int16_t a = 0; input[length]; ++length) {
+		if(input[length] == '(')
+			++a;
+
+		if(input[length] == ')')
+			--a;
+
+		//if a is 0, break
+		if(!a) break;
+
+
 		for(uint8_t j = 0; j < delimiterType; ++j) {
-			if(input[i] == delimiter[j]) {
+			if(input[length] == delimiter[j]) {
 				++delimiterCount;
 				break;
 			}
 		}
 	}
+
+
+	//increment iterator length amount, to the
+	//char after the end paren
+	*iterator += (length + 1);
+
+
+	//get a copy of the input to mangle
+	char *input2 = calloc(length + 1, sizeof(*input2));
+	__MALLOC_CHECK(input2, *error);
+	strncpy(input2, input + 1, length - 1);
+
 
 
 	//assume that each delimiter will have its own string
@@ -767,8 +776,9 @@ char **separateString(char *input, char const * const limiter, char const * cons
 				if(input2[k] == limiter[(l * 2) + 1])
 					--limiterCount[l];
 
-				allCount += limiterCount[l];
+				allCount |= limiterCount[l];
 			}
+
 			//if the current char is a delimiter
 			//and the limiters are balanced, means
 			//that the delimiter delimits the arguments

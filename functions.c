@@ -54,15 +54,15 @@ matrix *getSize(matrix *a, error_return *error){
 
 
 /*function for matrix referencing
-  ex:
-  a = linspace(0,1,3)
-  0, 0.5, 1
-  b = a(2) + 1
-  1.5
-
-  a - the matrix
-  b - the index
-*/
+ *  ex:
+ *  a = linspace(0,1,3)
+ *  0, 0.5, 1
+ *  b = a(2) + 1
+ *  1.5
+ *
+ *  a - the matrix
+ *  b - the index
+ */
 matrix *reference(matrix *a, matrix *b, error_return *error){
 	matrix *out = copyMatrix(b, error);
 
@@ -75,9 +75,9 @@ matrix *reference(matrix *a, matrix *b, error_return *error){
 
 
 /*
-  a - pointer to variable (left side of '=')
-  b - pointer to new value (right side of '=')
-*/
+ *  a - pointer to variable (left side of '=')
+ * b - pointer to new value (right side of '=')
+ */
 matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
 
 	uint8_t incrementFlag = 1;
@@ -161,6 +161,8 @@ matrix *multiplyMatrix(matrix *a, matrix *b, error_return *error){
 	//counter for elements put into out
 	int l = 0;
 
+	//generic O(n^3) algorithm
+	
 	//transpose a and then multiply every column with every other column in each matrix
 	for(int i = 0; i < b->size[1]; ++i){
 		for(int j = 0; j < transposeA->size[1]; ++j){
@@ -188,7 +190,7 @@ matrix *exponentMatrix(matrix *a, matrix *b, error_return *error){
 	switch(aScalar + bScalar){
 	case 0: //neither a nor b are scalars
 		*error = -10;
-		return out;
+		break;
 
 	case 1: //one of a or b is a scalar
 		if(aScalar){ //a is the scalar
@@ -207,7 +209,7 @@ matrix *exponentMatrix(matrix *a, matrix *b, error_return *error){
 			//really small number
 
 			if((b->elements[0] - floor(b->elements[0])) < 0.00000000001){
-				long int power = b->elements[0];
+				int64_t power = b->elements[0];
 				for(int i = 0; i < power; ++i){
 					out = multiplyMatrix(tempMat, a, error);
 					freeMatrix(tempMat);
@@ -220,21 +222,20 @@ matrix *exponentMatrix(matrix *a, matrix *b, error_return *error){
 					tempMat = copyMatrix(out, error);
 					freeMatrix(out);
 				}
+				out = tempMat;
 			}
-
-			return tempMat;
 		}
-
-		return out;
+		break;
 
 
 	case 2: //a and b are both scalar
 		out = initScalar(pow(a->elements[0], b->elements[0]), error);
-		return out;
+		break;
 
-
-	default: *error = -10; return out;
+	default: *error = -10; break;
 	}
+
+	return out;
 }
 
 
@@ -300,7 +301,6 @@ matrix *sum(matrix *m, error_return *error){
 	uint16_t *newSize = NULL;
 
 	if(m->dimension == 2){
-
 		//for vector
 		if((m->size[0] == 1) || (m->size[1] == 1)){
 			newSize = malloc(sizeof(*newSize) * (newDimension + 1));

@@ -15,9 +15,8 @@
 //search in FUNCTION_LIST
 int searchFunctionArray(char *buffer) {
 	for(int i = 0; i < FUNCTION_COUNT; ++i) {
-		if(!strcmp(FUNCTION_LIST[i], buffer)) {
+		if(!strcmp(FUNCTION_LIST[i], buffer))
 			return i;
-		}
 	}
 	return FUNCTION_COUNT;
 }
@@ -26,10 +25,10 @@ int searchFunctionArray(char *buffer) {
 //search in OPERATOR_COUNT
 int searchOperatorArray(char *buffer) {
 	for(int i = 0; i < OPERATOR_COUNT; ++i) {
-		if(!strcmp(OPERATOR_LIST[i], buffer)) {
+		if(!strcmp(OPERATOR_LIST[i], buffer))
 			return i;
-		}
 	}
+
 	return OPERATOR_COUNT;
 }
 
@@ -42,7 +41,7 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 	switch(ch->argNo) {
 	case 1:
 		a = popn(num);
-		if(a->size == NULL){
+		if(a->size == NULL) {
 			error = -5;
 			break;
 		}
@@ -52,13 +51,13 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 
 	case 2:
 		b = popn(num);
-		if(b->size == NULL){
+		if(b->size == NULL) {
 			error = -5;
 			break;
 		}
 
 		a = popn(num);
-		if(a->size == NULL){
+		if(a->size == NULL) {
 			freeMatrix(b);
 			error = -5;
 			break;
@@ -69,7 +68,7 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 
 	case 3:
 		b = popn(num);
-		if(b->size == NULL){
+		if(b->size == NULL) {
 			free(b);
 			error = -5;
 			b = NULL;
@@ -91,7 +90,7 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 }
 
 
-matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error){
+matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error) {
 	matrix *out;
 	error_return check = 0;
 
@@ -106,11 +105,11 @@ matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error){
 		out = initMatrix(newSize, a->dimension, error);
 		free(newSize);
 
-		for(int i = 0; i < out->length; ++i){
+		for(int i = 0; i < out->length; ++i) {
 			out->elements[i] = oneArg(a->elements[i], ch->enumeration, error);
 		}
 
-	} else{
+	} else {
 		switch(ch->enumeration){
 		case eEye: out = eye(a, error); break;
 		case eSize: out = getSize(a, error); break;
@@ -123,11 +122,12 @@ matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error){
 		}
 	}
 	freeMatrix(a);
+
 	return out;
 }
 
 
-matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *error){
+matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *error) {
 	matrix *out = NULL;
 	error_return check = 0;
 
@@ -156,8 +156,8 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 	}
 
 	//ch.enumeration is in twoArg if check is 0
-	if(!check){
-		switch(aScalar + bScalar){
+	if(!check) {
+		switch(aScalar + bScalar) {
 		case 0: //neither is a scalar
 
 			//check if a and b are the same size
@@ -178,7 +178,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 			if(aScalar){
 				out = copyMatrix(b, error);
 				for(int i = 0; i < out->length; ++i){
-					out->elements[i] = twoArg(a->elements[0],b->elements[i], ch->enumeration, error);
+					out->elements[i] = twoArg(a->elements[0], b->elements[i], ch->enumeration, error);
 				}
 
 			} else{
@@ -198,6 +198,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 			break;
 
 		}
+
 	} else{
 		switch(ch->enumeration){
 		case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
@@ -221,10 +222,10 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	error_return error = 0;
 
 	switch(i) {
-	case eQuit: //quit
+	case eQuit:
 		return 1;
 
-	case eClear: //clear
+	case eClear:
 		for(int i = 0; i <= var->count; ++i){
 			var->value[i]->variable = 0;
 			freeMatrix(var->value[i]);
@@ -237,7 +238,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		printf("\nAll variables cleared\n\n");
 		return -1;
 
-	case eList: //list
+	case eList:
 		if(var->count > -1) {
 			printf("\nVariable List:\n");
 			for(int j = 0; j <= var->count; ++j) {
@@ -249,7 +250,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		}
 		return -1;
 
-	case eHelp: //help
+	case eHelp:
 		helpPrint();
 		return -1;
 
@@ -264,10 +265,9 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		break;
 
 	case eAns:
-		{ //copy ans so it doesn't get freed
-			pushn(copyMatrix(var->ans, &error), num);
-			*tok = 1;
-		}
+		//copy ans so it doesn't get freed
+		pushn(copyMatrix(var->ans, &error), num);
+		*tok = 1;
 		break;
 
 	case eSin:
@@ -390,23 +390,23 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 	error_return error = 0;
 
 	/*                                                                                                                  
-	**Precedence values for operators: Reference wiki page of C/C++ operators
-	**1                                                
-	**2 f(x)-calls
-	**3
-	**4 ^ !
-	**5
-	**6 + -
-	**7
-	**8 < <= > >=
-	**9 == !=
-	**10
-	**11 &&
-	**12 ||
-	**13
-	**14
-	**15 parens
-	**16 =
+	* Precedence values for operators: Reference wiki page of C/C++ operators
+	* 1                                                
+	* 2 f(x)-calls
+	* 3
+	* 4 ^ !
+	* 5
+	* 6 + -
+	* 7
+	* 8 < <= > >=
+	* 9 == !=
+	* 10
+	* 11 &&
+	* 12 ||
+	* 13
+	* 14
+	* 15 parens
+	* 16 =
 	*/
 
 	switch(i) {
@@ -492,7 +492,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
 //separate a matrix, accounting for sub matrices as input in a matrix
 //[[1, 2], 3] or something like that
-char **separateMatrix(char *input, int delimiter, error_return *error){
+char **separateMatrix(char *input, int delimiter, error_return *error) {
 	char **out = malloc(sizeof(*out) * (delimiter + 2));
 
 	//counter for "()[]"

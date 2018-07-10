@@ -38,6 +38,7 @@ uint64_t getLength(uint16_t *size, uint8_t dimension);
 uint64_t sub2ind(uint16_t *location, uint16_t *size, uint8_t dimension);
 
 error_return isScalar(matrix *m);
+error_return isVector(matrix *m);
 
 error_return compareSize(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB);
 error_return checkInnerDim(matrix *a, matrix *b);

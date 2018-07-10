@@ -69,7 +69,7 @@ operatorStack *newOperatorStack(void) { //make new operator stack
 
 vari *newVari(void) {
 	vari *var = calloc(1, sizeof(*var));
-	var->ans = calloc(1, sizeof(*var->ans));
+	var->ans = initScalar(0, NULL);
 	var->count = -1;
 	return var;
 }
