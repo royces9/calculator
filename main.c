@@ -18,14 +18,14 @@ int main(int argc, char *argv[]) {
 
 	//execute command line arguments first
 	if(argc > 1) {
-		for(int i = 1; i < argc; ++i){
-			printf(">>%s\n", *(argv+i));
+		for(int i = 1; i < argc; ++i) {
+			printf(">>%s\n", argv[i]);
 			error = sya(argv[i], var);
 
-			if( !error ){
+			if( !error ) {
 				printMatrix(var->ans);
 
-			} else{
+			} else {
 				errorReport(error);
 
 			}
@@ -41,23 +41,25 @@ int main(int argc, char *argv[]) {
 		input = readline(">>");
 		add_history(input);
 
-		if( (*input) ) { //skip if the input is empty
+		//skip empty lines
+		if( (*input) ) {
 			//parses string and does all the calculations
 			error = sya(input, var);
 
-			if( !error ){
+			if( !error ) {
 
 				//suppress output if the line ends with ';'
 				if( input[strlen(input) - 1] != ';' ){
 					printMatrix(var->ans);
 				}
 
-			} else{ //if the error is less than -1, prints an error code
+			} else { //if the error is less than -1, prints an error code
 				errorReport(error);
 			}
 		}
 
-		free(input); //readline mallocs the input line
+		//readline mallocs the input line
+		free(input);
 	}
 
 	freeVari(var);

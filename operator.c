@@ -697,7 +697,7 @@ matrix *extractMatrix(vari *var, int *iterator, char *input, error_return *error
 }
 
 
-int varcheck(vari *list, char input[]) {
+int varcheck(vari *list, char *input) {
 	if(list->count < 0) {
 		return -1;
 	}
