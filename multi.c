@@ -260,9 +260,10 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 			newSize = malloc(sizeof(*newSize) * (dimension + 1));
 			if(newSize == NULL) {
 				*error = -8;
+				break;
 			}
 
-			if( !(var->ans->elements[0]) ) {
+			if(var->ans->elements[0]) {
 				newSize[0] = var->ans->elements[0];
 				newSize[1] = var->ans->elements[0];
 				newSize[2] = 0;
@@ -308,9 +309,10 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 		}
 	}
 
-	if( *(!error)) {
+	matrix *out = NULL;
+	if( !(*error)) {
 		newSize[dimension] = 0;
-		matrix *out = initMatrix(newSize, dimension, error);
+		out = initMatrix(newSize, dimension, error);
 	}
 
 	free(newSize);

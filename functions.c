@@ -294,31 +294,30 @@ matrix *max(matrix *m, error_return *error) {
 
 
 //sums along the last dimension of the matrix
-matrix *sum(matrix *m, error_return *error){
+matrix *sum(matrix *m, error_return *error) {
 	matrix *out = NULL;
 
 	int newDimension = m->dimension - 1;
 	uint16_t *newSize = NULL;
 
-	if(m->dimension == 2){
-		//for vector
-		if((m->size[0] == 1) || (m->size[1] == 1)){
-			newSize = malloc(sizeof(*newSize) * (newDimension + 1));
-			__MALLOC_CHECK(newSize, *error);
+	if(isVector(m)) {
+		newSize = malloc(sizeof(*newSize) * (newDimension + 1));
+		__MALLOC_CHECK(newSize, *error);
+		newSize[1] = 0;
 
-		} else{
-			newDimension = 2;
-			newSize = malloc(sizeof(*newSize) * (newDimension + 1));
-			__MALLOC_CHECK(newSize, *error);
-			newSize[1] = m->size[0];
-
-		}
+	} else if(m->dimension == 2) {
+		newDimension = 2;
+		newSize = malloc(sizeof(*newSize) * (newDimension + 1));
+		__MALLOC_CHECK(newSize, *error);
+		
 		newSize[0] = 1;
-
-	} else if(m->dimension == 1){
+		newSize[1] = m->size[1];
+		newSize[2] = 0;
+ 
+	} else if(m->dimension == 1) {
 		return copyMatrix(m, error);
 
-	} else{
+	} else {
 		newSize = malloc(sizeof(*newSize) * (newDimension + 1));
 		__MALLOC_CHECK(newSize, *error);
 
@@ -330,13 +329,9 @@ matrix *sum(matrix *m, error_return *error){
 	free(newSize);
 
 	for(int i = 0; i < out->length; ++i){
-		element tempSum = 0;
-
-		for(int j = 0; j < m->size[m->dimension - 1]; ++j){
-			tempSum += m->elements[i*out->length + j];
+		for(int j = 0; j < m->size[m->dimension - 2]; ++j){
+			out->elements[i] += m->elements[i * m->size[m->dimension - 2] + j];
 		}
-
-		out->elements[i] = tempSum;
 	}
 
 	return out;
