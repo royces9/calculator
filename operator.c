@@ -453,7 +453,6 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 		do {
 			error = execNum(num, var, popch(oper));
 		} while( (oper->top > -1) && (oper->stk[oper->top]->enumeration != eLeftParen) );
-		//} while( (oper->top > -1) && strcmp(oper->stk[oper->top]->operator, "(") );
 
 		*tok = 1;
 		free(popch(oper));
