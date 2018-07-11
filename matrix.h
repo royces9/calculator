@@ -8,20 +8,20 @@ typedef double element;
 typedef int8_t error_return;
 
 typedef struct matrix{
-  //number of elements;
-  uint64_t length;
+	//number of elements;
+	uint64_t length;
 
-  //number of dimensions
-  uint8_t dimension;
+	//number of dimensions
+	uint8_t dimension;
 
-  //size of the array
-  uint16_t *size;
+	//size of the array
+	uint16_t *size;
 
-  //elements of the matrix
-  element *elements;
+	//elements of the matrix
+	element *elements;
 
-  //variable flag
-  int8_t variable;
+	//variable flag
+	int8_t variable;
 } matrix; 
 
 
@@ -38,6 +38,7 @@ uint64_t getLength(uint16_t *size, uint8_t dimension);
 uint64_t sub2ind(uint16_t *location, uint16_t *size, uint8_t dimension);
 
 error_return isScalar(matrix *m);
+error_return isVector(matrix *m);
 
 error_return compareSize(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB);
 error_return checkInnerDim(matrix *a, matrix *b);

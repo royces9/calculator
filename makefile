@@ -12,13 +12,15 @@ USR = /usr/local/bin/calc
 TARGET =
 
 all: MOREFLAGS += -static -g
-all: userFunctions.o matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o calc.o 
+all: main.o userFunctions.o matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o
 all: TARGET = $(CALC2)
 all: calc
 
-usr: userFunctions.o matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o calc.o
+usr: userFunctions.o matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o main.o
 usr: TARGET = $(USR)
 usr: calc
+
+
 
 userFunctions.o: userFunctions.c userFunctions.h matrix.c matrix.h multi.c multi.h
 	$(CC) -c userFunctions.c
@@ -50,13 +52,13 @@ functions.o: functions.c functions.h operator.c operator.h
 fileStruct.o: fileStruct.c fileStruct.h
 	$(CC) -c fileStruct.c
 
-calc.o: calc.c stack.c stack.h sya.c sya.h
-	$(CC) -c calc.c
+main.o: main.c stack.c stack.h sya.c sya.h
+	$(CC) -c main.c
 
 calc: $(OFILES)
-	$(CCC) $(OFILES) -o $(TARGET) $(FLAGS)
+	$(CCC) *.o -o $(TARGET) $(FLAGS)
 
 
-del: $(OFILES)
-	del $(OFILES) $(CALC2)
+del:
+	del $(OFILES)
 

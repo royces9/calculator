@@ -18,7 +18,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *ch, var
 char **separateMatrix(char *input, int length, error_return *error);
 matrix *extractMatrix(vari *var, int *iterator, char *input, error_return *error);
 
-int varcheck(vari *list, char inp[]);
+int varcheck(vari *list, char *input);
 void freeDoubleArray(char **input);
 void helpPrint(void);
 
