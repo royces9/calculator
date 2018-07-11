@@ -388,26 +388,25 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var, int *tok) {
 	int i = searchOperatorArray(buffer);
 	error_return error = 0;
-
-	/*                                                                                                                  
-	* Precedence values for operators: Reference wiki page of C/C++ operators
-	* 1                                                
-	* 2 f(x)-calls
-	* 3
-	* 4 ^ !
-	* 5
-	* 6 + -
-	* 7
-	* 8 < <= > >=
-	* 9 == !=
-	* 10
-	* 11 &&
-	* 12 ||
-	* 13
-	* 14
-	* 15 parens
-	* 16 =
-	*/
+	/*
+	 * Precedence values for operators: Reference wiki page of C/C++ operators
+	 * 1
+	 * 2 f(x)-calls
+	 * 3
+	 * 4 ^ !
+	 * 5
+	 * 6 + -
+	 * 7
+	 * 8 < <= > >=
+	 * 9 == !=
+	 * 10
+	 * 11 &&
+	 * 12 ||
+	 * 13
+	 * 14
+	 * 15 parens
+	 * 16 =
+	 */
 
 	switch(i) {
 
@@ -437,13 +436,24 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
 	case eLeftParen:
 		*tok = 0;
-		pushch(initOperatorStruct("(", 0, 15, eLeftParen), oper);
+
+		if(oper->stk[oper->top]->precedence == 2) {
+			operatorStruct *temp = popch(oper);
+			pushch(initOperatorStruct("(", 0, 15, eLeftParen), oper);
+			pushch(temp, oper);
+		} else {
+			pushch(initOperatorStruct("(", 0, 15, eLeftParen), oper);
+		}
+		
+
+
 		break;
 
 	case eRightParen:
 		do {
 			error = execNum(num, var, popch(oper));
-		} while( (oper->top > -1) && strcmp(oper->stk[oper->top]->operator, "(") );
+		} while( (oper->top > -1) && (oper->stk[oper->top]->enumeration != eLeftParen) );
+		//} while( (oper->top > -1) && strcmp(oper->stk[oper->top]->operator, "(") );
 
 		*tok = 1;
 		free(popch(oper));

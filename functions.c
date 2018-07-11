@@ -74,10 +74,6 @@ matrix *reference(matrix *a, matrix *b, error_return *error){
 }
 
 
-/*
- *  a - pointer to variable (left side of '=')
- * b - pointer to new value (right side of '=')
- */
 matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
 
 	uint8_t incrementFlag = 1;
