@@ -437,7 +437,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 	case eLeftParen:
 		*tok = 0;
 
-		if(oper->stk[oper->top]->precedence == 2) {
+		if( (oper->top > -1) && (oper->stk[oper->top]->precedence == 2) ) {
 			operatorStruct *temp = popch(oper);
 			pushch(initOperatorStruct("(", 0, 15, eLeftParen), oper);
 			pushch(temp, oper);
