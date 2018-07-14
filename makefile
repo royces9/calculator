@@ -3,7 +3,7 @@ MOREFLAGS =
 CC = gcc -Wall $(MOREFLAGS)
 CCC = gcc
 
-HEADERS = $(wildcard *.h)
+HFILES = $(wildcard *.h)
 CFILES = $(wildcard *.c)
 OFILES = $(wildcard *.o)
 
@@ -19,7 +19,6 @@ all: calc
 usr: userFunctions.o matrix.o stack.o functions.o operatorUtility.o operator.o multi.o sya.o file.o fileStruct.o main.o
 usr: TARGET = $(USR)
 usr: calc
-
 
 
 userFunctions.o: userFunctions.c userFunctions.h matrix.c matrix.h multi.c multi.h
