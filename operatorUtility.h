@@ -52,6 +52,9 @@ enum functionEnums {
 	eEye,
 	eRand,
 	eSize,
+	eNumel,
+	eMagnitude,
+	
 	eTranspose,
 	eLinspace,
 
