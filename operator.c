@@ -118,6 +118,8 @@ matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error) {
 		case eMin: out = min(a, error); break;
 		case eAvg: out = avg(a, error); break;
 		case eSum: out = sum(a, error); break;
+		case eMagnitude: out = magnitude(a, error); break;
+		case eNumel: out = magnitude(a, error);
 		default: out = copyMatrix(a, error); break;
 		}
 	}
@@ -290,6 +292,8 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	case eEye:
 	case eSize:
 	case eTranspose:
+	case eMagnitude:
+	case eNumel:
 		pushch(initOperatorStruct(FUNCTION_LIST[i], 1, 2, i), ch);
 		*tok = 0;
 		break;
