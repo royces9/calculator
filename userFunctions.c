@@ -43,7 +43,6 @@ char *checkConfig(char *functionName, char *configPath, error_return *error) {
 	FILE *config = fopen(configPath, "r");
 	if(config == NULL) {
 		*error = 8;
-		fclose(config);
 		return NULL;
 	}
 
