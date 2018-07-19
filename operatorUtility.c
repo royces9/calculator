@@ -43,6 +43,7 @@ const char FUNCTION_LIST[FUNCTION_COUNT][16] = {
 	"eye(",
 	"rand(",
 	"size(",
+
 	"numel(",
 	"magnitude(",
 	

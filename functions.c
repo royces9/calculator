@@ -54,35 +54,34 @@ matrix *getSize(matrix *a, error_return *error){
 
 
 matrix *magnitude(matrix *a, error_return *error){
-  matrix *out = NULL;
+	matrix *out = NULL;
 
-  if(a->dimension != 2){
-    *error = -10;
+	if(a->dimension != 2){
+		*error = -10;
 
-  } else{
-    if((a->size[0] == 1) || (a->size[1] == 1)){
-      element magnitudeA = 0;
+	} else{
+		if((a->size[0] == 1) || (a->size[1] == 1)){
+			element magnitudeA = 0;
 
-      for(int i = 0; i < a->length; ++i){
-	magnitudeA += (a->elements[i] * a->elements[i]);
-      }
+			for(int i = 0; i < a->length; ++i){
+				magnitudeA += (a->elements[i] * a->elements[i]);
+			}
 
-      magnitudeA = sqrt(magnitudeA);
+			magnitudeA = sqrt(magnitudeA);
 
-      out = initScalar(magnitudeA, error);
-    } else{
-      *error = -10;
-    }
-  }
+			out = initScalar(magnitudeA, error);
+		} else{
+			*error = -10;
+		}
+	}
 
-  return out;
+	return out;
 }
 
 
 //get the total number of elements of a
 matrix *numel(matrix *a, error_return *error){
-  matrix *out = initScalar(a->length, error);
-  return out;
+	return initScalar(a->length, error);
 }
 
 /*function for matrix referencing
