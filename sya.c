@@ -12,13 +12,13 @@ error_return sya(char *input, vari *var) {
 
 	//iterators
 	//main loop iterator
-	int i = 0;
+	uint16_t i = 0;
 
 	//character buffer iterator
-	int j = 0;
+	uint16_t j = 0;
 
 	//operator buffer iterator
-	int k = 0;
+	uint16_t k = 0;
 
 
 	//error checking int

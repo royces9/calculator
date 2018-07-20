@@ -185,7 +185,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 		title[j + 1] = '\0';
 
 		//separate the string, to know what the variable names are
-		char **functionArgNames = separateString(title, "()", ",", &i, error);
+		char **functionArgNames = separateString(title, "()", ",", (uint16_t *) &i, error);
 
 		//count the number of arguments required
 		int functionArgNo = numberOfArgs(functionArgNames);

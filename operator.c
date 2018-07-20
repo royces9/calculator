@@ -218,7 +218,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 }
 
 
-error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *iterator, char *input) {
+error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, uint16_t *iterator, char *input) {
 	char **separatedString = NULL;
 	int i = searchFunctionArray(buffer);
 	error_return error = 0;
@@ -597,7 +597,7 @@ int countDelimiter(char *input){
 
 
 //iterator is the counter for the main loop in sya
-matrix *extractMatrix(vari *var, int *iterator, char *input, error_return *error){
+matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *error){
 	//input is incremented to start at input[*iterator], which is where
 	//the first [ should be
 	input += (*iterator);

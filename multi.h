@@ -94,7 +94,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
  * int *tok
  *   int to determine if '-' is negative or minus
  */
-error_return checkVariable(const char *buffer, int *tok, char *input, int *iterator, vari *var, numberStack *num, operatorStack *ch);
+error_return checkVariable(const char *buffer, int *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch);
 
 /*
  * remove spaces from input
@@ -127,6 +127,6 @@ error_return printLine(char **input, vari *var);
  * int *iterator
  *   the main loop counter in sya, so it can be incremented the appropriate amount
  */
-char **separateString(char *input, char const * const limiter, char const * const delimiter, int *iterator, error_return *error);
+char **separateString(char *input, char const * const limiter, char const * const delimiter, uint16_t *iterator, error_return *error);
 
 #endif //MULTI

@@ -10,9 +10,9 @@
 //factorial function
 element factorial(element a) {
 	a = floor(a);
-	if(a == 0) {
+	if(a == 0)
 		return 1;
-	}
+
 	return a == 1 ? 1 : a * factorial(a - 1);
 }
 

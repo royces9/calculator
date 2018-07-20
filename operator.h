@@ -12,11 +12,11 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch);
 matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error);
 matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *error);
 
-error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, int *iterator, char *input);
+error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, uint16_t *iterator, char *input);
 error_return findOperator(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok);
 
 char **separateMatrix(char *input, int length, error_return *error);
-matrix *extractMatrix(vari *var, int *iterator, char *input, error_return *error);
+matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *error);
 
 int varcheck(vari *list, char *input);
 void freeDoubleArray(char **input);
