@@ -462,7 +462,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 					*error = -11;
 					free(location);
 					freeVari(varTemp);
-					return out;
+					return NULL;
 				}
 			} else {
 				*error = -10;
@@ -559,6 +559,9 @@ error_return checkVariable(const char *buffer, int *tok, char *input, uint16_t *
 			if(var->name[k] != NULL) {
 				free(var->name[k]);
 				free(var->value[k]);
+
+				var->name[k] = NULL;
+				var->value[k] = NULL;
 			}
 
 			var->name[k] = malloc(sizeof(*var->name[k]) * (varLen + 1));

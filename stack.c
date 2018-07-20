@@ -137,6 +137,9 @@ error_return setVariable(vari *var, char *name, matrix *a, int *check){
 		free(var->name[index]);
 		var->value[index]->variable = 0;
 		freeMatrix(var->value[index]);
+
+		var->value[index] = NULL;
+		var->name[index] = NULL;
 		break;
 	}
 
@@ -174,9 +177,13 @@ void freeVari(vari *var){
 	if(var->ans->size != NULL){
 		free(var->ans->size);
 		free(var->ans->elements);
+
+		var->ans->size = NULL;
+		var->ans->elements = NULL;
 	}
 
 	free(var->ans);
+	var->ans = NULL;
 
 	if(var->assignIndex != NULL){
 		freeMatrix(var->assignIndex);

@@ -70,8 +70,9 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 		b = popn(num);
 		if(b->size == NULL) {
 			free(b);
-			error = -5;
 			b = NULL;
+
+			error = -5;
 			break;
 		}
 
@@ -86,6 +87,7 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 	}
 
 	free(ch);
+	ch = NULL;
 	return error;
 }
 
@@ -729,6 +731,7 @@ void freeDoubleArray(char **input) {
 	int i = 0;
 	for(i = 0; input[i]; ++i) {
 		free(input[i]);
+		input[i] = NULL;
 	}
 	free(input[i]);
 	free(input);

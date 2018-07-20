@@ -271,6 +271,9 @@ void freeMatrix(matrix *m){
 		free(m->size);
 		free(m->elements);
 		free(m);
+
+		m->size = NULL;
+		m->elements = NULL;
 	}
 }
 

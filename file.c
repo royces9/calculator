@@ -77,6 +77,9 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
 	if(!inputFile) {
 		free(tree);
 		free(fileString);
+		tree = NULL;
+		fileString = NULL;
+
 		return error = -8;
 	}
 
@@ -283,6 +286,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 	}
 
 	free(checkStack);
+
 	return error;
 }
 
@@ -337,6 +341,7 @@ int8_t checkConditional(char *input, int type, vari *var) {
 void freeString(char **string, int max) {
 	for(int i = 0; i < max; ++i){
 		free(string[i]);
+		string[i] = NULL;
 	}
 	free(string);
 }
