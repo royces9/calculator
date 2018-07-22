@@ -1,9 +1,15 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "operator.h"
+#include "types.h"
+#include "matrix.h"
 #include "stack.h"
+#include "variables.h"
+
+#include "operator.h"
+#include "operatorUtility.h"
 #include "sya.h"
 
 
@@ -26,7 +32,7 @@ error_return sya(char *input, vari *var) {
 
 
 	//to check if the '-' char is subtraction or a negative
-	int negativeCheck = 0;
+	int8_t negativeCheck = 0;
 
 	//Error checking
 	//count for the number of parentheses and brackets

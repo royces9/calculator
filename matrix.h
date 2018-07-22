@@ -1,24 +1,18 @@
 #ifndef MATRIX
 #define MATRIx
 
-//typedef double to element
-typedef double element;
-
-//typedef int8_t to error return type
-typedef int8_t error_return;
-
 typedef struct matrix{
 	//number of elements;
 	uint64_t length;
-
-	//number of dimensions
-	uint8_t dimension;
 
 	//size of the array
 	uint16_t *size;
 
 	//elements of the matrix
 	element *elements;
+
+	//number of dimensions
+	uint8_t dimension;
 
 	//variable flag
 	int8_t variable;

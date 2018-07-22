@@ -1,16 +1,21 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 
+#include "types.h"
+#include "matrix.h"
 #include "stack.h"
-#include "functions.h"
-#include "operator.h"
-#include "userFunctions.h"
-#include "multi.h"
-#include "file.h"
-#include "sya.h"
+#include "variables.h"
 
+#include "file.h"
+#include "userFunctions.h"
+#include "functions.h"
+#include "multi.h"
+#include "sya.h"
+#include "operatorUtility.h"
+#include "operator.h"
 
 //search in FUNCTION_LIST
 int searchFunctionArray(char *buffer) {
@@ -218,7 +223,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 }
 
 
-error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int *tok, uint16_t *iterator, char *input) {
+error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int8_t *tok, uint16_t *iterator, char *input) {
 	char **separatedString = NULL;
 	int i = searchFunctionArray(buffer);
 	error_return error = 0;
@@ -389,7 +394,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 }
 
 
-error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var, int *tok) {
+error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, vari *var, int8_t *tok) {
 	int i = searchOperatorArray(buffer);
 	error_return error = 0;
 	/*
@@ -707,31 +712,6 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *
 	free(numStk);
 
 	return out;
-}
-
-
-int varcheck(vari *list, char *input) {
-	if(list->count < 0) {
-		return -1;
-	}
-
-	for(int i = 0; i<=list->count; ++i) {
-		if(!strcmp(input, list->name[i])) {
-			return i;
-		}
-	}
-
-	return -2;
-}
-
-
-void freeDoubleArray(char **input) {
-	int i = 0;
-	for(i = 0; input[i]; ++i) {
-		free(input[i]);
-	}
-	free(input[i]);
-	free(input);
 }
 
 

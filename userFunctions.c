@@ -1,14 +1,18 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <dirent.h>
 
-#include "operator.h"
-#include "sya.h"
+#include "types.h"
+#include "matrix.h"
 #include "stack.h"
-#include "file.h"
+#include "variables.h"
+
 #include "multi.h"
+#include "sya.h"
+#include "operator.h"
+#include "file.h"
 #include "userFunctions.h"
 
 char *configFilePath = "~/.calc.cfg";

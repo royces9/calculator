@@ -1,18 +1,6 @@
 #ifndef STACK
 #define STACK
 
-#include <stdint.h>
-
-#include "matrix.h"
-
-//macro for malloc failure
-#define __MALLOC_CHECK(pointer, error)		\
-	if(pointer == NULL) {			\
-		error = -6;			\
-		return 0;			\
-	}
-
-
 typedef struct { //struct for operators, +, -, etc
 	//operator/function string
 	char operator[16];
@@ -50,28 +38,6 @@ typedef struct { //same as numberStack, except for operators
 
 } operatorStack;
 
-
-typedef struct { //variable storage
-	//pointer to matrix index to assign to, if assignment
-	matrix *assignIndex;
-
-	//stores variable values
-	matrix *value[256];
-
-	//stores variable names
-	char *name[256];
-
-	//answer matrix
-	matrix *ans;
-
-	//index for the newest variable
-	//-1 if empty
-	int count;
-
-	//flag if an assignment occured
-	int8_t assignFlag;
-} vari;
-
 void pushn(matrix *inp, numberStack *st);
 matrix *popn(numberStack *st);
 
@@ -82,12 +48,6 @@ operatorStruct *initOperatorStruct(const char *operator, uint8_t argNo, uint8_t 
 
 numberStack *newNumberStack(void);
 operatorStack *newOperatorStack(void);
-
-vari *newVari(void);
-vari *copyVari(vari *var, error_return *error);
-
-error_return setVariable(vari *var, char *name, matrix *a, int *check);
-void freeVari(vari *var);
 
 void freeNumberStack(numberStack *st);
 void freeOperatorStack(operatorStack *st);

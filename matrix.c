@@ -1,8 +1,12 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "operator.h"
+#include "types.h"
+#include "matrix.h"
+#include "stack.h"
+
 
 matrix *initMatrix(uint16_t *size, uint8_t dimension, error_return *error){
 	matrix *out = malloc(sizeof(*out));

@@ -1,17 +1,22 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <time.h>
 
+#include "types.h"
+#include "matrix.h"
 #include "stack.h"
-#include "multi.h"
-#include "operator.h"
+#include "variables.h"
+
 #include "sya.h"
+#include "operatorUtility.h"
+#include "multi.h"
 
 
-int numberOfArgs(char **input) {
-	int i = 0;
+uint8_t numberOfArgs(char **input) {
+	uint8_t i = 0;
 	for(; input[i]; ++i); //empty for
 	return i;
 }
@@ -242,7 +247,7 @@ matrix *solve(char **input, vari *var, error_return *error) {
 
 
 matrix *zeros(char **input, vari *var, error_return *error) {
-	int dimension = numberOfArgs(input);
+	uint8_t dimension = numberOfArgs(input);
 	uint16_t *newSize = NULL;
 
 	//only one input, make a square matrix of that size
@@ -278,7 +283,7 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 				*error = -8;
 			}
 	
-			int i = 0;
+			uint8_t i = 0;
 			for(; i < var->ans->length; ++i) {
 				if( !(var->ans->elements[i]) ) {
 					newSize[i] = var->ans->elements[i];
@@ -297,7 +302,7 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 	default:
 		newSize = malloc(sizeof(*newSize) * (dimension + 1));
 
-		for(int i = 0; i < dimension; ++i) {
+		for(uint8_t i = 0; i < dimension; ++i) {
 			*error = sya(input[i], var);
 
 			if(var->ans->dimension != 1) {
@@ -325,7 +330,7 @@ matrix *ones(char **input, vari *var, error_return *error) {
 	//call zeros and just replace all the input
 	matrix *out = zeros(input, var, error);
 	if( !(*error) ) {
-		for(int i = 0; i < out->length; ++i) {
+		for(uint64_t i = 0; i < out->length; ++i) {
 			out->elements[i] = 1;
 		}
 	}
@@ -337,7 +342,7 @@ matrix *ones(char **input, vari *var, error_return *error) {
 matrix *randMatrix(char **input, vari *var, error_return *error) {
 	matrix *out = zeros(input, var, error);
 	if( !(*error) ) {
-		for(int i = 0; i < out->length; ++i) {
+		for(uint64_t i = 0; i < out->length; ++i) {
 			out->elements[i] = (element)rand() / RAND_MAX;
 		}
 
@@ -391,7 +396,7 @@ matrix *linspace(char **input, vari *var, error_return *error) {
 
 	element step = (b - a) / (length - 1);
 
-	for(int i = 0; i < out->length; ++i) {
+	for(uint64_t i = 0; i < out->length; ++i) {
 		out->elements[i] = step * i + a;
 	}
 
@@ -403,7 +408,7 @@ matrix *linspace(char **input, vari *var, error_return *error) {
 
 matrix *extractValue(char **input, int varIndex, vari *var, error_return *error) {
 	matrix *out = NULL;
-	int dimension = numberOfArgs(input);
+	uint8_t dimension = numberOfArgs(input);
 
 	if(input[0][0] == 0) {
 		*error = -4;
@@ -426,7 +431,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 		}
 
 		//out is a matrix that holds indices
-		for(int i = 0; i < out->length; ++i) {
+		for(uint64_t i = 0; i < out->length; ++i) {
 
 			--(out->elements[i]);
 			//check that the input is within bound
@@ -443,7 +448,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 	} else if(dimension == varTemp->value[varIndex]->dimension) {
 		uint16_t *location = malloc(sizeof(*location) * (dimension + 1));
 
-		for(int i = 0; i < dimension; ++i) {
+		for(uint8_t i = 0; i < dimension; ++i) {
 			*error = sya(input[i], varTemp);
 			if(*error) {
 				free(location);
@@ -493,11 +498,11 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 }
 
 
-error_return checkVariable(const char *buffer, int *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
+error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
 
 	error_return error = 0;
 
-	int varLen = strlen(buffer);
+	uint16_t varLen = strlen(buffer);
 
 	char *nameBuffer = malloc(sizeof(*nameBuffer) * (varLen + 1));
 	__MALLOC_CHECK(nameBuffer, error);
@@ -589,15 +594,12 @@ error_return checkVariable(const char *buffer, int *tok, char *input, uint16_t *
 char *removeSpaces(char *input) {
 	int length = strlen(input);
 
-	int i = 0;
-	int j = 0;
-
+	uint16_t i = 0;
 	for(; *(input + i) == ' '; ++i);
 
-	for(j = length - 1; input[j] == ' '; --j) {
+	for(uint16_t j = length - 1; input[j] == ' '; --j) {
 		input[j] = 0;
 	}
-
 
 	return (input + i);
 }
@@ -609,28 +611,29 @@ char *removeSpaces(char *input) {
 error_return printLine(char **input, vari *var) {
 	error_return error = 0;
 
-	int argNo = numberOfArgs(input);
-	int front = 0;
-	int back = 0;
+	uint8_t argNo = numberOfArgs(input);
+
 
 	vari *varTemp = copyVari(var, &error);
 
 	//loop over every argument
-	for(int i = 0; i < argNo; ++i) {
-		int len = strlen(input[i]);
+	for(uint8_t i = 0; i < argNo; ++i) {
+		uint16_t len = strlen(input[i]);
 
 		//check if the string is quote limited
-		int string = 0;
+		uint8_t string = 0;
+
+		//iterators for counting from the front/back of string
+		uint16_t front = 0;
+		uint16_t back = 0;
 
 		//check if there is a quote in beginning of string, or spaces then a quote
 		if(input[i][0] == '"') {
 			string = 1;
 		} else {
 			for(front = 0; input[i][front] == ' '; ++front) {
-				if(input[i][front+1] == '"') {
+				if(input[i][front+1] == '"')
 					string = 1;
-
-				}
 			}
 		}
 
@@ -639,10 +642,8 @@ error_return printLine(char **input, vari *var) {
 			++string;
 		} else {
 			for(back = 0; input[i][len-(back+1)] == ' '; ++back) {
-				if(input[i][len-(back+1)] == '"') {
+				if(input[i][len-(back+1)] == '"')
 					++string;
-
-				}
 			}
 		}
 
@@ -710,8 +711,9 @@ char **separateString(char *input, char const * const limiter, char const * cons
 		if(input[length] == ')')
 			--a;
 
-		//if a is 0, break
-		if(!a) break;
+		//break when the parenthesis are balanced
+		if(!a)
+			break;
 
 
 		for(uint8_t j = 0; j < delimiterType; ++j) {
@@ -734,9 +736,10 @@ char **separateString(char *input, char const * const limiter, char const * cons
 	strncpy(input2, input + 1, length - 1);
 
 
-
 	//assume that each delimiter will have its own string
 	//also account for an end NULL pointer
+	//this will always be greater than or equal to the
+	//actual required amount of memory
 	char **separatedString = malloc(sizeof(*separatedString) * (delimiterCount + 2));
 	__MALLOC_CHECK(separatedString, *error);
 
@@ -818,8 +821,18 @@ char **separateString(char *input, char const * const limiter, char const * cons
 	}
 
 	separatedString[++subString] = NULL;
-
 	free(input2);
 
 	return separatedString;
 }
+
+void freeDoubleArray(char **input) {
+	int i = 0;
+	for(i = 0; input[i]; ++i) {
+		free(input[i]);
+	}
+	free(input[i]);
+	free(input);
+}
+
+

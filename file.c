@@ -1,11 +1,16 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "fileStruct.h"
+#include "types.h"
+#include "matrix.h"
 #include "stack.h"
-#include "file.h"
+#include "variables.h"
+
 #include "sya.h"
+#include "fileStruct.h"
+#include "file.h"
 
 
 error_return runFile(char **input, vari *var, int offset) {

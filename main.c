@@ -1,9 +1,14 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include "types.h"
+#include "matrix.h"
+#include "variables.h"
 #include "stack.h"
+
 #include "sya.h"
 
 int main(int argc, char *argv[]) {

@@ -4,7 +4,7 @@
 /*
  * count number of strings in the double array
  */
-int numberOfArgs(char **input);
+uint8_t numberOfArgs(char **input);
 
 /*
  * numerically calculate derivative
@@ -94,7 +94,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
  * int *tok
  *   int to determine if '-' is negative or minus
  */
-error_return checkVariable(const char *buffer, int *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch);
+error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch);
 
 /*
  * remove spaces from input
@@ -128,5 +128,10 @@ error_return printLine(char **input, vari *var);
  *   the main loop counter in sya, so it can be incremented the appropriate amount
  */
 char **separateString(char *input, char const * const limiter, char const * const delimiter, uint16_t *iterator, error_return *error);
+
+/*
+ * free string output from separateString
+ */
+void freeDoubleArray(char **input);
 
 #endif //MULTI

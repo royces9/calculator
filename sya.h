@@ -1,6 +1,8 @@
 #ifndef SYA
 #define SYA
 
+typedef int8_t error_return;
+
 error_return sya(char *inp, vari *var);  
 void errorReport(int8_t error);
 
