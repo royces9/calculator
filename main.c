@@ -65,6 +65,7 @@ int main(int argc, char *argv[]) {
 
 		//readline mallocs the input line
 		free(input);
+		input = NULL;
 	}
 
 	freeVari(var);

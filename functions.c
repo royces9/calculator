@@ -122,6 +122,10 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
 			if(a->size != NULL){
 				free(a->size);
 				free(a->elements);
+
+				a->size = NULL;
+				a->elements = NULL;
+
 				incrementFlag = 0;
 			}
       
@@ -358,6 +362,7 @@ matrix *sum(matrix *m, error_return *error) {
 	}
 
 	out = initMatrix(newSize, newDimension, error);
+
 	free(newSize);
 
 	for(uint64_t i = 0; i < out->length; ++i){

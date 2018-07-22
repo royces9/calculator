@@ -75,8 +75,9 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 		b = popn(num);
 		if(b->size == NULL) {
 			free(b);
-			error = -5;
 			b = NULL;
+
+			error = -5;
 			break;
 		}
 
@@ -91,6 +92,7 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 	}
 
 	free(ch);
+	ch = NULL;
 	return error;
 }
 
