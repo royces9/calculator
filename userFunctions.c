@@ -212,8 +212,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 			}
 
 			//set the first variable to the corresponding name and value
-			int variableIndex = -1;
-			*error = setVariable(functionVar, inputName, copyMatrix(var->ans, error), &variableIndex);
+			setVariable(functionVar, inputName, copyMatrix(var->ans, error), error);
 			if(*error) {
 				freeDoubleArray(functionArgNames);
 				freeVari(functionVar);
@@ -226,8 +225,8 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 				*error = sya(functionArgs[j], var);
 				if(*error) break;
 
-				variableIndex = -2;
-				*error = setVariable(functionVar, inputName, copyMatrix(var->ans, error), &variableIndex);
+				setVariable(functionVar, inputName, copyMatrix(var->ans, error), error);
+
 				if(*error) break;
 
 			}
@@ -244,7 +243,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 				}
 
 				//check that the out variable exists
-				int outVariable = varcheck(functionVar, outName);
+				int outVariable = findVariable(functionVar, outName);
 
 				if(outVariable < 0) *error = -12;
 				

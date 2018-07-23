@@ -72,7 +72,7 @@ void freeNumberStack(numberStack *st){
 		if(st->stk[st->top] != NULL){
 			freeMatrix(popn(st));
 		} else{
-			st->top--;
+			--st->top;
 		}
 	}
 

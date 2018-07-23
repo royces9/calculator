@@ -245,6 +245,7 @@ void errorReport(error_return error) {
 		case -10:printf("Matrix dimensions do not match."); break;
 		case -11:printf("Out of matrix bounds."); break;
 		case -12:printf("No output variable."); break;
+		case -13:printf("Can not assign to constant."); break;
 		default: break;
 		}
 		printf("\n\n");

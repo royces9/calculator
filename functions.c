@@ -156,7 +156,8 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
 
 		}
 	} else{
-		*error = -5;
+		*error = -13;
+		freeMatrix(a);
 		return NULL;
 	}
 

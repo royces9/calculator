@@ -55,7 +55,7 @@ vari *copyVari(vari *var, error_return *error){
 }
 
 
-int varcheck(vari *list, char *input) {
+int findVariable(vari *list, char *input) {
 	if(list->count < 0) {
 		return -1;
 	}
@@ -70,13 +70,13 @@ int varcheck(vari *list, char *input) {
 }
 
 
-error_return setVariable(vari *var, char *name, matrix *a, int *check){
-	//check is from the output of varcheck
+int setVariable(vari *var, char *name, matrix *a, error_return *error){
+	//error_return setVariable(vari *var, char *name, matrix *a, int *check){
+	//check is from the output of findVariable
 
-	int index = 0;
-	error_return error = 0;
+	int index = findVariable(var, name);
 
-	switch(*check){
+	switch(index){
 	case -1: //new variable, struct is empty
 		index = 0;
 		var->count = 0;
@@ -87,30 +87,23 @@ error_return setVariable(vari *var, char *name, matrix *a, int *check){
 		break;
 
 	default: //variable exists already
-		index = *check;
 		free(var->name[index]);
 		var->value[index]->variable = 0;
 		freeMatrix(var->value[index]);
 		break;
 	}
 
-	*check = index;
-
 	var->name[index] = malloc(sizeof(*var->name[index]) * (strlen(name) + 1));
-	__MALLOC_CHECK(var->name[index], error);
+	__MALLOC_CHECK(var->name[index], *error);
 
 	strcpy(var->name[index], name);
 	var->value[index] = a;
 
-	if((*check == -1) || (*check == -2)){
-		var->name[index + 1] = NULL;
-		var->value[index + 1] = NULL;
-	}
-
 	var->value[index]->variable = 1;
 
-	return error;
+	return index;
 }
+
 
 void freeVari(vari *var){
 

@@ -1,8 +1,8 @@
 #include <math.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "types.h"
 #include "matrix.h"
@@ -40,7 +40,9 @@ int searchOperatorArray(char *buffer) {
 
 //executes either one argument function or two argument function
 error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
-	matrix *a = NULL, *b = NULL;
+	matrix *a = NULL;
+	matrix *b = NULL;
+
 	error_return error = 0;
 
 	switch(ch->argNo) {
@@ -56,31 +58,13 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 
 	case 2:
 		b = popn(num);
-		if(b->size == NULL) {
-			error = -5;
-			break;
-		}
-
 		a = popn(num);
-		if(a->size == NULL) {
-			freeMatrix(b);
-			error = -5;
-			break;
-		}
-    
+
 		pushn(matrixTwoArg(a, b, ch, &error), num);
 		break;
 
 	case 3:
 		b = popn(num);
-		if(b->size == NULL) {
-			free(b);
-			b = NULL;
-
-			error = -5;
-			break;
-		}
-
 		a = popn(num);
 
 		pushn(assign(a, b, var, &error), num);

@@ -56,10 +56,12 @@ matrix *deri(char **input, vari *var, error_return *error) {
   
 	//set up a dummy variable specified by user  
 	char *dummyVariable = removeSpaces(input[1]);
-	varIndex = varcheck(varTemp, dummyVariable);
+	//varIndex = findVariable(varTemp, dummyVariable);
 
-	*error = setVariable(varTemp, dummyVariable, initScalar(point + h, error), &varIndex);
+	//*error = setVariable(varTemp, dummyVariable, initScalar(point + h, error), &varIndex);
   
+	varIndex = setVariable(varTemp, dummyVariable, initScalar(point + h, error), error);
+
 	//f(x+h)
 	*error = sya(input[0], varTemp);
 	if(*error) return 0;
@@ -125,10 +127,10 @@ matrix *inte(char **input, vari *var, error_return *error) {
 
 	//set dummy variable
 	char *dummyVariable = removeSpaces(input[1]);
-	varIndex = varcheck(varTemp, dummyVariable); //checks if variable exists or not, return value used as index
+	//varIndex = findVariable(varTemp, dummyVariable);
+	//*error = setVariable(varTemp, dummyVariable, initScalar(0, error), &varIndex);    
 
-	*error = setVariable(varTemp, dummyVariable, initScalar(0, error), &varIndex);    
-
+	varIndex = setVariable(varTemp, dummyVariable, initScalar(0, error), error);
 	//calculate integral using composite Simpson's
 
 	number = floor(number/2); //halve the steps
@@ -194,10 +196,10 @@ matrix *solve(char **input, vari *var, error_return *error) {
 
 
 	char *dummyVariable = removeSpaces(input[1]);
-	varIndex = varcheck(varTemp, dummyVariable);
+	//varIndex = findVariable(varTemp, dummyVariable);
 
-	*error = setVariable(varTemp, dummyVariable, copyMatrix(varTemp->ans, error), &varIndex);    
-
+	//*error = setVariable(varTemp, dummyVariable, copyMatrix(varTemp->ans, error), &varIndex);    
+	varIndex = setVariable(varTemp, dummyVariable, copyMatrix(varTemp->ans, error), error);
 
 	*error = sya(input[3], varTemp);
 	if(*error) return 0;
@@ -500,6 +502,8 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 
 error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
 
+	//check if an assignment as occured before
+	static uint8_t assignment = 0;
 	error_return error = 0;
 
 	uint16_t varLen = strlen(buffer);
@@ -519,7 +523,7 @@ error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_
 
 		nameBuffer[varLen - 1] = '\0';
 
-		k = varcheck(var, nameBuffer);
+		k = findVariable(var, nameBuffer);
 		if(k < 0) {
 			free(nameBuffer);
 			return -5;
@@ -539,14 +543,14 @@ error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_
 		freeDoubleArray(separatedString);
 
 	} else {
-		k = varcheck(var, nameBuffer);
+		k = findVariable(var, nameBuffer);
 
 		if(k >= 0) {
 			var->value[k]->variable = 1;
 			pushn(var->value[k], num);
-			//*tok = 1;
 
-		} else {
+		} else if(!assignment) {
+			assignment = 1;
 			if(k == -1) {
 				k = 0;
 
@@ -582,6 +586,9 @@ error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_
 			var->value[k]->elements = NULL;
 
 			pushn(var->value[k], num);
+		} else {
+			error = -5;
+			assignment = 0;
 		}
 	}
 
