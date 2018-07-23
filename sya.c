@@ -12,9 +12,6 @@
 #include "operatorUtility.h"
 #include "sya.h"
 
-//global from multi.c
-//check if assignment occured
-extern uint8_t assignment;
 
 //shunting yard algorithm
 error_return sya(char *input, vari *var) {
@@ -192,7 +189,7 @@ error_return sya(char *input, vari *var) {
 			if( (error = execNum(out, var, popch(operatorStack))) ) {
 				freeOperatorStack(operatorStack);
 				freeNumberStack(out);
-				assignment = 0;
+				var->assignFlag = 0;
 				return error;
 			}
 		}
@@ -229,7 +226,7 @@ error_return sya(char *input, vari *var) {
 	freeNumberStack(out);
 
 	//reset assignment
-	assignment = 0;
+	var->assignFlag = 0;
 	return error;
 }
 

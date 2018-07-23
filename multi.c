@@ -500,14 +500,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 }
 
 
-//check if an assignment occured
-uint8_t assignment = 0;
-
 error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
-
-
-
-
 	error_return error = 0;
 
 	uint16_t varLen = strlen(buffer);
@@ -553,8 +546,8 @@ error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_
 			var->value[k]->variable = 1;
 			pushn(var->value[k], num);
 
-		} else if(!assignment) {
-			assignment = 1;
+		} else if(!var->assignFlag) {
+			var->assignFlag = 1;
 			if(k == -1) {
 				k = 0;
 
@@ -592,7 +585,7 @@ error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_
 			pushn(var->value[k], num);
 		} else {
 			error = -5;
-			assignment = 0;
+			var->assignFlag = 0;
 		}
 	}
 
