@@ -500,10 +500,14 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 }
 
 
+//check if an assignment occured
+uint8_t assignment = 0;
+
 error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
 
-	//check if an assignment as occured before
-	static uint8_t assignment = 0;
+
+
+
 	error_return error = 0;
 
 	uint16_t varLen = strlen(buffer);
