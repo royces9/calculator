@@ -50,10 +50,10 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 		a = popn(num);
 		if(a->size == NULL) {
 			error = -5;
-			break;
+		} else {
+			pushn(matrixOneArg(a, ch, &error), num);
 		}
 
-		pushn(matrixOneArg(a, ch, &error), num);
 		break;
 
 	case 2:
@@ -334,11 +334,11 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	case eRun:
 		separatedString = separateString(input, "()", "\0", iterator, &error);
 		error = runFile(separatedString, var, 0);
-		if(error) break;
-
-		//copy ans matrix so it doesn't get freed
-		pushn(copyMatrix(var->ans, &error), num);
-		*tok = 0;
+		if(!error) {
+			//copy ans matrix so it doesn't get freed
+			pushn(copyMatrix(var->ans, &error), num);
+			*tok = 0;
+		}
 		break;
 
 	case ePrint:
@@ -599,13 +599,12 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *
 	int bracketCount = 0;
 	int length = 0;
 
-	for(length = 0; input[length]; ++length){
-		bracketCount += (input[length] == '[');
-		bracketCount -= (input[length] == ']');
+	for(length = 0; (!bracketCount) || input[length]; ++length){
+		if(input[length] == '[')
+			++bracketCount;
 
-		if(!bracketCount){
-			break;
-		}
+		if(input[length] == ']')
+			--bracketCount;
 	}
 
 	//check that the bracket count is correct
