@@ -285,7 +285,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	case eTranspose:
 	case eMagnitude:
 	case eNumel:
-		pushch(initOperatorStruct(FUNCTION_LIST[i], 1, 2, i), ch);
+		pushch(initOperatorStruct(FUNCTION_LIST[i], 1, 15, i), ch);
 		*tok = 0;
 		break;
 
