@@ -67,21 +67,16 @@ operatorStack *newOperatorStack(void) { //make new operator stack
 }
 
 
-void freeNumberStack(numberStack *st){
-	while(st->top > -1){
-		if(st->stk[st->top] != NULL){
-			freeMatrix(popn(st));
-		} else{
-			--st->top;
-		}
+void freeNumberStack(numberStack *st) {
+	while(st->top > -1) {
+		freeMatrix(st->stk[st->top--]);
 	}
-
 	free(st);
 }
 
-void freeOperatorStack(operatorStack *st){
-	while(st->top > -1){
-		free(popch(st));
+void freeOperatorStack(operatorStack *st) {
+	while(st->top > -1) {
+		free(st->stk[st->top--]);
 	}
 	free(st);
 }

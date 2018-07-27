@@ -340,6 +340,8 @@ matrix *sum(matrix *m, error_return *error) {
 	if(isVector(m)) {
 		newSize = malloc(sizeof(*newSize) * (newDimension + 1));
 		__MALLOC_CHECK(newSize, *error);
+
+		newSize[0] = 1;
 		newSize[1] = 0;
 
 	} else if(m->dimension == 2) {
@@ -363,7 +365,6 @@ matrix *sum(matrix *m, error_return *error) {
 	}
 
 	out = initMatrix(newSize, newDimension, error);
-
 	free(newSize);
 
 	for(uint64_t i = 0; i < out->length; ++i){

@@ -61,9 +61,8 @@ int findVariable(vari *list, char *input) {
 	}
 
 	for(int i = 0; i<=list->count; ++i) {
-		if(!strcmp(input, list->name[i])) {
+		if(!strcmp(input, list->name[i]))
 			return i;
-		}
 	}
 
 	return -2;
@@ -116,13 +115,7 @@ void freeVari(vari *var){
 		freeMatrix(var->value[i]);
 	}
 
-
-	if(var->ans->size != NULL){
-		free(var->ans->size);
-		free(var->ans->elements);
-	}
-
-	free(var->ans);
+	freeMatrix(var->ans);
 
 	if(var->assignIndex != NULL){
 		freeMatrix(var->assignIndex);

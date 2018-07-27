@@ -54,13 +54,23 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 			pushn(matrixOneArg(a, ch, &error), num);
 		}
 
+		freeMatrix(a);
 		break;
 
 	case 2:
 		b = popn(num);
 		a = popn(num);
 
-		pushn(matrixTwoArg(a, b, ch, &error), num);
+		if(a->size && b->size) {
+			pushn(matrixTwoArg(a, b, ch, &error), num);
+		} else {
+			error = -5;
+		}
+
+		freeMatrix(a);
+		freeMatrix(b);
+
+
 		break;
 
 	case 3:
@@ -76,7 +86,6 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 	}
 
 	free(ch);
-	ch = NULL;
 	return error;
 }
 
@@ -114,7 +123,6 @@ matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error) {
 		default: out = copyMatrix(a, error); break;
 		}
 	}
-	freeMatrix(a);
 
 	return out;
 }
@@ -201,9 +209,6 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 		default: *error = -10; break;
 		}
 	}
-
-	freeMatrix(a);
-	freeMatrix(b);
 
 	return out;
 }
@@ -599,12 +604,15 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *
 	int bracketCount = 0;
 	int length = 0;
 
-	for(length = 0; (!bracketCount) || input[length]; ++length){
+	for(length = 0; input[length]; ++length){
 		if(input[length] == '[')
 			++bracketCount;
 
 		if(input[length] == ']')
 			--bracketCount;
+
+		if(!bracketCount)
+			break;
 	}
 
 	//check that the bracket count is correct
