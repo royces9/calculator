@@ -199,8 +199,7 @@ matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *erro
 
 					//check that the matrix is a vector, only vectors can be
 					//concatenated with scalars
-					if((tempVector->dimension > 2) ||
-					   (tempVector->size[!dimension] != 1)) {
+					if(!isVector(tempVector)) {
 						*error = -15;
 						break;
 					}

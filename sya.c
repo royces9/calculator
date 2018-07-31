@@ -1,4 +1,4 @@
-#include <stdio.h>
+ #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -151,7 +151,7 @@ error_return sya(char *input, vari *var) {
 			bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
 
 			//checks if the current buffer concatenated with the
-			//next character is an operator
+			//next character is an operator, if not, go into "if"
 			if(checkOperator(bufferOper, input[i+1]) == OPERATOR_COUNT) {
 				bufferOper[k] = '\0';
 

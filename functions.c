@@ -61,23 +61,19 @@ matrix *getSize(matrix *a, error_return *error){
 matrix *magnitude(matrix *a, error_return *error){
 	matrix *out = NULL;
 
-	if(a->dimension != 2){
-		*error = -10;
+	if(isVector(a)) {
+		element magnitudeA = 0;
 
-	} else{
-		if((a->size[0] == 1) || (a->size[1] == 1)){
-			element magnitudeA = 0;
-
-			for(uint64_t i = 0; i < a->length; ++i){
-				magnitudeA += (a->elements[i] * a->elements[i]);
-			}
-
-			magnitudeA = sqrt(magnitudeA);
-
-			out = initScalar(magnitudeA, error);
-		} else{
-			*error = -10;
+		for(uint64_t i = 0; i < a->length; ++i){
+			magnitudeA += (a->elements[i] * a->elements[i]);
 		}
+
+		magnitudeA = sqrt(magnitudeA);
+
+		out = initScalar(magnitudeA, error);
+
+	} else {
+		*error = -10;
 	}
 
 	return out;

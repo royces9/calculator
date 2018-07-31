@@ -42,7 +42,7 @@ int searchOperatorArray(char *buffer) {
 error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 	matrix *a = NULL;
 	matrix *b = NULL;
-
+	matrix *out = NULL;
 	error_return error = 0;
 
 	switch(ch->argNo) {
@@ -51,7 +51,7 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 		if(a->size == NULL) {
 			error = -5;
 		} else {
-			pushn(matrixOneArg(a, ch, &error), num);
+			out = matrixOneArg(a, ch, &error);
 		}
 
 		freeMatrix(a);
@@ -62,7 +62,7 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 		a = popn(num);
 
 		if(a->size && b->size) {
-			pushn(matrixTwoArg(a, b, ch, &error), num);
+			out = matrixTwoArg(a, b, ch, &error);
 		} else {
 			error = -5;
 		}
@@ -76,13 +76,16 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 	case 3:
 		b = popn(num);
 		a = popn(num);
-
-		pushn(assign(a, b, var, &error), num);
+		out = assign(a, b, var, &error);
 		freeMatrix(b);
 		break;
 
 	default:
 		break;
+	}
+
+	if(out) {
+		pushn(out, num);
 	}
 
 	free(ch);
