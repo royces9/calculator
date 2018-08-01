@@ -184,7 +184,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 	//executes the tree
 	//checks that the current leaf and the string it holds are not NULL
 	while((tree != NULL) && (tree->line != NULL)) {
-
+		error = 0;
 		//check whether to branch left or right down tree
 		direction = checkProgramFlow(tree->line);
 
@@ -272,8 +272,6 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 			if(error < -1) {
 				break;
 			}
-
-			error = 0;
 
 			//print output
 			if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0)) {

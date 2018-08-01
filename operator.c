@@ -219,6 +219,8 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 
 error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int8_t *tok, uint16_t *iterator, char *input) {
 	char **separatedString = NULL;
+	matrix *out = NULL;
+
 	int i = searchFunctionArray(buffer);
 	error_return error = 0;
 
@@ -256,18 +258,18 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		return -1;
 
 	case ePi:
-		pushn(initScalar(M_PI, &error), num);
+		out = initScalar(M_PI, &error);
 		*tok = 1;
 		break;
 
 	case eE:
-		pushn(initScalar(M_E, &error), num);
+		out = initScalar(M_E, &error);
 		*tok = 1;
 		break;
 
 	case eAns:
 		//copy ans so it doesn't get freed
-		pushn(copyMatrix(var->ans, &error), num);
+		out = copyMatrix(var->ans, &error);
 		*tok = 1;
 		break;
 
@@ -299,43 +301,43 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 
 	case eDeri:
 		separatedString = separateString(input, "()", ",", iterator, &error);
-		pushn(deri(separatedString, var, &error), num);
+		out = deri(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eInte:
 		separatedString = separateString(input, "()", ",", iterator, &error);
-		pushn(inte(separatedString, var, &error), num);
+		out = inte(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eSolve:
 		separatedString = separateString(input, "()", "," , iterator, &error);
-		pushn(solve(separatedString, var, &error), num);
+		out = solve(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eZeros:
 		separatedString = separateString(input, "()[]", ",", iterator, &error);
-		pushn(zeros(separatedString, var, &error), num);
+		out = zeros(separatedString, var, &error);
 		*tok = 0;
 		break;
     
 	case eOnes:
 		separatedString = separateString(input, "()[]", ",", iterator, &error);
-		pushn(ones(separatedString, var, &error), num);
+		out = ones(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eRand:
 		separatedString = separateString(input, "()", ",", iterator, &error);
-		pushn(randMatrix(separatedString, var, &error), num);
+		out = randMatrix(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eLinspace:
 		separatedString = separateString(input, "()", ",", iterator, &error);
-		pushn(linspace(separatedString, var, &error), num);
+		out = linspace(separatedString, var, &error);
 		*tok = 0;
 		break;
 
@@ -344,7 +346,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		error = runFile(separatedString, var, 0);
 		if(!error) {
 			//copy ans matrix so it doesn't get freed
-			pushn(copyMatrix(var->ans, &error), num);
+			out = copyMatrix(var->ans, &error);
 			*tok = 0;
 		}
 		break;
@@ -364,7 +366,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 			if(buffer[bufferLength - 1] == '('){
 				separatedString = separateString(input, "()[]", ",", iterator, &error);
 				buffer[bufferLength - 1] = '\0';
-				pushn(findUserFunction(buffer, separatedString, var, &error), num);
+				out = findUserFunction(buffer, separatedString, var, &error);
 
 			} else{
 				error = -5;
@@ -380,9 +382,11 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	}//end of switch
 
 	//if the separated string is not NULL, free it
-	if(separatedString){
+	if(separatedString)
 		freeDoubleArray(separatedString);
-	}
+
+	if(out)
+		pushn(out, num);
 
 	return error;
 }
