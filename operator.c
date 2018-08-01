@@ -48,10 +48,10 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 	switch(ch->argNo) {
 	case 1:
 		a = popn(num);
-		if(a->size == NULL) {
-			error = -5;
-		} else {
+		if(a->size) {
 			out = matrixOneArg(a, ch, &error);
+		} else {
+			error = -5;
 		}
 
 		freeMatrix(a);
@@ -101,7 +101,7 @@ matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error) {
 	oneArg(0, ch->enumeration, &check);
 
 	//ch.enumeration is in oneArg if check is 0
-	if(!check){
+	if(!check) {
 		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
 		memcpy(newSize, a->size, sizeof(*newSize) * (a->dimension + 1));
 
@@ -139,8 +139,8 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 	twoArg(0, 0, ch->enumeration, &check);
 
 	//check if inputs are scalar
-	int aScalar = isScalar(a);
-	int bScalar = isScalar(b);
+	uint8_t aScalar = isScalar(a);
+	uint8_t bScalar = isScalar(b);
 
 	if(((aScalar + bScalar) > 0) && check){
 
@@ -179,13 +179,13 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
       
 		case 1: //only a or b is a scalar
 
-			if(aScalar){
+			if(aScalar) {
 				out = copyMatrix(b, error);
 				for(int i = 0; i < out->length; ++i){
 					out->elements[i] = twoArg(a->elements[0], b->elements[i], ch->enumeration, error);
 				}
 
-			} else{
+			} else {
 				out = copyMatrix(a, error);
 				for(int i = 0; i < out->length; ++i){
 					out->elements[i] = twoArg(a->elements[i], b->elements[0], ch->enumeration, error);
@@ -363,12 +363,12 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		if(error == -5){
 			int bufferLength = strlen(buffer);
 			//buffer includes the '(', if it's there, replaced with 0
-			if(buffer[bufferLength - 1] == '('){
+			if(buffer[bufferLength - 1] == '(') {
 				separatedString = separateString(input, "()[]", ",", iterator, &error);
 				buffer[bufferLength - 1] = '\0';
 				out = findUserFunction(buffer, separatedString, var, &error);
 
-			} else{
+			} else {
 				error = -5;
 			}
 
@@ -508,7 +508,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 
 //separate a matrix, accounting for sub matrices as input in a matrix
 //[[1, 2], 3] or something like that
-char **separateMatrix(char *input, int delimiter, error_return *error) {
+char **separateMatrix(char *input, uint16_t delimiter, error_return *error) {
 	char **out = malloc(sizeof(*out) * (delimiter + 2));
 
 	//counter for "()[]"
@@ -562,11 +562,11 @@ char **separateMatrix(char *input, int delimiter, error_return *error) {
 }
 
 
-int countDelimiter(char *input){
-	int out = 0;
-	int bracketCount[2] = {0, 0};
+uint16_t countDelimiter(char *input){
+	uint16_t out = 0;
+	int16_t bracketCount[2] = {0, 0};
 
-	for(int i = 0; input[i]; ++i){
+	for(uint16_t i = 0; input[i]; ++i){
 		switch(input[i]){
 		case '(':
 			++bracketCount[0];
@@ -586,9 +586,9 @@ int countDelimiter(char *input){
 
 		case ',':
 		case ';':
-			if(!(bracketCount[0] || bracketCount[1])){
+			if(!(bracketCount[0] || bracketCount[1]))
 				++out;
-			}
+
 			break;
 
 		default: break;
@@ -608,8 +608,8 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *
 	//find where the matrix declaration ends
 	//count brackets until they match
 	//also get the length of string
-	int bracketCount = 0;
-	int length = 0;
+	int16_t bracketCount = 0;
+	int16_t length = 0;
 
 	for(length = 0; input[length]; ++length){
 		if(input[length] == '[')
@@ -660,55 +660,73 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *
 
 	pushn(copyMatrix(tempVari->ans, error), numStk);
 
-	matrix *a, *b, *out;
+	matrix *a = NULL;
+	matrix *b = NULL;
+	matrix *out = NULL;
+	matrix *temp = NULL; 
 
-	for(int i = 1; separatedMatrix[i]; ++i){
-		if(separatedMatrix[i][1] == 0){
+	for(int i = 1; separatedMatrix[i]; ++i) {
+
+		temp = NULL;
+		if(separatedMatrix[i][1] == 0) {
 			*error = -4;
-			freeNumberStack(numStk);
-			freeVari(tempVari);
-			freeDoubleArray(separatedMatrix);
-			return NULL;
+			break;
 		}
 
-		switch(separatedMatrix[i][0]){
+		switch(separatedMatrix[i][0]) {
 		case ',':
 			*error = sya(separatedMatrix[i] + 1, tempVari);
-			a = popn(numStk);
+			if( !(*error) ) {
+				a = popn(numStk);
 
-			pushn(concatMatrix(a, tempVari->ans, 1, error), numStk);
-			freeMatrix(a);
+				temp = concatMatrix(a, tempVari->ans, 1, error);
+				freeMatrix(a);
+			}
 			break;
 
 		case ';':
 			*error = sya(separatedMatrix[i] + 1, tempVari);
-
-			pushn(copyMatrix(tempVari->ans, error), numStk);
+			if( !(*error) ) {
+				temp = copyMatrix(tempVari->ans, error);
+			}
 			break;
       
 		default:
 			*error = -10;
-			freeNumberStack(numStk);
-			freeDoubleArray(separatedMatrix);
-			freeVari(tempVari);
-			return NULL;
+			break;
 		}
+
+		if(temp) {
+			pushn(temp, numStk);
+		} else {
+			break;
+		}
+		
 	}
 
-	while(numStk->top > 0){
-		b = popn(numStk);
-		a = popn(numStk);
+	if( !(*error) ) {
+		while(numStk->top > 0) {
+			b = popn(numStk);
+			a = popn(numStk);
 
-		pushn(concatMatrix(a, b, 0, error), numStk);
+			temp = concatMatrix(a, b, 0, error);
 
-		freeMatrix(a);
-		freeMatrix(b);
+			freeMatrix(a);
+			freeMatrix(b);
+
+			if(temp) {
+				pushn(temp, numStk);
+			} else {
+				break;
+			}
+		}
+
+		out = popn(numStk);
 	}
 
 	freeVari(tempVari);
 	freeDoubleArray(separatedMatrix);
 
-	out = popn(numStk);
 	free(numStk);
 
 	return out;

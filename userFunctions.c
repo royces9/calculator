@@ -81,14 +81,28 @@ char *checkConfig(char *functionName, char *configPath, error_return *error) {
 }
 
 
+uint8_t checkFunctionName(char *functionName, char *directory) {
+	uint8_t out = 1;
+	uint16_t function_length = strlen(functionName);
+
+	char *tempStr = malloc(sizeof(*tempStr) * function_length + 4);
+	strcpy(tempStr, functionName);
+	strcat(tempStr, ".cr");
+
+	if(strcmp(tempStr, directory))
+		out = 0;
+
+	free(tempStr);
+
+	return out;
+}
+
 //returns the path to the function
 char *findFunctionPath(char *functionName, error_return *error) {
 	struct dirent *d;
 	DIR *currentDirectory = opendir(".");
 
 	uint8_t foundFlag = 0;
-
-	int length = 0;
 
 	char *fileDirectory = malloc(sizeof(*fileDirectory) * 1024);
 	__MALLOC_CHECK(fileDirectory, *error);
@@ -97,12 +111,8 @@ char *findFunctionPath(char *functionName, error_return *error) {
 
 	//checks the current directory
 	while((d = readdir(currentDirectory)) != NULL) {
-		length = strlen(d->d_name);
-
 		//checks that function name is the same, and ends in ".cr"
-		if(!memcmp(d->d_name, functionName, length - 3) &&
-		   !strcmp(d->d_name + (length - 3), ".cr")) {
-
+		if(checkFunctionName(functionName, d->d_name)) {
 			strcpy(fileDirectory, d->d_name);
 			foundFlag = 1;
 			break;
@@ -119,7 +129,9 @@ char *findFunctionPath(char *functionName, error_return *error) {
 	if(!foundFlag) {
 
 		char *configPath = "";
-		out = checkConfig(functionName, configPath, error);
+		fileDirectory = checkConfig(functionName, configPath, error);
+		if(out)
+			foundFlag = 1;
 	}
 
 	//if the file was found

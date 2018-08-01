@@ -136,7 +136,7 @@ error_return sya(char *input, vari *var) {
 					error = findFunction(bufferLetters, out, operatorStack, var, &negativeCheck, &i, input);
 				}
 
-				//rest bufferLetters counter
+				//reset bufferLetters counter
 				j = 0;
 
 			} //end if
@@ -185,7 +185,7 @@ error_return sya(char *input, vari *var) {
 	if(!error){
 
 		//while the operator and number stack are occupied, keep executing
-		while((out->top > -1) && (operatorStack->top > -1)) {
+		while(operatorStack->top > -1) {
 			if( (error = execNum(out, var, popch(operatorStack))) ) {
 				freeOperatorStack(operatorStack);
 				freeNumberStack(out);
@@ -194,18 +194,14 @@ error_return sya(char *input, vari *var) {
 			}
 		}
 
-		if(var->ans->size != NULL){
-			free(var->ans->size);
-			free(var->ans->elements);
+		free(var->ans->size);
+		free(var->ans->elements);
 
-			var->ans->size = NULL;
-			var->ans->elements = NULL;
-		}
   
 		//copy out->stk[0] to var->ans
 		//if out->stk is occupied, and
 		//if out->stk[0] is not NULL
-		if((out->top > -1) && (out->stk[0]->size)){
+		if((out->top > -1) && (out->stk[0]->size)) {
 			var->ans->length = out->stk[0]->length;
 			var->ans->dimension = out->stk[0]->dimension;
 
@@ -215,9 +211,11 @@ error_return sya(char *input, vari *var) {
 			var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
 			memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
 
-		} else{
+		} else {
 			error = -5;
 
+			var->ans->size = NULL;
+			var->ans->elements = NULL;
 		}
 	}
 
@@ -237,18 +235,18 @@ void errorReport(error_return error) {
 		printf("\nError:\n");
 		switch(error) {
 
-		case -2: printf("Incorrect number of function arguments"); break;
-		case -3: printf("Mismatched parenthesis"); break;
-		case -4: printf("Invalid expression"); break;
-		case -5: printf("Invalid function or variable name"); break;
-		case -6: printf("Malloc error"); break;
-		case -7: printf("Invalid operator"); break;
-		case -8: printf("File does not exist"); break;
-		case -9: printf("Mismatched quotation marks"); break;
+		case -2: printf("Incorrect number of function arguments."); break;
+		case -3: printf("Mismatched parenthesis."); break;
+		case -4: printf("Invalid expression."); break;
+		case -5: printf("Invalid function or variable name."); break;
+		case -6: printf("Malloc error."); break;
+		case -7: printf("Invalid operator."); break;
+		case -8: printf("File does not exist."); break;
+		case -9: printf("Mismatched quotation marks."); break;
 		case -10:printf("Matrix dimensions do not match."); break;
 		case -11:printf("Out of matrix bounds."); break;
 		case -12:printf("No output variable."); break;
-		case -13:printf("Can not assign to constant."); break;
+		case -13:printf("Invalid assignment."); break;
 		default: break;
 		}
 		printf("\n\n");
@@ -259,9 +257,10 @@ void errorReport(error_return error) {
 //check if the string is a number/variable
 error_return checkNumbers(char *input) {
 	for(int i = 0; input[i]; ++i) {
-		if(((input[i] < '0') && (input[i] != '.')) || (input[i] > '9') || (!input[i]) ) {
+		if(((input[i] < '0') && (input[i] != '.')) ||
+		   (input[i] > '9') ||
+		   (!input[i]) )
 			return 0;
-		}
 	}
 	return 1;
 }
