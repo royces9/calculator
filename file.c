@@ -1,275 +1,350 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "fileStruct.h"
+#include "types.h"
+#include "matrix.h"
 #include "stack.h"
-#include "file.h"
+#include "variables.h"
+
 #include "sya.h"
+#include "fileStruct.h"
+#include "file.h"
 
-int runFile(char **input, vari *var, double *ans) {
-  int error = 0; //int to put errors into
-  int maxSize = 1024; //maximum size of tree
 
-  char **fileString = calloc(maxSize, sizeof(*fileString));
-  __MALLOC_CHECK(fileString, error);
+error_return runFile(char **input, vari *var, int offset) {
+	//error variable
+	error_return error = 0;
 
-  fileTree *tree = createLeaf();
+	//maximum size of tree
+	int maxSize = 1024; //maximum size of tree
 
-  //make tree structure
-  error = createTree(input[0], tree, fileString, &maxSize);
-  if(error) return error;
+	char **fileString = calloc(maxSize, sizeof(*fileString));
+	__MALLOC_CHECK(fileString, error);
 
-  //execute tree
-  error = executeTree(tree, var, ans, maxSize);
+	fileTree *tree = createLeaf();
 
-  //free tree
-  cutDownTree(tree);
+	//make tree structure
+	if( (error = createTree(input[0], tree, fileString, &maxSize, offset)) ) {
+		cutDownTree(tree);
+		freeString(fileString, maxSize);
 
-  //free array of strings
-  freeString(fileString, maxSize);
+		return error;
+	}
+  
+	//execute tree
+	error = executeTree(tree, var, maxSize);
 
-  return error;
+	//free tree
+	cutDownTree(tree);
+
+	//free array of strings
+	freeString(fileString, maxSize);
+
+	return error;
 }
 
 
 //create new fileStack
 fileStack newFileStack() {
-  fileStack out;
-  out.top = 0;
-  out.occ = 0;
-  memset(out.stk, 0, sizeof(out.stk));
-  return out;
+	fileStack out;
+	out.top = 0;
+	out.occ = 0;
+	memset(out.stk, 0, sizeof(out.stk));
+	return out;
 }
 
 
 //create and populate tree
-int createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize){
-  FILE *inputFile = fopen(fileName, "r"); //file to read from
-  char buffer[1024]; //size of char buffer that each line of the file is copied too
-  int direction = 0; //direction to branch in tree
-  int error = 0; //error checking
-  int length = 0; //lengh of string
+error_return createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize, int offset){
 
-  fileStack stk = newFileStack();
+	//file to read from
+	FILE *inputFile = fopen(fileName, "r");
 
-  fileTree *head = tree;
+	//size of char buffer that each line of the file is copied too
+	char buffer[1024];
 
-  //open and check if file exists
-  //return error if it doesn't exist/can't open
-  if(!inputFile) {
-    free(tree);
-    free(fileString);
-    return error = -8;
-  }
-  printf("\n");
+	//direction to branch in tree
+	int8_t direction = 0;
 
-  //creates the tree structure
-  for(int i = 0; fgets(buffer, 1024, inputFile); ++i) {
-    int offset = 0;
-    //removing trailing spaces
-    if(buffer[0] == ' ') {
-      for(offset = 0; buffer[offset] == ' '; ++offset);
-      //empty for loop
-    }
+	//error checking
+	error_return error = 0;
 
-    char *bufferHold = buffer;
-    bufferHold += offset;
-    length = strlen(bufferHold);
+	//lengh of string
+	int length = 0;
 
-    //skips a blank line, # comments out a line
-    if(!strcmp(bufferHold, "\n") || (bufferHold[0] == '#')) {
-      continue;
-    }
+	//stack data structure convenient for creating tree
+	fileStack stk = newFileStack();
 
-    //replaces end new line with a null terminated character
-    if(bufferHold[length - 1] == '\n') {
-      bufferHold[--length] = '\0'; //update the length of the new string
-    }
+	//open and check if file exists
+	//return error if it doesn't exist/can't open
+	if(!inputFile) {
+		free(tree);
+		free(fileString);
+		tree = NULL;
+		fileString = NULL;
 
-    //allocates memory and copies string from file into array
-    //puts that string into tree struct
-    fileString[i] = malloc((length+1) * sizeof(**fileString));
-    __MALLOC_CHECK(fileString[i], error);
-    strcpy(*(fileString+i), bufferHold);
-    head->line = fileString[i];
+		return error = -8;
+	}
 
-    //check whether to branch left or right
-    direction = checkProgramFlow(*(fileString+i));
+	for(int i = 0; i < offset; ++i){
+		fgets(buffer, 1024, inputFile);
+	}
 
-    switch(direction) {
+  
+	//creates the tree structure
+	for(int i = 0; fgets(buffer, 1024, inputFile); ++i) {
+		int offset = 0;
 
-    //the first statement in a while/if/else branch right
-    case 1: //if
-    case 2: //while
-    case -2: //else
-      fPush(&stk, head);
-      head->right = createLeaf();
-      head = head->right;
-      break;
+		//removing trailing spaces
+		if(buffer[0] == ' ') {
+			//empty for loop
+			for(offset = 0; buffer[offset] == ' '; ++offset);
+		}
 
-      //end
-      //signifies end of while/if/else 
-    case -1:
-      head = fPop(&stk);
+		char *bufferHold = buffer+offset;
+		length = strlen(bufferHold);
 
-    default:
-      head->left = createLeaf();
-      head = head->left;
-      break;
-    }
+		//skips a blank line, # comments out a line
+		if(!strcmp(bufferHold, "\n") || (bufferHold[0] == '#')) {
+			continue;
+		}
 
-    //make fileString bigger if there is no room in it for the next iteration
-    if((i+1) >= *maxSize) {
-      *maxSize *= 2;
-      fileString = realloc(fileString, *maxSize * sizeof(*fileString));
-    }
-  }  
-  fclose(inputFile);
-  return error;
+		//replaces end new line with a null terminated character
+		if(bufferHold[length - 1] == '\n') {
+			bufferHold[--length] = '\0'; //update the length of the new string
+		}
+
+		//allocates memory and copies string from file into array
+		//puts that string into tree struct
+		fileString[i] = malloc((length+1) * sizeof(**fileString));
+		__MALLOC_CHECK(fileString[i], error);
+
+		strcpy(*(fileString+i), bufferHold);
+		tree->line = fileString[i];
+
+		//check whether to branch left or right
+		direction = checkProgramFlow(*(fileString+i));
+
+		switch(direction) {
+
+			//the first statement in a while/if/else branch right
+		case 1: //if
+		case 2: //while
+		case -2: //else
+			fPush(&stk, tree);
+			tree->right = createLeaf();
+			tree = tree->right;
+			break;
+
+			//end
+			//signifies end of while/if/else 
+		case -1:
+			tree = fPop(&stk);
+
+		default:
+			tree->left = createLeaf();
+			tree = tree->left;
+			break;
+		}
+
+		//make fileString bigger if there is no room in it for the next iteration
+		if((i+1) >= *maxSize) {
+			*maxSize *= 2;
+			fileString = realloc(fileString, *maxSize * sizeof(*fileString));
+		}
+	}  
+
+	fclose(inputFile);
+	return error;
 }
 
 
-int executeTree(fileTree *tree, vari *var, double *ans, int maxSize){
-  fileTree *head = tree;
-  int direction = 0; //checking the direction of program flow
-  int check = 0; //checking conditionals: if/while
-  int error = 0; //error 
-  fileStack stk = newFileStack(); //create new file stack
+error_return executeTree(fileTree *tree, vari *var, int maxSize){
+	//checking the direction of program flow
+	int8_t direction = 0;
+
+	//checking conditionals: if/while
+	int8_t check = 0;
+
+	//check top of check stack
+	int8_t checkTop = 0;
+
+	//stack structure for nested conditionals
+	int8_t *checkStack = calloc(maxSize, sizeof(*checkStack));
   
-  //executes the tree
-  //checks that the current leaf and the string it holds are not 0
-  while((head != NULL) && (head->line != NULL)) {
+	//error 
+	error_return error = 0;
 
-    //check whether to branch left or right down tree
-    direction = checkProgramFlow(head->line);
+	//create new file stack
+	fileStack stk = newFileStack();
 
-    //if the line ends with ';', don't print the line, the line still executes
-    if((head->line[strlen(head->line)-1] != ';') && (direction == 0)) {
-      printf("> %s\n", head->line);
-    }
+  
+	//executes the tree
+	//checks that the current leaf and the string it holds are not NULL
+	while((tree != NULL) && (tree->line != NULL)) {
+		error = 0;
+		//check whether to branch left or right down tree
+		direction = checkProgramFlow(tree->line);
 
-    switch(direction) {
-    case 1: //if
-      check = checkConditional(head->line, direction, var, ans);
-      if(check < 0) { //if there is an error in the if
-	return check;
-      }
+		//if the line ends with ';', don't print the line, the line still executes
+		if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0)) {
+			printf("> %s\n", tree->line);
+		}
 
-      //if the condition inside the if is true
-      //push head->left, and continue execution from head->right, the line after the if
-      //everything inside the if executes
-      //otherwise go directly to head->left
-      if(check) {
-	fPush(&stk, head->left);
-	head = head->right;
-      } else {
-	head = head->left;
-      }
-      break;
+		switch(direction) {
+		case 1: //if
+			check = checkConditional(tree->line, direction, var);
 
-    case 2: //while
-      check = checkConditional(head->line, direction, var, ans);
-      if(check < 0) {
-	return check;
-      }
+			checkStack[checkTop++] = check;
+    
+			if(check < 0) { //if there is an error in the if
+				error = check;
+				break;
 
-      //push head to continue execution from the while
-      //continue execution from head->right
-      //when the loop comes back, the condition is rechecked
-      //when the condition becomes false, go to the line after the while block
-      if(check) {
-	fPush(&stk, head);
-	head = head->right;
-      } else {
-	head = head->left;
-      }
-      break;
+			} else if(check) {
+				//if the condition inside the if is true
+				//push tree->left, and continue execution from tree->right, the line after the if
+				//everything inside the if executes
+				//otherwise go directly to tree->left
+
+				fPush(&stk, tree->left);
+				tree = tree->right;
+
+			} else {
+				tree = tree->left;
+			}
+
+			break;
+
+		case 2: //while
+
+			check = checkConditional(tree->line, direction, var);
+			checkStack[checkTop] = check;
+
+			if(check < 0){
+				error = check;
+				break;
+
+			} else if(check){
+				fPush(&stk, tree);
+				tree = tree->right;
 	
-    case -1: //end 
-      head = fPop(&stk); //head returns to whatever is on top of the stack
-      break;
+			} else{
+				tree = tree->left;
+			}
+
+
+			//push tree to continue execution from the while
+			//continue execution from tree->right
+			//when the loop comes back, the condition is rechecked
+			//when the condition becomes false, go to the line after the while block
+			break;
+
+	
+		case -1: //end 
+			tree = fPop(&stk); //tree returns to whatever is on top of the stack
+			break;
+
       
-    case -2: //else
-      //checks the value from the previous if iteration
-      //when check is 0, the if condition was false, so the else block
-      //executes
-      //when the check is non 0, the if condition executed
-      //the else block is skipped
-      if(check == 0) {
-	fPush(&stk, head->left);
-	head = head->right;
-      } else { //check is true, continue after the else
-	head = head->left;
-      }
-      break;
+		case -2: //else
 
-      //every other line is executed normally
-      //for executing non conditional lines
-    default:
-      error = sya(head->line, ans, var);
-      if(error) {
+			//checks the value from the previous if iteration
+			//when check is 0, the if condition was false, so the else block
+			//executes
+			//when the check is non 0, the if condition executed
+			//the else block is skipped
+
+			if(checkStack[--checkTop] == 0){
+				fPush(&stk, tree->left);
+				tree = tree->right;
+
+			} else { //check is true, continue after the else
+				tree = tree->left;
+			}
+			break;
+
+      
+		default: //for executing non conditional lines
+			error = sya(tree->line, var);
+
+			if(error < -1) {
+				break;
+			}
+
+			//print output
+			if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0)) {
+				printMatrix(var->ans);
+			}
+
+			//continue execution going left
+			tree = tree->left;
+			break;
+		}
+
+		if(error){
+			break;
+		}
+	}
+
+	free(checkStack);
+
 	return error;
-      }
-
-      //print output
-      if((head->line[strlen(head->line)-1] != ';') && direction == 0) {
-	printf(">     %lf\n", *ans);
-      }
-
-      //continue execution going left
-      head = head->left;
-      break;
-    }
-  }
-  return error;
 }
 
 
 //determine whether to branch left or right
-int checkProgramFlow(char *input) {
-  if(strstr(input, "else")) return -2;
-  if(strstr(input, "end")) return -1;
-  if(strstr(input, "if(")) return 1;
-  if(strstr(input, "while(")) return 2;
-  return 0;
+int8_t checkProgramFlow(char *input) {
+	if(strstr(input, "else")) return -2;
+	if(strstr(input, "end")) return -1;
+	if(strstr(input, "if(")) return 1;
+	if(strstr(input, "while(")) return 2;
+	return 0;
 }
 
 
 //determine if input string is while or if
 char *parseCondition(char *input, int type) {
-  switch(type){
-  case 1: //if
-    input = strchr(input, 'i'); //take advantage of the fact that it searches for first occurence
-    input += 2;
-    return input;
 
-  case 2: //while
-    input = strchr(input, 'w');
-    input += 5;
-    return input;
-  }
+	//take advantage of the fact that strchr
+	//searchs for first occurence of a letter
+
+	switch(type){
+	case 1: //if
+		input = strchr(input, 'i');
+		input += 2;
+		break;
+		
+	case 2: //while
+		input = strchr(input, 'w');
+		input += 5;
+		break;
+	}
+
+	return input;
 }
 
 
 //checks conditionals in while/if
-int checkConditional(char *input, int type, vari *var, double *ans) {
-  input = parseCondition(input, type);
-  int error = sya(input, ans, var);
-  if(error) {
-    //error can return negative values
-    return error; 
-  }
+int8_t checkConditional(char *input, int type, vari *var) {
+	input = parseCondition(input, type);
 
-  //guarantee that *ans only returns 0 or 1
-  return !!*ans;
+	error_return error = sya(input, var);
+	if(error) return error; 
+
+	element out = var->ans->elements[0];
+
+	//guarantee that the output is 1 or 0
+	return !!out;
 }
 
 
 //free double array
 void freeString(char **string, int max) {
-  for(int i = 0; i < max; ++i){
-    free(string[i]);
-  }
-  free(string);
+	for(int i = 0; i < max; ++i){
+		free(string[i]);
+		string[i] = NULL;
+	}
+	free(string);
 }

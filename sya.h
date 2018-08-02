@@ -1,11 +1,14 @@
 #ifndef SYA
 #define SYA
 
-int sya(char *inp, double *ans, vari *var);  
-void errorrep(int error);
-int checkNumbers(char *input);
-int checkOper(char a, char b);
-int checkType(char a);
-int isAssign(char *input);
+typedef int8_t error_return;
+
+error_return sya(char *inp, vari *var);  
+void errorReport(int8_t error);
+
+int8_t checkNumbers(char *input);
+int checkOperator(char *a, char b);
+
+int8_t checkType(char a);
 
 #endif //SYA

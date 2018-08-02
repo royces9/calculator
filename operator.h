@@ -1,81 +1,21 @@
 #ifndef OPERATOR
 #define OPERATOR
 
-#include "stack.h"
-
-#define FUNCTION_COUNT 28
-#define OPERATOR_COUNT 18
-
-extern const char OPERATOR_LIST[OPERATOR_COUNT][5];
-extern const char FUNCTION_LIST[FUNCTION_COUNT][20];
-
-enum functionEnums {
-  eQuit,
-  eClear,
-  eList,
-  eHelp,
-
-  ePi,
-  eE,
-  eAns,
-
-  eSin,
-  eCos,
-  eTan,
-  eLn,
-  eLog,
-  eSqrt,
-  eAsin,
-  eAcos,
-  eAtan,
-  eFloor,
-  eCeil,
-  eRound,
-  eMin,
-  eMax,
-  eAvg,
-  eFactorial,
-
-  eDeri,
-  eInte,
-  eSolve,
-
-  eRun,
-  ePrint
-};
-
-enum operatorEnum {
-  eAdd,
-  eSubtract,
-  eMultiply,
-  eDivide,
-
-  eExponent,
-  eAssign,
-  eLeftParen,
-  eRightParen,
-
-  eLess,
-  eGreater,
-  eLessEqual,
-  eGreaterEqual,
-
-  eNotEqual,
-  eEqual,
-
-  eAnd,
-  eOr,
-  eNot
-};
-
-extern const int operatorPrecedence[OPERATOR_COUNT];
 
 int searchFunctionArray(char *buffer);
 int searchOperatorArray(char *buffer);
 operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration);
-void execNum(numberStack *num, operatorStruct ch);
-double oneArg(double a, int o);
-double twoArg(double a, double b, int o);
-int findOperator(char *buffer, numberStack *num, operatorStack *ch, double anse, vari *var, int *tok);
+error_return execNum(numberStack *num, vari *var, operatorStruct *ch);
+
+matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error);
+matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *error);
+
+error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int8_t *tok, uint16_t *iterator, char *input);
+error_return findOperator(char *buffer, numberStack *num, operatorStack *ch, vari *var, int8_t *tok);
+
+char **separateMatrix(char *input, uint16_t length, error_return *error);
+matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *error);
+
+void helpPrint(void);
 
 #endif //OPERATOR

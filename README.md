@@ -2,6 +2,8 @@
 
 Basic calculator to do calculations
 
+Has limited support for vectors, matrices, and corresponding operators
+
 ## Currently implemented functions
 
 ### Arithmetic operators
@@ -31,4 +33,3 @@ derivate(), integral(), solve()
 run()
 
 ### Current known bugs:
-
