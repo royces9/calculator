@@ -18,13 +18,13 @@ error_return sya(char *input, vari *var) {
 
 	//iterators
 	//main loop iterator
-	uint16_t i = 0;
+	uint16_t main_iter = 0;
 
 	//character buffer iterator
-	uint16_t j = 0;
+	uint16_t char_iter = 0;
 
 	//operator buffer iterator
-	uint16_t k = 0;
+	uint16_t oper_iter = 0;
 
 
 	//error checking int
@@ -74,6 +74,7 @@ error_return sya(char *input, vari *var) {
 	if(strchr(".[,+-/*^(=&|~<>",input[length-1]))
 		return -4;
 
+
 	//buffers for characters and operators
 	char *bufferLetters = calloc(length + 1, sizeof(*bufferLetters));
 	__MALLOC_CHECK(bufferLetters, error);
@@ -104,40 +105,41 @@ error_return sya(char *input, vari *var) {
 	type[length] = 0;
 
 	//stack for output numbers
-	numberStack *out = newNumberStack();
+	numberStack *num_stack = newNumberStack();
 
 	//stack for operators
-	operatorStack *operatorStack = newOperatorStack();
+	operatorStack *oper_stack = newOperatorStack();
 
 
 	//main loop
 	//iterates through the input string, apply shunting-yard algorithm
-	for(i = 0; input[i] && !error; ++i) {
-		switch(type[i]){
+	for(; input[main_iter] && !error; ++main_iter) {
+		switch(type[main_iter]){
 
 		case 1: //alpha numerics
 			//reset bufferOper counter
-			k = 0;
-			bufferLetters[j++] = input[i]; //put all consecutive alphanumeric characters in a buffer
+			oper_iter = 0;
+			//put all consecutive alphanumeric characters in a buffer
+			bufferLetters[char_iter++] = input[main_iter];
 
 			//for valid numbers/variables/functions
-			if((type[i+1] == 2) || (type[i+1] == 0)){
-				bufferLetters[j] = '\0';
+			if((type[main_iter + 1] == 2) || (type[main_iter + 1] == 0)){
+				bufferLetters[char_iter] = '\0';
 
 				//if the buffer is all numbers
 				if(checkNumbers(bufferLetters)) {
-					pushn(initScalar(strtod(bufferLetters, NULL), &error), out);
+					pushn(initScalar(strtod(bufferLetters, NULL), &error), num_stack);
 
 				} else { //check if command is a function or variable
-					if(input[i+1] == '(')
-						bufferLetters[j++] = '(';
+					if(input[main_iter + 1] == '(')
+						bufferLetters[char_iter++] = '(';
 
-					bufferLetters[j] = '\0';
-					error = findFunction(bufferLetters, out, operatorStack, var, &negativeCheck, &i, input);
+					bufferLetters[char_iter] = '\0';
+					error = findFunction(bufferLetters, num_stack, oper_stack, var, &negativeCheck, &main_iter, input);
 				}
 
 				//reset bufferLetters counter
-				j = 0;
+				char_iter = 0;
 
 			} //end if
 
@@ -147,27 +149,29 @@ error_return sya(char *input, vari *var) {
       
 		case 2: //operator characters
 			//reset bufferLetters counter
-			j = 0;
-			bufferOper[k++] = input[i]; //all consecutive operator characters put into a buffer
+			char_iter = 0;
+
+			//all consecutive operator characters put into a buffer
+			bufferOper[oper_iter++] = input[main_iter];
 
 			//checks if the current buffer concatenated with the
 			//next character is an operator, if not, go into "if"
-			if(checkOperator(bufferOper, input[i+1]) == OPERATOR_COUNT) {
-				bufferOper[k] = '\0';
+			if(checkOperator(bufferOper, input[main_iter + 1]) == OPERATOR_COUNT) {
+				bufferOper[oper_iter] = '\0';
 
 				//find the corresponding operator
-				error = findOperator(bufferOper, out, operatorStack, var, &negativeCheck);
+				error = findOperator(bufferOper, num_stack, oper_stack, var, &negativeCheck);
 
 				//reset bufferOper counter
-				k = 0;
+				oper_iter = 0;
 			}
 			break;
 
 		case 4: //"[]"
 			//reset letters and oper counters
-			j = 0;
-			k = 0;
-			pushn(extractMatrix(var, &i, input, &error), out);
+			char_iter = 0;
+			oper_iter = 0;
+			pushn(extractMatrix(var, &main_iter, input, &error), num_stack);
 			break;
 
       
@@ -185,10 +189,10 @@ error_return sya(char *input, vari *var) {
 	if(!error){
 
 		//while the operator and number stack are occupied, keep executing
-		while(operatorStack->top > -1) {
-			if( (error = execNum(out, var, popch(operatorStack))) ) {
-				freeOperatorStack(operatorStack);
-				freeNumberStack(out);
+		while(oper_stack->top > -1) {
+			if( (error = execNum(num_stack, var, popch(oper_stack))) ) {
+				freeOperatorStack(oper_stack);
+				freeNumberStack(num_stack);
 				var->assignFlag = 0;
 				return error;
 			}
@@ -198,18 +202,18 @@ error_return sya(char *input, vari *var) {
 		free(var->ans->elements);
 
   
-		//copy out->stk[0] to var->ans
-		//if out->stk is occupied, and
-		//if out->stk[0] is not NULL
-		if((out->top > -1) && (out->stk[0]->size)) {
-			var->ans->length = out->stk[0]->length;
-			var->ans->dimension = out->stk[0]->dimension;
+		//copy num_stack->stk[0] to var->ans
+		//if num_stack->stk is occupied, and
+		//if num_stack->stk[0] is not NULL
+		if((num_stack->top > -1) && (num_stack->stk[0]->size)) {
+			var->ans->length = num_stack->stk[0]->length;
+			var->ans->dimension = num_stack->stk[0]->dimension;
 
 			var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
-			memcpy(var->ans->elements, out->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
+			memcpy(var->ans->elements, num_stack->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
 
 			var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
-			memcpy(var->ans->size, out->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
+			memcpy(var->ans->size, num_stack->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
 
 		} else {
 			error = -5;
@@ -220,8 +224,8 @@ error_return sya(char *input, vari *var) {
 	}
 
 	//free stacks
-	freeOperatorStack(operatorStack);
-	freeNumberStack(out);
+	freeOperatorStack(oper_stack);
+	freeNumberStack(num_stack);
 
 	//reset assignment
 	var->assignFlag = 0;

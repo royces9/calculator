@@ -43,21 +43,19 @@ matrix *deri(char **input, vari *var, error_return *error) {
 	}
 
 	point = varTemp->ans->elements[0];
+
 	*error = sya(input[3], varTemp);
 	if(*error) return 0;
 	if(varTemp->ans->dimension != 1) {
 		*error = -10;
 		return NULL;
 	}
->>>>>>> 4ea11cfd78cdb9677f3b54fc6521ee53f8f0fca2
+
 	h = varTemp->ans->elements[0];
 
   
 	//set up a dummy variable specified by user  
 	char *dummyVariable = removeSpaces(input[1]);
-	//varIndex = findVariable(varTemp, dummyVariable);
-
-	//*error = setVariable(varTemp, dummyVariable, initScalar(point + h, error), &varIndex);
   
 	varIndex = setVariable(varTemp, dummyVariable, initScalar(point + h, error), error);
 
@@ -126,8 +124,6 @@ matrix *inte(char **input, vari *var, error_return *error) {
 
 	//set dummy variable
 	char *dummyVariable = removeSpaces(input[1]);
-	//varIndex = findVariable(varTemp, dummyVariable);
-	//*error = setVariable(varTemp, dummyVariable, initScalar(0, error), &varIndex);    
 
 	varIndex = setVariable(varTemp, dummyVariable, initScalar(0, error), error);
 	//calculate integral using composite Simpson's
@@ -195,9 +191,6 @@ matrix *solve(char **input, vari *var, error_return *error) {
 
 
 	char *dummyVariable = removeSpaces(input[1]);
-	//varIndex = findVariable(varTemp, dummyVariable);
-
-	//*error = setVariable(varTemp, dummyVariable, copyMatrix(varTemp->ans, error), &varIndex);    
 	varIndex = setVariable(varTemp, dummyVariable, copyMatrix(varTemp->ans, error), error);
 
 	*error = sya(input[3], varTemp);
@@ -619,7 +612,6 @@ error_return printLine(char **input, vari *var) {
 
 	uint8_t argNo = numberOfArgs(input);
 
-
 	vari *varTemp = copyVari(var, &error);
 
 	//loop over every argument
@@ -840,5 +832,3 @@ void freeDoubleArray(char **input) {
 	free(input[i]);
 	free(input);
 }
-
-
