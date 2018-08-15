@@ -20,16 +20,16 @@ char *configFilePath = "~/.calc.cfg";
 //find and execute a user made function
 matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, error_return *error) {
 	//get the path to the file
+	matrix *out = NULL;
 	char *functionPath = findFunctionPath(functionName, error);
 
 	if(!functionPath) {
 		*error = -5;
-		return NULL;
+
+	} else {
+		out = executeUserFunction(functionPath, functionArgs, var, error);
+
 	}
-
-	//execute function
-	matrix *out = executeUserFunction(functionPath, functionArgs, var, error);
-
 	free(functionPath);
 
 	return out;  
@@ -45,36 +45,33 @@ char *checkConfig(char *functionName, char *configPath, error_return *error) {
 	char *fileDirectory = NULL;
 
 	FILE *config = fopen(configPath, "r");
-	if(config == NULL) {
+	if( !config ) {
 		*error = 8;
-		return NULL;
-	}
 
-	//read directories from config
-	while(!foundFlag && fgets(filePaths, 1024, config)) {
-		//for each path, search directory
-		DIR *filePathsDirectory = opendir(filePaths);
-		if(filePathsDirectory == NULL) {
-			*error = -8;
-			break;
-		}
-
-		//check each directory for file
-		while((!foundFlag) && ((d = readdir(filePathsDirectory)) != NULL)) {
-			uint16_t length = strlen(d->d_name);
-
-			//file ends in .cr, and its name matches
-			if(!memcmp(d->d_name, functionName, length - 3) &&
-			   !strcmp(d->d_name + (length - 3), ".cr")) {
-
-				fileDirectory = malloc(sizeof(*fileDirectory) * (length + 1));
-				strcpy(fileDirectory, d->d_name);
-				foundFlag = 1;
+	} else {
+		//read directories from config
+		while(!foundFlag && fgets(filePaths, 1024, config)) {
+			//for each path, search directory
+			DIR *filePathsDirectory = opendir(filePaths);
+			if( !filePathsDirectory ) {
+				*error = -8;
+				break;
 			}
-		}
-		closedir(filePathsDirectory);
-	}
 
+			//check each directory for file
+			while((!foundFlag) && (d = readdir(filePathsDirectory))) {
+				uint16_t length = strlen(d->d_name);
+
+				//file ends in .cr, and its name matches
+				if(checkFunctionName(functionName, d->d_name)) {
+					fileDirectory = malloc(sizeof(*fileDirectory) * (length + 1));
+					strcpy(fileDirectory, d->d_name);
+					foundFlag = 1;
+				}
+			}
+			closedir(filePathsDirectory);
+		}
+	}
 	fclose(config);
 
 	return fileDirectory;
@@ -257,7 +254,8 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 				//check that the out variable exists
 				int outVariable = findVariable(functionVar, outName);
 
-				if(outVariable < 0) *error = -12;
+				if(outVariable < 0)
+					*error = -12;
 				
 				out = copyMatrix(functionVar->value[outVariable], error);
 			}
