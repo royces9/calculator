@@ -1,6 +1,6 @@
 FLAGS = -Wall -lm -lreadline -I. -flto
 DEBUG_FLAGS =
-CC = gcc $(DEBUG_FLAGS)
+CC = gcc -MMD $(DEBUG_FLAGS)
 CCC = gcc
 
 CFILES = $(wildcard *.c)
@@ -18,7 +18,7 @@ calc: $(CFILES:.c=.o)
 	$(CCC) $^ -o $(TARGET) $(FLAGS)
 
 %.o: %.c
-	$(CC) -MMD -c $<
+	$(CC) -c $<
 
 .PHONY: cleanall
 cleanall:
