@@ -20,8 +20,8 @@ calc: $(CFILES:.c=.o)
 %.o: %.c
 	$(CC) -c $<
 
-.PHONY: cleanall
-cleanall:
+.PHONY: clean
+clean:
 	del *.o *.d
 
 .PHONY: cleano
