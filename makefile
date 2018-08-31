@@ -8,7 +8,7 @@ CFILES = $(wildcard *.c)
 USR = /usr/local/bin/calc
 TARGET = calc2
 
-all: DEBUG_FLAGS += -static -g
+all: DEBUG_FLAGS += -g
 all: calc
 
 usr: TARGET = $(USR)
