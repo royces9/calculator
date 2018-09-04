@@ -677,6 +677,7 @@ error_return printLine(char **input, vari *var) {
 				return -9; //there's no second quote to match, error
 
 			}
+			printf("%d %s\n", error, input[i]);
 		} else { //no quotes, just a variable or expression
 			error = sya(input[i], varTemp); //calculate expression and print, print variables this way
 			if(error) return error;
@@ -689,7 +690,7 @@ error_return printLine(char **input, vari *var) {
 	freeVari(varTemp);
 
 	//-1 is the error code for no output from sya
-	return -1;
+	return 0;
 }
 
 

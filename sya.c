@@ -236,7 +236,7 @@ error_return sya(char *input, vari *var) {
 //print out errors if there are any
 void errorReport(error_return error) {
 	if(error < -1){ //error codes for -2 or lower
-		printf("\nError:\n");
+		printf("\nError %d:\n", error);
 		switch(error) {
 
 		case -2: printf("Incorrect number of function arguments."); break;
