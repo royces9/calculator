@@ -357,7 +357,6 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 		break;
 
 	case FUNCTION_COUNT: //variables
-
 		//if the variable does not exist
 		error = checkVariable(buffer, tok, input, iterator, var, num, ch);
 		if(error == -5){
