@@ -94,7 +94,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
  * int *tok
  *   int to determine if '-' is negative or minus
  */
-error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch);
+error_return checkVariable(const char *buffer, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch);
 
 /*
  * remove spaces from input

@@ -108,9 +108,8 @@ matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error) {
 		out = initMatrix(newSize, a->dimension, error);
 		free(newSize);
 
-		for(int i = 0; i < out->length; ++i) {
+		for(uint64_t i = 0; i < out->length; ++i)
 			out->elements[i] = oneArg(a->elements[i], ch->enumeration, error);
-		}
 
 	} else {
 		switch(ch->enumeration){
@@ -168,7 +167,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 			if(compareSize(a->size, b->size, a->dimension, b->dimension)){
 				out = initMatrix(a->size, a->dimension, error);
 
-				for(int i = 0; i < a->length; ++i){
+				for(uint64_t i = 0; i < a->length; ++i){
 					out->elements[i] = twoArg(a->elements[i], b->elements[i], ch->enumeration, error);
 				}
 
@@ -181,13 +180,13 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 
 			if(aScalar) {
 				out = copyMatrix(b, error);
-				for(int i = 0; i < out->length; ++i){
+				for(uint64_t i = 0; i < out->length; ++i){
 					out->elements[i] = twoArg(a->elements[0], b->elements[i], ch->enumeration, error);
 				}
 
 			} else {
 				out = copyMatrix(a, error);
-				for(int i = 0; i < out->length; ++i){
+				for(uint64_t i = 0; i < out->length; ++i){
 					out->elements[i] = twoArg(a->elements[i], b->elements[0], ch->enumeration, error);
 				}
 			}
@@ -358,7 +357,7 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 
 	case FUNCTION_COUNT: //variables
 		//if the variable does not exist
-		error = checkVariable(buffer, tok, input, iterator, var, num, ch);
+		error = checkVariable(buffer, input, iterator, var, num, ch);
 		if(error == -5){
 			int bufferLength = strlen(buffer);
 			//buffer includes the '(', if it's there, replaced with 0
@@ -509,6 +508,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 //[[1, 2], 3] or something like that
 char **separateMatrix(char *input, uint16_t delimiter, error_return *error) {
 	char **out = malloc(sizeof(*out) * (delimiter + 2));
+	__MALLOC_CHECK(out, *error);
 
 	//counter for "()[]"
 	int bracketCount[2] = {0, 0};
@@ -538,7 +538,7 @@ char **separateMatrix(char *input, uint16_t delimiter, error_return *error) {
 		case ';':
 			if( !( bracketCount[0] || bracketCount[1] ) ){
 				out[subMatrices] = malloc(sizeof(**out) * ((j - currentLength) + 2));
-
+				__MALLOC_CHECK(out[subMatrices], *error);
 				strncpy(out[subMatrices], input + currentLength, j - currentLength);
 
 				out[subMatrices][j - currentLength] = '\0';
@@ -553,6 +553,7 @@ char **separateMatrix(char *input, uint16_t delimiter, error_return *error) {
 
 	//j is the length after the for loop runs
 	out[subMatrices] = malloc(sizeof(**out) * ((j - currentLength) + 1));
+	__MALLOC_CHECK(out[subMatrices], *error);
 	strncpy(out[subMatrices], input + currentLength, j - currentLength);
 	out[subMatrices][j - currentLength] = '\0';
 

@@ -96,15 +96,15 @@ matrix *copyMatrix(matrix *src, error_return *error) {
 //the size of out is determined and error checking for sizes of a and b
 //is done in concatMatrix, this function only populates the matrix
 matrix *assignConcat(matrix *out, matrix *a, matrix *b, uint8_t dimension) {
-	int aIncrement = 1;
-	int bIncrement = 1;
+	uint64_t aIncrement = 1;
+	uint64_t bIncrement = 1;
 
-	for(int i = 0; i <= dimension; ++i){
+	for(uint16_t i = 0; i <= dimension; ++i){
 		aIncrement *= a->size[i];
 		bIncrement *= b->size[i];
 	}
 
-	for(int aIterator = 0, bIterator = 0, sizeOffset = 0, k = 0; k < out->length; ++sizeOffset) {
+	for(uint64_t aIterator = 0, bIterator = 0, sizeOffset = 0, k = 0; k < out->length; ++sizeOffset) {
 		for(aIterator = 0; aIterator < aIncrement; ++aIterator) {
 			out->elements[k] = a->elements[aIterator + aIncrement * sizeOffset];
 			++k;
@@ -217,7 +217,7 @@ matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *erro
 
 					//put values into new matrix
 					//first vector values
-					for(int i = 0; i < tempVector->length; ++i) {
+					for(uint64_t i = 0; i < tempVector->length; ++i) {
 						out->elements[i + aScalar] = tempVector->elements[i];
 					}
 
