@@ -23,7 +23,10 @@ matrix *initMatrix(uint16_t *size, uint8_t dimension, error_return *error) {
 	out->size = memcpy(out->size, size, sizeof(*out->size) * (dimension + 1));
 	out->size[dimension] = 0;
 
+
+
 	out->variable = 0;
+
 
 	//get the total length of the array to malloc
 	out->length = getLength(size, dimension);
