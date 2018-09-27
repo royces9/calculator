@@ -269,21 +269,18 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 		default: //for executing non conditional lines
 			error = sya(tree->line, var);
 
-			if(error < -1) {
-				break;
-			}
+			if(error >= -1) {
+				//print output
+				if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0))
+					printMatrix(var->ans);
 
-			//print output
-			if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0)) {
-				printMatrix(var->ans);
+				//continue execution going left
+				tree = tree->left;
 			}
-
-			//continue execution going left
-			tree = tree->left;
 			break;
 		}
 
-		if(error){
+		if(error && (error != -1)){
 			break;
 		}
 	}

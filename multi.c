@@ -363,37 +363,50 @@ matrix *linspace(char **input, vari *var, error_return *error) {
 	element length = 0;
 
 	*error = sya(input[0], varTemp);
-	if(varTemp->ans->dimension != 1) {
+	if(varTemp->ans->dimension != 1)
 		*error = -10;
+
+	if(*error) {
 		return out;
+	} else {
+		a = varTemp->ans->elements[0];
 	}
-	a = varTemp->ans->elements[0];
 
 	*error = sya(input[1], varTemp);
-	if(varTemp->ans->dimension != 1) {
+	if(varTemp->ans->dimension != 1)
 		*error = -10;
-		return out;
-	}
-	b = varTemp->ans->elements[0];
 
+	if(*error) {
+		return out;
+	} else {
+		b = varTemp->ans->elements[0];
+	}
 
 	*error = sya(input[2], varTemp);
-	if(varTemp->ans->dimension != 1) {
+	if(varTemp->ans->dimension != 1)
 		*error = -10;
+
+	if(*error) {
 		return out;
-	}
-	length = varTemp->ans->elements[0];
-
-	uint16_t newSize[3] = {length, 1, 0};
-
-	out = initMatrix(newSize, 2, error);
-
-	element step = (b - a) / (length - 1);
-
-	for(uint64_t i = 0; i < out->length; ++i) {
-		out->elements[i] = step * i + a;
+	} else {
+		length = varTemp->ans->elements[0];
 	}
 
+	if( (length < 0) || ((length - floor(length)) > 0) ) {
+		*error = -4;
+
+	} else {
+
+		uint16_t newSize[3] = {length, 1, 0};
+
+		out = initMatrix(newSize, 2, error);
+
+		element step = (b - a) / (length - 1);
+
+		for(uint64_t i = 0; i < out->length; ++i) {
+			out->elements[i] = step * (element) i + a;
+		}
+	}
 	freeVari(varTemp);
   
 	return out;
@@ -492,7 +505,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 }
 
 
-error_return checkVariable(const char *buffer, int8_t *tok, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
+error_return checkVariable(const char *buffer, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
 	error_return error = 0;
 
 	uint16_t varLen = strlen(buffer);
@@ -798,7 +811,7 @@ char **separateString(char *input, char const * const limiter, char const * cons
 				separatedString[subString][k - currentLength] = '\0';
 
 				//set the current delimiter to the one just found
-				currentLength = k;
+				currentLength = k + 1;
 
 				//increment the number of subStrings
 				++subString;
@@ -811,6 +824,7 @@ char **separateString(char *input, char const * const limiter, char const * cons
 		separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength) + 1));
 		__MALLOC_CHECK(separatedString[subString], *error);
 		uint8_t offset = 0;
+
 		if(strchr(delimiter, input2[currentLength]))
 			offset = 1;
 		
@@ -820,6 +834,7 @@ char **separateString(char *input, char const * const limiter, char const * cons
 
 	separatedString[++subString] = NULL;
 	free(input2);
+
 
 	return separatedString;
 }
