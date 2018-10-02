@@ -23,6 +23,7 @@ int searchFunctionArray(char *buffer) {
 		if(!strcmp(FUNCTION_LIST[i], buffer))
 			return i;
 	}
+
 	return FUNCTION_COUNT;
 }
 
@@ -70,7 +71,6 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 		freeMatrix(a);
 		freeMatrix(b);
 
-
 		break;
 
 	case 3:
@@ -84,9 +84,8 @@ error_return execNum(numberStack *num, vari *var, operatorStruct *ch) {
 		break;
 	}
 
-	if(out) {
+	if(out)
 		pushn(out, num);
-	}
 
 	free(ch);
 	return error;
@@ -135,7 +134,7 @@ matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *err
 	error_return check = 0;
 
 	//check if ch.enumeration is a scalar operator
-	twoArg(0, 0, ch->enumeration, &check);
+	twoArg(1, 1, ch->enumeration, &check);
 
 	//check if inputs are scalar
 	uint8_t aScalar = isScalar(a);
@@ -398,7 +397,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 	 * 1
 	 * 2 f(x)-calls
 	 * 3
-	 * 4 ^ !
+	 * 4 ^ ! %
 	 * 5
 	 * 6 + -
 	 * 7
@@ -487,6 +486,7 @@ error_return findOperator(char *buffer, numberStack *num, operatorStack *oper, v
 	case eOr:
 	case eMultiplyMatrix:
 	case eDivideMatrix:
+	case eModulo:
 
 		while((oper->top > -1) && (oper->stk[oper->top]->precedence <= operatorPrecedence[i])) {
 			error = execNum(num, var, popch(oper));

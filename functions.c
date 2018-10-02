@@ -15,15 +15,16 @@
 //factorial function
 element factorial(element a) {
 	a = floor(a);
-	if(a == 0)
+
+	if(!a)
 		return 1;
 
 	return a == 1 ? 1 : a * factorial(a - 1);
 }
 
 
-matrix *eye(matrix *a, error_return *error){
-	if(a->dimension != 1){
+matrix *eye(matrix *a, error_return *error) {
+	if(a->dimension != 1) {
 		*error = -12;
 		return NULL;
 	}
@@ -32,7 +33,8 @@ matrix *eye(matrix *a, error_return *error){
 	matrix *out = initMatrix(newSize, 2, error);
 
 	uint64_t index = 0;
-	for(uint64_t i = 0; i < a->elements[0]; ++i){
+
+	for(uint64_t i = 0; i < a->elements[0]; ++i) {
 		index = i * (a->elements[0] + 1);
 		out->elements[index] = 1;
 	}
@@ -50,9 +52,9 @@ matrix *getSize(matrix *a, error_return *error){
 	newSize[2] = 0;
   
 	matrix *out = initMatrix(newSize, 2, error);
-	for(uint64_t i = 0; a->size[i]; ++i){
+
+	for(uint64_t i = 0; a->size[i]; ++i)
 		out->elements[i] = a->size[i];
-	}
 
 	return out;
 }
@@ -64,9 +66,8 @@ matrix *magnitude(matrix *a, error_return *error){
 	if(isVector(a)) {
 		element magnitudeA = 0;
 
-		for(uint64_t i = 0; i < a->length; ++i){
+		for(uint64_t i = 0; i < a->length; ++i)
 			magnitudeA += (a->elements[i] * a->elements[i]);
-		}
 
 		magnitudeA = sqrt(magnitudeA);
 
@@ -95,10 +96,10 @@ matrix *numel(matrix *a, error_return *error){
  *  a - the matrix
  *  b - the index
  */
-matrix *reference(matrix *a, matrix *b, error_return *error){
+matrix *reference(matrix *a, matrix *b, error_return *error) {
 	matrix *out = copyMatrix(b, error);
 
-	for(uint64_t i = 0; i < b->length; ++i){
+	for(uint64_t i = 0; i < b->length; ++i) {
 		out->elements[i] = a->elements[(uint64_t) (b->elements[i])];
 	}
 
@@ -106,16 +107,16 @@ matrix *reference(matrix *a, matrix *b, error_return *error){
 }
 
 
-matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
+matrix *assign(matrix *a, matrix *b, vari *var, error_return *error) {
 
 	uint8_t incrementFlag = 1;
-	if(a->variable){
-		if(var->assignIndex == NULL){
+	if(a->variable) {
+		if(var->assignIndex == NULL) {
 			//init new matrix
 			//copyMatrix not done because the
 			//pointer 'a' is malloc'd in findFunction
 
-			if(a->size != NULL){
+			if(a->size != NULL) {
 				free(a->size);
 				free(a->elements);
 
@@ -140,7 +141,7 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
 
 			memcpy(a->size, b->size, sizeof(*a->size) * (a->dimension + 1));
 
-		} else{
+		} else {
 
 			for(uint64_t i = 0; i < var->assignIndex->length; ++i){
 				a->elements[(uint64_t) var->assignIndex->elements[i]] = b->elements[i];
@@ -151,14 +152,14 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
 			var->assignIndex = NULL;
 
 		}
-	} else{
+	} else {
 		*error = -13;
 		freeMatrix(a);
 		return NULL;
 	}
 
 
-	if(incrementFlag){
+	if(incrementFlag) {
 		++var->count;
 	}
 
@@ -166,12 +167,12 @@ matrix *assign(matrix *a, matrix *b, vari *var, error_return *error){
 }
 
 
-matrix *divideMatrix(matrix *a, matrix *b, error_return *error){
+matrix *divideMatrix(matrix *a, matrix *b, error_return *error) {
 	return NULL;
 }
 
 
-matrix *multiplyMatrix(matrix *a, matrix *b, error_return *error){
+matrix *multiplyMatrix(matrix *a, matrix *b, error_return *error) {
 	matrix *out = NULL;
 
 	//matrix multiplication only defined for 2d arrays
@@ -213,27 +214,27 @@ matrix *multiplyMatrix(matrix *a, matrix *b, error_return *error){
 }
 
 
-matrix *exponentMatrix(matrix *a, matrix *b, error_return *error){
+matrix *exponentMatrix(matrix *a, matrix *b, error_return *error) {
 	uint8_t aScalar = isScalar(a);
 	uint8_t bScalar = isScalar(b);
 
 	matrix *tempMat = NULL;
 	matrix *out = NULL;
 
-	switch(aScalar + bScalar){
+	switch(aScalar + bScalar) {
 	case 0: //neither a nor b are scalars
 		*error = -10;
 		break;
 
 	case 1: //one of a or b is a scalar
-		if(aScalar){ //a is the scalar
+		if(aScalar) { //a is the scalar
 			out = copyMatrix(b, error);
 
-			for(uint64_t i = 0; i < out->length; ++i){
+			for(uint64_t i = 0; i < out->length; ++i) {
 				out->elements[i] = pow(a->elements[0],b->elements[i]);
 			}
 
-		} else{ //b is the scalar
+		} else { //b is the scalar
 			//check that b is a whole number, no imaginary numbers (yet?)
 
 			out = initScalar(a->size[0], error);
@@ -241,13 +242,13 @@ matrix *exponentMatrix(matrix *a, matrix *b, error_return *error){
 			freeMatrix(out);
 			//really small number
 
-			if((b->elements[0] - floor(b->elements[0])) < 0.00000000001){
+			if((b->elements[0] - floor(b->elements[0])) < 0.00000000001) {
 				int64_t power = b->elements[0];
-				for(uint64_t i = 0; i < power; ++i){
+				for(int64_t i = 0; i < power; ++i) {
 					out = multiplyMatrix(tempMat, a, error);
 					freeMatrix(tempMat);
 
-					if(*error){
+					if(*error) {
 						freeMatrix(out);
 						return NULL;
 					}
@@ -272,9 +273,9 @@ matrix *exponentMatrix(matrix *a, matrix *b, error_return *error){
 }
 
 
-matrix *transposeMatrix(matrix *a, error_return *error){
+matrix *transposeMatrix(matrix *a, error_return *error) {
 	//transpose only defined for 2d matrix
-	if(a->dimension != 2){
+	if(a->dimension != 2) {
 		*error = -10;
 		return NULL;
 	}
@@ -290,7 +291,7 @@ matrix *transposeMatrix(matrix *a, error_return *error){
 	//temp variable for the sublocation of the new index
 	uint64_t subLoc = 0;
   
-	for(uint64_t i = 0; i < out->length; ++i){
+	for(uint64_t i = 0; i < out->length; ++i) {
 		//subLoc is an int and gets rounded down
 		subLoc = i/a->size[0];
 		newInd = subLoc + a->size[1] * (i - subLoc * a->size[0]);
@@ -426,6 +427,7 @@ element twoArg(element a, element b, int o, error_return *error) {
 	case eEqual: return a == b;
 	case eAnd: return a && b;
 	case eOr: return a || b;
+	case eModulo: return (int64_t) floor(a) % (int64_t) floor(b);
 	default: *error = 1; return a;
 	}
 }

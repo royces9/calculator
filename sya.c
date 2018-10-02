@@ -318,6 +318,7 @@ int8_t checkType(char a) {
 	case '&':
 	case '|':
 	case '~':
+	case '%':
 		return 2;
 
 	case '.':

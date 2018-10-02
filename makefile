@@ -1,5 +1,5 @@
 LDFLAGS = -lm -lreadline -flto
-FLAGS = -MMD -Wall -Wpedantic -Wextra
+FLAGS = -MMD -Wall
 DEBUG_FLAGS =
 CC = gcc
 

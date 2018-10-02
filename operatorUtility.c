@@ -69,6 +69,7 @@ const char OPERATOR_LIST[OPERATOR_COUNT][4] = {
 	"*",
 	"/",
 	"^",
+	"%",
 
 	"<",
 	">",
@@ -100,6 +101,7 @@ const uint8_t operatorPrecedence[OPERATOR_COUNT] = {
 	5,
 	5,
 	4,
+	5,
   
 	15,
 	8,
