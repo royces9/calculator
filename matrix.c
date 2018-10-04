@@ -375,5 +375,5 @@ error_return compareSize(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB) {
 
 //check that the inner dimensions of the matrix match
 error_return checkInnerDim(matrix *a, matrix *b){
-	return (a->size[a->dimension-1] == b->size[0]) ? 1 : 0;
+	return (a->size[a->dimension-1] == b->size[0]);
 }
