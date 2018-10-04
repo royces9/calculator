@@ -23,7 +23,9 @@ error_return runFile(char **input, vari *var, int offset) {
 	char **fileString = calloc(maxSize, sizeof(*fileString));
 	__MALLOC_CHECK(fileString, error);
 
-	fileTree *tree = createLeaf();
+	fileTree *tree = createLeaf(&error);
+	if(error)
+		return error;
 
 	//make tree structure
 	if( (error = createTree(input[0], tree, fileString, &maxSize, offset)) ) {
@@ -134,7 +136,7 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
 		case 2: //while
 		case -2: //else
 			fPush(&stk, tree);
-			tree->right = createLeaf();
+			tree->right = createLeaf(&error);
 			tree = tree->right;
 			break;
 
@@ -144,7 +146,7 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
 			tree = fPop(&stk);
 
 		default:
-			tree->left = createLeaf();
+			tree->left = createLeaf(&error);
 			tree = tree->left;
 			break;
 		}

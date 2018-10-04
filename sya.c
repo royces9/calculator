@@ -23,7 +23,6 @@ error_return sya(char *input, vari *var) {
 	//operator buffer iterator
 	uint16_t oper_iter = 0;
 
-
 	//error checking int
 	error_return error = 0;
 
@@ -109,7 +108,7 @@ error_return sya(char *input, vari *var) {
 
 	//main loop
 	//iterates through the input string, apply shunting-yard algorithm
-	for(int i = 0; input[i] && !error; ++i) {
+	for(uint16_t i = 0; input[i] && !error; ++i) {
 		switch(type[i]){
 
 		case 1: //alpha numerics

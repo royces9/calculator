@@ -33,7 +33,7 @@ matrix *eye(matrix *a, error_return *error) {
 	matrix *out = initMatrix(newSize, 2, error);
 
 	for(uint64_t i = 0; i < a->elements[0]; ++i)
-		out->elements[i * (a->elements[0] + 1)] = 1;
+		out->elements[i * (uint64_t)(a->elements[0] + 1)] = 1;
 
 	return out;
 }

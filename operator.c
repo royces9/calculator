@@ -219,10 +219,10 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	char **separatedString = NULL;
 	matrix *out = NULL;
 
-	//int i = searchFunctionArray(buffer);
+	int i = searchFunctionArray(buffer);
 	error_return error = 0;
 
-	switch(searchFunctionArray(buffer)) {
+	switch(i) {
 	case eQuit:
 		return 1;
 

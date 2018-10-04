@@ -1,21 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "types.h"
+
 #include "fileStruct.h"
 
-fileTree *createLeaf() {
-	fileTree *leaf = malloc(sizeof(fileTree));
-	if(leaf == NULL)
-		return NULL;
 
-	leaf->line = NULL;
-	leaf->left = NULL;
-	leaf->right = NULL;
+fileTree *createLeaf(error_return *error) {
+	fileTree *leaf = calloc(1, sizeof(*leaf));
+	__MALLOC_CHECK(leaf, *error);
+
 	return leaf;
 }
 
 void cutDownTree(fileTree *tree) {
-	if(tree == NULL)
+	if(!tree)
 		return;
 
 	tree->line = NULL;
@@ -36,6 +35,7 @@ void fPush(fileStack *stk, fileTree *node) {
 
 fileTree *fPop(fileStack *stk) {
 	fileTree *out = NULL;
+
 	if(stk->occ == 1) {
 		out = stk->stk[stk->top--];
 		if(stk->top == -1) {
@@ -43,5 +43,6 @@ fileTree *fPop(fileStack *stk) {
 			stk->top = 0;
 		}
 	}
+
 	return out;
 }
