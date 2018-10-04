@@ -17,9 +17,6 @@
 error_return sya(char *input, vari *var) {
 
 	//iterators
-	//main loop iterator
-	uint16_t main_iter = 0;
-
 	//character buffer iterator
 	uint16_t char_iter = 0;
 
@@ -110,20 +107,19 @@ error_return sya(char *input, vari *var) {
 	//stack for operators
 	operatorStack *oper_stack = newOperatorStack();
 
-
 	//main loop
 	//iterates through the input string, apply shunting-yard algorithm
-	for(; input[main_iter] && !error; ++main_iter) {
-		switch(type[main_iter]){
+	for(int i = 0; input[i] && !error; ++i) {
+		switch(type[i]){
 
 		case 1: //alpha numerics
 			//reset bufferOper counter
 			oper_iter = 0;
 			//put all consecutive alphanumeric characters in a buffer
-			bufferLetters[char_iter++] = input[main_iter];
+			bufferLetters[char_iter++] = input[i];
 
 			//for valid numbers/variables/functions
-			if((type[main_iter + 1] == 2) || (type[main_iter + 1] == 0)){
+			if((type[i + 1] == 2) || (type[i + 1] == 0)){
 				bufferLetters[char_iter] = '\0';
 
 				//if the buffer is all numbers
@@ -131,11 +127,11 @@ error_return sya(char *input, vari *var) {
 					pushn(initScalar(strtod(bufferLetters, NULL), &error), num_stack);
 
 				} else { //check if command is a function or variable
-					if(input[main_iter + 1] == '(')
+					if(input[i + 1] == '(')
 						bufferLetters[char_iter++] = '(';
 
 					bufferLetters[char_iter] = '\0';
-					error = findFunction(bufferLetters, num_stack, oper_stack, var, &negativeCheck, &main_iter, input);
+					error = findFunction(bufferLetters, num_stack, oper_stack, var, &negativeCheck, &i, input);
 				}
 
 				//reset bufferLetters counter
@@ -152,11 +148,11 @@ error_return sya(char *input, vari *var) {
 			char_iter = 0;
 
 			//all consecutive operator characters put into a buffer
-			bufferOper[oper_iter++] = input[main_iter];
+			bufferOper[oper_iter++] = input[i];
 
 			//checks if the current buffer concatenated with the
 			//next character is an operator, if not, go into "if"
-			if(checkOperator(bufferOper, input[main_iter + 1]) == OPERATOR_COUNT) {
+			if(checkOperator(bufferOper, input[i + 1]) == OPERATOR_COUNT) {
 				bufferOper[oper_iter] = '\0';
 
 				//find the corresponding operator
@@ -171,7 +167,7 @@ error_return sya(char *input, vari *var) {
 			//reset letters and oper counters
 			char_iter = 0;
 			oper_iter = 0;
-			pushn(extractMatrix(var, &main_iter, input, &error), num_stack);
+			pushn(extractMatrix(var, &i, input, &error), num_stack);
 			break;
 
       

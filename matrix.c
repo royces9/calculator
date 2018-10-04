@@ -324,9 +324,9 @@ void printMatrix(const matrix *m) {
 
 uint64_t getLength(uint16_t *size, uint8_t dimension) {
 	uint64_t out = 1;
-	for(uint8_t i = 0; i < dimension; ++i) {
+
+	for(uint8_t i = 0; i < dimension; ++i)
 		out = out * size[i];
-	}
 
 	return out;
 }

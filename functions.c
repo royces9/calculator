@@ -32,12 +32,8 @@ matrix *eye(matrix *a, error_return *error) {
 	uint16_t newSize[3] = {a->elements[0], a->elements[0], 0};
 	matrix *out = initMatrix(newSize, 2, error);
 
-	uint64_t index = 0;
-
-	for(uint64_t i = 0; i < a->elements[0]; ++i) {
-		index = i * (a->elements[0] + 1);
-		out->elements[index] = 1;
-	}
+	for(uint64_t i = 0; i < a->elements[0]; ++i)
+		out->elements[i * (a->elements[0] + 1)] = 1;
 
 	return out;
 }
@@ -82,7 +78,7 @@ matrix *magnitude(matrix *a, error_return *error){
 
 
 //get the total number of elements of a
-matrix *numel(matrix *a, error_return *error){
+matrix *numel(matrix *a, error_return *error) {
 	return initScalar(a->length, error);
 }
 
@@ -99,9 +95,8 @@ matrix *numel(matrix *a, error_return *error){
 matrix *reference(matrix *a, matrix *b, error_return *error) {
 	matrix *out = copyMatrix(b, error);
 
-	for(uint64_t i = 0; i < b->length; ++i) {
+	for(uint64_t i = 0; i < b->length; ++i)
 		out->elements[i] = a->elements[(uint64_t) (b->elements[i])];
-	}
 
 	return out;
 }
@@ -110,6 +105,7 @@ matrix *reference(matrix *a, matrix *b, error_return *error) {
 matrix *assign(matrix *a, matrix *b, vari *var, error_return *error) {
 
 	uint8_t incrementFlag = 1;
+
 	if(a->variable) {
 		if(var->assignIndex == NULL) {
 			//init new matrix
@@ -176,13 +172,13 @@ matrix *multiplyMatrix(matrix *a, matrix *b, error_return *error) {
 	matrix *out = NULL;
 
 	//matrix multiplication only defined for 2d arrays
-	if((a->dimension != 2) || (b->dimension != 2)){
+	if((a->dimension != 2) || (b->dimension != 2)) {
 		*error = -10;
 		return NULL;
 	}
 
 	//check that the inner dimensions match
-	if(a->size[1] != b->size[0]){
+	if(a->size[1] != b->size[0]) {
 		*error = -10;
 		return NULL;
 	}
@@ -192,13 +188,9 @@ matrix *multiplyMatrix(matrix *a, matrix *b, error_return *error) {
 
 	matrix *transposeA = transposeMatrix(a, error);
 
-	//counter for elements put into out
-	uint64_t l = 0;
-
 	//generic O(n^3) algorithm
-	
 	//transpose a and then multiply every column with every other column in each matrix
-	for(uint16_t i = 0; i < b->size[1]; ++i){
+	for(uint16_t i = 0, l = 0; i < b->size[1]; ++i){
 		for(int j = 0; j < transposeA->size[1]; ++j){
 			element tempSum = 0;
 			for(uint16_t k = 0; k < transposeA->size[0]; ++k){
@@ -230,9 +222,8 @@ matrix *exponentMatrix(matrix *a, matrix *b, error_return *error) {
 		if(aScalar) { //a is the scalar
 			out = copyMatrix(b, error);
 
-			for(uint64_t i = 0; i < out->length; ++i) {
+			for(uint64_t i = 0; i < out->length; ++i)
 				out->elements[i] = pow(a->elements[0],b->elements[i]);
-			}
 
 		} else { //b is the scalar
 			//check that b is a whole number, no imaginary numbers (yet?)
@@ -240,8 +231,8 @@ matrix *exponentMatrix(matrix *a, matrix *b, error_return *error) {
 			out = initScalar(a->size[0], error);
 			tempMat = eye(out, error);
 			freeMatrix(out);
-			//really small number
 
+			//really small number
 			if((b->elements[0] - floor(b->elements[0])) < 0.00000000001) {
 				int64_t power = b->elements[0];
 				for(int64_t i = 0; i < power; ++i) {
@@ -285,16 +276,10 @@ matrix *transposeMatrix(matrix *a, error_return *error) {
 	uint16_t newSize[3] = {a->size[1], a->size[0], 0};
 	matrix *out = initMatrix(newSize, 2, error);
 
-	//new index
-	uint64_t newInd = 0;
-
-	//temp variable for the sublocation of the new index
-	uint64_t subLoc = 0;
-  
 	for(uint64_t i = 0; i < out->length; ++i) {
 		//subLoc is an int and gets rounded down
-		subLoc = i/a->size[0];
-		newInd = subLoc + a->size[1] * (i - subLoc * a->size[0]);
+		uint64_t subLoc = i/a->size[0];
+		uint64_t newInd = subLoc + a->size[1] * (i - subLoc * a->size[0]);
 
 		out->elements[newInd] = a->elements[i];
 	}
@@ -307,9 +292,8 @@ matrix *transposeMatrix(matrix *a, error_return *error) {
 matrix *min(matrix *m, error_return *error) {
 	element out = m->elements[0];
 
-	for(uint64_t i = 1; i < m->length; ++i) {
+	for(uint64_t i = 1; i < m->length; ++i)
 		out = fmin(out, m->elements[i]);
-	}
 
 	return initScalar(out, error);
 }
@@ -319,9 +303,8 @@ matrix *min(matrix *m, error_return *error) {
 matrix *max(matrix *m, error_return *error) {
 	element out = m->elements[0];
 
-	for(uint64_t i = 1; i < m->length; ++i) {
+	for(uint64_t i = 1; i < m->length; ++i)
 		out = fmax(out, m->elements[i]);
-	}
 
 	return initScalar(out, error);
 }
@@ -382,9 +365,8 @@ matrix *sum(matrix *m, error_return *error) {
 matrix *avg(matrix *m, error_return *error) {
 	matrix *out = sum(m, error);
 
-	for(uint64_t i = 0; i < out->length; ++i){
+	for(uint64_t i = 0; i < out->length; ++i)
 		out->elements[i] /= m->size[m->dimension - 1];
-	}
 
 	return out;
 }

@@ -219,10 +219,10 @@ error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, var
 	char **separatedString = NULL;
 	matrix *out = NULL;
 
-	int i = searchFunctionArray(buffer);
+	//int i = searchFunctionArray(buffer);
 	error_return error = 0;
 
-	switch(i) {
+	switch(searchFunctionArray(buffer)) {
 	case eQuit:
 		return 1;
 
@@ -566,7 +566,7 @@ uint16_t countDelimiter(char *input){
 	uint16_t out = 0;
 	int16_t bracketCount[2] = {0, 0};
 
-	for(uint16_t i = 0; input[i]; ++i){
+	for(uint16_t i = 0; input[i]; ++i) {
 		switch(input[i]){
 		case '(':
 			++bracketCount[0];
@@ -600,7 +600,7 @@ uint16_t countDelimiter(char *input){
 
 
 //iterator is the counter for the main loop in sya
-matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *error){
+matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *error) {
 	//input is incremented to start at input[*iterator], which is where
 	//the first [ should be
 	input += (*iterator);
@@ -611,7 +611,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *
 	int16_t bracketCount = 0;
 	int16_t length = 0;
 
-	for(length = 0; input[length]; ++length){
+	for(length = 0; input[length]; ++length) {
 		if(input[length] == '[')
 			++bracketCount;
 
@@ -623,7 +623,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *
 	}
 
 	//check that the bracket count is correct
-	if(bracketCount){
+	if(bracketCount) {
 		*error = -4;
 		return NULL;
 	}
@@ -640,7 +640,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *
 	//replace the end ']' with a '\0'
 	matrixString[length-1] = 0;
 
-	if((matrixString[length-2] == ';') || (matrixString[length-2] == ',')){
+	if((matrixString[length-2] == ';') || (matrixString[length-2] == ',')) {
 		free(matrixString);
 		*error =  -4;
 		return NULL;
