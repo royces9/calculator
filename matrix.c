@@ -8,7 +8,7 @@
 #include "stack.h"
 
 
-matrix *initMatrix(uint16_t *size, uint8_t dimension, error_return *error) {
+matrix *init_mat(uint16_t *size, uint8_t dimension, err_ret *error) {
 	matrix *out = malloc(sizeof(*out));
 	__MALLOC_CHECK(out, *error);  
 
@@ -43,7 +43,7 @@ matrix *initMatrix(uint16_t *size, uint8_t dimension, error_return *error) {
 //define a scalar as just a single dimension matrix
 //also define that a vector is always 2 dimensions, with one of
 //the two dimensions being 1
-matrix *initScalar(element e, error_return *error) {
+matrix *init_scalar(ele e, err_ret *error) {
 	matrix *out = malloc(sizeof(*out));
 	__MALLOC_CHECK(out, *error);  
 
@@ -67,7 +67,7 @@ matrix *initScalar(element e, error_return *error) {
 }
 
 
-matrix *copyMatrix(matrix *src, error_return *error) {
+matrix *cpy_mat(matrix *src, err_ret *error) {
 	if(!src)
 		return NULL;
 
@@ -122,9 +122,9 @@ matrix *assignConcat(matrix *out, matrix *a, matrix *b, uint8_t dimension) {
 
 //dimension is a number to specifiy along which direction to concatenate
 //along, it starts from 0
-matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *error) {
-	int aScalar = isScalar(a);
-	int bScalar = isScalar(b);
+matrix *cat_mat(matrix *a, matrix *b, uint8_t dimension, err_ret *error) {
+	int aScalar = is_scalar(a);
+	int bScalar = is_scalar(b);
 
 	matrix *out = NULL;
 
@@ -153,7 +153,7 @@ matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *erro
 				sizeB[j] = b->size[i];
 			}
 
-			if(compareSize(sizeA, sizeB, a->dimension - 1, b->dimension - 1)){
+			if(cmp_size(sizeA, sizeB, a->dimension - 1, b->dimension - 1)){
 				uint16_t *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
 				__MALLOC_CHECK(newSize, *error);
 
@@ -166,7 +166,7 @@ matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *erro
 					}
 				}
 
-				out = initMatrix(newSize, a->dimension, error);
+				out = init_mat(newSize, a->dimension, error);
 				free(newSize);
 
 				assignConcat(out, a, b, dimension);
@@ -185,7 +185,7 @@ matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *erro
 				{
 					//temporary variables for less writing in if blocks
 					matrix *tempVector = NULL;
-					element tempScalar = 0;
+					ele tempScalar = 0;
 					//assign which matrix is a scalar and which is a matrix
 					if(aScalar){
 						tempVector = b;
@@ -199,7 +199,7 @@ matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *erro
 
 					//check that the matrix is a vector, only vectors can be
 					//concatenated with scalars
-					if(!isVector(tempVector)) {
+					if(!is_vec(tempVector)) {
 						*error = -15;
 						break;
 					}
@@ -212,7 +212,7 @@ matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *erro
 					++newSize[dimension];
 
 					//init new matrix
-					out = initMatrix(newSize, tempVector->dimension, error);
+					out = init_mat(newSize, tempVector->dimension, error);
 
 
 					//put values into new matrix
@@ -243,7 +243,7 @@ matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *erro
 							return NULL;
 						}
 
-						out = initMatrix(newSize, 2, error);
+						out = init_mat(newSize, 2, error);
 
 						out->elements[0] = a->elements[0];
 						out->elements[1] = b->elements[0];
@@ -260,7 +260,7 @@ matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *erro
 
 //free the matrix and all of the data
 //associated with it
-void freeMatrix(matrix *m) {
+void free_mat(matrix *m) {
 	if(!m->variable) {
 		free(m->size);
 		free(m->elements);
@@ -281,7 +281,7 @@ void freeMatrix(matrix *m) {
 //the second print will have an offset of 4 and print:
 //5 7
 //6 8
-void printTwoDMatrix(const matrix *m, int offset) {
+void print_two_d(const matrix *m, int offset) {
 
 	printf("\n");
 	for(int columns = 0; columns < m->size[0]; ++columns) {
@@ -300,19 +300,19 @@ void printTwoDMatrix(const matrix *m, int offset) {
 
 //print out a matrix of any size
 //prints out 2d slices of the matrix
-void printMatrix(const matrix *m) {
+void print_mat(const matrix *m) {
 	int offset = 0;
 	if(m->dimension > 2) {
 		uint64_t twoDimSize = m->size[0] * m->size[1];
 		for(int i = 2; i < m->dimension; ++i) {
 			for(int j = 0; j < m->size[i]; ++j) {
-				printTwoDMatrix(m, offset);
+				print_two_d(m, offset);
 				offset += twoDimSize;
 			}
 		}
 
 	} else if(m->dimension == 2){ //2d mat
-		printTwoDMatrix(m, 0);
+		print_two_d(m, 0);
 
 	} else{ //scalar
 		printf("\n%lf\n\n", m->elements[0]);
@@ -350,17 +350,17 @@ uint64_t sub2ind(uint16_t *location, uint16_t *size, uint8_t dimension) {
 
 //check if a matrix is a scalar (true)
 //else false
-error_return isScalar(matrix *m) {
+err_ret is_scalar(matrix *m) {
 	return (m->dimension == 1);
 }
 
-error_return isVector(matrix *m) {
+err_ret is_vec(matrix *m) {
 	return (m->dimension == 2) && ( (m->size[0] == 1) || (m->size[1] == 1) );
 }
 
 //compare two size vectors, return 1 if same
 //0 otherwise
-error_return compareSize(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB) {
+err_ret cmp_size(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB) {
 	if(dimA != dimB)
 		return 0;
 
@@ -374,6 +374,6 @@ error_return compareSize(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB) {
 
 
 //check that the inner dimensions of the matrix match
-error_return checkInnerDim(matrix *a, matrix *b){
+err_ret chk_inner(matrix *a, matrix *b){
 	return (a->size[a->dimension-1] == b->size[0]);
 }

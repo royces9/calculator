@@ -13,7 +13,7 @@
 
 int main(int argc, char *argv[]) {
 	char *input = NULL;
-	error_return error = 0;
+	err_ret error = 0;
   
 	//initialize variable struct
 	vari *var = newVari();
@@ -28,10 +28,10 @@ int main(int argc, char *argv[]) {
 			error = sya(argv[i], var);
 
 			if( !error ) {
-				printMatrix(var->ans);
+				print_mat(var->ans);
 
 			} else {
-				errorReport(error);
+				err_rep(error);
 
 			}
 		}
@@ -39,7 +39,6 @@ int main(int argc, char *argv[]) {
 
 	//main loop
 	while(error <= 0) {
-
 		error = 0;
 
 		//user input and history
@@ -54,16 +53,15 @@ int main(int argc, char *argv[]) {
 			if( !error ) {
 				//suppress output if the line ends with ';'
 				if( input[strlen(input) - 1] != ';' )
-					printMatrix(var->ans);
+					print_mat(var->ans);
 
 			} else { //if the error is less than -1, prints an error code
-				errorReport(error);
+				err_rep(error);
 			}
 		}
 
 		//readline mallocs the input line
 		free(input);
-		input = NULL;
 	}
 
 	freeVari(var);

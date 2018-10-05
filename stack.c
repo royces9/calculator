@@ -69,7 +69,7 @@ operatorStack *newOperatorStack(void) { //make new operator stack
 
 void freeNumberStack(numberStack *st) {
 	while(st->top > -1) {
-		freeMatrix(st->stk[st->top--]);
+		free_mat(st->stk[st->top--]);
 	}
 	free(st);
 }

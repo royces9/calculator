@@ -22,8 +22,8 @@ uint8_t numberOfArgs(char **input) {
 }
 
 
-matrix *deri(char **input, vari *var, error_return *error) {
-	element out, inter, h, point;
+matrix *deri(char **input, vari *var, err_ret *error) {
+	ele out, inter, h, point;
 	vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
   
 	int varIndex = 0;
@@ -57,7 +57,7 @@ matrix *deri(char **input, vari *var, error_return *error) {
 	//set up a dummy variable specified by user  
 	char *dummyVariable = removeSpaces(input[1]);
   
-	varIndex = setVariable(varTemp, dummyVariable, initScalar(point + h, error), error);
+	varIndex = setVariable(varTemp, dummyVariable, init_scalar(point + h, error), error);
 
 	//f(x+h)
 	*error = sya(input[0], varTemp);
@@ -76,11 +76,11 @@ matrix *deri(char **input, vari *var, error_return *error) {
 	out -= inter;
   
 	freeVari(varTemp);
-	return initScalar(out / (2 * h), error);
+	return init_scalar(out / (2 * h), error);
 }
 
 
-matrix *inte(char **input, vari *var, error_return *error) {
+matrix *inte(char **input, vari *var, err_ret *error) {
 
 	//check number of arguments
 	if(numberOfArgs(input) != 5) {
@@ -88,8 +88,8 @@ matrix *inte(char **input, vari *var, error_return *error) {
 		return 0;
 	}
 
-	element step = 0, sum = 0;
-	element a, b, number;
+	ele step = 0, sum = 0;
+	ele a, b, number;
 	vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
 	int varIndex = 0;
 
@@ -125,7 +125,7 @@ matrix *inte(char **input, vari *var, error_return *error) {
 	//set dummy variable
 	char *dummyVariable = removeSpaces(input[1]);
 
-	varIndex = setVariable(varTemp, dummyVariable, initScalar(0, error), error);
+	varIndex = setVariable(varTemp, dummyVariable, init_scalar(0, error), error);
 	//calculate integral using composite Simpson's
 
 	number = floor(number/2); //halve the steps
@@ -155,11 +155,11 @@ matrix *inte(char **input, vari *var, error_return *error) {
 	freeVari(varTemp);
 
 	//return integral
-	return initScalar(sum * (step / 3), error);
+	return init_scalar(sum * (step / 3), error);
 }
 
 
-matrix *solve(char **input, vari *var, error_return *error) {
+matrix *solve(char **input, vari *var, err_ret *error) {
 	//check number of arguments
 	if(numberOfArgs(input) != 4) {
 		*error = -2;
@@ -168,7 +168,7 @@ matrix *solve(char **input, vari *var, error_return *error) {
 
 	vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
   
-	element out, inter, h;
+	ele out, inter, h;
 	double test = 0, delta = 0.000001;
 	int varIndex = 0;
 
@@ -191,7 +191,7 @@ matrix *solve(char **input, vari *var, error_return *error) {
 
 
 	char *dummyVariable = removeSpaces(input[1]);
-	varIndex = setVariable(varTemp, dummyVariable, copyMatrix(varTemp->ans, error), error);
+	varIndex = setVariable(varTemp, dummyVariable, cpy_mat(varTemp->ans, error), error);
 
 	*error = sya(input[3], varTemp);
 	if(*error) return 0;
@@ -234,13 +234,13 @@ matrix *solve(char **input, vari *var, error_return *error) {
 	}
 
 
-	matrix *output = copyMatrix(varTemp->value[varIndex], error);
+	matrix *output = cpy_mat(varTemp->value[varIndex], error);
 	freeVari(varTemp);
 	return output;
 }
 
 
-matrix *zeros(char **input, vari *var, error_return *error) {
+matrix *zeros(char **input, vari *var, err_ret *error) {
 	uint8_t dimension = numberOfArgs(input);
 	uint16_t *newSize = NULL;
 
@@ -270,7 +270,7 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 				*error = -11;
 			}
 
-		} else if(isVector(var->ans)) {
+		} else if(is_vec(var->ans)) {
 			dimension = var->ans->dimension;
 			newSize = malloc(sizeof(*newSize) * (dimension + 1));
 			if(newSize == NULL) {
@@ -311,7 +311,7 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 	matrix *out = NULL;
 	if( !(*error)) {
 		newSize[dimension] = 0;
-		out = initMatrix(newSize, dimension, error);
+		out = init_mat(newSize, dimension, error);
 	}
 
 	free(newSize);
@@ -320,7 +320,7 @@ matrix *zeros(char **input, vari *var, error_return *error) {
 }
 
 
-matrix *ones(char **input, vari *var, error_return *error) {
+matrix *ones(char **input, vari *var, err_ret *error) {
 	//call zeros and just replace all the input
 	matrix *out = zeros(input, var, error);
 	if( !(*error) ) {
@@ -333,12 +333,11 @@ matrix *ones(char **input, vari *var, error_return *error) {
 }
 
 
-matrix *randMatrix(char **input, vari *var, error_return *error) {
+matrix *rand_mat(char **input, vari *var, err_ret *error) {
 	matrix *out = zeros(input, var, error);
 	if( !(*error) ) {
-		for(uint64_t i = 0; i < out->length; ++i) {
-			out->elements[i] = (element)rand() / RAND_MAX;
-		}
+		for(uint64_t i = 0; i < out->length; ++i)
+			out->elements[i] = (ele)rand() / RAND_MAX;
 
 	}
 
@@ -346,7 +345,7 @@ matrix *randMatrix(char **input, vari *var, error_return *error) {
 }
 
 
-matrix *linspace(char **input, vari *var, error_return *error) {
+matrix *linspace(char **input, vari *var, err_ret *error) {
 	int argNo = numberOfArgs(input);
 
 	matrix *out = NULL;
@@ -358,9 +357,9 @@ matrix *linspace(char **input, vari *var, error_return *error) {
 
 	vari *varTemp = copyVari(var, error);
 
-	element a = 0;
-	element b = 0;
-	element length = 0;
+	ele a = 0;
+	ele b = 0;
+	ele length = 0;
 
 	*error = sya(input[0], varTemp);
 	if(varTemp->ans->dimension != 1)
@@ -399,12 +398,12 @@ matrix *linspace(char **input, vari *var, error_return *error) {
 
 		uint16_t newSize[3] = {length, 1, 0};
 
-		out = initMatrix(newSize, 2, error);
+		out = init_mat(newSize, 2, error);
 
-		element step = (b - a) / (length - 1);
+		ele step = (b - a) / (length - 1);
 
 		for(uint64_t i = 0; i < out->length; ++i) {
-			out->elements[i] = step * (element) i + a;
+			out->elements[i] = step * (ele) i + a;
 		}
 	}
 	freeVari(varTemp);
@@ -413,7 +412,7 @@ matrix *linspace(char **input, vari *var, error_return *error) {
 }
 
 
-matrix *extractValue(char **input, int varIndex, vari *var, error_return *error) {
+matrix *extractValue(char **input, int varIndex, vari *var, err_ret *error) {
 	matrix *out = NULL;
 	uint8_t dimension = numberOfArgs(input);
 
@@ -431,7 +430,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 			return NULL;
 		}
 
-		out = copyMatrix(varTemp->ans, error);
+		out = cpy_mat(varTemp->ans, error);
 		if(*error) {
 			freeVari(varTemp);
 			return NULL;
@@ -445,7 +444,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 			if((uint64_t)out->elements[i] >= varTemp->value[varIndex]->length) {
 				*error = -11;
 				freeVari(varTemp);
-				freeMatrix(out);
+				free_mat(out);
 
 				return NULL;
 			}
@@ -490,7 +489,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 
 		//check index is within bound
 		if(index < varTemp->value[varIndex]->length) {
-			out = initScalar(index, error);
+			out = init_scalar(index, error);
 		} else {
 			*error = -11;
 		}
@@ -505,8 +504,8 @@ matrix *extractValue(char **input, int varIndex, vari *var, error_return *error)
 }
 
 
-error_return checkVariable(const char *buffer, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
-	error_return error = 0;
+err_ret checkVariable(const char *buffer, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
+	err_ret error = 0;
 
 	uint16_t varLen = strlen(buffer);
 
@@ -620,8 +619,8 @@ char *removeSpaces(char *input) {
 /*
  * print to stdout, formatting is similar to matlab
  */
-error_return printLine(char **input, vari *var) {
-	error_return error = 0;
+err_ret printLine(char **input, vari *var) {
+	err_ret error = 0;
 
 	uint8_t argNo = numberOfArgs(input);
 
@@ -681,7 +680,7 @@ error_return printLine(char **input, vari *var) {
 			error = sya(input[i], varTemp); //calculate expression and print, print variables this way
 			if(error) return error;
 
-			printMatrix(varTemp->ans);
+			print_mat(varTemp->ans);
 
 		}
 	}
@@ -693,7 +692,7 @@ error_return printLine(char **input, vari *var) {
 }
 
 
-char **separateString(char *input, char const * const limiter, char const * const delimiter, uint16_t *iterator, error_return *error) {
+char **separateString(char *input, char const * const limiter, char const * const delimiter, uint16_t *iterator, err_ret *error) {
 
 	//increment input to the first parenthesis
 	input += (*iterator + 1);

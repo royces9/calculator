@@ -2,20 +2,20 @@
 #define OPERATOR
 
 
-int searchFunctionArray(char *buffer);
-int searchOperatorArray(char *buffer);
-operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration);
-error_return execNum(numberStack *num, vari *var, operatorStruct *ch);
+int search_fun(char *buffer);
+int search_op(char *buffer);
+//operatorStruct setOpStack(const char *operator, int argNo, int precedence, int enumeration);
+err_ret ex_num(numberStack *num, vari *var, operatorStruct *ch);
 
-matrix *matrixOneArg(matrix *a, operatorStruct *ch, error_return *error);
-matrix *matrixTwoArg(matrix *a, matrix *b, operatorStruct *ch, error_return *error);
+matrix *mat_one(matrix *a, operatorStruct *ch, err_ret *error);
+matrix *mat_two(matrix *a, matrix *b, operatorStruct *ch, err_ret *error);
 
-error_return findFunction(char *buffer, numberStack *num, operatorStack *ch, vari *var, int8_t *tok, uint16_t *iterator, char *input);
-error_return findOperator(char *buffer, numberStack *num, operatorStack *ch, vari *var, int8_t *tok);
+err_ret find_fun(char *buffer, numberStack *num, operatorStack *ch, vari *var, int8_t *tok, uint16_t *iterator, char *input);
+err_ret find_op(char *buffer, numberStack *num, operatorStack *ch, vari *var, int8_t *tok);
 
-char **separateMatrix(char *input, uint16_t length, error_return *error);
-matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, error_return *error);
+char **separateMatrix(char *input, uint16_t length, err_ret *error);
+matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error);
 
-void helpPrint(void);
+void help_print(void);
 
 #endif //OPERATOR

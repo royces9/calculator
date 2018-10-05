@@ -6,7 +6,7 @@
 #include "fileStruct.h"
 
 
-fileTree *createLeaf(error_return *error) {
+fileTree *createLeaf(err_ret *error) {
 	fileTree *leaf = calloc(1, sizeof(*leaf));
 	__MALLOC_CHECK(leaf, *error);
 

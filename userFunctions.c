@@ -18,7 +18,7 @@
 char *configFilePath = "~/.calc.cfg";
 
 //find and execute a user made function
-matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, error_return *error) {
+matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, err_ret *error) {
 	//get the path to the file
 	matrix *out = NULL;
 	char *functionPath = findFunctionPath(functionName, error);
@@ -37,7 +37,7 @@ matrix *findUserFunction(char *functionName, char **functionArgs, vari *var, err
 
 
 //checks a config file with a list of paths to check if functionName exists
-char *checkConfig(char *functionName, char *configPath, error_return *error) {
+char *checkConfig(char *functionName, char *configPath, err_ret *error) {
 	struct dirent *d;
 	char filePaths[1024];
 	uint8_t foundFlag = 0;
@@ -79,7 +79,7 @@ char *checkConfig(char *functionName, char *configPath, error_return *error) {
 
 
 //returns the path to the function
-char *findFunctionPath(char *functionName, error_return *error) {
+char *findFunctionPath(char *functionName, err_ret *error) {
 	struct dirent *d;
 	DIR *currentDirectory = opendir(".");
 
@@ -139,7 +139,7 @@ char *findFunctionPath(char *functionName, error_return *error) {
 }
 
 
-matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, error_return *error) {
+matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, err_ret *error) {
 	int argNo = numberOfArgs(functionArgs);
 
 	FILE *userFunction = fopen(functionPath, "r");
@@ -205,7 +205,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 			}
 
 			//set the first variable to the corresponding name and value
-			setVariable(functionVar, inputName, copyMatrix(var->ans, error), error);
+			setVariable(functionVar, inputName, cpy_mat(var->ans, error), error);
 			if(*error) {
 				freeDoubleArray(functionArgNames);
 				freeVari(functionVar);
@@ -218,7 +218,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 				*error = sya(functionArgs[j], var);
 				if(*error) break;
 
-				setVariable(functionVar, inputName, copyMatrix(var->ans, error), error);
+				setVariable(functionVar, inputName, cpy_mat(var->ans, error), error);
 
 				if(*error) break;
 
@@ -241,7 +241,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 				if(outVariable < 0)
 					*error = -12;
 				
-				out = copyMatrix(functionVar->value[outVariable], error);
+				out = cpy_mat(functionVar->value[outVariable], error);
 			}
 
 		} else {

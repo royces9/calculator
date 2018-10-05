@@ -3,12 +3,12 @@
 
 #include "fileStruct.h"
 
-error_return runFile(char **input, vari *var, int offset);
+err_ret runFile(char **input, vari *var, int offset);
 fileStack newFileStack();
-error_return createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize, int offset);
-error_return executeTree(fileTree *tree, vari *var, int maxSize); 
-error_return checkProgramFlow(char *input);
-error_return checkConditional(char *input, int type, vari *var);
+err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize, int offset);
+err_ret executeTree(fileTree *tree, vari *var, int maxSize); 
+err_ret checkProgramFlow(char *input);
+err_ret checkConditional(char *input, int type, vari *var);
 void freeString(char **string, int max);
 
 #endif //FILES

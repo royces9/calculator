@@ -13,9 +13,9 @@
 #include "file.h"
 
 
-error_return runFile(char **input, vari *var, int offset) {
+err_ret runFile(char **input, vari *var, int offset) {
 	//error variable
-	error_return error = 0;
+	err_ret error = 0;
 
 	//maximum size of tree
 	int maxSize = 1024; //maximum size of tree
@@ -59,7 +59,7 @@ fileStack newFileStack() {
 
 
 //create and populate tree
-error_return createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize, int offset){
+err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize, int offset){
 
 	//file to read from
 	FILE *inputFile = fopen(fileName, "r");
@@ -71,7 +71,7 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
 	int8_t direction = 0;
 
 	//error checking
-	error_return error = 0;
+	err_ret error = 0;
 
 	//lengh of string
 	int length = 0;
@@ -163,7 +163,7 @@ error_return createTree(char *fileName, fileTree *tree, char **fileString, int *
 }
 
 
-error_return executeTree(fileTree *tree, vari *var, int maxSize){
+err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 	//checking the direction of program flow
 	int8_t direction = 0;
 
@@ -177,7 +177,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 	int8_t *checkStack = calloc(maxSize, sizeof(*checkStack));
   
 	//error 
-	error_return error = 0;
+	err_ret error = 0;
 
 	//create new file stack
 	fileStack stk = newFileStack();
@@ -274,7 +274,7 @@ error_return executeTree(fileTree *tree, vari *var, int maxSize){
 			if(error >= -1) {
 				//print output
 				if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0))
-					printMatrix(var->ans);
+					print_mat(var->ans);
 
 				//continue execution going left
 				tree = tree->left;
@@ -329,10 +329,10 @@ char *parseCondition(char *input, int type) {
 int8_t checkConditional(char *input, int type, vari *var) {
 	input = parseCondition(input, type);
 
-	error_return error = sya(input, var);
+	err_ret error = sya(input, var);
 	if(error) return error; 
 
-	element out = var->ans->elements[0];
+	ele out = var->ans->elements[0];
 
 	//guarantee that the output is 1 or 0
 	return !!out;

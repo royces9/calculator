@@ -9,7 +9,7 @@ typedef struct matrix{
 	uint16_t *size;
 
 	//elements of the matrix
-	element *elements;
+	ele *elements;
 
 	//number of dimensions
 	uint8_t dimension;
@@ -19,22 +19,22 @@ typedef struct matrix{
 } matrix; 
 
 
-matrix *initMatrix(uint16_t *size, uint8_t dimension, error_return *error);
-matrix *initScalar(element e, error_return *error);
-matrix *copyMatrix(matrix *src, error_return *error);
-matrix *concatMatrix(matrix *a, matrix *b, uint8_t dimension, error_return *error);
+matrix *init_mat(uint16_t *size, uint8_t dimension, err_ret *error);
+matrix *init_scalar(ele e, err_ret *error);
+matrix *cpy_mat(matrix *src, err_ret *error);
+matrix *cat_mat(matrix *a, matrix *b, uint8_t dimension, err_ret *error);
 
-void freeMatrix(matrix *m);
-void printTwoDMatrix(const matrix *m, int offset);
-void printMatrix(const matrix *m);
+void free_mat(matrix *m);
+void print_two_d(const matrix *m, int offset);
+void print_mat(const matrix *m);
 
 uint64_t getLength(uint16_t *size, uint8_t dimension);
 uint64_t sub2ind(uint16_t *location, uint16_t *size, uint8_t dimension);
 
-error_return isScalar(matrix *m);
-error_return isVector(matrix *m);
+err_ret is_scalar(matrix *m);
+err_ret is_vec(matrix *m);
 
-error_return compareSize(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB);
-error_return checkInnerDim(matrix *a, matrix *b);
+err_ret cmp_size(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB);
+err_ret chk_inner(matrix *a, matrix *b);
 
 #endif //MATRIX

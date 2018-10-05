@@ -10,7 +10,7 @@
 
 
 //put simple type defs here
-typedef int8_t error_return;
-typedef double element;
+typedef int8_t err_ret;
+typedef double ele;
 
 #endif //TYPES

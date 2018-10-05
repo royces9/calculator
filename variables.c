@@ -8,13 +8,13 @@
 
 vari *newVari(void) {
 	vari *var = calloc(1, sizeof(*var));
-	var->ans = initScalar(0, NULL);
+	var->ans = init_scalar(0, NULL);
 	var->count = -1;
 	return var;
 }
 
 
-vari *copyVari(vari *var, error_return *error){
+vari *copyVari(vari *var, err_ret *error){
 	vari *out = malloc(sizeof(*out));
 
 	out->ans = calloc(1, sizeof(*out->ans));
@@ -24,14 +24,13 @@ vari *copyVari(vari *var, error_return *error){
 
 	out->count = var->count;
 
-
 	if(var->count > -1){
 		int i = 0;
 		for(; i < var->count; ++i){
 			out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
 			strcpy(out->name[i], var->name[i]);
 
-			out->value[i] = copyMatrix(var->value[i], error);
+			out->value[i] = cpy_mat(var->value[i], error);
 			out->value[i]->variable = 1;
 		}
 
@@ -40,7 +39,7 @@ vari *copyVari(vari *var, error_return *error){
 			out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
 			strcpy(out->name[i], var->name[i]);
 
-			out->value[i] = copyMatrix(var->value[i], error);
+			out->value[i] = cpy_mat(var->value[i], error);
 			out->value[i]->variable = 1;
 		}
 		++i;
@@ -69,8 +68,8 @@ int findVariable(vari *list, char *input) {
 }
 
 
-int setVariable(vari *var, char *name, matrix *a, error_return *error){
-	//error_return setVariable(vari *var, char *name, matrix *a, int *check){
+int setVariable(vari *var, char *name, matrix *a, err_ret *error){
+	//err_ret setVariable(vari *var, char *name, matrix *a, int *check){
 	//check is from the output of findVariable
 
 	int index = findVariable(var, name);
@@ -88,7 +87,7 @@ int setVariable(vari *var, char *name, matrix *a, error_return *error){
 	default: //variable exists already
 		free(var->name[index]);
 		var->value[index]->variable = 0;
-		freeMatrix(var->value[index]);
+		free_mat(var->value[index]);
 		break;
 	}
 
@@ -112,13 +111,13 @@ void freeVari(vari *var){
 
 	for(int i = 0; var->value[i]; ++i){
 		var->value[i]->variable = 0;
-		freeMatrix(var->value[i]);
+		free_mat(var->value[i]);
 	}
 
-	freeMatrix(var->ans);
+	free_mat(var->ans);
 
 	if(var->assignIndex != NULL){
-		freeMatrix(var->assignIndex);
+		free_mat(var->assignIndex);
 	}
 
 	free(var);

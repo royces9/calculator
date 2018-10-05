@@ -23,12 +23,12 @@ typedef struct { //variable storage
 } vari;
 
 vari *newVari(void);
-vari *copyVari(vari *var, error_return *error);
+vari *copyVari(vari *var, err_ret *error);
 
 //find variable named input in list
 int findVariable(vari *list, char *input);
 
-int setVariable(vari *var, char *name, matrix *a, error_return *error);
+int setVariable(vari *var, char *name, matrix *a, err_ret *error);
 void freeVari(vari *var);
 
 
