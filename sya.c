@@ -35,24 +35,24 @@ err_ret sya(char *input, vari *var) {
 	int16_t parenthesisCount = 0; 
 	int16_t bracketCount = 0;
 
-	int16_t length = 0;
+	int16_t len = 0;
 
 	//count left and right end parens/brackets, check that they match
 	//also measure length of string
-	for(; input[length]; ++length) {
+	for(; input[len]; ++len) {
 		//increment for left end
 		//decrement for right end
-		if(input[length] == '(')
+		if(input[len] == '(')
 			++parenthesisCount;
-		if(input[length] == ')')
+		if(input[len] == ')')
 			--parenthesisCount;
 
 		if(parenthesisCount < 0)
 			return -3;
 
-		if(input[length] == '[')
+		if(input[len] == '[')
 			++bracketCount;
-		if(input[length] == ']')
+		if(input[len] == ']')
 			--bracketCount;
 
 		if(bracketCount < 0)
@@ -67,19 +67,19 @@ err_ret sya(char *input, vari *var) {
 
 
 	//if input string ends in an operator, return error
-	if(strchr(".[,+-/*^(=&|~<>",input[length-1]))
+	if(strchr(".[,+-/*^(=&|~<>",input[len - 1]))
 		return -4;
 
 
 	//buffers for characters and operators
-	char *bufferLetters = calloc(length + 1, sizeof(*bufferLetters));
+	char *bufferLetters = calloc(len + 1, sizeof(*bufferLetters));
 	__MALLOC_CHECK(bufferLetters, error);
 
-	char *bufferOper = calloc(length + 1, sizeof(*bufferOper));
+	char *bufferOper = calloc(len + 1, sizeof(*bufferOper));
 	__MALLOC_CHECK(bufferOper, error);
 
 
-	int8_t *type = malloc(sizeof(*type) * (length + 1));
+	int8_t *type = malloc(sizeof(*type) * (len + 1));
 
 	//assign a type to each char in string
 	//for the switch in the main loop
@@ -98,7 +98,7 @@ err_ret sya(char *input, vari *var) {
 		}
 	}
 
-	type[length] = 0;
+	type[len] = 0;
 
 	//stack for output numbers
 	numberStack *num_stk = newNumberStack();
@@ -138,7 +138,8 @@ err_ret sya(char *input, vari *var) {
 
 			} //end if
 
-			negativeCheck = 1; //negative check for the '-' char, which can be minus or negative
+			//negative check for the '-' char, which can be minus or negative
+			negativeCheck = 1;
 			break;
 
       
@@ -198,7 +199,7 @@ err_ret sya(char *input, vari *var) {
 			if( (error = ex_num(num_stk, var, popch(op_stk))) ) {
 				freeOperatorStack(op_stk);
 				freeNumberStack(num_stk);
-				var->assignFlag = 0;
+				var->assign = 0;
 				return error;
 			}
 		}
@@ -211,14 +212,14 @@ err_ret sya(char *input, vari *var) {
 		//if num_stack->stk is occupied, and
 		//if num_stack->stk[0] is not NULL
 		if((num_stk->top > -1) && (num_stk->stk[0]->size)) {
-			var->ans->length = num_stk->stk[0]->length;
-			var->ans->dimension = num_stk->stk[0]->dimension;
+			var->ans->len = num_stk->stk[0]->len;
+			var->ans->dim = num_stk->stk[0]->dim;
 
-			var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->length);
-			memcpy(var->ans->elements, num_stk->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->length);
+			var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->len);
+			memcpy(var->ans->elements, num_stk->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->len);
 
-			var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dimension + 1));
-			memcpy(var->ans->size, num_stk->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dimension + 1));
+			var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dim + 1));
+			memcpy(var->ans->size, num_stk->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dim + 1));
 
 		} else {
 			error = -5;
@@ -233,7 +234,7 @@ err_ret sya(char *input, vari *var) {
 	freeNumberStack(num_stk);
 
 	//reset assignment
-	var->assignFlag = 0;
+	var->assign = 0;
 	return error;
 }
 
@@ -279,14 +280,14 @@ err_ret chk_num(char *input) {
 //is in the operator array
 int chk_op(char *a, char b, err_ret *error) {
 
-	int length = strlen(a);
-	char *buffer = malloc(sizeof(*buffer) * (length + 2));
+	int len = strlen(a);
+	char *buffer = malloc(sizeof(*buffer) * (len + 2));
 	__MALLOC_CHECK(buffer, *error);
 
 	strcpy(buffer, a);
 
-	buffer[length] = b;
-	buffer[length + 1] = '\0';
+	buffer[len] = b;
+	buffer[len + 1] = '\0';
 
 	int out = search_op(buffer);
 	free(buffer);

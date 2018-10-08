@@ -3,16 +3,16 @@
 
 typedef struct { //struct for operators, +, -, etc
 	//operator/function string
-	char operator[16];
+	char op[16];
 
 	//order of operation, higher is higher priority
-	uint8_t precedence;
+	uint8_t order;
 
 	//number of arguments it takes, generally two or one
 	uint8_t argNo;
 
 	//corresponding enum, in operatorUtility.h
-	uint8_t enumeration;
+	uint8_t _enum;
 
 } operatorStruct;
 
@@ -44,7 +44,7 @@ matrix *popn(numberStack *st);
 void pushch(operatorStruct *inp, operatorStack *st);
 operatorStruct *popch(operatorStack *st);
 
-operatorStruct *initOperatorStruct(const char *operator, uint8_t argNo, uint8_t precedence, uint8_t enumeration);
+operatorStruct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum);
 
 numberStack *newNumberStack(void);
 operatorStack *newOperatorStack(void);

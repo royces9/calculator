@@ -96,25 +96,25 @@ matrix *mat_one(matrix *a, operatorStruct *ch, err_ret *error) {
 	matrix *out;
 	err_ret check = 0;
 
-	//check if ch.enumeration is a scalar operator
-	oneArg(0, ch->enumeration, &check);
+	//check if ch._enum is a scalar operator
+	one_arg(0, ch->_enum, &check);
 
-	//ch.enumeration is in oneArg if check is 0
+	//ch._enum is in oneArg if check is 0
 	if(!check) {
-		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dimension + 1));
-		memcpy(newSize, a->size, sizeof(*newSize) * (a->dimension + 1));
+		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
+		memcpy(newSize, a->size, sizeof(*newSize) * (a->dim + 1));
 
-		out = init_mat(newSize, a->dimension, error);
+		out = init_mat(newSize, a->dim, error);
 		free(newSize);
 
-		for(uint64_t i = 0; i < out->length; ++i)
-			out->elements[i] = oneArg(a->elements[i], ch->enumeration, error);
+		for(uint64_t i = 0; i < out->len; ++i)
+			out->elements[i] = one_arg(a->elements[i], ch->_enum, error);
 
 	} else {
-		switch(ch->enumeration){
+		switch(ch->_enum){
 		case eEye: out = eye(a, error); break;
-		case eSize: out = getSize(a, error); break;
-		case eTranspose: out = transposeMatrix(a, error); break;
+		case eSize: out = get_size(a, error); break;
+		case eTranspose: out = t_mat(a, error); break;
 		case eMax: out = max(a, error); break;
 		case eMin: out = min(a, error); break;
 		case eAvg: out = avg(a, error); break;
@@ -133,8 +133,9 @@ matrix *mat_two(matrix *a, matrix *b, operatorStruct *ch, err_ret *error) {
 	matrix *out = NULL;
 	err_ret check = 0;
 
-	//check if ch.enumeration is a scalar operator
-	twoArg(1, 1, ch->enumeration, &check);
+	//check if ch._enum is a scalar operator
+
+	two_arg(1, 1, ch->_enum, &check);
 
 	//check if inputs are scalar
 	uint8_t aScalar = is_scalar(a);
@@ -144,30 +145,30 @@ matrix *mat_two(matrix *a, matrix *b, operatorStruct *ch, err_ret *error) {
 
 		//if the enum is for a matrix operation
 		//change to the scalar operator
-		switch(ch->enumeration){
+		switch(ch->_enum){
 		case eMultiplyMatrix:
 			check = 0;
-			ch->enumeration = eMultiply;
+			ch->_enum = eMultiply;
 			break;
 
 		case eDivideMatrix:
 			check = 0;
-			ch->enumeration = eDivide;
+			ch->_enum = eDivide;
 			break;
 		}
 	}
 
-	//ch.enumeration is in twoArg if check is 0
+	//ch._enum is in twoArg if check is 0
 	if(!check) {
 		switch(aScalar + bScalar) {
 		case 0: //neither is a scalar
 
 			//check if a and b are the same size
-			if(cmp_size(a->size, b->size, a->dimension, b->dimension)){
-				out = init_mat(a->size, a->dimension, error);
+			if(cmp_size(a->size, b->size, a->dim, b->dim)){
+				out = init_mat(a->size, a->dim, error);
 
-				for(uint64_t i = 0; i < a->length; ++i){
-					out->elements[i] = twoArg(a->elements[i], b->elements[i], ch->enumeration, error);
+				for(uint64_t i = 0; i < a->len; ++i){
+					out->elements[i] = two_arg(a->elements[i], b->elements[i], ch->_enum, error);
 				}
 
 			} else{
@@ -179,20 +180,20 @@ matrix *mat_two(matrix *a, matrix *b, operatorStruct *ch, err_ret *error) {
 
 			if(aScalar) {
 				out = cpy_mat(b, error);
-				for(uint64_t i = 0; i < out->length; ++i){
-					out->elements[i] = twoArg(a->elements[0], b->elements[i], ch->enumeration, error);
+				for(uint64_t i = 0; i < out->len; ++i){
+					out->elements[i] = two_arg(a->elements[0], b->elements[i], ch->_enum, error);
 				}
 
 			} else {
 				out = cpy_mat(a, error);
-				for(uint64_t i = 0; i < out->length; ++i){
-					out->elements[i] = twoArg(a->elements[i], b->elements[0], ch->enumeration, error);
+				for(uint64_t i = 0; i < out->len; ++i){
+					out->elements[i] = two_arg(a->elements[i], b->elements[0], ch->_enum, error);
 				}
 			}
 			break;
 
 		case 2: //a and b are both scalars
-			out = init_scalar(twoArg(a->elements[0], b->elements[0], ch->enumeration, error), error);
+			out = init_scalar(two_arg(a->elements[0], b->elements[0], ch->_enum, error), error);
 			break;
 
 		default:
@@ -202,10 +203,10 @@ matrix *mat_two(matrix *a, matrix *b, operatorStruct *ch, err_ret *error) {
 		}
 
 	} else{
-		switch(ch->enumeration){
-		case eMultiplyMatrix: out = multiplyMatrix(a, b, error); break;
-		case eExponentMatrix: out = exponentMatrix(a, b, error); break;
-		case eDivideMatrix: out = divideMatrix(a, b, error); break;
+		switch(ch->_enum){
+		case eMultiplyMatrix: out = mult_mat(a, b, error); break;
+		case eExponentMatrix: out = exp_mat(a, b, error); break;
+			//case eDivideMatrix: out = div_mat(a, b, error); break;
 		case eReference: out = reference(a, b, error); break;
 		default: *error = -10; break;
 		}
@@ -228,7 +229,7 @@ err_ret find_fun(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 
 	case eClear:
 		for(int i = 0; i <= var->count; ++i){
-			var->value[i]->variable = 0;
+			var->value[i]->var = 0;
 			free_mat(var->value[i]);
 			var->value[i] = NULL;
 
@@ -293,54 +294,54 @@ err_ret find_fun(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 	case eTranspose:
 	case eMagnitude:
 	case eNumel:
-		pushch(initOperatorStruct(FUNCTION_LIST[i], 1, 15, i), ch);
+		pushch(init_op_struct(FUNCTION_LIST[i], 1, 15, i), ch);
 		*tok = 0;
 		break;
 
 	case eDeri:
-		separatedString = separateString(input, "()", ",", iterator, &error);
+		separatedString = sep_str(input, "()", ",", iterator, &error);
 		out = deri(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eInte:
-		separatedString = separateString(input, "()", ",", iterator, &error);
+		separatedString = sep_str(input, "()", ",", iterator, &error);
 		out = inte(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eSolve:
-		separatedString = separateString(input, "()", "," , iterator, &error);
+		separatedString = sep_str(input, "()", "," , iterator, &error);
 		out = solve(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eZeros:
-		separatedString = separateString(input, "()[]", ",", iterator, &error);
+		separatedString = sep_str(input, "()[]", ",", iterator, &error);
 		out = zeros(separatedString, var, &error);
 		*tok = 0;
 		break;
     
 	case eOnes:
-		separatedString = separateString(input, "()[]", ",", iterator, &error);
+		separatedString = sep_str(input, "()[]", ",", iterator, &error);
 		out = ones(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eRand:
-		separatedString = separateString(input, "()", ",", iterator, &error);
+		separatedString = sep_str(input, "()", ",", iterator, &error);
 		out = rand_mat(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eLinspace:
-		separatedString = separateString(input, "()", ",", iterator, &error);
+		separatedString = sep_str(input, "()", ",", iterator, &error);
 		out = linspace(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eRun:
-		separatedString = separateString(input, "()", "\0", iterator, &error);
+		separatedString = sep_str(input, "()", "\0", iterator, &error);
 		error = runFile(separatedString, var, 0);
 		if(!error) {
 			//copy ans matrix so it doesn't get freed
@@ -350,7 +351,7 @@ err_ret find_fun(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 		break;
 
 	case ePrint:
-		separatedString = separateString(input, "()[]", ",", iterator, &error);
+		separatedString = sep_str(input, "()[]", ",", iterator, &error);
 		error = printLine(separatedString, var);
 		break;
 
@@ -358,11 +359,11 @@ err_ret find_fun(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 		//if the variable does not exist
 		error = checkVariable(buffer, input, iterator, var, num, ch);
 		if(error == -5){
-			int bufferLength = strlen(buffer);
+			int bufferLen = strlen(buffer);
 			//buffer includes the '(', if it's there, replaced with 0
-			if(buffer[bufferLength - 1] == '(') {
-				separatedString = separateString(input, "()[]", ",", iterator, &error);
-				buffer[bufferLength - 1] = '\0';
+			if(buffer[bufferLen - 1] == '(') {
+				separatedString = sep_str(input, "()[]", ",", iterator, &error);
+				buffer[bufferLen - 1] = '\0';
 				out = findUserFunction(buffer, separatedString, var, &error);
 
 			} else {
@@ -417,36 +418,36 @@ err_ret find_op(char *buffer, numberStack *num, operatorStack *oper, vari *var, 
 	case eSubtract:
 		if(*tok == 1) {
 			//if the stack is occupied, should short-circuit
-			while((oper->top > -1) && (oper->stk[oper->top]->precedence <= 6)) {
+			while((oper->top > -1) && (oper->stk[oper->top]->order <= 6)) {
 				error = ex_num(num, var, popch(oper));
 			}
-			pushch(initOperatorStruct("+", 2, 6, eAdd), oper);
+			pushch(init_op_struct("+", 2, 6, eAdd), oper);
 		}
 
 		*tok = 0;
-		pushch(initOperatorStruct("*", 2, 5, eMultiply), oper);
+		pushch(init_op_struct("*", 2, 5, eMultiply), oper);
 		pushn(init_scalar(-1, &error), num);
 		break;
 
 	case eExponentMatrix:
 		*tok = 0;
-		pushch(initOperatorStruct("^", 2, 4, eExponentMatrix), oper);
+		pushch(init_op_struct("^", 2, 4, eExponentMatrix), oper);
 		break;
     
 	case eExponent:
 		*tok = 0;
-		pushch(initOperatorStruct(".^", 2, 4, eExponent), oper);
+		pushch(init_op_struct(".^", 2, 4, eExponent), oper);
 		break;
 
 	case eLeftParen:
 		*tok = 0;
 
-		if( (oper->top > -1) && (oper->stk[oper->top]->precedence == 2) ) {
+		if( (oper->top > -1) && (oper->stk[oper->top]->order == 2) ) {
 			operatorStruct *temp = popch(oper);
-			pushch(initOperatorStruct("(", 0, 15, eLeftParen), oper);
+			pushch(init_op_struct("(", 0, 15, eLeftParen), oper);
 			pushch(temp, oper);
 		} else {
-			pushch(initOperatorStruct("(", 0, 15, eLeftParen), oper);
+			pushch(init_op_struct("(", 0, 15, eLeftParen), oper);
 		}
 		
 
@@ -456,7 +457,7 @@ err_ret find_op(char *buffer, numberStack *num, operatorStack *oper, vari *var, 
 	case eRightParen:
 		do {
 			error = ex_num(num, var, popch(oper));
-		} while( (oper->top > -1) && (oper->stk[oper->top]->enumeration != eLeftParen) );
+		} while( (oper->top > -1) && (oper->stk[oper->top]->_enum != eLeftParen) );
 
 		*tok = 1;
 		free(popch(oper));
@@ -465,12 +466,12 @@ err_ret find_op(char *buffer, numberStack *num, operatorStack *oper, vari *var, 
 
 	case eAssign:
 		*tok = 0;
-		if((oper->top > -1) && (oper->stk[oper->top]->enumeration == eReference)){
-			var->assignIndex = popn(num);
+		if((oper->top > -1) && (oper->stk[oper->top]->_enum == eReference)){
+			var->assign = popn(num);
 
 			free(popch(oper));
 		}
-		pushch(initOperatorStruct("=", 3, 16, eAssign), oper);
+		pushch(init_op_struct("=", 3, 16, eAssign), oper);
 		break;
 
 	case eAdd:
@@ -488,12 +489,11 @@ err_ret find_op(char *buffer, numberStack *num, operatorStack *oper, vari *var, 
 	case eDivideMatrix:
 	case eModulo:
 
-		while((oper->top > -1) && (oper->stk[oper->top]->precedence <= operatorPrecedence[i])) {
+		while((oper->top > -1) && (oper->stk[oper->top]->order <= operatorPrecedence[i]))
 			error = ex_num(num, var, popch(oper));
-		}
 
 		*tok = 0;
-		pushch(initOperatorStruct(buffer, 2, operatorPrecedence[i], i), oper);
+		pushch(init_op_struct(buffer, 2, operatorPrecedence[i], i), oper);
 		break;
 
 	default:
@@ -655,7 +655,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 	//free matrixString, not needed anymore
 	free(matrixString);
 
-	vari *tempVari = copyVari(var, error);
+	vari *tempVari = cpy_var(var, error);
 	*error = sya(separatedMatrix[0], tempVari);
 
 	pushn(cpy_mat(tempVari->ans, error), numStk);
@@ -724,7 +724,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 		out = popn(numStk);
 	}
 
-	freeVari(tempVari);
+	free_var(tempVari);
 	freeDoubleArray(separatedMatrix);
 
 	free(numStk);

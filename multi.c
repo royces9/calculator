@@ -15,192 +15,203 @@
 #include "multi.h"
 
 
-uint8_t numberOfArgs(char **input) {
+uint8_t numberOfArgs(char **inp) {
 	uint8_t i = 0;
-	for(; input[i]; ++i); //empty for
+	for(; inp[i]; ++i); //empty for
 	return i;
 }
 
 
-matrix *deri(char **input, vari *var, err_ret *error) {
-	ele out, inter, h, point;
-	vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
-  
-	int varIndex = 0;
+matrix *deri(char **inp, vari *var, err_ret *error) {
+	ele out;
+	ele inter;
+	ele h;
+	ele point;
 
-	//check the number of inputs is correct
-	if(numberOfArgs(input) != 4) {
+	vari *tmp = cpy_var(var, error); //copy global struct to a local variable struct
+  
+	int var_ind = 0;
+
+	//check the number of inps is correct
+	if(numberOfArgs(inp) != 4) {
 		*error = -2;
 		return 0;
 	}
 
 	//set both the point and step size
-	*error = sya(input[2], varTemp);
+	*error = sya(inp[2], tmp);
 	if(*error) return 0;
-	if(varTemp->ans->dimension != 1) {
+	if(tmp->ans->dim != 1) {
 		*error = -10;
 		return NULL;
 	}
 
-	point = varTemp->ans->elements[0];
+	point = tmp->ans->elements[0];
 
-	*error = sya(input[3], varTemp);
+	*error = sya(inp[3], tmp);
 	if(*error) return 0;
-	if(varTemp->ans->dimension != 1) {
+	if(tmp->ans->dim != 1) {
 		*error = -10;
 		return NULL;
 	}
 
-	h = varTemp->ans->elements[0];
+	h = tmp->ans->elements[0];
 
   
 	//set up a dummy variable specified by user  
-	char *dummyVariable = removeSpaces(input[1]);
+	char *tmp_var = removeSpaces(inp[1]);
   
-	varIndex = setVariable(varTemp, dummyVariable, init_scalar(point + h, error), error);
+	var_ind = set_var(tmp, tmp_var, init_scalar(point + h, error), error);
 
 	//f(x+h)
-	*error = sya(input[0], varTemp);
+	*error = sya(inp[0], tmp);
 	if(*error) return 0;
-	out = varTemp->ans->elements[0];
+	out = tmp->ans->elements[0];
 
 	//sets the dummy variable equal to x-h
-	varTemp->value[varIndex]->elements[0] = point - h;
+	tmp->value[var_ind]->elements[0] = point - h;
 
 	//f(x-h)
-	*error = sya(input[0], varTemp);
+	*error = sya(inp[0], tmp);
 	if(*error) return 0;
-	inter = varTemp->ans->elements[0];
+	inter = tmp->ans->elements[0];
 
 	//f(x+h) - f(x-h)
 	out -= inter;
   
-	freeVari(varTemp);
+	free_var(tmp);
 	return init_scalar(out / (2 * h), error);
 }
 
 
-matrix *inte(char **input, vari *var, err_ret *error) {
+matrix *inte(char **inp, vari *var, err_ret *error) {
 
 	//check number of arguments
-	if(numberOfArgs(input) != 5) {
+	if(numberOfArgs(inp) != 5) {
 		*error = -2;
 		return 0;
 	}
 
-	ele step = 0, sum = 0;
-	ele a, b, number;
-	vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
-	int varIndex = 0;
+	ele step = 0;
+	ele sum = 0;
+	ele a = 0;
+	ele b = 0;
+	ele number = 0;
+
+	vari *tmp = cpy_var(var, error); //copy global struct to a local variable struct
+	int var_ind = 0;
 
 	//get number of steps, and step size
-	*error = sya(input[2], varTemp);
+	*error = sya(inp[2], tmp);
 	if(*error) return 0;
-	if(varTemp->ans->dimension != 1) {
+	if(tmp->ans->dim != 1) {
 		*error = -10;
 		return NULL;
 	}
-	a = varTemp->ans->elements[0];
+	a = tmp->ans->elements[0];
 
-	*error = sya(input[3], varTemp);
+	*error = sya(inp[3], tmp);
 	if(*error) return 0;
-	if(varTemp->ans->dimension != 1) {
+	if(tmp->ans->dim != 1) {
 		*error = -10;
 		return NULL;
 	}
-	b = varTemp->ans->elements[0];
+	b = tmp->ans->elements[0];
 
-	*error = sya(input[4], varTemp);
+	*error = sya(inp[4], tmp);
 	if(*error) return 0;
-	if(varTemp->ans->dimension != 1) {
+	if(tmp->ans->dim != 1) {
 		*error = -10;
 		return NULL;
 	}
-	number = varTemp->ans->elements[0];
+	number = tmp->ans->elements[0];
 
 	//calculate step size
 	step = (b - a) / number;
 
-
 	//set dummy variable
-	char *dummyVariable = removeSpaces(input[1]);
+	char *tmp_var = removeSpaces(inp[1]);
 
-	varIndex = setVariable(varTemp, dummyVariable, init_scalar(0, error), error);
+	var_ind = set_var(tmp, tmp_var, init_scalar(0, error), error);
 	//calculate integral using composite Simpson's
 
 	number = floor(number/2); //halve the steps
 
 	for(int i = 1; i <= number; ++i) {
 		//f(x_2i-2)
-		varTemp->value[varIndex]->elements[0] = a + (((2 * i) - 2) * step);
-		*error = sya(input[0], varTemp);
+		tmp->value[var_ind]->elements[0] = a + (((2 * i) - 2) * step);
+		*error = sya(inp[0], tmp);
 		if(*error) return 0;
-		sum += varTemp->ans->elements[0];
+		sum += tmp->ans->elements[0];
 
 
 		//4*f(x_2i-1)
-		varTemp->value[varIndex]->elements[0] = a + (((2 * i) - 1) * step);
-		*error = sya(input[0], varTemp);
+		tmp->value[var_ind]->elements[0] = a + (((2 * i) - 1) * step);
+		*error = sya(inp[0], tmp);
 		if(*error) return 0;
-		sum += (4 * varTemp->ans->elements[0]);
+		sum += (4 * tmp->ans->elements[0]);
 
 
 		//f(x_2i)
-		varTemp->value[varIndex]->elements[0] = a + ((2 * i) * step);
-		*error = sya(input[0], varTemp);
+		tmp->value[var_ind]->elements[0] = a + ((2 * i) * step);
+		*error = sya(inp[0], tmp);
 		if(*error) return 0;
-		sum += varTemp->ans->elements[0];
+		sum += tmp->ans->elements[0];
 	}
 
-	freeVari(varTemp);
+	free_var(tmp);
 
 	//return integral
 	return init_scalar(sum * (step / 3), error);
 }
 
 
-matrix *solve(char **input, vari *var, err_ret *error) {
+matrix *solve(char **inp, vari *var, err_ret *error) {
 	//check number of arguments
-	if(numberOfArgs(input) != 4) {
+	if(numberOfArgs(inp) != 4) {
 		*error = -2;
 		return 0;
 	}
 
-	vari *varTemp = copyVari(var, error); //copy global struct to a local variable struct
+	vari *tmp = cpy_var(var, error); //copy global struct to a local variable struct
+	int var_ind = 0;
   
-	ele out, inter, h;
-	double test = 0, delta = 0.000001;
-	int varIndex = 0;
+	ele out = 0;
+	ele inter = 0;
+	ele h = 0;
+	double test = 0;
+
+	const double delta = 0.000001;
+
 
 	/*
-	  input[0] = function
-	  input[1] = variable
-	  input[2] = initial guess
-	  input[3] = tolerance
+	  inp[0] = function
+	  inp[1] = variable
+	  inp[2] = initial guess
+	  inp[3] = tolerance
 	*/
 
 	//set dummy variable
 
 	//set initial guess and the tolerance
-	*error = sya(input[2], varTemp);
+	*error = sya(inp[2], tmp);
 	if(*error) return 0;
-	if(varTemp->ans->dimension != 1) {
+	if(tmp->ans->dim != 1) {
 		*error = -10;
 		return NULL;
 	}
 
 
-	char *dummyVariable = removeSpaces(input[1]);
-	varIndex = setVariable(varTemp, dummyVariable, cpy_mat(varTemp->ans, error), error);
+	char *tmp_var = removeSpaces(inp[1]);
+	var_ind = set_var(tmp, tmp_var, cpy_mat(tmp->ans, error), error);
 
-	*error = sya(input[3], varTemp);
+	*error = sya(inp[3], tmp);
 	if(*error) return 0;
-	if(varTemp->ans->dimension != 1) {
+	if(tmp->ans->dim != 1) {
 		*error = -10;
 		return NULL;
 	}
-	h = varTemp->ans->elements[0];
-
+	h = tmp->ans->elements[0];
 
   
 	//ensure test is always greater than h
@@ -212,18 +223,20 @@ matrix *solve(char **input, vari *var, err_ret *error) {
 	uint16_t counter = 1;
 
 	//solve f(x)=0 for x using Newton's method
-	while(fabs(test) > h) { //if the difference between iterations is less than the tolerance, break out of loop
-		*error = sya(input[0], varTemp);
-		if(*error) return NULL;
-		out = varTemp->ans->elements[0];
 
-		varTemp->value[varIndex]->elements[0] -= delta;
-		*error = sya(input[0], varTemp);
+	//if the difference between iterations is less than the tolerance, break out of loop
+	while(fabs(test) > h) {
+		*error = sya(inp[0], tmp);
 		if(*error) return NULL;
-		inter = varTemp->ans->elements[0];
+		out = tmp->ans->elements[0];
+
+		tmp->value[var_ind]->elements[0] -= delta;
+		*error = sya(inp[0], tmp);
+		if(*error) return NULL;
+		inter = tmp->ans->elements[0];
 
 		test = (delta * out) / (out - inter);
-		varTemp->value[varIndex]->elements[0] -= test;
+		tmp->value[var_ind]->elements[0] -= test;
 
 		//if counter overflows and goes back to 0
 		//this is true, max value is 65535 (2 bytes)
@@ -234,33 +247,31 @@ matrix *solve(char **input, vari *var, err_ret *error) {
 	}
 
 
-	matrix *output = cpy_mat(varTemp->value[varIndex], error);
-	freeVari(varTemp);
+	matrix *output = cpy_mat(tmp->value[var_ind], error);
+	free_var(tmp);
+
 	return output;
 }
 
 
-matrix *zeros(char **input, vari *var, err_ret *error) {
-	uint8_t dimension = numberOfArgs(input);
+matrix *zeros(char **inp, vari *var, err_ret *error) {
+	uint8_t dim = numberOfArgs(inp);
 	uint16_t *newSize = NULL;
 
-	//only one input, make a square matrix of that size
+	//only one inp, make a square matrix of that size
 	//or if it's a matrix, make one of that size
-	switch(dimension) {
+	switch(dim) {
 	case 1:
- 		*error = sya(input[0], var);
+ 		*error = sya(inp[0], var);
 		if(*error) break;
 
-		//check that the one input is a scalar
-		if(var->ans->dimension == 1) {
+		//check that the one inp is a scalar
+		if(var->ans->dim == 1) {
 			//change dimension to make square matrix
-			dimension = 2;
+			dim = 2;
 
-			newSize = malloc(sizeof(*newSize) * (dimension + 1));
-			if(newSize == NULL) {
-				*error = -8;
-				break;
-			}
+			newSize = malloc(sizeof(*newSize) * (dim + 1));
+			__MALLOC_CHECK(newSize, *error);
 
 			if(var->ans->elements[0]) {
 				newSize[0] = var->ans->elements[0];
@@ -271,14 +282,12 @@ matrix *zeros(char **input, vari *var, err_ret *error) {
 			}
 
 		} else if(is_vec(var->ans)) {
-			dimension = var->ans->dimension;
-			newSize = malloc(sizeof(*newSize) * (dimension + 1));
-			if(newSize == NULL) {
-				*error = -8;
-			}
+			dim = var->ans->dim;
+			newSize = malloc(sizeof(*newSize) * (dim + 1));
+			__MALLOC_CHECK(newSize, *error);
 	
 			uint8_t i = 0;
-			for(; i < var->ans->length; ++i) {
+			for(; i < var->ans->len; ++i) {
 				if( !(var->ans->elements[i]) ) {
 					newSize[i] = var->ans->elements[i];
 				} else {
@@ -294,12 +303,13 @@ matrix *zeros(char **input, vari *var, err_ret *error) {
 		break;
 
 	default:
-		newSize = malloc(sizeof(*newSize) * (dimension + 1));
+		newSize = malloc(sizeof(*newSize) * (dim + 1));
+		__MALLOC_CHECK(newSize, *error);
 
-		for(uint8_t i = 0; i < dimension; ++i) {
-			*error = sya(input[i], var);
+		for(uint8_t i = 0; i < dim; ++i) {
+			*error = sya(inp[i], var);
 
-			if(var->ans->dimension != 1) {
+			if(var->ans->dim != 1) {
 				*error = -10;
 				break;
 			}
@@ -310,8 +320,8 @@ matrix *zeros(char **input, vari *var, err_ret *error) {
 
 	matrix *out = NULL;
 	if( !(*error)) {
-		newSize[dimension] = 0;
-		out = init_mat(newSize, dimension, error);
+		newSize[dim] = 0;
+		out = init_mat(newSize, dim, error);
 	}
 
 	free(newSize);
@@ -320,11 +330,11 @@ matrix *zeros(char **input, vari *var, err_ret *error) {
 }
 
 
-matrix *ones(char **input, vari *var, err_ret *error) {
-	//call zeros and just replace all the input
-	matrix *out = zeros(input, var, error);
+matrix *ones(char **inp, vari *var, err_ret *error) {
+	//call zeros and just replace all the inp
+	matrix *out = zeros(inp, var, error);
 	if( !(*error) ) {
-		for(uint64_t i = 0; i < out->length; ++i) {
+		for(uint64_t i = 0; i < out->len; ++i) {
 			out->elements[i] = 1;
 		}
 	}
@@ -333,10 +343,10 @@ matrix *ones(char **input, vari *var, err_ret *error) {
 }
 
 
-matrix *rand_mat(char **input, vari *var, err_ret *error) {
-	matrix *out = zeros(input, var, error);
+matrix *rand_mat(char **inp, vari *var, err_ret *error) {
+	matrix *out = zeros(inp, var, error);
 	if( !(*error) ) {
-		for(uint64_t i = 0; i < out->length; ++i)
+		for(uint64_t i = 0; i < out->len; ++i)
 			out->elements[i] = (ele)rand() / RAND_MAX;
 
 	}
@@ -345,8 +355,8 @@ matrix *rand_mat(char **input, vari *var, err_ret *error) {
 }
 
 
-matrix *linspace(char **input, vari *var, err_ret *error) {
-	int argNo = numberOfArgs(input);
+matrix *linspace(char **inp, vari *var, err_ret *error) {
+	int argNo = numberOfArgs(inp);
 
 	matrix *out = NULL;
 
@@ -355,141 +365,137 @@ matrix *linspace(char **input, vari *var, err_ret *error) {
 		return out;
 	}
 
-	vari *varTemp = copyVari(var, error);
+	vari *tmp = cpy_var(var, error);
 
 	ele a = 0;
 	ele b = 0;
-	ele length = 0;
+	ele len = 0;
 
-	*error = sya(input[0], varTemp);
-	if(varTemp->ans->dimension != 1)
+	*error = sya(inp[0], tmp);
+	if(tmp->ans->dim != 1) {
 		*error = -10;
-
-	if(*error) {
 		return out;
 	} else {
-		a = varTemp->ans->elements[0];
+		a = tmp->ans->elements[0];
 	}
 
-	*error = sya(input[1], varTemp);
-	if(varTemp->ans->dimension != 1)
+	*error = sya(inp[1], tmp);
+	if(tmp->ans->dim != 1) {
 		*error = -10;
-
-	if(*error) {
 		return out;
 	} else {
-		b = varTemp->ans->elements[0];
+		b = tmp->ans->elements[0];
 	}
 
-	*error = sya(input[2], varTemp);
-	if(varTemp->ans->dimension != 1)
+	*error = sya(inp[2], tmp);
+	if(tmp->ans->dim != 1) {
 		*error = -10;
-
-	if(*error) {
 		return out;
 	} else {
-		length = varTemp->ans->elements[0];
+		len = tmp->ans->elements[0];
 	}
 
-	if( (length < 0) || ((length - floor(length)) > 0) ) {
+	if( (len < 0) || ((len - floor(len)) > 0) ) {
 		*error = -4;
 
 	} else {
 
-		uint16_t newSize[3] = {length, 1, 0};
+		uint16_t newSize[3] = {len, 1, 0};
 
 		out = init_mat(newSize, 2, error);
 
-		ele step = (b - a) / (length - 1);
+		ele step = (b - a) / (len - 1);
 
-		for(uint64_t i = 0; i < out->length; ++i) {
+		for(uint64_t i = 0; i < out->len; ++i) {
 			out->elements[i] = step * (ele) i + a;
 		}
 	}
-	freeVari(varTemp);
+
+	free_var(tmp);
   
 	return out;
 }
 
 
-matrix *extractValue(char **input, int varIndex, vari *var, err_ret *error) {
+matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 	matrix *out = NULL;
-	uint8_t dimension = numberOfArgs(input);
+	uint8_t dim = numberOfArgs(inp);
 
-	if(input[0][0] == 0) {
+	if(!inp[0][0]) {
 		*error = -4;
 		return NULL;
 	}
     
-	vari *varTemp = copyVari(var, error);
+	vari *tmp = cpy_var(var, error);
 
-	if(dimension == 1) { //if the number of inputs is 1
-		*error = sya(input[0], varTemp);
+	if(dim == 1) { //if the number of inps is 1
+		*error = sya(inp[0], tmp);
 		if(*error) {
-			freeVari(varTemp);
+			free_var(tmp);
 			return NULL;
 		}
 
-		out = cpy_mat(varTemp->ans, error);
+		out = cpy_mat(tmp->ans, error);
 		if(*error) {
-			freeVari(varTemp);
+			free_var(tmp);
 			return NULL;
 		}
 
 		//out is a matrix that holds indices
-		for(uint64_t i = 0; i < out->length; ++i) {
+		for(uint64_t i = 0; i < out->len; ++i) {
 
 			--(out->elements[i]);
-			//check that the input is within bound
-			if((uint64_t)out->elements[i] >= varTemp->value[varIndex]->length) {
+			//check that the inp is within bound
+			if((uint64_t)out->elements[i] >= tmp->value[var_ind]->len) {
 				*error = -11;
-				freeVari(varTemp);
+				free_var(tmp);
 				free_mat(out);
 
 				return NULL;
 			}
 		}
 
-		//if the number of inputs is equal to dimension
-	} else if(dimension == varTemp->value[varIndex]->dimension) {
-		uint16_t *location = malloc(sizeof(*location) * (dimension + 1));
+		//if the number of inps is equal to dimension
+	} else if(dim == tmp->value[var_ind]->dim) {
+		uint16_t *loc = malloc(sizeof(*loc) * (dim + 1));
+		__MALLOC_CHECK(loc, *error);
 
-		for(uint8_t i = 0; i < dimension; ++i) {
-			*error = sya(input[i], varTemp);
+		for(uint8_t i = 0; i < dim; ++i) {
+			*error = sya(inp[i], tmp);
 			if(*error) {
-				free(location);
-				freeVari(varTemp);
+				free(loc);
+				free_var(tmp);
 				return NULL;
 			}
 
-			//check that the input is one dimensional
-			if(varTemp->ans->dimension == 1) {
+			//check that the inp is one dimensional
+			if(tmp->ans->dim == 1) {
 				//location is 1 indexed, while sub2ind is 0 indexed
 				//so subtract 1 to 0 index
-				location[i] = varTemp->ans->elements[0] - 1;
+				loc[i] = tmp->ans->elements[0] - 1;
 
 				//check that each sublocation is also within bounds
-				if(location[i] >= varTemp->value[varIndex]->size[i]) {
+				if(loc[i] >= tmp->value[var_ind]->size[i]) {
 					*error = -11;
-					free(location);
-					freeVari(varTemp);
+					free(loc);
+					free_var(tmp);
 					return NULL;
 				}
 			} else {
 				*error = -10;
-				free(location);
-				freeVari(varTemp);
+				free(loc);
+				free_var(tmp);
 				return NULL;
 			}
 		}
-		location[dimension] = 0;
+		loc[dim] = 0;
 
-		uint64_t index = sub2ind(location, varTemp->value[varIndex]->size, varTemp->value[varIndex]->dimension);
-		free(location);
+		uint64_t ind = sub2ind(loc, tmp->value[var_ind]->size, tmp->value[var_ind]->dim);
+		free(loc);
 
 		//check index is within bound
-		if(index < varTemp->value[varIndex]->length) {
-			out = init_scalar(index, error);
+		if(ind < tmp->value[var_ind]->len) {
+			out = init_scalar(ind, error);
 		} else {
 			*error = -11;
 		}
@@ -498,18 +504,18 @@ matrix *extractValue(char **input, int varIndex, vari *var, err_ret *error) {
 		*error  = -11;
 	}
 
-	freeVari(varTemp);
+	free_var(tmp);
 
 	return out;
 }
 
 
-err_ret checkVariable(const char *buffer, char *input, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
+err_ret checkVariable(const char *buffer, char *inp, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
 	err_ret error = 0;
 
-	uint16_t varLen = strlen(buffer);
+	uint16_t len = strlen(buffer);
 
-	char *nameBuffer = malloc(sizeof(*nameBuffer) * (varLen + 1));
+	char *nameBuffer = malloc(sizeof(*nameBuffer) * (len + 1));
 	__MALLOC_CHECK(nameBuffer, error);
 
 	//copy buffer so we don't change the original string
@@ -520,17 +526,17 @@ err_ret checkVariable(const char *buffer, char *input, uint16_t *iterator, vari 
 	matrix *out = NULL;
 	char **separatedString = NULL;
 
-	if(nameBuffer[varLen - 1] == '(') {
+	if(nameBuffer[len - 1] == '(') {
 
-		nameBuffer[varLen - 1] = '\0';
+		nameBuffer[len - 1] = '\0';
 
-		k = findVariable(var, nameBuffer);
+		k = find_var(var, nameBuffer);
 		if(k < 0) {
 			free(nameBuffer);
 			return -5;
 		}
 
-		separatedString = separateString(input, "()", ",", iterator, &error);
+		separatedString = sep_str(inp, "()", ",", iterator, &error);
 
 		out = extractValue(separatedString, k, var, &error);
 
@@ -538,20 +544,20 @@ err_ret checkVariable(const char *buffer, char *input, uint16_t *iterator, vari 
 			pushn(var->value[k], num);
 			pushn(out, num);
 
-			pushch(initOperatorStruct("r", 2, 0, eReference), ch);
+			pushch(init_op_struct("r", 2, 0, eReference), ch);
 		} 
 
 		freeDoubleArray(separatedString);
 
 	} else {
-		k = findVariable(var, nameBuffer);
+		k = find_var(var, nameBuffer);
 
 		if(k >= 0) {
-			var->value[k]->variable = 1;
+			var->value[k]->var = 1;
 			pushn(var->value[k], num);
 
-		} else if(!var->assignFlag) {
-			var->assignFlag = 1;
+		} else if(!var->f_assign) {
+			var->f_assign = 1;
 			if(k == -1) {
 				k = 0;
 
@@ -574,7 +580,7 @@ err_ret checkVariable(const char *buffer, char *input, uint16_t *iterator, vari 
 				var->value[k] = NULL;
 			}
 
-			var->name[k] = malloc(sizeof(*var->name[k]) * (varLen + 1));
+			var->name[k] = malloc(sizeof(*var->name[k]) * (len + 1));
 			__MALLOC_CHECK(var->name[k], error);
 
 			strcpy(var->name[k], nameBuffer);
@@ -582,14 +588,14 @@ err_ret checkVariable(const char *buffer, char *input, uint16_t *iterator, vari 
 			var->value[k] = malloc(sizeof(*var->value[k]));
 			__MALLOC_CHECK(var->value[k], error);
 
-			var->value[k]->variable = 1;
+			var->value[k]->var = 1;
 			var->value[k]->size = NULL;
 			var->value[k]->elements = NULL;
 
 			pushn(var->value[k], num);
 		} else {
 			error = -5;
-			var->assignFlag = 0;
+			var->f_assign = 0;
 		}
 	}
 
@@ -602,33 +608,33 @@ err_ret checkVariable(const char *buffer, char *input, uint16_t *iterator, vari 
 /*
  * remove spaces from string, front and back
  */
-char *removeSpaces(char *input) {
-	int length = strlen(input);
+char *removeSpaces(char *inp) {
+	int len = strlen(inp);
 
 	uint16_t i = 0;
-	for(; *(input + i) == ' '; ++i);
+	for(; *(inp + i) == ' '; ++i);
 
-	for(uint16_t j = length - 1; input[j] == ' '; --j) {
-		input[j] = 0;
+	for(uint16_t j = len - 1; inp[j] == ' '; --j) {
+		inp[j] = 0;
 	}
 
-	return (input + i);
+	return (inp + i);
 }
 
 
 /*
  * print to stdout, formatting is similar to matlab
  */
-err_ret printLine(char **input, vari *var) {
+err_ret printLine(char **inp, vari *var) {
 	err_ret error = 0;
 
-	uint8_t argNo = numberOfArgs(input);
+	uint8_t argNo = numberOfArgs(inp);
 
-	vari *varTemp = copyVari(var, &error);
+	vari *tmp = cpy_var(var, &error);
 
 	//loop over every argument
 	for(uint8_t i = 0; i < argNo; ++i) {
-		uint16_t len = strlen(input[i]);
+		uint16_t len = strlen(inp[i]);
 
 		//check if the string is quote limited
 		uint8_t string = 0;
@@ -638,21 +644,21 @@ err_ret printLine(char **input, vari *var) {
 		uint16_t back = 0;
 
 		//check if there is a quote in beginning of string, or spaces then a quote
-		if(input[i][0] == '"') {
+		if(inp[i][0] == '"') {
 			string = 1;
 		} else {
-			for(front = 0; input[i][front] == ' '; ++front) {
-				if(input[i][front+1] == '"')
+			for(front = 0; inp[i][front] == ' '; ++front) {
+				if(inp[i][front+1] == '"')
 					string = 1;
 			}
 		}
 
 		//check if there is a quote at the end of the string, or spaces then a quote (going backwards
-		if(input[i][len-(back+1)] == '"') {
+		if(inp[i][len - (back + 1)] == '"') {
 			++string;
 		} else {
-			for(back = 0; input[i][len-(back+1)] == ' '; ++back) {
-				if(input[i][len-(back+1)] == '"')
+			for(back = 0; inp[i][len - (back + 1)] == ' '; ++back) {
+				if(inp[i][len - (back + 1)] == '"')
 					++string;
 			}
 		}
@@ -660,65 +666,72 @@ err_ret printLine(char **input, vari *var) {
 
 		//if there are quotes at the beginning/end of string, this is true
 		if(string) {
-			input[i][len-(back+1)] = '\0'; //null terminate it to write over the quote
+			//null terminate it to write over the quote
+			inp[i][len - (back + 1)] = '\0';
 			if(string == 2) {
 
 				//check if there's a new line
-				if((input[i][len-(back+3)] == '\\') && (input[i][len-(back+2)] == 'n')) {
-					input[i][len-(back+3)] = '\0'; //write over the \ in new line
-					printf("%s\n", input[i]+front+1); //print with new line
+				if((inp[i][len - (back + 3)] == '\\')
+				   && (inp[i][len - (back + 2)] == 'n')) {
+					//write over the \ in new line
+					inp[i][len - (back + 3)] = '\0';
+
+					//print with new line
+					printf("%s\n", inp[i]+front+1);
 
 				} else {
-					printf("%s", input[i]+front+1); //print without new line
+					//print without new line
+					printf("%s", inp[i] + front + 1);
 
 				}
 			} else {
-				return -9; //there's no second quote to match, error
+				//there's no second quote to match, error
+				return -9;
 
 			}
 		} else { //no quotes, just a variable or expression
-			error = sya(input[i], varTemp); //calculate expression and print, print variables this way
+
+			//calculate expression and print, print variables this way
+			error = sya(inp[i], tmp);
 			if(error) return error;
 
-			print_mat(varTemp->ans);
-
+			print_mat(tmp->ans);
 		}
 	}
 
-	freeVari(varTemp);
+	free_var(tmp);
 
 	//-1 is the error code for no output from sya
 	return -1;
 }
 
 
-char **separateString(char *input, char const * const limiter, char const * const delimiter, uint16_t *iterator, err_ret *error) {
+char **sep_str(char *inp, char const * const lim, char const * const delim, uint16_t *iter, err_ret *error) {
 
-	//increment input to the first parenthesis
-	input += (*iterator + 1);
+	//increment inp to the first parenthesis
+	inp += (*iter + 1);
 
 	//length of string
-	uint16_t length = 0;
+	uint16_t len = 0;
 
 	//the number of types of delimiters
-	uint8_t delimiterType = strlen(delimiter);
+	uint8_t delimiterType = strlen(delim);
 
-	//the number of delimiters in input
+	//the number of delimiters in inp
 	uint16_t delimiterCount = 0;
 
 	//number of types of limiters
 	//assume that the number of limiters is going to be even
 	//there will always be a left and right end
-	uint8_t limiterType = strlen(limiter) / 2;
+	uint8_t limiterType = strlen(lim) / 2;
 
-	
 	//find where parenthesis are closed
 	//also count delimiters
-	for(int16_t a = 0; input[length]; ++length) {
-		if(input[length] == '(')
+	for(int16_t a = 0; inp[len]; ++len) {
+		if(inp[len] == '(')
 			++a;
 
-		if(input[length] == ')')
+		if(inp[len] == ')')
 			--a;
 
 		//break when the parenthesis are balanced
@@ -727,40 +740,38 @@ char **separateString(char *input, char const * const limiter, char const * cons
 
 
 		for(uint8_t j = 0; j < delimiterType; ++j) {
-			if(input[length] == delimiter[j]) {
+			if(inp[len] == delim[j]) {
 				++delimiterCount;
 				break;
 			}
 		}
 	}
 
-
 	//increment iterator length amount, to the
 	//char after the end paren
-	*iterator += (length + 1);
+	*iter += (len + 1);
 
-
-	//get a copy of the input to mangle
-	char *input2 = calloc(length + 1, sizeof(*input2));
-	__MALLOC_CHECK(input2, *error);
-	strncpy(input2, input + 1, length - 1);
+	//get a copy of the inp to mangle
+	char *inp2 = calloc(len + 1, sizeof(*inp2));
+	__MALLOC_CHECK(inp2, *error);
+	strncpy(inp2, inp + 1, len - 1);
 
 
 	//assume that each delimiter will have its own string
 	//also account for an end NULL pointer
 	//this will always be greater than or equal to the
 	//actual required amount of memory
-	char **separatedString = malloc(sizeof(*separatedString) * (delimiterCount + 2));
-	__MALLOC_CHECK(separatedString, *error);
+	char **sep = malloc(sizeof(*sep) * (delimiterCount + 2));
+	__MALLOC_CHECK(sep, *error);
 
 	//count of the number of elements
 	uint16_t subString = 0;
 
 	//if there are no delimiters
 	if(!delimiterCount) {
-		separatedString[0] = malloc(sizeof(**separatedString) * (length + 1));
-		__MALLOC_CHECK(separatedString[0], *error);    
-		strcpy(*separatedString, input2);
+		sep[0] = malloc(sizeof(**sep) * (len + 1));
+		__MALLOC_CHECK(sep[0], *error);    
+		strcpy(*sep, inp2);
 
 	} else {
 
@@ -769,7 +780,7 @@ char **separateString(char *input, char const * const limiter, char const * cons
 		__MALLOC_CHECK(limiterCount, *error);
 
 		//last index where a delimiter was found
-		uint16_t currentLength = 0;
+		uint16_t cur_len = 0;
 
 		//loop counter
 		uint16_t k = 0;
@@ -777,17 +788,17 @@ char **separateString(char *input, char const * const limiter, char const * cons
 		//separate string, by delimiters
 		//however, only separate if the limiters
 		//like parenthesis or brackets are closed
-		for(; input2[k]; ++k) {
+		for(; inp2[k]; ++k) {
 			//count to check that all limiters are balanced
 			uint8_t allCount = 0;
 
 			//check that each limiter is balanced
 			//limiterCount is 0 if the pair is balanced
 			for(uint8_t l = 0; l < limiterType; ++l) {
-				if(input2[k] == limiter[l * 2])
+				if(inp2[k] == lim[l * 2])
 					++limiterCount[l];
 
-				if(input2[k] == limiter[(l * 2) + 1])
+				if(inp2[k] == lim[(l * 2) + 1])
 					--limiterCount[l];
 
 				allCount |= limiterCount[l];
@@ -798,19 +809,19 @@ char **separateString(char *input, char const * const limiter, char const * cons
 			//that the delimiter delimits the arguments
 			//of the main function, and not arguments of
 			//any sub functions within
-			if(strchr(delimiter, input2[k]) && !allCount) {
+			if(strchr(delim, inp2[k]) && !allCount) {
 				//malloc the number of characters in between each delimiter
-				separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength)) + 1);
-				__MALLOC_CHECK(separatedString[subString], *error);
+				sep[subString] = malloc(sizeof(**sep) * ((k - cur_len)) + 1);
+				__MALLOC_CHECK(sep[subString], *error);
 
 				//copy from the previous delimiter to the next one
-				strncpy(separatedString[subString], input2 + currentLength, k - currentLength);
+				strncpy(sep[subString], inp2 + cur_len, k - cur_len);
 
 				//null terminate string
-				separatedString[subString][k - currentLength] = '\0';
+				sep[subString][k - cur_len] = '\0';
 
 				//set the current delimiter to the one just found
-				currentLength = k + 1;
+				cur_len = k + 1;
 
 				//increment the number of subStrings
 				++subString;
@@ -820,29 +831,28 @@ char **separateString(char *input, char const * const limiter, char const * cons
 
 		free(limiterCount);
 
-		separatedString[subString] = malloc(sizeof(**separatedString) * ((k - currentLength) + 1));
-		__MALLOC_CHECK(separatedString[subString], *error);
+		sep[subString] = malloc(sizeof(**sep) * ((k - cur_len) + 1));
+		__MALLOC_CHECK(sep[subString], *error);
 		uint8_t offset = 0;
 
-		if(strchr(delimiter, input2[currentLength]))
+		if(strchr(delim, inp2[cur_len]))
 			offset = 1;
 		
-		strncpy(separatedString[subString], input2 + currentLength + offset, k - currentLength);
-		separatedString[subString][k - currentLength] = '\0';
+		strncpy(sep[subString], inp2 + cur_len + offset, k - cur_len);
+		sep[subString][k - cur_len] = '\0';
 	}
 
-	separatedString[++subString] = NULL;
-	free(input2);
+	sep[++subString] = NULL;
+	free(inp2);
 
-
-	return separatedString;
+	return sep;
 }
 
-void freeDoubleArray(char **input) {
+void freeDoubleArray(char **inp) {
 	int i = 0;
-	for(i = 0; input[i]; ++i) {
-		free(input[i]);
+	for(i = 0; inp[i]; ++i) {
+		free(inp[i]);
 	}
-	free(input[i]);
-	free(input);
+	free(inp[i]);
+	free(inp);
 }

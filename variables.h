@@ -3,7 +3,7 @@
 
 typedef struct { //variable storage
 	//pointer to matrix index to assign to, if assignment
-	matrix *assignIndex;
+	matrix *assign;
 
 	//stores variable values
 	matrix *value[256];
@@ -19,17 +19,17 @@ typedef struct { //variable storage
 	int count;
 
 	//flag if an assignment occured
-	int8_t assignFlag;
+	int8_t f_assign;
 } vari;
 
-vari *newVari(void);
-vari *copyVari(vari *var, err_ret *error);
+vari *init_var(void);
+vari *cpy_var(vari *var, err_ret *error);
 
 //find variable named input in list
-int findVariable(vari *list, char *input);
+int find_var(vari *list, char *input);
 
-int setVariable(vari *var, char *name, matrix *a, err_ret *error);
-void freeVari(vari *var);
+int set_var(vari *var, char *name, matrix *a, err_ret *error);
+void free_var(vari *var);
 
 
 #endif //VARIABLE

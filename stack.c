@@ -39,14 +39,14 @@ operatorStruct *popch(operatorStack *st) {
 
 
 //initialize operatorStruct
-operatorStruct *initOperatorStruct(const char *operator, uint8_t argNo, uint8_t precedence, uint8_t enumeration){
+operatorStruct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum){
 	operatorStruct *out = malloc(sizeof(*out));
+	
+	strcpy(out->op, op);
 
-	strcpy(out->operator, operator);
-
-	out->precedence = precedence;
+	out->order = order;
 	out->argNo = argNo;
-	out->enumeration = enumeration;
+	out->_enum = _enum;
 
 	return out;
 }

@@ -24,8 +24,7 @@ err_ret runFile(char **input, vari *var, int offset) {
 	__MALLOC_CHECK(fileString, error);
 
 	fileTree *tree = createLeaf(&error);
-	if(error)
-		return error;
+	if(error) return error;
 
 	//make tree structure
 	if( (error = createTree(input[0], tree, fileString, &maxSize, offset)) ) {
@@ -282,9 +281,8 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 			break;
 		}
 
-		if(error && (error != -1)){
+		if(error && (error != -1))
 			break;
-		}
 	}
 
 	free(checkStack);

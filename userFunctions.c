@@ -153,7 +153,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
 	//variable struct for the function
 	//essentially a new scope
-	vari *functionVar = newVari();
+	vari *functionVar = init_var();
 	matrix *out = NULL;
   
 	//confirm that the function is the first word in the file
@@ -182,7 +182,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 		title[j + 1] = '\0';
 
 		//separate the string, to know what the variable names are
-		char **functionArgNames = separateString(title, "()", ",", (uint16_t *) &i, error);
+		char **functionArgNames = sep_str(title, "()", ",", (uint16_t *) &i, error);
 
 		//count the number of arguments required
 		int functionArgNo = numberOfArgs(functionArgNames);
@@ -200,15 +200,15 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 			*error = sya(functionArgs[0], var);
 			if(*error) {
 				freeDoubleArray(functionArgNames);
-				freeVari(functionVar);
+				free_var(functionVar);
 				return NULL;
 			}
 
 			//set the first variable to the corresponding name and value
-			setVariable(functionVar, inputName, cpy_mat(var->ans, error), error);
+			set_var(functionVar, inputName, cpy_mat(var->ans, error), error);
 			if(*error) {
 				freeDoubleArray(functionArgNames);
-				freeVari(functionVar);
+				free_var(functionVar);
 				return NULL;
 			}
       
@@ -218,7 +218,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 				*error = sya(functionArgs[j], var);
 				if(*error) break;
 
-				setVariable(functionVar, inputName, cpy_mat(var->ans, error), error);
+				set_var(functionVar, inputName, cpy_mat(var->ans, error), error);
 
 				if(*error) break;
 
@@ -231,12 +231,12 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 				*error = runFile(&functionPath, functionVar, 1);
 				if(*error) {
 					freeDoubleArray(functionArgNames);
-					freeVari(functionVar);
+					free_var(functionVar);
 					return NULL;
 				}
 
 				//check that the out variable exists
-				int outVariable = findVariable(functionVar, outName);
+				int outVariable = find_var(functionVar, outName);
 
 				if(outVariable < 0)
 					*error = -12;
@@ -256,7 +256,7 @@ matrix *executeUserFunction(char *functionPath, char **functionArgs, vari *var, 
 
 	}
 
-	freeVari(functionVar);
+	free_var(functionVar);
 
 	return out;  
 }

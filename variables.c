@@ -6,7 +6,7 @@
 #include "matrix.h"
 #include "variables.h"
 
-vari *newVari(void) {
+vari *init_var(void) {
 	vari *var = calloc(1, sizeof(*var));
 	var->ans = init_scalar(0, NULL);
 	var->count = -1;
@@ -14,50 +14,46 @@ vari *newVari(void) {
 }
 
 
-vari *copyVari(vari *var, err_ret *error){
-	vari *out = malloc(sizeof(*out));
+vari *cpy_var(vari *var, err_ret *error){
+	vari *out = calloc(1, sizeof(*out));
 
 	out->ans = calloc(1, sizeof(*out->ans));
 
-	out->assignIndex = NULL;
-	out->assignFlag = var->assignFlag;
+	out->assign = NULL;
+	out->f_assign = var->f_assign;
 
 	out->count = var->count;
 
 	if(var->count > -1){
 		int i = 0;
-		for(; i < var->count; ++i){
+		for(; i < var->count; ++i) {
 			out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
 			strcpy(out->name[i], var->name[i]);
 
 			out->value[i] = cpy_mat(var->value[i], error);
-			out->value[i]->variable = 1;
+			out->value[i]->var = 1;
 		}
 
 
-		if((var->value[i] != NULL) && (var->value[i]->size != NULL)){
+		if((var->value[i] != NULL) && (var->value[i]->size != NULL)) {
 			out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
 			strcpy(out->name[i], var->name[i]);
 
 			out->value[i] = cpy_mat(var->value[i], error);
-			out->value[i]->variable = 1;
+			out->value[i]->var = 1;
 		}
 		++i;
 		out->name[i] = NULL;
 		out->value[i] = NULL;
-	} else{
-		memset(out->name, '\0', sizeof(out->name));
-		memset(out->value, 0, sizeof(out->value));
 	}
 
 	return out;
 }
 
 
-int findVariable(vari *list, char *input) {
-	if(list->count < 0) {
+int find_var(vari *list, char *input) {
+	if(list->count < 0)
 		return -1;
-	}
 
 	for(int i = 0; i<=list->count; ++i) {
 		if(!strcmp(input, list->name[i]))
@@ -68,13 +64,13 @@ int findVariable(vari *list, char *input) {
 }
 
 
-int setVariable(vari *var, char *name, matrix *a, err_ret *error){
-	//err_ret setVariable(vari *var, char *name, matrix *a, int *check){
-	//check is from the output of findVariable
+int set_var(vari *var, char *name, matrix *a, err_ret *error){
+	//err_ret set_var(vari *var, char *name, matrix *a, int *check){
+	//check is from the output of find_var
 
-	int index = findVariable(var, name);
+	int index = find_var(var, name);
 
-	switch(index){
+	switch(index) {
 	case -1: //new variable, struct is empty
 		index = 0;
 		var->count = 0;
@@ -86,7 +82,7 @@ int setVariable(vari *var, char *name, matrix *a, err_ret *error){
 
 	default: //variable exists already
 		free(var->name[index]);
-		var->value[index]->variable = 0;
+		var->value[index]->var = 0;
 		free_mat(var->value[index]);
 		break;
 	}
@@ -97,28 +93,26 @@ int setVariable(vari *var, char *name, matrix *a, err_ret *error){
 	strcpy(var->name[index], name);
 	var->value[index] = a;
 
-	var->value[index]->variable = 1;
+	var->value[index]->var = 1;
 
 	return index;
 }
 
 
-void freeVari(vari *var){
+void free_var(vari *var){
 
 	for(int i = 0; var->name[i]; ++i){
 		free(var->name[i]);
 	}
 
 	for(int i = 0; var->value[i]; ++i){
-		var->value[i]->variable = 0;
+		var->value[i]->var = 0;
 		free_mat(var->value[i]);
 	}
 
 	free_mat(var->ans);
-
-	if(var->assignIndex != NULL){
-		free_mat(var->assignIndex);
-	}
+	if(var->assign)
+		free_mat(var->assign);
 
 	free(var);
 }

@@ -127,7 +127,7 @@ err_ret printLine(char **input, vari *var);
  * int *iterator
  *   the main loop counter in sya, so it can be incremented the appropriate amount
  */
-char **separateString(char *input, char const * const limiter, char const * const delimiter, uint16_t *iterator, err_ret *error);
+char **sep_str(char *input, char const * const limiter, char const * const delimiter, uint16_t *iterator, err_ret *error);
 
 /*
  * free string output from separateString
