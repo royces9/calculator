@@ -287,7 +287,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 	free(checkStack);
 
 	if(error)
-		printf("Error on line: %d.\n", tree->num);
+		printf("Error on line: %d\n", tree->num);
 
 	return error;
 }

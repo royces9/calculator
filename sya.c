@@ -234,7 +234,7 @@ err_ret sya(char *input, vari *var) {
 	freeNumberStack(num_stk);
 
 	//reset assignment
-	var->assign = 0;
+	var->f_assign = 0;
 	return error;
 }
 

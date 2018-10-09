@@ -364,12 +364,11 @@ err_ret find_fun(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 			if(buffer[bufferLen - 1] == '(') {
 				separatedString = sep_str(input, "()[]", ",", iterator, &error);
 				buffer[bufferLen - 1] = '\0';
-				out = findUserFunction(buffer, separatedString, var, &error);
+				out = find_user_fun(buffer, separatedString, var, &error);
 
 			} else {
 				error = -5;
 			}
-
 		}
 		break;
 

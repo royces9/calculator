@@ -568,7 +568,6 @@ err_ret checkVariable(const char *buffer, char *inp, uint16_t *iterator, vari *v
 				error = -5;
 
 			}
-
 			//if assignment goes wrong, the variable name gets malloc'd
 			//but doesn't get assigned to, this ensures that if another
 			//assignment happens, the previous failed assignment is free'd
