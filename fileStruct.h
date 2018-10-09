@@ -5,6 +5,7 @@ typedef struct fileTree {
 	char *line;
 	struct fileTree *left;
 	struct fileTree *right;
+	int num;
 } fileTree;
 
 typedef struct {

@@ -96,26 +96,23 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
   
 	//creates the tree structure
 	for(int i = 0; fgets(buffer, 1024, inputFile); ++i) {
+
 		int offset = 0;
 
 		//removing trailing spaces
-		if(buffer[0] == ' ') {
-			//empty for loop
-			for(offset = 0; buffer[offset] == ' '; ++offset);
-		}
+		if(buffer[0] == ' ')
+			for(; buffer[offset] == ' '; ++offset);
 
 		char *bufferHold = buffer+offset;
 		length = strlen(bufferHold);
 
 		//skips a blank line, # comments out a line
-		if(!strcmp(bufferHold, "\n") || (bufferHold[0] == '#')) {
+		if(!strcmp(bufferHold, "\n") || (bufferHold[0] == '#'))
 			continue;
-		}
 
 		//replaces end new line with a null terminated character
-		if(bufferHold[length - 1] == '\n') {
-			bufferHold[--length] = '\0'; //update the length of the new string
-		}
+		if(bufferHold[length - 1] == '\n')
+			bufferHold[--length] = '\0';
 
 		//allocates memory and copies string from file into array
 		//puts that string into tree struct
@@ -127,6 +124,8 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 
 		//check whether to branch left or right
 		direction = checkProgramFlow(*(fileString+i));
+
+		tree->num = i + 2;
 
 		switch(direction) {
 
@@ -286,6 +285,9 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 	}
 
 	free(checkStack);
+
+	if(error)
+		printf("Error on line: %d.\n", tree->num);
 
 	return error;
 }
