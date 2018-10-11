@@ -7,9 +7,13 @@
 #define FUNCTION_COUNT 38
 #define OPERATOR_COUNT 23
 
-extern const char OPERATOR_LIST[OPERATOR_COUNT][4];
-extern const char FUNCTION_LIST[FUNCTION_COUNT][16];
-extern const uint8_t operatorPrecedence[OPERATOR_COUNT];
+//extern char const FUNCTION_LIST[FUNCTION_COUNT][16];
+//extern char const OPERATOR_LIST[OPERATOR_COUNT][4];
+
+extern char const *const FUNCTION_LIST[FUNCTION_COUNT];
+extern char const *const OPERATOR_LIST[OPERATOR_COUNT];
+
+extern uint8_t const operatorPrecedence[OPERATOR_COUNT];
 
 enum functionEnums {
 	eQuit,

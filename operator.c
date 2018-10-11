@@ -19,7 +19,7 @@
 
 //search in FUNCTION_LIST
 int search_fun(char *buffer) {
-	for(int i = 0; i < FUNCTION_COUNT; ++i) {
+	for(int i = 0; FUNCTION_LIST[i]; ++i) {
 		if(!strcmp(FUNCTION_LIST[i], buffer))
 			return i;
 	}
@@ -30,7 +30,7 @@ int search_fun(char *buffer) {
 
 //search in OPERATOR_COUNT
 int search_op(char *buffer) {
-	for(int i = 0; i < OPERATOR_COUNT; ++i) {
+	for(int i = 0; OPERATOR_LIST[i]; ++i) {
 		if(!strcmp(OPERATOR_LIST[i], buffer))
 			return i;
 	}

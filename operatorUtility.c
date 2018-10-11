@@ -2,7 +2,7 @@
 
 #include "operatorUtility.h"
 
-const char FUNCTION_LIST[FUNCTION_COUNT][16] = {
+char const *const FUNCTION_LIST[FUNCTION_COUNT] = {
 	"quit",
 	"clear",
 	"list",
@@ -55,7 +55,7 @@ const char FUNCTION_LIST[FUNCTION_COUNT][16] = {
 };
 
 
-const char OPERATOR_LIST[OPERATOR_COUNT][4] = {
+char const *const OPERATOR_LIST[OPERATOR_COUNT] = {
 	"+",
 	"-",
 	".*",
@@ -87,7 +87,7 @@ const char OPERATOR_LIST[OPERATOR_COUNT][4] = {
 };
 
 
-const uint8_t operatorPrecedence[OPERATOR_COUNT] = {
+uint8_t const operatorPrecedence[OPERATOR_COUNT] = {
 	6,
 	6,
 	5,
