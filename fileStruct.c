@@ -14,14 +14,13 @@ fileTree *createLeaf(err_ret *error) {
 }
 
 void cutDownTree(fileTree *tree) {
-	if(!tree)
-		return;
+	if(tree) {
+		tree->line = NULL;
+		cutDownTree(tree->left);
+		cutDownTree(tree->right);
 
-	tree->line = NULL;
-	cutDownTree(tree->left);
-	cutDownTree(tree->right);
-
-	free(tree);
+		free(tree);
+	}
 }
 
 void fPush(fileStack *stk, fileTree *node) {

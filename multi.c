@@ -23,111 +23,111 @@ uint8_t numberOfArgs(char **inp) {
 
 
 matrix *deri(char **inp, vari *var, err_ret *error) {
-	ele out;
-	ele inter;
-	ele h;
-	ele point;
-
 	vari *tmp = cpy_var(var, error); //copy global struct to a local variable struct
-  
-	int var_ind = 0;
+
+	matrix *output = NULL;
 
 	//check the number of inps is correct
 	if(numberOfArgs(inp) != 4) {
 		*error = -2;
-		return 0;
+		goto err_ret;
 	}
 
 	//set both the point and step size
-	*error = sya(inp[2], tmp);
-	if(*error) return 0;
+	if((*error = sya(inp[2], tmp)))
+		goto err_ret;
+
 	if(tmp->ans->dim != 1) {
 		*error = -10;
-		return NULL;
+		goto err_ret;
 	}
+	ele point = tmp->ans->elements[0];
 
-	point = tmp->ans->elements[0];
 
-	*error = sya(inp[3], tmp);
-	if(*error) return 0;
+	if((*error = sya(inp[3], tmp)))
+		goto err_ret;
+
 	if(tmp->ans->dim != 1) {
 		*error = -10;
-		return NULL;
+		goto err_ret;
 	}
-
-	h = tmp->ans->elements[0];
+	ele h = tmp->ans->elements[0];
 
   
 	//set up a dummy variable specified by user  
 	char *tmp_var = removeSpaces(inp[1]);
-  
-	var_ind = set_var(tmp, tmp_var, init_scalar(point + h, error), error);
+	int var_ind = set_var(tmp, tmp_var, init_scalar(point + h, error), error);
 
 	//f(x+h)
-	*error = sya(inp[0], tmp);
-	if(*error) return 0;
-	out = tmp->ans->elements[0];
+	if((*error = sya(inp[0], tmp)))
+		goto err_ret;
+
+	ele out = tmp->ans->elements[0];
 
 	//sets the dummy variable equal to x-h
 	tmp->value[var_ind]->elements[0] = point - h;
 
 	//f(x-h)
-	*error = sya(inp[0], tmp);
-	if(*error) return 0;
-	inter = tmp->ans->elements[0];
+	if((*error = sya(inp[0], tmp)))
+		goto err_ret;
+	ele inter = tmp->ans->elements[0];
 
 	//f(x+h) - f(x-h)
 	out -= inter;
   
+
+	output = init_scalar(out / (2 * h), error);
+
+ err_ret:
 	free_var(tmp);
-	return init_scalar(out / (2 * h), error);
+
+	return output;
 }
 
 
 matrix *inte(char **inp, vari *var, err_ret *error) {
-
 	//check number of arguments
 	if(numberOfArgs(inp) != 5) {
 		*error = -2;
 		return 0;
 	}
 
-	ele step = 0;
-	ele sum = 0;
-	ele a = 0;
-	ele b = 0;
-	ele number = 0;
+	matrix *out = NULL;
 
 	vari *tmp = cpy_var(var, error); //copy global struct to a local variable struct
 	int var_ind = 0;
 
 	//get number of steps, and step size
-	*error = sya(inp[2], tmp);
-	if(*error) return 0;
-	if(tmp->ans->dim != 1) {
-		*error = -10;
-		return NULL;
-	}
-	a = tmp->ans->elements[0];
+	if((*error = sya(inp[2], tmp)))
+		goto err_ret;
 
-	*error = sya(inp[3], tmp);
-	if(*error) return 0;
 	if(tmp->ans->dim != 1) {
 		*error = -10;
-		return NULL;
+		goto err_ret;
 	}
-	b = tmp->ans->elements[0];
+	ele a = tmp->ans->elements[0];
 
-	*error = sya(inp[4], tmp);
-	if(*error) return 0;
+
+	if((*error = sya(inp[3], tmp)))
+		goto err_ret;
+
 	if(tmp->ans->dim != 1) {
 		*error = -10;
-		return NULL;
+		goto err_ret;
 	}
-	number = tmp->ans->elements[0];
+	ele b = tmp->ans->elements[0];
+
+
+	if((*error = sya(inp[4], tmp)))
+		goto err_ret;
+	if(tmp->ans->dim != 1) {
+		*error = -10;
+		goto err_ret;
+	}
+	ele number = tmp->ans->elements[0];
 
 	//calculate step size
-	step = (b - a) / number;
+	ele step = (b - a) / number;
 
 	//set dummy variable
 	char *tmp_var = removeSpaces(inp[1]);
@@ -137,32 +137,37 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 
 	number = floor(number/2); //halve the steps
 
+	ele sum = 0;
 	for(int i = 1; i <= number; ++i) {
 		//f(x_2i-2)
 		tmp->value[var_ind]->elements[0] = a + (((2 * i) - 2) * step);
-		*error = sya(inp[0], tmp);
-		if(*error) return 0;
+		if((*error = sya(inp[0], tmp)))
+			goto err_ret;
 		sum += tmp->ans->elements[0];
 
 
 		//4*f(x_2i-1)
 		tmp->value[var_ind]->elements[0] = a + (((2 * i) - 1) * step);
-		*error = sya(inp[0], tmp);
-		if(*error) return 0;
+		if((*error = sya(inp[0], tmp)))
+			goto err_ret;
 		sum += (4 * tmp->ans->elements[0]);
 
 
 		//f(x_2i)
 		tmp->value[var_ind]->elements[0] = a + ((2 * i) * step);
-		*error = sya(inp[0], tmp);
-		if(*error) return 0;
+		if((*error = sya(inp[0], tmp)))
+			goto err_ret;
 		sum += tmp->ans->elements[0];
 	}
 
+
+	out = init_scalar(sum * (step / 3), error);
+
+ err_ret:
 	free_var(tmp);
 
 	//return integral
-	return init_scalar(sum * (step / 3), error);
+	return out;
 }
 
 
@@ -173,16 +178,10 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 		return 0;
 	}
 
+	matrix *output = NULL;
 	vari *tmp = cpy_var(var, error); //copy global struct to a local variable struct
-	int var_ind = 0;
   
-	ele out = 0;
-	ele inter = 0;
-	ele h = 0;
-	double test = 0;
-
 	const double delta = 0.000001;
-
 
 	/*
 	  inp[0] = function
@@ -194,45 +193,48 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	//set dummy variable
 
 	//set initial guess and the tolerance
-	*error = sya(inp[2], tmp);
-	if(*error) return 0;
+	if((*error = sya(inp[2], tmp)))
+		goto err_ret;
 	if(tmp->ans->dim != 1) {
 		*error = -10;
-		return NULL;
+		goto err_ret;
 	}
-
 
 	char *tmp_var = removeSpaces(inp[1]);
-	var_ind = set_var(tmp, tmp_var, cpy_mat(tmp->ans, error), error);
+	int var_ind = set_var(tmp, tmp_var, cpy_mat(tmp->ans, error), error);
 
-	*error = sya(inp[3], tmp);
-	if(*error) return 0;
+	if((*error = sya(inp[3], tmp)))
+		goto err_ret;
 	if(tmp->ans->dim != 1) {
 		*error = -10;
-		return NULL;
+		goto err_ret;
 	}
-	h = tmp->ans->elements[0];
+	ele h = tmp->ans->elements[0];
 
   
 	//ensure test is always greater than h
 	//on start
-	test = h + 1;
+	ele test = h + 1;
 
 	//counter to keep track of the amount of iterations
 	//if it overflows, then break from the loop
 	uint16_t counter = 1;
 
 	//solve f(x)=0 for x using Newton's method
+	ele out = 0;
+	ele inter = 0;
 
 	//if the difference between iterations is less than the tolerance, break out of loop
 	while(fabs(test) > h) {
-		*error = sya(inp[0], tmp);
-		if(*error) return NULL;
+		if((*error = sya(inp[0], tmp)))
+			goto err_ret;
+
 		out = tmp->ans->elements[0];
 
 		tmp->value[var_ind]->elements[0] -= delta;
-		*error = sya(inp[0], tmp);
-		if(*error) return NULL;
+		if((*error = sya(inp[0], tmp)))
+			goto err_ret;
+
 		inter = tmp->ans->elements[0];
 
 		test = (delta * out) / (out - inter);
@@ -242,12 +244,14 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 		//this is true, max value is 65535 (2 bytes)
 		if(!(++counter)) {
 			*error = -12;
-			return NULL;
+			goto err_ret;
 		}
 	}
 
 
-	matrix *output = cpy_mat(tmp->value[var_ind], error);
+	output = cpy_mat(tmp->value[var_ind], error);
+
+ err_ret:
 	free_var(tmp);
 
 	return output;
@@ -262,11 +266,11 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 	//or if it's a matrix, make one of that size
 	switch(dim) {
 	case 1:
- 		*error = sya(inp[0], var);
-		if(*error) break;
+ 		if((*error = sya(inp[0], var)))
+			break;
 
 		//check that the one inp is a scalar
-		if(var->ans->dim == 1) {
+		if(is_scalar(var->ans)) {
 			//change dimension to make square matrix
 			dim = 2;
 
@@ -307,7 +311,8 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 		__MALLOC_CHECK(newSize, *error);
 
 		for(uint8_t i = 0; i < dim; ++i) {
-			*error = sya(inp[i], var);
+			if((*error = sya(inp[i], var)))
+				break;
 
 			if(var->ans->dim != 1) {
 				*error = -10;
@@ -333,10 +338,10 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 matrix *ones(char **inp, vari *var, err_ret *error) {
 	//call zeros and just replace all the inp
 	matrix *out = zeros(inp, var, error);
+
 	if( !(*error) ) {
-		for(uint64_t i = 0; i < out->len; ++i) {
+		for(uint64_t i = 0; i < out->len; ++i)
 			out->elements[i] = 1;
-		}
 	}
 
 	return out;
@@ -371,26 +376,31 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 	ele b = 0;
 	ele len = 0;
 
-	*error = sya(inp[0], tmp);
+	if((*error = sya(inp[0], tmp)))
+		goto err_ret;
 	if(tmp->ans->dim != 1) {
 		*error = -10;
-		return out;
+		goto err_ret;
 	} else {
 		a = tmp->ans->elements[0];
 	}
 
-	*error = sya(inp[1], tmp);
+	if((*error = sya(inp[1], tmp)))
+		goto err_ret;
+
 	if(tmp->ans->dim != 1) {
 		*error = -10;
-		return out;
+		goto err_ret;
 	} else {
 		b = tmp->ans->elements[0];
 	}
 
-	*error = sya(inp[2], tmp);
+	if((*error = sya(inp[2], tmp)))
+		goto err_ret;
+
 	if(tmp->ans->dim != 1) {
 		*error = -10;
-		return out;
+		goto err_ret;
 	} else {
 		len = tmp->ans->elements[0];
 	}
@@ -403,14 +413,15 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 		uint16_t newSize[3] = {len, 1, 0};
 
 		out = init_mat(newSize, 2, error);
-
+		if(*error)
+			goto err_ret;
 		ele step = (b - a) / (len - 1);
 
-		for(uint64_t i = 0; i < out->len; ++i) {
+		for(uint64_t i = 0; i < out->len; ++i)
 			out->elements[i] = step * (ele) i + a;
-		}
 	}
 
+ err_ret:
 	free_var(tmp);
   
 	return out;
@@ -429,8 +440,7 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 	vari *tmp = cpy_var(var, error);
 
 	if(dim == 1) { //if the number of inps is 1
-		*error = sya(inp[0], tmp);
-		if(*error) {
+		if((*error = sya(inp[0], tmp))) {
 			free_var(tmp);
 			return NULL;
 		}
@@ -461,8 +471,7 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 		__MALLOC_CHECK(loc, *error);
 
 		for(uint8_t i = 0; i < dim; ++i) {
-			*error = sya(inp[i], tmp);
-			if(*error) {
+			if((*error = sya(inp[i], tmp))) {
 				free(loc);
 				free_var(tmp);
 				return NULL;

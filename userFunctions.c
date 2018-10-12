@@ -23,11 +23,8 @@ matrix *find_user_fun(char *name, char **args, vari *var, err_ret *error) {
 	//get the path to the file
 	char *path = find_path(name, error);
 
-	if(!path) {
-		*error = -5;
-	} else {
+	if(path)
 		out = exec_fun(path, args, var, error);
-	}
 
 	free(path);
 
@@ -36,25 +33,27 @@ matrix *find_user_fun(char *name, char **args, vari *var, err_ret *error) {
 
 
 //checks a config file with a list of paths to check if functionName exists
-char *chk_conf(char *name, char *configPath, err_ret *error) {
-	char filePaths[1024];
+char *chk_conf(char *name, char *cfg, err_ret *error) {
+	char paths[1024];
 
 	char *out = NULL;
 	char *file_dir = NULL;
 
-	FILE *config = fopen(configPath, "r");
-	if( !config ) {
+	FILE *f_cfg = fopen(cfg, "r");
+	if( !f_cfg ) {
 		*error = -8;
 	} else {
 		//read directories from config
-		while(fgets(filePaths, 1024, config)) {
-			file_dir = search_dir(name, filePaths, error);
+		while(fgets(paths, 1024, f_cfg)) {
+			file_dir = search_dir(name, paths, error);
 
 			if(file_dir) {
-				out = malloc(sizeof(*out) * (strlen(filePaths) + strlen(file_dir) + 1));
+				out = malloc(sizeof(*out) * (strlen(paths) + strlen(file_dir) + 1));
 				__MALLOC_CHECK(out, *error);
-				strcpy(out, filePaths);
+
+				strcpy(out, paths);
 				strcat(out, file_dir);
+
 				free(file_dir);
 				break;
 			}
@@ -76,6 +75,7 @@ char *find_path(char *name, err_ret *error) {
 		char *home = getenv("HOME");
 		char *configPath = "/.config/calc.conf";
 		char *config = malloc(sizeof(*config) * (strlen(home) + strlen(configPath) + 1));
+		__MALLOC_CHECK(config, *error);
 
 		strcpy(config, home);
 		strcat(config, configPath);
@@ -86,6 +86,8 @@ char *find_path(char *name, err_ret *error) {
 			*error = -8;
 
 		free(config);
+	} else {
+		*error = -5;
 	}
   
 	return file_dir;
@@ -110,7 +112,6 @@ matrix *exec_fun(char *functionPath, char **functionArgs, vari *var, err_ret *er
 	matrix *out = NULL;
 	//confirm that the function is the first word in the file
 	if(!strncmp(title, "function", 8)) {
-		vari *fun_var = init_var();
 		char out_buff[1024];
 
 		int i = 9;
@@ -143,64 +144,55 @@ matrix *exec_fun(char *functionPath, char **functionArgs, vari *var, err_ret *er
 		//check that the given arguments match with the
 		//require number of arguments
 		if(functionArgNo == argNo) {
-			//remove spaces from the names
-			char *inputName = removeSpaces(arg_names[0]);
+			vari *fun_var = init_var();
 
-			//calcuate value of first input argument
-			//gets stored in var->ans
-			//use var instead of functionVar because the input
-			//arguments might have variable in them
-			*error = sya(functionArgs[0], var);
-			if(*error)
-				goto ret_out;
+			for(int j = 0; j < functionArgNo; ++j) {
+				char *inputName = removeSpaces(arg_names[j]);
 
-			//set the first variable to the corresponding name and value
-			set_var(fun_var, inputName, cpy_mat(var->ans, error), error);
-			if(*error)
-				goto ret_out;
-      
-			//do the rest for the other variables, if necessary
-			for(int j = 1; j < functionArgNo; ++j) {
-				inputName = removeSpaces(arg_names[j]);
+				//calcuate value of first input argument
+				//gets stored in var->ans
+				//use var instead of functionVar because the input
+				//arguments might have variable in them
 				*error = sya(functionArgs[j], var);
 				if(*error)
 					goto ret_out;
 
-				set_var(fun_var, inputName, cpy_mat(var->ans, error), error);
+				matrix* tmp_mat = cpy_mat(var->ans, error);
+				if(*error)
+					goto ret_out;
+
+				set_var(fun_var, inputName, tmp_mat, error);
 
 				if(*error)
 					goto ret_out;
 			}
 
-			//make sure no errors in for loop
-			if(!(*error)) {
-				//run the file
-				//offset by one line
-				*error = runFile(&functionPath, fun_var, 1);
-				if(*error)
-					goto ret_out;
+			//run the file
+			//offset by one line
+			*error = runFile(&functionPath, fun_var, 1);
+			if(*error)
+				goto ret_out;
 
-				//check that the out variable exists
-				int out_var = find_var(fun_var, outName);
+			//check that the out variable exists
+			int out_var = find_var(fun_var, outName);
 
-				if(out_var < 0)
-					*error = -12;
-				
+			if(out_var < 0) {
+				*error = -12;
+			} else {
 				out = cpy_mat(fun_var->value[out_var], error);
 			}
 
+		ret_out:
+			freeDoubleArray(arg_names);
+			free_var(fun_var);
+
 		} else {
 			*error = -2;
-
 		}
 
-	ret_out:
-		freeDoubleArray(arg_names);
-		free_var(fun_var);
 
 	} else {
 		*error = -8;
-
 	}
 
 	return out;  
@@ -223,12 +215,12 @@ char *search_dir(char *name, char *dir_name, err_ret *error) {
 		struct dirent *d;
 
 		while( (d = readdir(dir)) ) {
-			uint16_t len = strlen(d->d_name);		
-
 			//checks that function name is the same, and ends in ".cr"
 			if(chk_name(name, d->d_name)) {
+				uint16_t len = strlen(d->d_name);
 				out = malloc(sizeof(*out) * (len + 1));
 				__MALLOC_CHECK(out, *error);
+
 				strcpy(out, d->d_name);
 				break;
 			}

@@ -101,11 +101,10 @@ int set_var(vari *var, char *name, matrix *a, err_ret *error){
 
 void free_var(vari *var){
 
-	for(int i = 0; var->name[i]; ++i){
+	for(int i = 0; var->name[i]; ++i)
 		free(var->name[i]);
-	}
 
-	for(int i = 0; var->value[i]; ++i){
+	for(int i = 0; var->value[i]; ++i) {
 		var->value[i]->var = 0;
 		free_mat(var->value[i]);
 	}
