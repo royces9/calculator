@@ -45,9 +45,11 @@ int main(int argc, char *argv[]) {
 		input = readline(">>");
 		add_history(input);
 
-		//skip EOF/empty lines
+		//break on EOF
+		//skip empty lines
 		if( !input ) {
 			printf("\n");
+			break;
 		} else if( (*input) ) {
 			//parses string and does all the calculations
 			error = sya(input, var);
