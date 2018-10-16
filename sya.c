@@ -106,7 +106,6 @@ err_ret sya(char *input, vari *var) {
 
 	//stack for output numbers
 	stack *num = new_stk(512);
-	//num_stk *num = new_stk();
 	if(!num)
 		return -6;
 
@@ -132,7 +131,11 @@ err_ret sya(char *input, vari *var) {
 
 				//if the buffer is all numbers
 				if(chk_num(bufferLetters)) {
-					push(num, init_scalar(strtod(bufferLetters, NULL), &error));
+					matrix *temp = init_scalar(strtod(bufferLetters, NULL), &error);
+					if(error)
+						break;
+
+					push(num, temp);
 
 				} else { //check if command is a function or variable
 					if(input[i + 1] == '(')
@@ -205,12 +208,8 @@ err_ret sya(char *input, vari *var) {
 
 		//while the operator and number stack are occupied, keep executing
 		while(op->top > -1) {
-			if( (error = ex_num(num, var, pop(op))) ) {
-				free_stk(op, &free);
-				free_stk(num, (void (*) (void *))&free_mat);
-				var->assign = 0;
-				return error;
-			}
+			if( (error = ex_num(num, var, pop(op))) )
+				goto err_ret;
 		}
 
 		free(var->ans->size);
@@ -228,13 +227,17 @@ err_ret sya(char *input, vari *var) {
 			if(!var->ans->elements)
 				return -6;
 
-			memcpy(var->ans->elements, ((matrix **)num->stk)[0]->elements, sizeof(*var->ans->elements) * var->ans->len);
+			memcpy(var->ans->elements,
+			       ((matrix **)num->stk)[0]->elements,
+			       sizeof(*var->ans->elements) * var->ans->len);
 
 			var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dim + 1));
 			if(!var->ans->size)
 				return -6;
 
-			memcpy(var->ans->size, ((matrix **)num->stk)[0]->size, sizeof(*var->ans->size) * (var->ans->dim + 1));
+			memcpy(var->ans->size,
+			       ((matrix **)num->stk)[0]->size,
+			       sizeof(*var->ans->size) * (var->ans->dim + 1));
 
 		} else {
 			error = -5;
@@ -243,7 +246,7 @@ err_ret sya(char *input, vari *var) {
 			var->ans->elements = NULL;
 		}
 	}
-
+ err_ret:
 	//free stacks
 	free_stk(num, (void (*) (void *))&free_mat);
 	free_stk(op, &free);
@@ -287,6 +290,7 @@ err_ret chk_num(char *input) {
 		   (!input[i]) )
 			return 0;
 	}
+
 	return 1;
 }
 

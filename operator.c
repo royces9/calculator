@@ -61,8 +61,9 @@ err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 	case 2:
 		b = pop(num);
 		a = pop(num);
-
-		if(a->size && b->size) {
+		if(!a) {
+			error = -4;
+		} else if(a->size && b->size) {
 			out = mat_two(a, b, ch, &error);
 		} else {
 			error = -5;
@@ -76,8 +77,14 @@ err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 	case 3:
 		b = pop(num);
 		a = pop(num);
-		out = assign(a, b, var, &error);
+		if(!a) {
+			error = -4;
+		} else {
+			out = assign(a, b, var, &error);
+		}
+
 		free_mat(b);
+
 		break;
 
 	default:

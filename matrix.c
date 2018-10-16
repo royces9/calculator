@@ -261,7 +261,7 @@ matrix *cat_mat(matrix *a, matrix *b, uint8_t dim, err_ret *error) {
 //free the matrix and all of the data
 //associated with it
 void free_mat(matrix *m) {
-	if(!m->var) {
+	if(m && !m->var) {
 		free(m->size);
 		free(m->elements);
 		free(m);
