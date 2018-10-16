@@ -10,7 +10,10 @@
 
 matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
 	matrix *out = malloc(sizeof(*out));
-	__MALLOC_CHECK(out, *error);  
+	if(!out) {
+		*error = -6;
+		return NULL;
+	}
 
 	//dim of the matrix
 	out->dim = dim;
@@ -18,7 +21,11 @@ matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
 	//size of each dims
 	//the last element of size must end with zero
 	out->size = malloc(sizeof(*out->size) * (dim + 1));
-	__MALLOC_CHECK(out->size, *error);  
+	if(!out->size) {
+		free(out);
+		*error = -6;
+		return NULL;
+	}
 
 	out->size = memcpy(out->size, size, sizeof(*out->size) * (dim + 1));
 	out->size[dim] = 0;
@@ -33,7 +40,12 @@ matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
 		*error = -10;
 	} else {
 		out->elements = calloc(out->len, sizeof(*out->elements));
-		__MALLOC_CHECK(out->elements, *error);  
+		if(!out->elements) {
+			free(out->size);
+			free(out);
+			out = NULL;
+			*error = -6;
+		}
 	}
 
 	return out;
@@ -43,21 +55,29 @@ matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
 //define a scalar as just a single dim matrix
 //also define that a vector is always 2 dims, with one of
 //the two dims being 1
-matrix *init_scalar(ele e, err_ret *error) {
+matrix *init_scalar(ele e) {
 	matrix *out = malloc(sizeof(*out));
-	__MALLOC_CHECK(out, *error);  
+	if(!out)
+		return NULL;
 
 	out->dim = 1;
 	out->len = 1;
 
 	out->size = malloc(sizeof(*out->size) * 2);
-	__MALLOC_CHECK(out->size, *error);  
+	if(!out->size) {
+		free(out);
+		return NULL;
+	}
 
 	out->size[0] = 1;
 	out->size[1] = 0;
 
 	out->elements = malloc(sizeof(*out->elements));
-	__MALLOC_CHECK(out->elements, *error);  
+	if(!out->elements) {
+		free(out->size);
+		free(out);
+		return NULL;
+	}
 
 	*out->elements = e;
 

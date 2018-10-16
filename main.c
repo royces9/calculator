@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 	err_ret error = 0;
   
 	//initialize variable struct
-	vari *var = init_var();
+	vari *var = init_var(256);
 
 	//init random seed
 	srand(time(0));

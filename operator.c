@@ -114,9 +114,11 @@ matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
 		out = init_mat(newSize, a->dim, error);
 		free(newSize);
 
+		if(*error)
+			return NULL;
+
 		for(uint64_t i = 0; i < out->len; ++i)
 			out->elements[i] = one_arg(a->elements[i], ch->_enum, error);
-
 	} else {
 		switch(ch->_enum){
 		case eEye: out = eye(a, error); break;
@@ -171,12 +173,13 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 		case 0: //neither is a scalar
 
 			//check if a and b are the same size
-			if(cmp_size(a->size, b->size, a->dim, b->dim)){
+			if(cmp_size(a->size, b->size, a->dim, b->dim)) {
 				out = init_mat(a->size, a->dim, error);
+				if(*error)
+					break;
 
-				for(uint64_t i = 0; i < a->len; ++i){
+				for(uint64_t i = 0; i < a->len; ++i)
 					out->elements[i] = two_arg(a->elements[i], b->elements[i], ch->_enum, error);
-				}
 
 			} else{
 				*error = -10;
@@ -200,7 +203,9 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 			break;
 
 		case 2: //a and b are both scalars
-			out = init_scalar(two_arg(a->elements[0], b->elements[0], ch->_enum, error), error);
+			out = init_scalar(two_arg(a->elements[0], b->elements[0], ch->_enum, error));
+			if(!out)
+				*error = -6;
 			break;
 
 		default:
@@ -264,12 +269,18 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 		return -1;
 
 	case ePi:
-		out = init_scalar(M_PI, &error);
+		out = init_scalar(M_PI);
+		if(!out)
+			error = -6;
+
 		*tok = 1;
 		break;
 
 	case eE:
-		out = init_scalar(M_E, &error);
+		out = init_scalar(M_E);
+		if(!out)
+			error = -6;
+		
 		*tok = 1;
 		break;
 
@@ -424,7 +435,9 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eSubtract:
 		if(*tok == 1) {
 			//if the stack is occupied, should short-circuit
-			while((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->order <= 6)) {
+			while( (oper->top > -1) &&
+			       (((op_struct **)oper->stk)[oper->top]->order <= 6)
+			       && !error ) {
 				error = ex_num(num, var, pop(oper));
 			}
 			push(oper, init_op_struct("+", 2, 6, eAdd));
@@ -432,7 +445,14 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 		*tok = 0;
 		push(oper, init_op_struct("*", 2, 5, eMultiply));
-		push(num, init_scalar(-1, &error));
+		matrix *temp = init_scalar(-1);
+		if(!temp) {
+			error = -6;
+			break;
+		}
+			
+		push(num, temp);
+
 		break;
 
 	case eExponentMatrix:
@@ -506,7 +526,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 		return -7;
 	}
 
-	return 0;
+	return error;
 }
 
 

@@ -131,8 +131,8 @@ err_ret sya(char *input, vari *var) {
 
 				//if the buffer is all numbers
 				if(chk_num(bufferLetters)) {
-					matrix *temp = init_scalar(strtod(bufferLetters, NULL), &error);
-					if(error)
+					matrix *temp = init_scalar(strtod(bufferLetters, NULL));
+					if(!temp)
 						break;
 
 					push(num, temp);

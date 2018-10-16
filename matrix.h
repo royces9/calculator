@@ -20,7 +20,7 @@ typedef struct matrix{
 
 
 matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error);
-matrix *init_scalar(ele e, err_ret *error);
+matrix *init_scalar(ele e);
 matrix *cpy_mat(matrix *src, err_ret *error);
 matrix *cat_mat(matrix *a, matrix *b, uint8_t dim, err_ret *error);
 

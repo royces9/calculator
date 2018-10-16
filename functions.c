@@ -27,7 +27,10 @@ matrix *eye(matrix *a, err_ret *error) {
 	}
 
 	uint16_t newSize[3] = {a->elements[0], a->elements[0], 0};
+
 	matrix *out = init_mat(newSize, 2, error);
+	if(*error)
+		return NULL;
 
 	for(uint64_t i = 0; i < a->elements[0]; ++i)
 		out->elements[i * (uint64_t)(a->elements[0] + 1)] = 1;
@@ -45,6 +48,8 @@ matrix *get_size(matrix *a, err_ret *error){
 	newSize[2] = 0;
   
 	matrix *out = init_mat(newSize, 2, error);
+	if(*error)
+		return NULL;
 
 	for(uint64_t i = 0; a->size[i]; ++i)
 		out->elements[i] = a->size[i];
@@ -64,8 +69,8 @@ matrix *magnitude(matrix *a, err_ret *error){
 
 		mag_a= sqrt(mag_a);
 
-		out = init_scalar(mag_a, error);
-
+		out = init_scalar(mag_a);
+		__MALLOC_CHECK(out, *error);
 	} else {
 		*error = -10;
 	}
@@ -76,7 +81,7 @@ matrix *magnitude(matrix *a, err_ret *error){
 
 //get the total number of elements of a
 matrix *numel(matrix *a, err_ret *error) {
-	return init_scalar(a->len, error);
+	return init_scalar(a->len);
 }
 
 /*function for matrix referencing
@@ -183,6 +188,8 @@ matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
 
 	uint16_t newSize[3] = {a->size[0], b->size[1], 0};
 	out = init_mat(newSize, 2, error);
+	if(*error)
+		return NULL;
 
 	matrix *transposeA = t_mat(a, error);
 
@@ -226,7 +233,9 @@ matrix *exp_mat(matrix *a, matrix *b, err_ret *error) {
 		} else { //b is the scalar
 			//check that b is a whole number, no imaginary numbers (yet?)
 
-			out = init_scalar(a->size[0], error);
+			out = init_scalar(a->size[0]);
+			__MALLOC_CHECK(out, *error);
+
 			tmp = eye(out, error);
 			free_mat(out);
 
@@ -252,7 +261,8 @@ matrix *exp_mat(matrix *a, matrix *b, err_ret *error) {
 
 
 	case 2: //a and b are both scalar
-		out = init_scalar(pow(a->elements[0], b->elements[0]), error);
+		out = init_scalar(pow(a->elements[0], b->elements[0]));
+		__MALLOC_CHECK(out, *error);
 		break;
 
 	default: *error = -10; break;
@@ -273,6 +283,8 @@ matrix *t_mat(matrix *a, err_ret *error) {
 	//but the dimensions are swapped
 	uint16_t newSize[3] = {a->size[1], a->size[0], 0};
 	matrix *out = init_mat(newSize, 2, error);
+	if(*error)
+		return NULL;
 
 	for(uint64_t i = 0; i < out->len; ++i) {
 		//subLoc is an int and gets rounded down
@@ -293,7 +305,7 @@ matrix *min(matrix *m, err_ret *error) {
 	for(uint64_t i = 1; i < m->len; ++i)
 		out = fmin(out, m->elements[i]);
 
-	return init_scalar(out, error);
+	return init_scalar(out);
 }
 
 
@@ -304,7 +316,7 @@ matrix *max(matrix *m, err_ret *error) {
 	for(uint64_t i = 1; i < m->len; ++i)
 		out = fmax(out, m->elements[i]);
 
-	return init_scalar(out, error);
+	return init_scalar(out);
 }
 
 
@@ -344,6 +356,8 @@ matrix *sum(matrix *m, err_ret *error) {
 
 	out = init_mat(newSize, new_dim, error);
 	free(newSize);
+	if(*error)
+		return NULL;
 
 	for(uint64_t i = 0; i < out->len; ++i){
 		for(uint16_t j = 0; j < m->size[m->dim - 2]; ++j){

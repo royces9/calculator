@@ -24,7 +24,7 @@ typedef struct { //variable storage
 	int8_t f_assign;
 } vari;
 
-vari *init_var(void);
+vari *init_var(int size);
 vari *cpy_var(vari *var, err_ret *error);
 
 //find variable named input in list

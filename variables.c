@@ -11,21 +11,22 @@ vari *init_var(int size) {
 	if(!var)
 		return NULL;
 
-	var->value = malloc(sizeof(*var->value) * size);
+	var->value = calloc(size, sizeof(*var->value));
 	if(!var->value)
 		return NULL;
 
-	var->name = malloc(sizeof(*var->name) * size);
+	var->name = calloc(size, sizeof(*var->name));
 	if(!var->name)
 		return NULL;
 	
 	var->assign = NULL;
 
-	var->ans = init_scalar(0, NULL);
+	var->ans = init_scalar(0);
 	if(!var->ans)
 		return NULL;
 
 	var->count = -1;
+	var->f_assign = 0;
 	return var;
 }
 
@@ -128,6 +129,9 @@ void free_var(vari *var){
 	free_mat(var->ans);
 	if(var->assign)
 		free_mat(var->assign);
+
+	free(var->value);
+	free(var->name);
 
 	free(var);
 }

@@ -56,7 +56,13 @@ matrix *deri(char **inp, vari *var, err_ret *error) {
   
 	//set up a dummy variable specified by user  
 	char *tmp_var = removeSpaces(inp[1]);
-	int var_ind = set_var(tmp, tmp_var, init_scalar(point + h, error), error);
+	matrix *temp = init_scalar(point + h);
+	if(!temp) {
+		*error = -6;
+		goto err_ret;
+	}
+	
+	int var_ind = set_var(tmp, tmp_var, temp, error);
 
 	//f(x+h)
 	if((*error = sya(inp[0], tmp)))
@@ -76,8 +82,9 @@ matrix *deri(char **inp, vari *var, err_ret *error) {
 	out -= inter;
   
 
-	output = init_scalar(out / (2 * h), error);
-
+	output = init_scalar(out / (2 * h));
+	if(!output)
+		*error = -6;
  err_ret:
 	free_var(tmp);
 
@@ -132,7 +139,13 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 	//set dummy variable
 	char *tmp_var = removeSpaces(inp[1]);
 
-	var_ind = set_var(tmp, tmp_var, init_scalar(0, error), error);
+	matrix *temp = init_scalar(0);
+	if(!temp) {
+		*error = -6;
+		goto err_ret;
+	}
+		
+	var_ind = set_var(tmp, tmp_var, temp, error);
 	//calculate integral using composite Simpson's
 
 	number = floor(number/2); //halve the steps
@@ -161,7 +174,9 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 	}
 
 
-	out = init_scalar(sum * (step / 3), error);
+	out = init_scalar(sum * (step / 3));
+	if(!out)
+		*error = -6;
 
  err_ret:
 	free_var(tmp);
@@ -314,7 +329,7 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 			if((*error = sya(inp[i], var)))
 				break;
 
-			if(var->ans->dim != 1) {
+			if(var->ans->dim != 1 || var->ans->elements[0]) {
 				*error = -10;
 				break;
 			}
@@ -415,6 +430,7 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 		out = init_mat(newSize, 2, error);
 		if(*error)
 			goto err_ret;
+
 		ele step = (b - a) / (len - 1);
 
 		for(uint64_t i = 0; i < out->len; ++i)
@@ -504,7 +520,9 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 
 		//check index is within bound
 		if(ind < tmp->value[var_ind]->len) {
-			out = init_scalar(ind, error);
+			out = init_scalar(ind);
+			if(!out)
+				*error = -6;
 		} else {
 			*error = -11;
 		}

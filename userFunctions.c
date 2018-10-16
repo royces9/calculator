@@ -144,7 +144,11 @@ matrix *exec_fun(char *functionPath, char **functionArgs, vari *var, err_ret *er
 		//check that the given arguments match with the
 		//require number of arguments
 		if(functionArgNo == argNo) {
-			vari *fun_var = init_var();
+			vari *fun_var = init_var(256);
+			if(!fun_var) {
+				*error = -6;
+				goto ret_out;
+			}
 
 			for(int j = 0; j < functionArgNo; ++j) {
 				char *inputName = removeSpaces(arg_names[j]);
