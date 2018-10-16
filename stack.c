@@ -42,7 +42,7 @@ void *new_stk(int size) {
 		return NULL;
 
 	//allocate pointers
-	out->stk = malloc(sizeof(int *) * size);
+	out->stk = malloc(sizeof(*out->stk) * size);
 	if(!out->stk)
 		return NULL;
 
