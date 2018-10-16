@@ -7,54 +7,24 @@
 #include "matrix.h"
 #include "stack.h"
 
-void push(void *d, void *stk) {
-	((stack *)stk)->stk[++stk->top] = d;
+void push(stack *stk, void *d) {
+	stk->stk[++stk->top] = d;
 }
 
 
-void *pop(void *stk) {
+void *pop(stack *stk) {
 	void *out = NULL;
 
-	if(((stack *)stk)->top > -1)
-		out = ((stack *)stk)->stk[stk->top--];
-
-	return out;
-}
-
-void pushn(matrix *inp, numberStack *st) {
-	st->stk[++st->top] = inp;
-}
-
-
-matrix *popn(numberStack *st) { //pop a matrix from the stack
-	matrix *out = NULL;
-
-	if(st->top > -1)
-		out = st->stk[st->top--];
-
-	return out;
-}
-
-
-//characters
-void pushch(operatorStruct *inp, operatorStack *st) {
-	st->stk[++st->top] = inp;
-}
-
-
-operatorStruct *popch(operatorStack *st) {
-	operatorStruct *out = NULL;
-
-	if(st->top > -1)
-		out = st->stk[st->top--];
+	if(stk->top > -1)
+		out = stk->stk[stk->top--];
 
 	return out;
 }
 
 
 //initialize operatorStruct
-operatorStruct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum){
-	operatorStruct *out = malloc(sizeof(*out));
+op_struct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum){
+	op_struct *out = malloc(sizeof(*out));
 	
 	strcpy(out->op, op);
 
@@ -66,31 +36,27 @@ operatorStruct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uin
 }
 
 
-numberStack *newNumberStack(void) { //make new number stack
-	numberStack *out = calloc(1, sizeof(*out));
+void *new_stk(int size) {
+	stack *out = malloc(sizeof(*out));
+	if(!out)
+		return NULL;
+
+	//allocate pointers
+	out->stk = malloc(sizeof(int *) * size);
+	if(!out->stk)
+		return NULL;
+
 	out->top = -1;
+
 	return out;
 }
 
 
-operatorStack *newOperatorStack(void) { //make new operator stack
-	operatorStack *out = calloc(1, sizeof(*out));
-	out->top = -1;
+void free_stk(stack *stk, void (*free_fun)(void *)) {
+	if(free_fun)
+		while(stk->top > -1)
+			free_fun(stk->stk[stk->top--]);
 
-	return out;
-}
-
-
-void freeNumberStack(numberStack *st) {
-	while(st->top > -1) {
-		free_mat(st->stk[st->top--]);
-	}
-	free(st);
-}
-
-void freeOperatorStack(operatorStack *st) {
-	while(st->top > -1) {
-		free(st->stk[st->top--]);
-	}
-	free(st);
+	free(stk->stk);
+	free(stk);
 }

@@ -8,15 +8,8 @@ typedef struct fileTree {
 	int num;
 } fileTree;
 
-typedef struct {
-	int top;
-	fileTree *stk[1024];
-	int occ;
-} fileStack;
 
-fileTree *createLeaf();
+fileTree *createLeaf(err_ret *error);
 void cutDownTree(fileTree *tree);
-void fPush(fileStack *stk, fileTree *node);
-fileTree *fPop(fileStack *stk);
 
 #endif //FILESTRUCT

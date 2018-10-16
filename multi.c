@@ -519,7 +519,7 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 }
 
 
-err_ret checkVariable(const char *buffer, char *inp, uint16_t *iterator, vari *var, numberStack *num, operatorStack *ch) {
+err_ret checkVariable(const char *buffer, char *inp, uint16_t *iter, vari *var, stack *num, stack *ch) {
 	err_ret error = 0;
 
 	uint16_t len = strlen(buffer);
@@ -545,15 +545,15 @@ err_ret checkVariable(const char *buffer, char *inp, uint16_t *iterator, vari *v
 			return -5;
 		}
 
-		separatedString = sep_str(inp, "()", ",", iterator, &error);
+		separatedString = sep_str(inp, "()", ",", iter, &error);
 
 		out = extractValue(separatedString, k, var, &error);
 
 		if(!(error < 0)) {
-			pushn(var->value[k], num);
-			pushn(out, num);
+			push(num, var->value[k]);
+			push(num, out);
 
-			pushch(init_op_struct("r", 2, 0, eReference), ch);
+			push(ch, init_op_struct("r", 2, 0, eReference));
 		} 
 
 		freeDoubleArray(separatedString);
@@ -563,7 +563,7 @@ err_ret checkVariable(const char *buffer, char *inp, uint16_t *iterator, vari *v
 
 		if(k >= 0) {
 			var->value[k]->var = 1;
-			pushn(var->value[k], num);
+			push(num, var->value[k]);
 
 		} else if(!var->f_assign) {
 			var->f_assign = 1;
@@ -600,7 +600,7 @@ err_ret checkVariable(const char *buffer, char *inp, uint16_t *iterator, vari *v
 			var->value[k]->size = NULL;
 			var->value[k]->elements = NULL;
 
-			pushn(var->value[k], num);
+			push(num, var->value[k]);
 		} else {
 			error = -5;
 			var->f_assign = 0;

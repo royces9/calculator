@@ -73,13 +73,17 @@ err_ret sya(char *input, vari *var) {
 
 	//buffers for characters and operators
 	char *bufferLetters = calloc(len + 1, sizeof(*bufferLetters));
-	__MALLOC_CHECK(bufferLetters, error);
+	if(!bufferLetters)
+		return -6;
 
 	char *bufferOper = calloc(len + 1, sizeof(*bufferOper));
-	__MALLOC_CHECK(bufferOper, error);
+	if(!bufferOper)
+		return -6;
 
 
 	int8_t *type = malloc(sizeof(*type) * (len + 1));
+	if(!type)
+		return -6;
 
 	//assign a type to each char in string
 	//for the switch in the main loop
@@ -101,10 +105,15 @@ err_ret sya(char *input, vari *var) {
 	type[len] = 0;
 
 	//stack for output numbers
-	numberStack *num_stk = newNumberStack();
+	stack *num = new_stk(512);
+	//num_stk *num = new_stk();
+	if(!num)
+		return -6;
 
 	//stack for operators
-	operatorStack *op_stk = newOperatorStack();
+	stack *op = new_stk(512);
+	if(!op)
+		return -6;
 
 	//main loop
 	//iterates through the input string, apply shunting-yard algorithm
@@ -123,14 +132,14 @@ err_ret sya(char *input, vari *var) {
 
 				//if the buffer is all numbers
 				if(chk_num(bufferLetters)) {
-					push(init_scalar(strtod(bufferLetters, NULL), &error), num_stk);
+					push(num, init_scalar(strtod(bufferLetters, NULL), &error));
 
 				} else { //check if command is a function or variable
 					if(input[i + 1] == '(')
 						bufferLetters[char_iter++] = '(';
 
 					bufferLetters[char_iter] = '\0';
-					error = find_fun(bufferLetters, num_stk, op_stk, var, &negativeCheck, &i, input);
+					error = find_fun(bufferLetters, num, op, var, &negativeCheck, &i, input);
 				}
 
 				//reset bufferLetters counter
@@ -161,7 +170,7 @@ err_ret sya(char *input, vari *var) {
 				bufferOper[oper_iter] = '\0';
 
 				//find the corresponding operator
-				error = find_op(bufferOper, num_stk, op_stk, var, &negativeCheck);
+				error = find_op(bufferOper, num, op, var, &negativeCheck);
 
 				//reset bufferOper counter
 				oper_iter = 0;
@@ -176,7 +185,7 @@ err_ret sya(char *input, vari *var) {
 			matrix *a = extractMatrix(var, &i, input, &error);
 
 			if(!error)
-				push(a, num_stk);
+				push(num, a);
 
 			break;
 
@@ -195,10 +204,10 @@ err_ret sya(char *input, vari *var) {
 	if(!error){
 
 		//while the operator and number stack are occupied, keep executing
-		while(op_stk->top > -1) {
-			if( (error = ex_num(num_stk, var, pop(op_stk))) ) {
-				freeOperatorStack(op_stk);
-				freeNumberStack(num_stk);
+		while(op->top > -1) {
+			if( (error = ex_num(num, var, pop(op))) ) {
+				free_stk(op, &free);
+				free_stk(num, (void (*) (void *))&free_mat);
 				var->assign = 0;
 				return error;
 			}
@@ -211,15 +220,21 @@ err_ret sya(char *input, vari *var) {
 		//copy num_stack->stk[0] to var->ans
 		//if num_stack->stk is occupied, and
 		//if num_stack->stk[0] is not NULL
-		if((num_stk->top > -1) && (num_stk->stk[0]->size)) {
-			var->ans->len = num_stk->stk[0]->len;
-			var->ans->dim = num_stk->stk[0]->dim;
+		if((num->top > -1) && (((matrix **)num->stk)[0]->size)) {
+			var->ans->len = ((matrix **)num->stk)[0]->len;
+			var->ans->dim = ((matrix **)num->stk)[0]->dim;
 
 			var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->len);
-			memcpy(var->ans->elements, num_stk->stk[0]->elements, sizeof(*var->ans->elements) * var->ans->len);
+			if(!var->ans->elements)
+				return -6;
+
+			memcpy(var->ans->elements, ((matrix **)num->stk)[0]->elements, sizeof(*var->ans->elements) * var->ans->len);
 
 			var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dim + 1));
-			memcpy(var->ans->size, num_stk->stk[0]->size, sizeof(*var->ans->size) * (var->ans->dim + 1));
+			if(!var->ans->size)
+				return -6;
+
+			memcpy(var->ans->size, ((matrix **)num->stk)[0]->size, sizeof(*var->ans->size) * (var->ans->dim + 1));
 
 		} else {
 			error = -5;
@@ -230,8 +245,8 @@ err_ret sya(char *input, vari *var) {
 	}
 
 	//free stacks
-	freeOperatorStack(op_stk);
-	freeNumberStack(num_stk);
+	free_stk(num, (void (*) (void *))&free_mat);
+	free_stk(op, &free);
 
 	//reset assignment
 	var->f_assign = 0;

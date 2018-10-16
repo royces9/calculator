@@ -40,7 +40,7 @@ int search_op(char *buffer) {
 
 
 //executes either one argument function or two argument function
-err_ret ex_num(numberStack *num, vari *var, operatorStruct *ch) {
+err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 	matrix *a = NULL;
 	matrix *b = NULL;
 	matrix *out = NULL;
@@ -85,14 +85,14 @@ err_ret ex_num(numberStack *num, vari *var, operatorStruct *ch) {
 	}
 
 	if(out)
-		push(out, num);
+		push(num, out);
 
 	free(ch);
 	return error;
 }
 
 
-matrix *mat_one(matrix *a, operatorStruct *ch, err_ret *error) {
+matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
 	matrix *out;
 	err_ret check = 0;
 
@@ -129,7 +129,7 @@ matrix *mat_one(matrix *a, operatorStruct *ch, err_ret *error) {
 }
 
 
-matrix *mat_two(matrix *a, matrix *b, operatorStruct *ch, err_ret *error) {
+matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 	matrix *out = NULL;
 	err_ret check = 0;
 
@@ -216,7 +216,7 @@ matrix *mat_two(matrix *a, matrix *b, operatorStruct *ch, err_ret *error) {
 }
 
 
-err_ret find_fun(char *buffer, numberStack *num, operatorStack *ch, vari *var, int8_t *tok, uint16_t *iterator, char *input) {
+err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, uint16_t *iterator, char *input) {
 	char **separatedString = NULL;
 	matrix *out = NULL;
 
@@ -294,7 +294,7 @@ err_ret find_fun(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 	case eTranspose:
 	case eMagnitude:
 	case eNumel:
-		push(init_op_struct(FUNCTION_LIST[i], 1, 15, i), ch);
+		push(ch, init_op_struct(FUNCTION_LIST[i], 1, 15, i));
 		*tok = 0;
 		break;
 
@@ -383,13 +383,13 @@ err_ret find_fun(char *buffer, numberStack *num, operatorStack *ch, vari *var, i
 		freeDoubleArray(separatedString);
 
 	if(out)
-		push(out, num);
+		push(num, out);
 
 	return error;
 }
 
 
-err_ret find_op(char *buffer, numberStack *num, operatorStack *oper, vari *var, int8_t *tok) {
+err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	int i = search_op(buffer);
 	err_ret error = 0;
 	/*
@@ -417,36 +417,36 @@ err_ret find_op(char *buffer, numberStack *num, operatorStack *oper, vari *var, 
 	case eSubtract:
 		if(*tok == 1) {
 			//if the stack is occupied, should short-circuit
-			while((oper->top > -1) && (oper->stk[oper->top]->order <= 6)) {
+			while((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->order <= 6)) {
 				error = ex_num(num, var, pop(oper));
 			}
-			push(init_op_struct("+", 2, 6, eAdd), oper);
+			push(oper, init_op_struct("+", 2, 6, eAdd));
 		}
 
 		*tok = 0;
-		push(init_op_struct("*", 2, 5, eMultiply), oper);
-		push(init_scalar(-1, &error), num);
+		push(oper, init_op_struct("*", 2, 5, eMultiply));
+		push(num, init_scalar(-1, &error));
 		break;
 
 	case eExponentMatrix:
 		*tok = 0;
-		push(init_op_struct("^", 2, 4, eExponentMatrix), oper);
+		push(oper, init_op_struct("^", 2, 4, eExponentMatrix));
 		break;
     
 	case eExponent:
 		*tok = 0;
-		push(init_op_struct(".^", 2, 4, eExponent), oper);
+		push(oper, init_op_struct(".^", 2, 4, eExponent));
 		break;
 
 	case eLeftParen:
 		*tok = 0;
 
-		if( (oper->top > -1) && (oper->stk[oper->top]->order == 2) ) {
-			operatorStruct *temp = pop(oper);
-			push(init_op_struct("(", 0, 15, eLeftParen), oper);
-			push(temp, oper);
+		if( (oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->order == 2) ) {
+			op_struct *temp = pop(oper);
+			push(oper, init_op_struct("(", 0, 15, eLeftParen));
+			push(oper, temp);
 		} else {
-			push(init_op_struct("(", 0, 15, eLeftParen), oper);
+			push(oper, init_op_struct("(", 0, 15, eLeftParen));
 		}
 		
 
@@ -456,7 +456,7 @@ err_ret find_op(char *buffer, numberStack *num, operatorStack *oper, vari *var, 
 	case eRightParen:
 		do {
 			error = ex_num(num, var, pop(oper));
-		} while( (oper->top > -1) && (oper->stk[oper->top]->_enum != eLeftParen) );
+		} while( (oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->_enum != eLeftParen) );
 
 		*tok = 1;
 		free(pop(oper));
@@ -465,12 +465,12 @@ err_ret find_op(char *buffer, numberStack *num, operatorStack *oper, vari *var, 
 
 	case eAssign:
 		*tok = 0;
-		if((oper->top > -1) && (oper->stk[oper->top]->_enum == eReference)){
+		if((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->_enum == eReference)){
 			var->assign = pop(num);
 
 			free(pop(oper));
 		}
-		push(init_op_struct("=", 3, 16, eAssign), oper);
+		push(oper, init_op_struct("=", 3, 16, eAssign));
 		break;
 
 	case eAdd:
@@ -488,11 +488,11 @@ err_ret find_op(char *buffer, numberStack *num, operatorStack *oper, vari *var, 
 	case eDivideMatrix:
 	case eModulo:
 
-		while((oper->top > -1) && (oper->stk[oper->top]->order <= operatorPrecedence[i]))
+		while((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->order <= operatorPrecedence[i]))
 			error = ex_num(num, var, pop(oper));
 
 		*tok = 0;
-		push(init_op_struct(buffer, 2, operatorPrecedence[i], i), oper);
+		push(oper, init_op_struct(buffer, 2, operatorPrecedence[i], i));
 		break;
 
 	default:
@@ -646,7 +646,8 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 	}
 
 	//number stack for creating the matrix
-	numberStack *numStk = newNumberStack();
+	stack *num = new_stk(128);
+	__MALLOC_CHECK(num, *error);
 
 	//char array that holds each element of the array and a delimiter (, or ;) at the beginning
 	char **separatedMatrix = separateMatrix(matrixString, countDelimiter(matrixString), error);
@@ -657,7 +658,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 	vari *tempVari = cpy_var(var, error);
 	*error = sya(separatedMatrix[0], tempVari);
 
-	push(cpy_mat(tempVari->ans, error), numStk);
+	push(num, cpy_mat(tempVari->ans, error));
 
 	matrix *a = NULL;
 	matrix *b = NULL;
@@ -676,7 +677,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 		case ',':
 			*error = sya(separatedMatrix[i] + 1, tempVari);
 			if( !(*error) ) {
-				a = pop(numStk);
+				a = pop(num);
 
 				temp = cat_mat(a, tempVari->ans, 1, error);
 				free_mat(a);
@@ -696,7 +697,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 		}
 
 		if(temp) {
-			push(temp, numStk);
+			push(num, temp);
 		} else {
 			break;
 		}
@@ -704,9 +705,9 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 	}
 
 	if( !(*error) ) {
-		while(numStk->top > 0) {
-			b = pop(numStk);
-			a = pop(numStk);
+		while(num->top > 0) {
+			b = pop(num);
+			a = pop(num);
 
 			temp = cat_mat(a, b, 0, error);
 
@@ -714,19 +715,19 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 			free_mat(b);
 
 			if(temp) {
-				push(temp, numStk);
+				push(num, temp);
 			} else {
 				break;
 			}
 		}
 
-		out = pop(numStk);
+		out = pop(num);
 	}
 
 	free_var(tempVari);
 	freeDoubleArray(separatedMatrix);
 
-	free(numStk);
+	free(num);
 
 	return out;
 }

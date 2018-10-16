@@ -2,8 +2,12 @@
 #define STACK
 
 typedef struct {
+
+	void **stk;
+
+	//index to top of stack
+	//-1 is empty
 	int top;
-	void *stk[1024];
 } stack;
 
 typedef struct { //struct for operators, +, -, etc
@@ -19,43 +23,14 @@ typedef struct { //struct for operators, +, -, etc
 	//corresponding enum, in operatorUtility.h
 	uint8_t _enum;
 
-} operatorStruct;
+} op_struct;
 
+void push(stack *stk, void *d);
+void *pop(stack *stk);
 
-typedef struct { //struct for stack of numbers
-	//index for the top index
-	//-1 is empty
-	int top;
+op_struct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum);
 
-	//stack array
-	matrix *stk[1024];
-} numberStack;
-
-
-typedef struct { //same as numberStack, except for operators
-	//index for the top index
-	//-1 is empty
-	int top;
-
-	//stack array
-	operatorStruct *stk[1024];
-} operatorStack;
-
-void push(void *d, void *stk);
-void *pop(void *stk);
-
-void pushn(matrix *inp, numberStack *st);
-matrix *popn(numberStack *st);
-
-void pushch(operatorStruct *inp, operatorStack *st);
-operatorStruct *popch(operatorStack *st);
-
-operatorStruct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum);
-
-numberStack *newNumberStack(void);
-operatorStack *newOperatorStack(void);
-
-void freeNumberStack(numberStack *st);
-void freeOperatorStack(operatorStack *st);
+void *new_stk(int size);
+void free_stk(stack *stk, void (*free_fun)(void *));
 
 #endif //STACK

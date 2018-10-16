@@ -47,16 +47,6 @@ err_ret runFile(char **input, vari *var, int offset) {
 }
 
 
-//create new fileStack
-fileStack newFileStack() {
-	fileStack out;
-	out.top = 0;
-	out.occ = 0;
-	memset(out.stk, 0, sizeof(out.stk));
-	return out;
-}
-
-
 //create and populate tree
 err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize, int offset){
 
@@ -76,7 +66,7 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 	int length = 0;
 
 	//stack data structure convenient for creating tree
-	fileStack stk = newFileStack();
+	stack *stk = new_stk(128);
 
 	//open and check if file exists
 	//return error if it doesn't exist/can't open
@@ -133,7 +123,7 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 		case 1: //if
 		case 2: //while
 		case -2: //else
-			fPush(&stk, tree);
+			push(stk, tree);
 			tree->right = createLeaf(&error);
 			tree = tree->right;
 			break;
@@ -141,7 +131,7 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 			//end
 			//signifies end of while/if/else 
 		case -1:
-			tree = fPop(&stk);
+			tree = pop(stk);
 
 		default:
 			tree->left = createLeaf(&error);
@@ -155,6 +145,8 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 			fileString = realloc(fileString, *maxSize * sizeof(*fileString));
 		}
 	}  
+
+	free_stk(stk, NULL);
 
 	fclose(inputFile);
 	return error;
@@ -178,8 +170,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 	err_ret error = 0;
 
 	//create new file stack
-	fileStack stk = newFileStack();
-
+	stack *stk = new_stk(128);
   
 	//executes the tree
 	//checks that the current leaf and the string it holds are not NULL
@@ -209,7 +200,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 				//everything inside the if executes
 				//otherwise go directly to tree->left
 
-				fPush(&stk, tree->left);
+				push(stk, tree->left);
 				tree = tree->right;
 
 			} else {
@@ -228,7 +219,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 				break;
 
 			} else if(check){
-				fPush(&stk, tree);
+				push(stk, tree);
 				tree = tree->right;
 	
 			} else{
@@ -244,7 +235,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 
 	
 		case -1: //end 
-			tree = fPop(&stk); //tree returns to whatever is on top of the stack
+			tree = pop(stk); //tree returns to whatever is on top of the stack
 			break;
 
       
@@ -257,7 +248,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 			//the else block is skipped
 
 			if(checkStack[--checkTop] == 0){
-				fPush(&stk, tree->left);
+				push(stk, tree->left);
 				tree = tree->right;
 
 			} else { //check is true, continue after the else
@@ -284,6 +275,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 			break;
 	}
 
+	free_stk(stk, NULL);
 	free(checkStack);
 
 	if(error)
