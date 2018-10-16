@@ -9,8 +9,8 @@ typedef struct fileTree {
 } fileTree;
 
 typedef struct {
-	fileTree *stk[1024];
 	int top;
+	fileTree *stk[1024];
 	int occ;
 } fileStack;
 

@@ -150,7 +150,7 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 		}
 
 		//make fileString bigger if there is no room in it for the next iteration
-		if((i+1) >= *maxSize) {
+		if((i + 1) >= *maxSize) {
 			*maxSize *= 2;
 			fileString = realloc(fileString, *maxSize * sizeof(*fileString));
 		}

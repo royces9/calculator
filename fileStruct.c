@@ -23,18 +23,24 @@ void cutDownTree(fileTree *tree) {
 	}
 }
 
-void fPush(fileStack *stk, fileTree *node) {
+void fPush(fileStack *st, fileTree *node) {
+	st->stk[++st->top] = node;
+/*
 	if(stk->occ == 1) {
-		stk->stk[++stk->top] = node;
+	stk->stk[++stk->top] = node;
 	} else {
 		stk->stk[0] = node;
 		stk->occ = 1;
 	}
+*/
 }
 
-fileTree *fPop(fileStack *stk) {
+fileTree *fPop(fileStack *st) {
 	fileTree *out = NULL;
 
+	if(st->top  > -1)
+		out = st->stk[st->top--];
+	/*
 	if(stk->occ == 1) {
 		out = stk->stk[stk->top--];
 		if(stk->top == -1) {
@@ -42,6 +48,6 @@ fileTree *fPop(fileStack *stk) {
 			stk->top = 0;
 		}
 	}
-
+	*/
 	return out;
 }

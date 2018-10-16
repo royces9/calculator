@@ -1,6 +1,11 @@
 #ifndef STACK
 #define STACK
 
+typedef struct {
+	int top;
+	void *stk[1024];
+} stack;
+
 typedef struct { //struct for operators, +, -, etc
 	//operator/function string
 	char op[16];
@@ -18,25 +23,26 @@ typedef struct { //struct for operators, +, -, etc
 
 
 typedef struct { //struct for stack of numbers
-	//stack array
-	matrix *stk[1024];
-
 	//index for the top index
 	//-1 is empty
 	int top;
 
+	//stack array
+	matrix *stk[1024];
 } numberStack;
 
 
 typedef struct { //same as numberStack, except for operators
-	//stack array
-	operatorStruct *stk[1024];
-
 	//index for the top index
 	//-1 is empty
 	int top;
 
+	//stack array
+	operatorStruct *stk[1024];
 } operatorStack;
+
+void push(void *d, void *stk);
+void *pop(void *stk);
 
 void pushn(matrix *inp, numberStack *st);
 matrix *popn(numberStack *st);

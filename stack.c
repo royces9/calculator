@@ -7,6 +7,20 @@
 #include "matrix.h"
 #include "stack.h"
 
+void push(void *d, void *stk) {
+	((stack *)stk)->stk[++stk->top] = d;
+}
+
+
+void *pop(void *stk) {
+	void *out = NULL;
+
+	if(((stack *)stk)->top > -1)
+		out = ((stack *)stk)->stk[stk->top--];
+
+	return out;
+}
+
 void pushn(matrix *inp, numberStack *st) {
 	st->stk[++st->top] = inp;
 }

@@ -123,7 +123,7 @@ err_ret sya(char *input, vari *var) {
 
 				//if the buffer is all numbers
 				if(chk_num(bufferLetters)) {
-					pushn(init_scalar(strtod(bufferLetters, NULL), &error), num_stk);
+					push(init_scalar(strtod(bufferLetters, NULL), &error), num_stk);
 
 				} else { //check if command is a function or variable
 					if(input[i + 1] == '(')
@@ -176,7 +176,7 @@ err_ret sya(char *input, vari *var) {
 			matrix *a = extractMatrix(var, &i, input, &error);
 
 			if(!error)
-				pushn(a, num_stk);
+				push(a, num_stk);
 
 			break;
 
@@ -196,7 +196,7 @@ err_ret sya(char *input, vari *var) {
 
 		//while the operator and number stack are occupied, keep executing
 		while(op_stk->top > -1) {
-			if( (error = ex_num(num_stk, var, popch(op_stk))) ) {
+			if( (error = ex_num(num_stk, var, pop(op_stk))) ) {
 				freeOperatorStack(op_stk);
 				freeNumberStack(num_stk);
 				var->assign = 0;
