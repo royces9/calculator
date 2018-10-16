@@ -6,10 +6,12 @@ typedef struct { //variable storage
 	matrix *assign;
 
 	//stores variable values
-	matrix *value[256];
+	matrix **value;
+	//matrix *value[256];
 
 	//stores variable names
-	char *name[256];
+	char **name;
+	//char *name[256];
 
 	//answer matrix
 	matrix *ans;

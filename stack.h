@@ -31,6 +31,13 @@ void *pop(stack *stk);
 op_struct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum);
 
 void *new_stk(int size);
+
+/*
+ * stk - pointer to the stack
+ * free_fun - function pointer to a free function
+ *            for every member of the stack
+ *            does nothing if NULL
+ */
 void free_stk(stack *stk, void (*free_fun)(void *));
 
 #endif //STACK

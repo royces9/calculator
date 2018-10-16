@@ -6,9 +6,25 @@
 #include "matrix.h"
 #include "variables.h"
 
-vari *init_var(void) {
-	vari *var = calloc(1, sizeof(*var));
+vari *init_var(int size) {
+	vari *var = malloc(sizeof(*var));
+	if(!var)
+		return NULL;
+
+	var->value = malloc(sizeof(*var->value) * size);
+	if(!var->value)
+		return NULL;
+
+	var->name = malloc(sizeof(*var->name) * size);
+	if(!var->name)
+		return NULL;
+	
+	var->assign = NULL;
+
 	var->ans = init_scalar(0, NULL);
+	if(!var->ans)
+		return NULL;
+
 	var->count = -1;
 	return var;
 }
