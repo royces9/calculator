@@ -1,6 +1,5 @@
 #include <math.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -687,6 +686,11 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	*error = sya(sepd_mat[0], tempVari);
 
 	matrix *temp = cpy_mat(tempVari->ans, error);
+	if( *error) {
+		free_mat(temp);
+		goto err_ret;
+	}
+		
 	push(num, temp);
 
 	matrix *a = NULL;
@@ -703,20 +707,22 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 
 		switch(sepd_mat[i][0]) {
 		case ',':
-			*error = sya(sepd_mat[i] + 1, tempVari);
-			if( !(*error) ) {
-				a = pop(num);
 
+			if( !(*error = sya(sepd_mat[i] + 1, tempVari)) ) {
+				a = pop(num);
 				temp = cat_mat(a, tempVari->ans, 1, error);
 				free_mat(a);
+
+				if(*error)
+					goto err_ret;
 			}
+
 			break;
 
 		case ';':
-			*error = sya(sepd_mat[i] + 1, tempVari);
-			if( !(*error) ) {
+			if( !(*error = sya(sepd_mat[i] + 1, tempVari)) )
 				temp = cpy_mat(tempVari->ans, error);
-			}
+
 			break;
       
 		default:
@@ -748,13 +754,13 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 				break;
 			}
 		}
-
 		out = pop(num);
+
 	}
 
+ err_ret:
 	free_var(tempVari);
 	freeDoubleArray(sepd_mat);
-
 	free(num);
 
 	return out;

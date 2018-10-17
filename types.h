@@ -1,6 +1,8 @@
 #ifndef TYPES
 #define TYPES
 
+#include <stdint.h>
+
 //macro for malloc failure
 #define __MALLOC_CHECK(pointer, error)          \
 	if((pointer) == NULL) {			\

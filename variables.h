@@ -7,11 +7,9 @@ typedef struct { //variable storage
 
 	//stores variable values
 	matrix **value;
-	//matrix *value[256];
 
 	//stores variable names
 	char **name;
-	//char *name[256];
 
 	//answer matrix
 	matrix *ans;
@@ -20,8 +18,13 @@ typedef struct { //variable storage
 	//-1 if empty
 	int count;
 
+	//maximum number of variables held
+	int size;
+
 	//flag if an assignment occured
 	int8_t f_assign;
+
+
 } vari;
 
 vari *init_var(int size);

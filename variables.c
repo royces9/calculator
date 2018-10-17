@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -12,29 +11,45 @@ vari *init_var(int size) {
 		return NULL;
 
 	var->value = calloc(size, sizeof(*var->value));
-	if(!var->value)
+	if(!var->value) {
+		free(var);
 		return NULL;
+	}
 
 	var->name = calloc(size, sizeof(*var->name));
-	if(!var->name)
+	if(!var->name) {
+		free(var->value);
+		free(var);
 		return NULL;
+	}
 	
 	var->assign = NULL;
 
 	var->ans = init_scalar(0);
-	if(!var->ans)
+	if(!var->ans) {
+		free(var->name);
+		free(var->value);
+		free(var);
 		return NULL;
+	}
 
 	var->count = -1;
 	var->f_assign = 0;
+	var->size = size;
 	return var;
 }
 
 
 vari *cpy_var(vari *var, err_ret *error){
-	vari *out = calloc(1, sizeof(*out));
-
+	vari *out = init_var(var->size);
+	if( !out )
+		return NULL;
+	
 	out->ans = calloc(1, sizeof(*out->ans));
+	if( !out->ans) {
+		free(out);
+		return NULL;
+	}
 
 	out->assign = NULL;
 	out->f_assign = var->f_assign;
@@ -45,6 +60,12 @@ vari *cpy_var(vari *var, err_ret *error){
 		int i = 0;
 		for(; i < var->count; ++i) {
 			out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
+			if( !out->name[i] ) {
+				free(out->ans);
+				free(out);
+				return NULL;
+			}
+
 			strcpy(out->name[i], var->name[i]);
 
 			out->value[i] = cpy_mat(var->value[i], error);
@@ -54,6 +75,12 @@ vari *cpy_var(vari *var, err_ret *error){
 
 		if((var->value[i] != NULL) && (var->value[i]->size != NULL)) {
 			out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
+			if( !out->name[i] ) {
+				free(out->ans);
+				free(out);
+				return NULL;
+			}
+
 			strcpy(out->name[i], var->name[i]);
 
 			out->value[i] = cpy_mat(var->value[i], error);

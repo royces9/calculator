@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -325,10 +324,8 @@ int8_t checkConditional(char *input, int type, vari *var) {
 	err_ret error = sya(input, var);
 	if(error) return error; 
 
-	ele out = var->ans->elements[0];
-
 	//guarantee that the output is 1 or 0
-	return !!out;
+	return !!var->ans->elements[0];
 }
 
 

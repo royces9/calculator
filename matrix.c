@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -200,80 +199,77 @@ matrix *cat_mat(matrix *a, matrix *b, uint8_t dim, err_ret *error) {
 
 			free(sizeA);
 			free(sizeB);
-
-			break;
-      
-			case 1: //only one of a or b are scalars
-				{
-					//temporary variables for less writing in if blocks
-					matrix *tempVector = NULL;
-					ele tempScalar = 0;
-					//assign which matrix is a scalar and which is a matrix
-					if(aScalar){
-						tempVector = b;
-						tempScalar = a->elements[0];
-
-					} else{
-						tempVector = a;
-						tempScalar = b->elements[0];
-
-					}
-
-					//check that the matrix is a vector, only vectors can be
-					//concatenated with scalars
-					if(!is_vec(tempVector)) {
-						*error = -15;
-						break;
-					}
-
-					//new size vector
-					uint16_t newSize[3];
-					memcpy(newSize, tempVector->size, sizeof(*newSize) * 3);
-
-					//increment size because of the concatenation
-					++newSize[dim];
-
-					//init new matrix
-					out = init_mat(newSize, tempVector->dim, error);
-
-
-					//put values into new matrix
-					//first vector values
-					for(uint64_t i = 0; i < tempVector->len; ++i) {
-						out->elements[i + aScalar] = tempVector->elements[i];
-					}
-
-					//then scalar value
-					//assume that bScalar is either 0 or 1, this then puts
-					//the scalar value at either the beginning or the end
-					out->elements[tempVector->len * bScalar] = tempScalar;
-				}
-				break;
-
-
-				case 2: //both a and b are scalars
-					{
-						//create and set new size vector
-
-						uint16_t newSize[2] = {1, 1};
-						if(dim == 0){
-							++newSize[0]; //set newSize to [2, 1]
-						} else if(dim == 1){
-							++newSize[1]; //set newSize to [1, 2]
-						} else{
-							*error = 13;
-							return NULL;
-						}
-
-						out = init_mat(newSize, 2, error);
-
-						out->elements[0] = a->elements[0];
-						out->elements[1] = b->elements[0];
-					}
-					break;
-
-					default: *error = -14; break; //return error if something else
 		}
+
+		break;
+	case 1: //only one of a or b are scalars
+		{
+			//temporary variables for less writing in if blocks
+			matrix *tempVector = NULL;
+			ele tempScalar = 0;
+			//assign which matrix is a scalar and which is a matrix
+			if(aScalar){
+				tempVector = b;
+				tempScalar = a->elements[0];
+
+			} else{
+				tempVector = a;
+				tempScalar = b->elements[0];
+
+			}
+
+			//check that the matrix is a vector, only vectors can be
+			//concatenated with scalars
+			if(!is_vec(tempVector)) {
+				*error = -15;
+				break;
+			}
+
+			//new size vector
+			uint16_t newSize[3];
+			memcpy(newSize, tempVector->size, sizeof(*newSize) * 3);
+
+			//increment size because of the concatenation
+			++newSize[dim];
+
+			//init new matrix
+			out = init_mat(newSize, tempVector->dim, error);
+
+
+			//put values into new matrix
+			//first vector values
+			for(uint64_t i = 0; i < tempVector->len; ++i)
+				out->elements[i + aScalar] = tempVector->elements[i];
+
+			//then scalar value
+			//assume that bScalar is either 0 or 1, this then puts
+			//the scalar value at either the beginning or the end
+			out->elements[tempVector->len * bScalar] = tempScalar;
+		}
+		break;
+
+	case 2: //both a and b are scalars
+		{
+			//create and set new size vector
+
+			uint16_t newSize[3] = {1, 1, 0};
+			if(dim == 0){
+				++newSize[0]; //set newSize to [2, 1]
+			} else if(dim == 1){
+				++newSize[1]; //set newSize to [1, 2]
+			} else{
+				*error = 13;
+				return NULL;
+			}
+
+			out = init_mat(newSize, 2, error);
+
+			out->elements[0] = a->elements[0];
+			out->elements[1] = b->elements[0];
+		}
+		break;
+
+	default: *error = -14; break; //return error if something else
 	}
 
 	return out;
