@@ -23,7 +23,8 @@ uint8_t numberOfArgs(char **inp) {
 
 
 matrix *deri(char **inp, vari *var, err_ret *error) {
-	vari *tmp = cpy_var(var, error); //copy global struct to a local variable struct
+	//copy global struct to a local variable struct
+	vari *tmp = cpy_var(var, error);
 
 	matrix *output = NULL;
 
@@ -101,7 +102,8 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 
 	matrix *out = NULL;
 
-	vari *tmp = cpy_var(var, error); //copy global struct to a local variable struct
+	//copy global struct to a local variable struct
+	vari *tmp = cpy_var(var, error);
 	int var_ind = 0;
 
 	//get number of steps, and step size
@@ -194,7 +196,9 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	}
 
 	matrix *output = NULL;
-	vari *tmp = cpy_var(var, error); //copy global struct to a local variable struct
+
+	//copy global struct to a local variable struct
+	vari *tmp = cpy_var(var, error);
   
 	const double delta = 0.000001;
 
@@ -239,7 +243,8 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	ele out = 0;
 	ele inter = 0;
 
-	//if the difference between iterations is less than the tolerance, break out of loop
+	//if the difference between iterations is
+	//less than the tolerance, break out of loop
 	while(fabs(test) > h) {
 		if((*error = sya(inp[0], tmp)))
 			goto err_ret;
@@ -515,7 +520,8 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 		}
 		loc[dim] = 0;
 
-		uint64_t ind = sub2ind(loc, tmp->value[var_ind]->size, tmp->value[var_ind]->dim);
+		uint64_t ind = sub2ind(loc, tmp->value[var_ind]->size,
+				       tmp->value[var_ind]->dim);
 		free(loc);
 
 		//check index is within bound
@@ -537,7 +543,7 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 }
 
 
-err_ret checkVariable(const char *buffer, char *inp, uint16_t *iter, vari *var, stack *num, stack *ch) {
+err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack *num, stack *ch) {
 	err_ret error = 0;
 
 	uint16_t len = strlen(buffer);
@@ -679,7 +685,8 @@ err_ret printLine(char **inp, vari *var) {
 			}
 		}
 
-		//check if there is a quote at the end of the string, or spaces then a quote (going backwards
+		//check if there is a quote at the end of the string
+		//or spaces then a quote (going backwards)
 		if(inp[i][len - (back + 1)] == '"') {
 			++string;
 		} else {

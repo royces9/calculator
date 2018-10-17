@@ -185,7 +185,7 @@ err_ret sya(char *input, vari *var) {
 			//reset letters and oper counters
 			char_iter = 0;
 			oper_iter = 0;
-			matrix *a = extractMatrix(var, &i, input, &error);
+			matrix *a = ext_mat(var, &i, input, &error);
 
 			if(!error)
 				push(num, a);

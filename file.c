@@ -196,7 +196,8 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 
 			} else if(check) {
 				//if the condition inside the if is true
-				//push tree->left, and continue execution from tree->right, the line after the if
+				//push tree->left, and continue execution
+				//from tree->right, the line after the if
 				//everything inside the if executes
 				//otherwise go directly to tree->left
 

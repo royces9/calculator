@@ -141,8 +141,10 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 
 		} else {
 
-			for(uint64_t i = 0; i < var->assign->len; ++i)
-				a->elements[(uint64_t) var->assign->elements[i]] = b->elements[i];
+			for(uint64_t i = 0; i < var->assign->len; ++i) {
+				uint64_t index = var->assign->elements[i];
+				a->elements[index] = b->elements[i];
+			}
 
 			incrementFlag = 0;
 			free_mat(var->assign);

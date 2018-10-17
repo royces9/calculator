@@ -74,7 +74,9 @@ char *find_path(char *name, err_ret *error) {
 		//assume that the user is NOT going to use sudo
 		char *home = getenv("HOME");
 		char *configPath = "/.config/calc.conf";
-		char *config = malloc(sizeof(*config) * (strlen(home) + strlen(configPath) + 1));
+
+		int conf_len = strlen(home) + strlen(configPath) + 1;
+		char *config = malloc(sizeof(*config) * conf_len);
 		__MALLOC_CHECK(config, *error);
 
 		strcpy(config, home);
@@ -94,10 +96,10 @@ char *find_path(char *name, err_ret *error) {
 }
 
 
-matrix *exec_fun(char *functionPath, char **functionArgs, vari *var, err_ret *error) {
-	int argNo = numberOfArgs(functionArgs);
+matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
+	int argNo = numberOfArgs(args);
 
-	FILE *userFunction = fopen(functionPath, "r");
+	FILE *userFunction = fopen(path, "r");
 
 	//get the header for the function
 	//right now it's hardcoded to get the first line
@@ -157,7 +159,7 @@ matrix *exec_fun(char *functionPath, char **functionArgs, vari *var, err_ret *er
 				//gets stored in var->ans
 				//use var instead of functionVar because the input
 				//arguments might have variable in them
-				*error = sya(functionArgs[j], var);
+				*error = sya(args[j], var);
 				if(*error)
 					goto ret_out;
 
@@ -173,7 +175,7 @@ matrix *exec_fun(char *functionPath, char **functionArgs, vari *var, err_ret *er
 
 			//run the file
 			//offset by one line
-			*error = runFile(&functionPath, fun_var, 1);
+			*error = runFile(&path, fun_var, 1);
 			if(*error)
 				goto ret_out;
 

@@ -101,12 +101,14 @@ matrix *cpy_mat(matrix *src, err_ret *error) {
 	dest->elements = malloc(sizeof(*dest->elements) * dest->len);
 	__MALLOC_CHECK(dest->elements, *error);  
 
-	dest->elements = memcpy(dest->elements, src->elements, sizeof(*dest->elements) * dest->len);
+	dest->elements = memcpy(dest->elements, src->elements,
+				sizeof(*dest->elements) * dest->len);
 
 	dest->size = malloc(sizeof(*dest->size) * (dest->dim + 1));
 	__MALLOC_CHECK(dest->size, *error);  
 
-	dest->size = memcpy(dest->size, src->size, sizeof(*dest->size) * (dest->dim + 1));
+	dest->size = memcpy(dest->size, src->size,
+			    sizeof(*dest->size) * (dest->dim + 1));
   
 	return dest;
 }

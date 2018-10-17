@@ -173,36 +173,34 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 		case 0: //neither is a scalar
 
 			//check if a and b are the same size
-			if(cmp_size(a->size, b->size, a->dim, b->dim)) {
-				out = init_mat(a->size, a->dim, error);
-				if(*error)
-					break;
-
-				for(uint64_t i = 0; i < a->len; ++i)
-					out->elements[i] = two_arg(a->elements[i], b->elements[i], ch->_enum, error);
-
-			} else{
+			if(!cmp_size(a->size, b->size, a->dim, b->dim)) {
 				*error = -10;
+				break;
 			}
-			break;
+
+			out = init_mat(a->size, a->dim, error);
+			if(*error)
+				break;
+
+			for(uint64_t i = 0; i < a->len; ++i)
+				out->elements[i] = two_arg(a->elements[i], b->elements[i], ch->_enum, error);
       
 		case 1: //only a or b is a scalar
 
 			if(aScalar) {
 				out = cpy_mat(b, error);
-				for(uint64_t i = 0; i < out->len; ++i){
+				for(uint64_t i = 0; i < out->len; ++i)
 					out->elements[i] = two_arg(a->elements[0], b->elements[i], ch->_enum, error);
-				}
 
 			} else {
 				out = cpy_mat(a, error);
-				for(uint64_t i = 0; i < out->len; ++i){
+				for(uint64_t i = 0; i < out->len; ++i)
 					out->elements[i] = two_arg(a->elements[i], b->elements[0], ch->_enum, error);
-				}
 			}
 			break;
 
 		case 2: //a and b are both scalars
+
 			out = init_scalar(two_arg(a->elements[0], b->elements[0], ch->_enum, error));
 			if(!out)
 				*error = -6;
@@ -228,7 +226,7 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 }
 
 
-err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, uint16_t *iterator, char *input) {
+err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, uint16_t *iter, char *input) {
 	char **separatedString = NULL;
 	matrix *out = NULL;
 
@@ -317,49 +315,49 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 		break;
 
 	case eDeri:
-		separatedString = sep_str(input, "()", ",", iterator, &error);
+		separatedString = sep_str(input, "()", ",", iter, &error);
 		out = deri(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eInte:
-		separatedString = sep_str(input, "()", ",", iterator, &error);
+		separatedString = sep_str(input, "()", ",", iter, &error);
 		out = inte(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eSolve:
-		separatedString = sep_str(input, "()", "," , iterator, &error);
+		separatedString = sep_str(input, "()", "," , iter, &error);
 		out = solve(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eZeros:
-		separatedString = sep_str(input, "()[]", ",", iterator, &error);
+		separatedString = sep_str(input, "()[]", ",", iter, &error);
 		out = zeros(separatedString, var, &error);
 		*tok = 0;
 		break;
     
 	case eOnes:
-		separatedString = sep_str(input, "()[]", ",", iterator, &error);
+		separatedString = sep_str(input, "()[]", ",", iter, &error);
 		out = ones(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eRand:
-		separatedString = sep_str(input, "()", ",", iterator, &error);
+		separatedString = sep_str(input, "()", ",", iter, &error);
 		out = rand_mat(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eLinspace:
-		separatedString = sep_str(input, "()", ",", iterator, &error);
+		separatedString = sep_str(input, "()", ",", iter, &error);
 		out = linspace(separatedString, var, &error);
 		*tok = 0;
 		break;
 
 	case eRun:
-		separatedString = sep_str(input, "()", "\0", iterator, &error);
+		separatedString = sep_str(input, "()", "\0", iter, &error);
 		error = runFile(separatedString, var, 0);
 		if(!error) {
 			//copy ans matrix so it doesn't get freed
@@ -369,18 +367,18 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 		break;
 
 	case ePrint:
-		separatedString = sep_str(input, "()[]", ",", iterator, &error);
+		separatedString = sep_str(input, "()[]", ",", iter, &error);
 		error = printLine(separatedString, var);
 		break;
 
 	case FUNCTION_COUNT: //variables
 		//if the variable does not exist
-		error = checkVariable(buffer, input, iterator, var, num, ch);
+		error = chk_var(buffer, input, iter, var, num, ch);
 		if(error == -5){
 			int bufferLen = strlen(buffer);
 			//buffer includes the '(', if it's there, replaced with 0
 			if(buffer[bufferLen - 1] == '(') {
-				separatedString = sep_str(input, "()[]", ",", iterator, &error);
+				separatedString = sep_str(input, "()[]", ",", iter, &error);
 				buffer[bufferLen - 1] = '\0';
 				out = find_user_fun(buffer, separatedString, var, &error);
 
@@ -532,7 +530,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 //separate a matrix, accounting for sub matrices as input in a matrix
 //[[1, 2], 3] or something like that
-char **separateMatrix(char *input, uint16_t delimiter, err_ret *error) {
+char **sep_mat(char *input, uint16_t delimiter, err_ret *error) {
 	char **out = malloc(sizeof(*out) * (delimiter + 2));
 	__MALLOC_CHECK(out, *error);
 
@@ -625,11 +623,11 @@ uint16_t countDelimiter(char *input){
 }
 
 
-//iterator is the counter for the main loop in sya
-matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error) {
-	//input is incremented to start at input[*iterator], which is where
+//iter is the counter for the main loop in sya
+matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
+	//input is incremented to start at input[*iter], which is where
 	//the first [ should be
-	input += (*iterator);
+	input += (*iter);
 
 	//find where the matrix declaration ends
 	//count brackets until they match
@@ -655,19 +653,20 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 	}
 
 	//increment the main loop counter up to the ']' 
-	*iterator += (length);
+	*iter += (length);
 
-	//the string that will contain every character that contains elements of the matrix
-	char *matrixString = malloc(sizeof(*matrixString) * (length));
+	//the string that will contain every character
+	//that contains elements of the matrix
+	char *mat_string = malloc(sizeof(*mat_string) * (length));
 
 	//copy from the first character after the first '['
-	strncpy(matrixString, input + 1, sizeof(*matrixString) * (length));
+	strncpy(mat_string, input + 1, sizeof(*mat_string) * (length));
 
 	//replace the end ']' with a '\0'
-	matrixString[length-1] = 0;
+	mat_string[length-1] = 0;
 
-	if((matrixString[length-2] == ';') || (matrixString[length-2] == ',')) {
-		free(matrixString);
+	if((mat_string[length-2] == ';') || (mat_string[length-2] == ',')) {
+		free(mat_string);
 		*error =  -4;
 		return NULL;
 	}
@@ -676,33 +675,35 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 	stack *num = new_stk(128);
 	__MALLOC_CHECK(num, *error);
 
-	//char array that holds each element of the array and a delimiter (, or ;) at the beginning
-	char **separatedMatrix = separateMatrix(matrixString, countDelimiter(matrixString), error);
+	//char array that holds each element of
+	//the array and a delimiter (, or ;)
+	//at the beginning
+	char **sepd_mat = sep_mat(mat_string, countDelimiter(mat_string), error);
 
 	//free matrixString, not needed anymore
-	free(matrixString);
+	free(mat_string);
 
 	vari *tempVari = cpy_var(var, error);
-	*error = sya(separatedMatrix[0], tempVari);
+	*error = sya(sepd_mat[0], tempVari);
 
-	push(num, cpy_mat(tempVari->ans, error));
+	matrix *temp = cpy_mat(tempVari->ans, error);
+	push(num, temp);
 
 	matrix *a = NULL;
 	matrix *b = NULL;
 	matrix *out = NULL;
-	matrix *temp = NULL; 
 
-	for(int i = 1; separatedMatrix[i]; ++i) {
-
+	for(int i = 1; sepd_mat[i]; ++i) {
 		temp = NULL;
-		if(separatedMatrix[i][1] == 0) {
+
+		if(!sepd_mat[i][1]) {
 			*error = -4;
 			break;
 		}
 
-		switch(separatedMatrix[i][0]) {
+		switch(sepd_mat[i][0]) {
 		case ',':
-			*error = sya(separatedMatrix[i] + 1, tempVari);
+			*error = sya(sepd_mat[i] + 1, tempVari);
 			if( !(*error) ) {
 				a = pop(num);
 
@@ -712,7 +713,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 			break;
 
 		case ';':
-			*error = sya(separatedMatrix[i] + 1, tempVari);
+			*error = sya(sepd_mat[i] + 1, tempVari);
 			if( !(*error) ) {
 				temp = cpy_mat(tempVari->ans, error);
 			}
@@ -752,7 +753,7 @@ matrix *extractMatrix(vari *var, uint16_t *iterator, char *input, err_ret *error
 	}
 
 	free_var(tempVari);
-	freeDoubleArray(separatedMatrix);
+	freeDoubleArray(sepd_mat);
 
 	free(num);
 
