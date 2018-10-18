@@ -6,7 +6,7 @@
 
 
 fileTree *createLeaf(void) {
-	return calloc(1, sizeof(fileTree *));
+	return calloc(1, sizeof(fileTree));
 }
 
 void cutDownTree(fileTree *tree) {
