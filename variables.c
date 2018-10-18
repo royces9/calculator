@@ -45,7 +45,6 @@ vari *cpy_var(vari *var, err_ret *error){
 	if( !out )
 		return NULL;
 
-	//out->assign = NULL;
 	out->f_assign = var->f_assign;
 
 	out->count = var->count;
