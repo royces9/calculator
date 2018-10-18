@@ -761,7 +761,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
  err_ret:
 	free_var(tempVari);
 	freeDoubleArray(sepd_mat);
-	free(num);
+	free_stk(num, (void (*) (void *)) &free_mat);
 
 	return out;
 }

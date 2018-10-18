@@ -22,8 +22,9 @@ err_ret runFile(char **input, vari *var, int offset) {
 	char **fileString = calloc(maxSize, sizeof(*fileString));
 	__MALLOC_CHECK(fileString, error);
 
-	fileTree *tree = createLeaf(&error);
-	if(error) return error;
+	fileTree *tree = createLeaf();
+	if(!tree)
+		return -6;
 
 	//make tree structure
 	if( (error = createTree(input[0], tree, fileString, &maxSize, offset)) ) {
@@ -89,10 +90,9 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 		int offset = 0;
 
 		//removing trailing spaces
-		if(buffer[0] == ' ')
-			for(; buffer[offset] == ' '; ++offset);
+		for(; buffer[offset] == ' '; ++offset);
 
-		char *bufferHold = buffer+offset;
+		char *bufferHold = buffer + offset;
 		length = strlen(bufferHold);
 
 		//skips a blank line, # comments out a line
@@ -123,7 +123,9 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 		case 2: //while
 		case -2: //else
 			push(stk, tree);
-			tree->right = createLeaf(&error);
+			if( !(tree->right = createLeaf()) )
+				return -6;
+
 			tree = tree->right;
 			break;
 
@@ -132,8 +134,11 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 		case -1:
 			tree = pop(stk);
 
+			//fall through
 		default:
-			tree->left = createLeaf(&error);
+			if( !(tree->left = createLeaf()) )
+				return -6;
+
 			tree = tree->left;
 			break;
 		}
@@ -234,8 +239,10 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 			break;
 
 	
-		case -1: //end 
-			tree = pop(stk); //tree returns to whatever is on top of the stack
+		case -1: //end
+			//tree returns to whatever is on top of the stack
+			if( !(tree = pop(stk)) )
+				error = -5;
 			break;
 
       

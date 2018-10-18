@@ -5,11 +5,8 @@
 #include "fileStruct.h"
 
 
-fileTree *createLeaf(err_ret *error) {
-	fileTree *leaf = calloc(1, sizeof(*leaf));
-	__MALLOC_CHECK(leaf, *error);
-
-	return leaf;
+fileTree *createLeaf(void) {
+	return calloc(1, sizeof(*leaf));
 }
 
 void cutDownTree(fileTree *tree) {

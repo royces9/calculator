@@ -188,17 +188,18 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 			}
 
 		ret_out:
-			freeDoubleArray(arg_names);
 			free_var(fun_var);
 
 		} else {
 			*error = -2;
 		}
 
-
+		freeDoubleArray(arg_names);
 	} else {
 		*error = -8;
 	}
+
+
 
 	return out;  
 }

@@ -9,7 +9,7 @@ typedef struct fileTree {
 } fileTree;
 
 
-fileTree *createLeaf(err_ret *error);
+fileTree *createLeaf(void);
 void cutDownTree(fileTree *tree);
 
 #endif //FILESTRUCT

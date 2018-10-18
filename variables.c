@@ -44,14 +44,8 @@ vari *cpy_var(vari *var, err_ret *error){
 	vari *out = init_var(var->size);
 	if( !out )
 		return NULL;
-	
-	out->ans = calloc(1, sizeof(*out->ans));
-	if( !out->ans) {
-		free(out);
-		return NULL;
-	}
 
-	out->assign = NULL;
+	//out->assign = NULL;
 	out->f_assign = var->f_assign;
 
 	out->count = var->count;
