@@ -12,6 +12,9 @@ extern char const *const OPERATOR_LIST[OPERATOR_COUNT];
 
 extern uint8_t const operatorPrecedence[OPERATOR_COUNT];
 
+
+extern matrix * (*func_arr) (char **, vari *, int8_t *)[7];
+
 enum functionEnums {
 	eQuit,
 	eClear,
