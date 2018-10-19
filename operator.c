@@ -314,7 +314,7 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 		push(ch, init_op_struct(FUNCTION_LIST[i], 1, 15, i));
 		*tok = 0;
 		break;
-		/*
+
 	case eDeri:
 		separatedString = sep_str(input, "()", ",", iter, &error);
 		out = deri(separatedString, var, &error);
@@ -356,53 +356,6 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 		out = linspace(separatedString, var, &error);
 		*tok = 0;
 		break;
-		*/
-
-	case eDeri:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-
-		out = deri(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-	case eInte:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = inte(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-	case eSolve:
-		separatedString = sep_str(input, "()", "," , iter, &error);
-		out = solve(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-	case eRand:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = rand_mat(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-	case eLinspace:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = linspace(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-
-	case eZeros:
-		separatedString = sep_str(input, "()[]", ",", iter, &error);
-		out = zeros(separatedString, var, &error);
-		*tok = 0;
-		break;
-    
-	case eOnes:
-		separatedString = sep_str(input, "()[]", ",", iter, &error);
-		out = ones(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-
 		
 	case eRun:
 		separatedString = sep_str(input, "()", "\0", iter, &error);

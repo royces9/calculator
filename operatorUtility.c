@@ -117,13 +117,3 @@ uint8_t const operatorPrecedence[OPERATOR_COUNT] = {
 
 	0
 }; //~is not implemented at the moment
-
-matrix *(*func_arr) (char **, vari *, int8_t *)[7] = {
-						       &deri,
-		&inte,
-		&solve,
-		&zeros,
-		&ones,
-		&rand_mat,
-		&linspace
-};
