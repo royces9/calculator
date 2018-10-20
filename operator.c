@@ -16,25 +16,14 @@
 #include "operatorUtility.h"
 #include "operator.h"
 
-//search in FUNCTION_LIST
-int search_fun(char *buffer) {
-	for(int i = 0; FUNCTION_LIST[i]; ++i) {
-		if(!strcmp(FUNCTION_LIST[i], buffer))
-			return i;
-	}
 
-	return FUNCTION_COUNT;
-}
+int search_str(char *buffer, char const *const list[]) {
+	int i = 0;
+	for(; list[i]; ++i)
+		if(!strcmp(list[i], buffer))
+			break;
 
-
-//search in OPERATOR_COUNT
-int search_op(char *buffer) {
-	for(int i = 0; OPERATOR_LIST[i]; ++i) {
-		if(!strcmp(OPERATOR_LIST[i], buffer))
-			return i;
-	}
-
-	return OPERATOR_COUNT;
+	return i;
 }
 
 
@@ -108,6 +97,8 @@ matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
 	//ch._enum is in oneArg if check is 0
 	if(!check) {
 		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
+		if(!newSize)
+			return NULL;
 		memcpy(newSize, a->size, sizeof(*newSize) * (a->dim + 1));
 
 		out = init_mat(newSize, a->dim, error);
@@ -188,8 +179,10 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 
 			if(aScalar) {
 				out = cpy_mat(b, error);
+				ele *ans = out->elements;
 				for(uint64_t i = 0; i < out->len; ++i)
-					out->elements[i] = two_arg(a->elements[0], b->elements[i], ch->_enum, error);
+					ans[i] = two_arg(a->elements[0], b->elements[i], ch->_enum, error);
+				//out->elements[i] = two_arg(a->elements[0], b->elements[i], ch->_enum, error);
 
 			} else {
 				out = cpy_mat(a, error);
@@ -229,7 +222,7 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 	char **separatedString = NULL;
 	matrix *out = NULL;
 
-	int i = search_fun(buffer);
+	int i = search_str(buffer, FUNCTION_LIST);
 	err_ret error = 0;
 
 	switch(i) {
@@ -312,53 +305,10 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 		push(ch, init_op_struct(FUNCTION_LIST[i], 1, 15, i));
 		*tok = 0;
 		break;
-		/*
-	case eDeri:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = deri(separatedString, var, &error);
-		*tok = 0;
-		break;
 
-	case eInte:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = inte(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-	case eSolve:
-		separatedString = sep_str(input, "()", "," , iter, &error);
-		out = solve(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-	case eZeros:
-		separatedString = sep_str(input, "()[]", ",", iter, &error);
-		out = zeros(separatedString, var, &error);
-		*tok = 0;
-		break;
-    
-	case eOnes:
-		separatedString = sep_str(input, "()[]", ",", iter, &error);
-		out = ones(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-	case eRand:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = rand_mat(separatedString, var, &error);
-		*tok = 0;
-		break;
-
-	case eLinspace:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = linspace(separatedString, var, &error);
-		*tok = 0;
-		break;
-		*/
 
 	case eDeri:
 		separatedString = sep_str(input, "()", ",", iter, &error);
-
 		out = deri(separatedString, var, &error);
 		*tok = 0;
 		break;
@@ -452,8 +402,9 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 
 
 err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
-	int i = search_op(buffer);
+	int i = search_str(buffer, OPERATOR_LIST);
 	err_ret error = 0;
+
 	/*
 	 * Precedence values for operators: Reference wiki page of C/C++ operators
 	 * 1

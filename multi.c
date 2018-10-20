@@ -569,11 +569,9 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack 
 
 	} else {
 		k = find_var(var, nameBuffer);
-
 		if(k >= 0) {
 			var->value[k]->var = 1;
 			push(num, var->value[k]);
-
 		} else if(!var->f_assign) {
 			var->f_assign = 1;
 			if(k == -1) {

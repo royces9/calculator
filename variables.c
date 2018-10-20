@@ -2,8 +2,11 @@
 #include <string.h>
 
 #include "types.h"
+#include "stack.h"
 #include "matrix.h"
 #include "variables.h"
+
+#include "operator.h"
 
 vari *init_var(int size) {
 	vari *var = malloc(sizeof(*var));
@@ -92,19 +95,15 @@ int find_var(vari *list, char *input) {
 	if(list->count < 0)
 		return -1;
 
-	for(int i = 0; i<=list->count; ++i) {
-		if(!strcmp(input, list->name[i]))
-			return i;
-	}
+	int i = search_str(input, (char const *const *const) list->name);
+	if(i == (list->count + 1))
+		i = -2;
 
-	return -2;
+	return i;
 }
 
 
 int set_var(vari *var, char *name, matrix *a, err_ret *error){
-	//err_ret set_var(vari *var, char *name, matrix *a, int *check){
-	//check is from the output of find_var
-
 	int index = find_var(var, name);
 
 	switch(index) {

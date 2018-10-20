@@ -168,7 +168,7 @@ err_ret sya(char *input, vari *var) {
 				break;
 
 			//if(checkOperator(bufferOper, input[i + 1]) == OPERATOR_COUNT) {
-			if(check_op == OPERATOR_COUNT) {
+			if(check_op == (OPERATOR_COUNT - 1)) {
 				bufferOper[oper_iter] = '\0';
 
 				//find the corresponding operator
@@ -307,7 +307,7 @@ int chk_op(char *a, char b, err_ret *error) {
 	buffer[len] = b;
 	buffer[len + 1] = '\0';
 
-	int out = search_op(buffer);
+	int out = search_str(buffer, OPERATOR_LIST);
 	free(buffer);
 
 	return out;
