@@ -16,76 +16,43 @@ err_ret runFile(char **input, vari *var, int offset) {
 	//error variable
 	err_ret error = 0;
 
-	//maximum size of tree
-	int maxSize = 1024; //maximum size of tree
-
-	char **fileString = calloc(maxSize, sizeof(*fileString));
-	__MALLOC_CHECK(fileString, error);
-
-	fileTree *tree = createLeaf();
+	fileTree *tree = new_leaf();
 	if(!tree)
 		return -6;
 
 	//make tree structure
-	if( (error = createTree(input[0], tree, fileString, &maxSize, offset)) ) {
-		cutDownTree(tree);
-		freeString(fileString, maxSize);
-
-		return error;
-	}
-  
-	//execute tree
-	error = executeTree(tree, var, maxSize);
+	if( !(error = createTree(input[0], tree, offset)) )
+		error = executeTree(tree, var);
 
 	//free tree
 	cutDownTree(tree);
-
-	//free array of strings
-	freeString(fileString, maxSize);
 
 	return error;
 }
 
 
 //create and populate tree
-err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSize, int offset){
+err_ret createTree(char *fileName, fileTree *tree, int skip){
 
 	//file to read from
 	FILE *inputFile = fopen(fileName, "r");
+	if(!inputFile)
+		return -8;
 
 	//size of char buffer that each line of the file is copied too
 	char buffer[1024];
 
-	//direction to branch in tree
-	int8_t direction = 0;
-
 	//error checking
 	err_ret error = 0;
-
-	//lengh of string
-	int length = 0;
 
 	//stack data structure convenient for creating tree
 	stack *stk = new_stk(128);
 
-	//open and check if file exists
-	//return error if it doesn't exist/can't open
-	if(!inputFile) {
-		free(tree);
-		free(fileString);
-		tree = NULL;
-		fileString = NULL;
-
-		return error = -8;
-	}
-
-	for(int i = 0; i < offset; ++i){
+	for(int i = 0; i < skip; ++i)
 		fgets(buffer, 1024, inputFile);
-	}
-
   
 	//creates the tree structure
-	for(int i = 0; fgets(buffer, 1024, inputFile); ++i) {
+	for(int i = 0; fgets(buffer, 1024, inputFile) && !error; ++i) {
 
 		int offset = 0;
 
@@ -93,40 +60,40 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 		for(; buffer[offset] == ' '; ++offset);
 
 		char *bufferHold = buffer + offset;
-		length = strlen(bufferHold);
+		int len = strlen(bufferHold);
 
 		//skips a blank line, # comments out a line
 		if(!strcmp(bufferHold, "\n") || (bufferHold[0] == '#'))
 			continue;
 
 		//replaces end new line with a null terminated character
-		if(bufferHold[length - 1] == '\n')
-			bufferHold[--length] = '\0';
+		if(bufferHold[len - 1] == '\n')
+			bufferHold[--len] = '\0';
 
-		//allocates memory and copies string from file into array
-		//puts that string into tree struct
-		fileString[i] = malloc((length+1) * sizeof(**fileString));
-		__MALLOC_CHECK(fileString[i], error);
+		//put line into tree struct
+		tree->line = malloc(sizeof(*tree->line) * (len + 1));
+		if(!tree->line) {
+			error = -6;
+			break;
+		}
 
-		strcpy(*(fileString+i), bufferHold);
-		tree->line = fileString[i];
+		strcpy(tree->line, bufferHold);
 
-		//check whether to branch left or right
-		direction = checkProgramFlow(*(fileString+i));
-
+		//set line number
 		tree->num = i + 2;
 
-		switch(direction) {
+		switch(checkProgramFlow(tree->line)) {
 
 			//the first statement in a while/if/else branch right
 		case 1: //if
 		case 2: //while
 		case -2: //else
 			push(stk, tree);
-			if( !(tree->right = createLeaf()) )
-				return -6;
-
-			tree = tree->right;
+			if( (tree->right = new_leaf()) ) {
+				tree = tree->right;
+			} else {
+				error = -6;
+			}
 			break;
 
 			//end
@@ -136,69 +103,59 @@ err_ret createTree(char *fileName, fileTree *tree, char **fileString, int *maxSi
 
 			//fall through
 		default:
-			if( !(tree->left = createLeaf()) )
-				return -6;
+			if( (tree->left = new_leaf()) ) {
+				tree = tree->left;
+			} else {
+				error = -6;
+			}
 
-			tree = tree->left;
 			break;
-		}
-
-		//make fileString bigger if there is no room in it for the next iteration
-		if((i + 1) >= *maxSize) {
-			*maxSize *= 2;
-			fileString = realloc(fileString, *maxSize * sizeof(*fileString));
 		}
 	}  
 
 	free_stk(stk, NULL);
-
 	fclose(inputFile);
+
 	return error;
 }
 
 
-err_ret executeTree(fileTree *tree, vari *var, int maxSize){
-	//checking the direction of program flow
-	int8_t direction = 0;
-
-	//checking conditionals: if/while
-	int8_t check = 0;
-
-	//check top of check stack
-	int8_t checkTop = 0;
-
+err_ret executeTree(fileTree *tree, vari *var){
 	//stack structure for nested conditionals
-	int8_t *checkStack = calloc(maxSize, sizeof(*checkStack));
-  
+	int8_t *checkStack = calloc(256, sizeof(*checkStack));
+	if(!checkStack)
+		return -6;
+
+	//top of check stack
+	int8_t top = 0;
+
 	//error 
 	err_ret error = 0;
 
 	//create new file stack
 	stack *stk = new_stk(128);
+	if(!stk) {
+		free(checkStack);
+		return -6;
+	}
   
 	//executes the tree
 	//checks that the current leaf and the string it holds are not NULL
-	while((tree != NULL) && (tree->line != NULL)) {
-		error = 0;
+	for(;tree && tree->line; error = 0) {
 		//check whether to branch left or right down tree
-		direction = checkProgramFlow(tree->line);
+		int8_t dir = checkProgramFlow(tree->line);
 
-		//if the line ends with ';', don't print the line, the line still executes
-		if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0)) {
-			printf("> %s\n", tree->line);
-		}
-
-		switch(direction) {
+		switch(dir) {
 		case 1: //if
-			check = checkConditional(tree->line, direction, var);
+			checkStack[top] = checkConditional(tree->line, dir, var);
 
-			checkStack[checkTop++] = check;
-    
-			if(check < 0) { //if there is an error in the if
-				error = check;
-				break;
+			if(checkStack[top]) {
+				//error in if
+				if(checkStack[top] < 0) {
+					error = checkStack[top];
+					break;
+				}
 
-			} else if(check) {
 				//if the condition inside the if is true
 				//push tree->left, and continue execution
 				//from tree->right, the line after the if
@@ -211,23 +168,24 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 			} else {
 				tree = tree->left;
 			}
-
+			
+			++top;
+			
 			break;
 
 		case 2: //while
+			checkStack[top] = checkConditional(tree->line, dir, var);
 
-			check = checkConditional(tree->line, direction, var);
-			checkStack[checkTop] = check;
+			if(checkStack[top]) {
+				if(checkStack[top] < 0) {
+					error = checkStack[top];
+					break;
+				}
 
-			if(check < 0){
-				error = check;
-				break;
-
-			} else if(check){
 				push(stk, tree);
 				tree = tree->right;
 	
-			} else{
+			} else {
 				tree = tree->left;
 			}
 
@@ -243,6 +201,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 			//tree returns to whatever is on top of the stack
 			if( !(tree = pop(stk)) )
 				error = -5;
+
 			break;
 
       
@@ -254,7 +213,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 			//when the check is non 0, the if condition executed
 			//the else block is skipped
 
-			if(checkStack[--checkTop] == 0){
+			if(!checkStack[--top]) {
 				push(stk, tree->left);
 				tree = tree->right;
 
@@ -269,8 +228,10 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 
 			if(error >= -1) {
 				//print output
-				if((tree->line[strlen(tree->line)-1] != ';') && (direction == 0))
+				if((tree->line[strlen(tree->line)-1] != ';') && !dir) {
+					printf("> %s\n", tree->line);
 					print_mat(var->ans);
+				}
 
 				//continue execution going left
 				tree = tree->left;
@@ -279,7 +240,7 @@ err_ret executeTree(fileTree *tree, vari *var, int maxSize){
 		}
 
 		if(error && (error != -1))
-			break;
+		        break;
 	}
 
 	free_stk(stk, NULL);
@@ -308,7 +269,7 @@ char *parseCondition(char *input, int type) {
 	//take advantage of the fact that strchr
 	//searchs for first occurence of a letter
 
-	switch(type){
+	switch(type) {
 	case 1: //if
 		input = strchr(input, 'i');
 		input += 2;
@@ -329,18 +290,6 @@ int8_t checkConditional(char *input, int type, vari *var) {
 	input = parseCondition(input, type);
 
 	err_ret error = sya(input, var);
-	if(error) return error; 
 
-	//guarantee that the output is 1 or 0
-	return !!var->ans->elements[0];
-}
-
-
-//free double array
-void freeString(char **string, int max) {
-	for(int i = 0; i < max; ++i){
-		free(string[i]);
-		string[i] = NULL;
-	}
-	free(string);
+	return error ? error : !!var->ans->elements[0];
 }

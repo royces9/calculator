@@ -1,4 +1,4 @@
-#include <math.h>
+ #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -231,8 +231,6 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 
 	int i = search_fun(buffer);
 	err_ret error = 0;
-
-	matrix * (* multi_func)(char **, vari *, err_ret *);
 
 	switch(i) {
 	case eQuit:

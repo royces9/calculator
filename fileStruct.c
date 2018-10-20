@@ -5,13 +5,13 @@
 #include "fileStruct.h"
 
 
-fileTree *createLeaf(void) {
+fileTree *new_leaf(void) {
 	return calloc(1, sizeof(fileTree));
 }
 
 void cutDownTree(fileTree *tree) {
 	if(tree) {
-		tree->line = NULL;
+		free(tree->line);
 		cutDownTree(tree->left);
 		cutDownTree(tree->right);
 
