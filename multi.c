@@ -25,7 +25,7 @@ matrix *deri(char **inp, vari *var, err_ret *error) {
 	//copy global struct to a local variable struct
 	vari *tmp = cpy_var(var, error);
 
-	matrix *output = NULL;
+	matrix *ans = NULL;
 
 	//check the number of inps is correct
 	if(numberOfArgs(inp) != 4) {
@@ -76,19 +76,17 @@ matrix *deri(char **inp, vari *var, err_ret *error) {
 	//f(x-h)
 	if((*error = sya(inp[0], tmp)))
 		goto err_ret;
-	ele inter = tmp->ans->elements[0];
 
 	//f(x+h) - f(x-h)
-	out -= inter;
+	out -= tmp->ans->elements[0];
   
-
-	output = init_scalar(out / (2 * h));
-	if(!output)
+	ans = init_scalar(out / (2 * h));
+	if(!ans)
 		*error = -6;
  err_ret:
 	free_var(tmp);
 
-	return output;
+	return ans;
 }
 
 
@@ -96,7 +94,7 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 	//check number of arguments
 	if(numberOfArgs(inp) != 5) {
 		*error = -2;
-		return 0;
+		return NULL;
 	}
 
 	matrix *out = NULL;
@@ -191,15 +189,15 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	//check number of arguments
 	if(numberOfArgs(inp) != 4) {
 		*error = -2;
-		return 0;
+		return NULL;
 	}
 
-	matrix *output = NULL;
+	matrix *ans = NULL;
 
 	//copy global struct to a local variable struct
 	vari *tmp = cpy_var(var, error);
   
-	const double delta = 0.000001;
+	double const delta = 0.000001;
 
 	/*
 	  inp[0] = function
@@ -213,6 +211,7 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	//set initial guess and the tolerance
 	if((*error = sya(inp[2], tmp)))
 		goto err_ret;
+
 	if(tmp->ans->dim != 1) {
 		*error = -10;
 		goto err_ret;
@@ -268,12 +267,12 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	}
 
 
-	output = cpy_mat(tmp->value[var_ind], error);
+	ans = cpy_mat(tmp->value[var_ind], error);
 
  err_ret:
 	free_var(tmp);
 
-	return output;
+	return ans;
 }
 
 
@@ -333,7 +332,7 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 			if((*error = sya(inp[i], var)))
 				break;
 
-			if(var->ans->dim != 1 || var->ans->elements[0]) {
+			if(var->ans->dim != 1 || !var->ans->elements[0]) {
 				*error = -10;
 				break;
 			}
@@ -381,28 +380,22 @@ matrix *rand_mat(char **inp, vari *var, err_ret *error) {
 
 matrix *linspace(char **inp, vari *var, err_ret *error) {
 	int argNo = numberOfArgs(inp);
+	if(argNo != 3) {
+		*error = -2;
+		return NULL;
+	}
 
 	matrix *out = NULL;
 
-	if(argNo != 3) {
-		*error = -2;
-		return out;
-	}
-
 	vari *tmp = cpy_var(var, error);
-
-	ele a = 0;
-	ele b = 0;
-	ele len = 0;
 
 	if((*error = sya(inp[0], tmp)))
 		goto err_ret;
 	if(tmp->ans->dim != 1) {
 		*error = -10;
 		goto err_ret;
-	} else {
-		a = tmp->ans->elements[0];
 	}
+	ele a = tmp->ans->elements[0];
 
 	if((*error = sya(inp[1], tmp)))
 		goto err_ret;
@@ -410,9 +403,8 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 	if(tmp->ans->dim != 1) {
 		*error = -10;
 		goto err_ret;
-	} else {
-		b = tmp->ans->elements[0];
 	}
+	ele b = tmp->ans->elements[0];
 
 	if((*error = sya(inp[2], tmp)))
 		goto err_ret;
@@ -420,18 +412,18 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 	if(tmp->ans->dim != 1) {
 		*error = -10;
 		goto err_ret;
-	} else {
-		len = tmp->ans->elements[0];
 	}
+
+	ele len = tmp->ans->elements[0];
+
 
 	if( (len < 0) || ((len - floor(len)) > 0) ) {
 		*error = -4;
 
 	} else {
+		uint16_t size[3] = {len, 1, 0};
 
-		uint16_t newSize[3] = {len, 1, 0};
-
-		out = init_mat(newSize, 2, error);
+		out = init_mat(size, 2, error);
 		if(*error)
 			goto err_ret;
 
@@ -449,27 +441,25 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 
 
 matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
-	matrix *out = NULL;
-	uint8_t dim = numberOfArgs(inp);
-
 	if(!inp[0][0]) {
 		*error = -4;
 		return NULL;
 	}
-    
+
+	uint8_t dim = numberOfArgs(inp);    
+	matrix *out = NULL;
+
 	vari *tmp = cpy_var(var, error);
+	if(!tmp)
+		goto err_ret;
 
 	if(dim == 1) { //if the number of inps is 1
-		if((*error = sya(inp[0], tmp))) {
-			free_var(tmp);
-			return NULL;
-		}
+		if((*error = sya(inp[0], tmp)))
+			goto err_ret;
 
 		out = cpy_mat(tmp->ans, error);
-		if(*error) {
-			free_var(tmp);
-			return NULL;
-		}
+		if(*error)
+			goto err_ret;
 
 		//out is a matrix that holds indices
 		for(uint64_t i = 0; i < out->len; ++i) {
@@ -478,10 +468,8 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 			//check that the inp is within bound
 			if((uint64_t)out->elements[i] >= tmp->value[var_ind]->len) {
 				*error = -11;
-				free_var(tmp);
 				free_mat(out);
-
-				return NULL;
+				goto err_ret;
 			}
 		}
 
@@ -493,8 +481,7 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 		for(uint8_t i = 0; i < dim; ++i) {
 			if((*error = sya(inp[i], tmp))) {
 				free(loc);
-				free_var(tmp);
-				return NULL;
+				goto err_ret;
 			}
 
 			//check that the inp is one dimensional
@@ -507,14 +494,12 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 				if(loc[i] >= tmp->value[var_ind]->size[i]) {
 					*error = -11;
 					free(loc);
-					free_var(tmp);
-					return NULL;
+					goto err_ret;
 				}
 			} else {
 				*error = -10;
 				free(loc);
-				free_var(tmp);
-				return NULL;
+				goto err_ret;
 			}
 		}
 		loc[dim] = 0;
@@ -536,6 +521,7 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 		*error  = -11;
 	}
 
+ err_ret:
 	free_var(tmp);
 
 	return out;
@@ -583,11 +569,9 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack 
 
 	} else {
 		k = find_var(var, nameBuffer);
-
 		if(k >= 0) {
 			var->value[k]->var = 1;
 			push(num, var->value[k]);
-
 		} else if(!var->f_assign) {
 			var->f_assign = 1;
 			if(k == -1) {
@@ -664,7 +648,7 @@ err_ret printLine(char **inp, vari *var) {
 	vari *tmp = cpy_var(var, &error);
 
 	//loop over every argument
-	for(uint8_t i = 0; i < argNo; ++i) {
+	for(uint8_t i = 0; (i < argNo) && !error; ++i) {
 		uint16_t len = strlen(inp[i]);
 
 		//check if the string is quote limited
@@ -709,32 +693,32 @@ err_ret printLine(char **inp, vari *var) {
 					inp[i][len - (back + 3)] = '\0';
 
 					//print with new line
-					printf("%s\n", inp[i]+front+1);
+					printf("%s\n", inp[i] + front + 1);
 
 				} else {
 					//print without new line
 					printf("%s", inp[i] + front + 1);
-
 				}
 			} else {
-				//there's no second quote to match, error
-				return -9;
-
+				//if there's no second quote to match
+				error = -9;
 			}
 		} else { //no quotes, just a variable or expression
 
 			//calculate expression and print, print variables this way
 			error = sya(inp[i], tmp);
-			if(error) return error;
-
-			print_mat(tmp->ans);
+			if(!error)
+				print_mat(tmp->ans);
 		}
 	}
 
 	free_var(tmp);
+	if(!error)
+		error = -1;
+
 
 	//-1 is the error code for no output from sya
-	return -1;
+	return error;
 }
 
 
@@ -787,7 +771,6 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	char *inp2 = calloc(len + 1, sizeof(*inp2));
 	__MALLOC_CHECK(inp2, *error);
 	strncpy(inp2, inp + 1, len - 1);
-
 
 	//assume that each delimiter will have its own string
 	//also account for an end NULL pointer

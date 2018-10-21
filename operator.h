@@ -2,8 +2,7 @@
 #define OPERATOR
 
 
-int search_fun(char *buffer);
-int search_op(char *buffer);
+int search_str(char *buffer, char const *const list[]);
 err_ret ex_num(stack *num, vari *var, op_struct *ch);
 
 matrix *mat_one(matrix *a, op_struct *ch, err_ret *error);
