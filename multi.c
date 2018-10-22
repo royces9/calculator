@@ -5,9 +5,6 @@
 #include <time.h>
 
 #include "types.h"
-#include "matrix.h"
-#include "stack.h"
-#include "variables.h"
 
 #include "sya.h"
 #include "operatorUtility.h"
@@ -228,7 +225,6 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	}
 	ele h = tmp->ans->elements[0];
 
-  
 	//ensure test is always greater than h
 	//on start
 	ele test = h + 1;
@@ -767,10 +763,9 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	//char after the end paren
 	*iter += (len + 1);
 
-	//get a copy of the inp to mangle
-	char *inp2 = calloc(len + 1, sizeof(*inp2));
-	__MALLOC_CHECK(inp2, *error);
-	strncpy(inp2, inp + 1, len - 1);
+	//location of end paren, and skipping first paren
+	char *inp_end = inp + (strlen(inp) - 1);
+	++inp;
 
 	//assume that each delimiter will have its own string
 	//also account for an end NULL pointer
@@ -782,12 +777,10 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	//count of the number of elements
 	uint16_t subString = 0;
 
-	//if there are no delimiters
 	if(!delimiterCount) {
 		sep[0] = malloc(sizeof(**sep) * (len + 1));
 		__MALLOC_CHECK(sep[0], *error);    
-		strcpy(*sep, inp2);
-
+		strncpy(*sep, inp, inp_end - inp);
 	} else {
 
 		//counter for each of the limiters
@@ -803,17 +796,17 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 		//separate string, by delimiters
 		//however, only separate if the limiters
 		//like parenthesis or brackets are closed
-		for(; inp2[k]; ++k) {
+		for(; inp + k != inp_end; ++k) {
 			//count to check that all limiters are balanced
 			uint8_t allCount = 0;
 
 			//check that each limiter is balanced
 			//limiterCount is 0 if the pair is balanced
 			for(uint8_t l = 0; l < limiterType; ++l) {
-				if(inp2[k] == lim[l * 2])
+				if(inp[k] == lim[l * 2])
 					++limiterCount[l];
 
-				if(inp2[k] == lim[(l * 2) + 1])
+				if(inp[k] == lim[(l * 2) + 1])
 					--limiterCount[l];
 
 				allCount |= limiterCount[l];
@@ -824,13 +817,13 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 			//that the delimiter delimits the arguments
 			//of the main function, and not arguments of
 			//any sub functions within
-			if(strchr(delim, inp2[k]) && !allCount) {
+			if(strchr(delim, inp[k]) && !allCount) {
 				//malloc the number of characters in between each delimiter
 				sep[subString] = malloc(sizeof(**sep) * ((k - cur_len)) + 1);
 				__MALLOC_CHECK(sep[subString], *error);
 
 				//copy from the previous delimiter to the next one
-				strncpy(sep[subString], inp2 + cur_len, k - cur_len);
+				strncpy(sep[subString], inp + cur_len, k - cur_len);
 
 				//null terminate string
 				sep[subString][k - cur_len] = '\0';
@@ -848,26 +841,22 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 
 		sep[subString] = malloc(sizeof(**sep) * ((k - cur_len) + 1));
 		__MALLOC_CHECK(sep[subString], *error);
-		uint8_t offset = 0;
-
-		if(strchr(delim, inp2[cur_len]))
-			offset = 1;
+		if(strchr(delim, inp[cur_len]))
+			++inp;
 		
-		strncpy(sep[subString], inp2 + cur_len + offset, k - cur_len);
+		strncpy(sep[subString], inp + cur_len, k - cur_len);
 		sep[subString][k - cur_len] = '\0';
 	}
 
 	sep[++subString] = NULL;
-	free(inp2);
 
 	return sep;
 }
 
 void freeDoubleArray(char **inp) {
 	int i = 0;
-	for(i = 0; inp[i]; ++i) {
+	for(i = 0; inp[i]; ++i)
 		free(inp[i]);
-	}
-	free(inp[i]);
+
 	free(inp);
 }

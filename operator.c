@@ -1,12 +1,9 @@
- #include <math.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "types.h"
-#include "matrix.h"
-#include "stack.h"
-#include "variables.h"
 
 #include "file.h"
 #include "userFunctions.h"
@@ -174,21 +171,18 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 
 			for(uint64_t i = 0; i < a->len; ++i)
 				out->elements[i] = two_arg(a->elements[i], b->elements[i], ch->_enum, error);
+
+			break;
       
 		case 1: //only a or b is a scalar
+			out = cpy_mat(aScalar ? b : a, error);
+			ele *ans = out->elements;
+			ele *a_p = a->elements;
+			ele *b_p = b->elements;
+			ele **inc = aScalar ? &b_p : &a_p;
+			for(uint64_t i = 0; i < out->len; ++i, ++(*inc))
+				ans[i] = two_arg(*a_p, *b_p, ch->_enum, error);
 
-			if(aScalar) {
-				out = cpy_mat(b, error);
-				ele *ans = out->elements;
-				for(uint64_t i = 0; i < out->len; ++i)
-					ans[i] = two_arg(a->elements[0], b->elements[i], ch->_enum, error);
-				//out->elements[i] = two_arg(a->elements[0], b->elements[i], ch->_enum, error);
-
-			} else {
-				out = cpy_mat(a, error);
-				for(uint64_t i = 0; i < out->len; ++i)
-					out->elements[i] = two_arg(a->elements[i], b->elements[0], ch->_enum, error);
-			}
 			break;
 
 		case 2: //a and b are both scalars
@@ -484,11 +478,11 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 	case eAssign:
 		*tok = 0;
-		if((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->_enum == eReference)){
+		if((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->_enum == eReference) ) {
 			var->assign = pop(num);
-
 			free(pop(oper));
 		}
+
 		push(oper, init_op_struct("=", 3, 16, eAssign));
 		break;
 
@@ -507,7 +501,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eDivideMatrix:
 	case eModulo:
 
-		while((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->order <= operatorPrecedence[i]))
+		while((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->order <= operatorPrecedence[i]) )
 			error = ex_num(num, var, pop(oper));
 
 		*tok = 0;
@@ -557,11 +551,10 @@ char **sep_mat(char *input, uint16_t delimiter, err_ret *error) {
 			if( !( bracketCount[0] || bracketCount[1] ) ){
 				out[subMatrices] = malloc(sizeof(**out) * ((j - currentLength) + 2));
 				__MALLOC_CHECK(out[subMatrices], *error);
-				strncpy(out[subMatrices], input + currentLength, j - currentLength);
 
-				out[subMatrices][j - currentLength] = '\0';
+				strncpy(out[subMatrices], input + currentLength, j - currentLength);
+				out[subMatrices++][j - currentLength] = '\0';
 				currentLength = j;
-				++subMatrices;
 			}
 			break;
 
@@ -572,6 +565,7 @@ char **sep_mat(char *input, uint16_t delimiter, err_ret *error) {
 	//j is the length after the for loop runs
 	out[subMatrices] = malloc(sizeof(**out) * ((j - currentLength) + 1));
 	__MALLOC_CHECK(out[subMatrices], *error);
+
 	strncpy(out[subMatrices], input + currentLength, j - currentLength);
 	out[subMatrices][j - currentLength] = '\0';
 
@@ -609,7 +603,8 @@ uint16_t countDelimiter(char *input){
 
 			break;
 
-		default: break;
+		default:
+			break;
 		}
 	}
 

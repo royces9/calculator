@@ -3,9 +3,6 @@
 #include <string.h>
 
 #include "types.h"
-#include "matrix.h"
-#include "stack.h"
-
 
 matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
 	matrix *out = malloc(sizeof(*out));

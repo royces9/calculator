@@ -4,9 +4,6 @@
 #include <string.h>
 
 #include "types.h"
-#include "matrix.h"
-#include "stack.h"
-#include "variables.h"
 
 #include "operatorUtility.h"
 #include "functions.h"

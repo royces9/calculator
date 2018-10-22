@@ -3,9 +3,6 @@
 #include <string.h>
 
 #include "types.h"
-#include "matrix.h"
-#include "stack.h"
-#include "variables.h"
 
 #include "operator.h"
 #include "operatorUtility.h"

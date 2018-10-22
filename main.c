@@ -4,9 +4,6 @@
 #include <readline/history.h>
 
 #include "types.h"
-#include "matrix.h"
-#include "variables.h"
-#include "stack.h"
 
 #include "sya.h"
 
@@ -16,7 +13,9 @@ int main(int argc, char *argv[]) {
   
 	//initialize variable struct
 	vari *var = init_var(256);
-
+	if(!var)
+		err_rep(-6);
+	
 	//init random seed
 	srand(time(0));
 
@@ -24,9 +23,7 @@ int main(int argc, char *argv[]) {
 	if(argc > 1) {
 		for(int i = 1; i < argc; ++i) {
 			printf(">>%s\n", argv[i]);
-			error = sya(argv[i], var);
-
-			if( !error ) {
+			if( !(error = sya(argv[i], var)) ) {
 				print_mat(var->ans);
 
 			} else {
@@ -51,9 +48,7 @@ int main(int argc, char *argv[]) {
 			break;
 		} else if( (*input) ) {
 			//parses string and does all the calculations
-			error = sya(input, var);
-
-			if( !error ) {
+			if( !(error = sya(input, var)) ) {
 				//suppress output if the line ends with ';'
 				if( input[strlen(input) - 1] != ';' )
 					print_mat(var->ans);

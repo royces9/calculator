@@ -4,9 +4,6 @@
 #include <dirent.h>
 
 #include "types.h"
-#include "matrix.h"
-#include "stack.h"
-#include "variables.h"
 
 #include "multi.h"
 #include "sya.h"

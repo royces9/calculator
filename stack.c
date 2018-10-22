@@ -3,8 +3,6 @@
 #include <string.h>
 
 #include "types.h"
-#include "matrix.h"
-#include "stack.h"
 
 void push(stack *stk, void *d) {
 	stk->stk[++stk->top] = d;
@@ -24,7 +22,9 @@ void *pop(stack *stk) {
 //initialize operatorStruct
 op_struct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum){
 	op_struct *out = malloc(sizeof(*out));
-	
+	if(!out)
+		return NULL;
+
 	strcpy(out->op, op);
 
 	out->order = order;

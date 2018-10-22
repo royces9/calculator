@@ -3,9 +3,6 @@
 #include <string.h>
 
 #include "types.h"
-#include "matrix.h"
-#include "stack.h"
-#include "variables.h"
 
 #include "sya.h"
 #include "fileStruct.h"
@@ -33,7 +30,6 @@ err_ret runFile(char **input, vari *var, int offset) {
 
 //create and populate tree
 err_ret createTree(char *fileName, fileTree *tree, int skip){
-
 	//file to read from
 	FILE *inputFile = fopen(fileName, "r");
 	if(!inputFile)
