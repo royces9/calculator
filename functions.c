@@ -63,7 +63,7 @@ matrix *magnitude(matrix *a, err_ret *error){
 		for(uint64_t i = 0; i < a->len; ++i)
 			mag_a += (a->elements[i] * a->elements[i]);
 
-		mag_a= sqrt(mag_a);
+		mag_a = sqrt(mag_a);
 
 		out = init_scalar(mag_a);
 		__MALLOC_CHECK(out, *error);
@@ -79,6 +79,7 @@ matrix *magnitude(matrix *a, err_ret *error){
 matrix *numel(matrix *a, err_ret *error) {
 	return init_scalar(a->len);
 }
+
 
 /*function for matrix referencing
  *  ex:
@@ -105,12 +106,12 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 	uint8_t incrementFlag = 1;
 
 	if(a->var) {
-		if(var->assign == NULL) {
+		if(!var->assign) {
 			//init new matrix
 			//copyMatrix not done because the
-			//pointer 'a' is malloc'd in findFunction
+			//pointer 'a' is malloc'd in find_fun
 
-			if(a->size != NULL) {
+			if(a->size) {
 				free(a->size);
 				free(a->elements);
 
@@ -136,11 +137,16 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 			memcpy(a->size, b->size, sizeof(*a->size) * (a->dim + 1));
 
 		} else {
-
-			for(uint64_t i = 0; i < var->assign->len; ++i) {
+			for(uint64_t i = 0, k = 0, *j = is_scalar(b) ? &k : &i;
+			    i < var->assign->len;
+			    ++i) {
 				uint64_t index = var->assign->elements[i];
-				a->elements[index] = b->elements[i];
-			}
+				if(!index) {
+					*error = -13;
+					break;
+				}
+				a->elements[index] = b->elements[*j];
+			} 
 
 			incrementFlag = 0;
 			free_mat(var->assign);

@@ -764,8 +764,7 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	*iter += (len + 1);
 
 	//location of end paren, and skipping first paren
-	char *inp_end = inp + (strlen(inp) - 1);
-	++inp;
+	char *inp_end = (inp++) + len;
 
 	//assume that each delimiter will have its own string
 	//also account for an end NULL pointer
@@ -778,8 +777,8 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	uint16_t subString = 0;
 
 	if(!delimiterCount) {
-		sep[0] = malloc(sizeof(**sep) * (len + 1));
-		__MALLOC_CHECK(sep[0], *error);    
+		sep[0] = calloc(len, sizeof(**sep));
+		__MALLOC_CHECK(sep[0], *error);
 		strncpy(*sep, inp, inp_end - inp);
 	} else {
 
@@ -819,7 +818,8 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 			//any sub functions within
 			if(strchr(delim, inp[k]) && !allCount) {
 				//malloc the number of characters in between each delimiter
-				sep[subString] = malloc(sizeof(**sep) * ((k - cur_len)) + 1);
+				sep[subString] = malloc(sizeof(**sep) * ((k - cur_len) + 1));
+				//sep[subString] = calloc((k - cur_len) + 1, sizeof(**sep));
 				__MALLOC_CHECK(sep[subString], *error);
 
 				//copy from the previous delimiter to the next one
