@@ -85,7 +85,7 @@ err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 
 
 matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
-	matrix *out;
+	matrix *out = NULL;
 	err_ret check = 0;
 
 	//check if ch._enum is a scalar operator
@@ -117,7 +117,6 @@ matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
 		case eSum: out = sum(a, error); break;
 		case eNumel: out = numel(a, error); break;
 		case eMagnitude: out = magnitude(a, error); break;
-		default: out = cpy_mat(a, error); break;
 		}
 	}
 
@@ -130,7 +129,6 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 	err_ret check = 0;
 
 	//check if ch._enum is a scalar operator
-
 	two_arg(1, 1, ch->_enum, &check);
 
 	//check if inputs are scalar
@@ -180,6 +178,7 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 			ele *a_p = a->elements;
 			ele *b_p = b->elements;
 			ele **inc = aScalar ? &b_p : &a_p;
+
 			for(uint64_t i = 0; i < out->len; ++i, ++(*inc))
 				ans[i] = two_arg(*a_p, *b_p, ch->_enum, error);
 
@@ -469,7 +468,8 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eRightParen:
 		do {
 			error = ex_num(num, var, pop(oper));
-		} while( (oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->_enum != eLeftParen) );
+		} while( (oper->top > -1) &&
+			 (((op_struct **)oper->stk)[oper->top]->_enum != eLeftParen) );
 
 		*tok = 1;
 		free(pop(oper));
@@ -478,7 +478,8 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 	case eAssign:
 		*tok = 0;
-		if((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->_enum == eReference) ) {
+		if((oper->top > -1) &&
+		   (((op_struct **)oper->stk)[oper->top]->_enum == eReference) ) {
 			var->assign = pop(num);
 			free(pop(oper));
 		}
@@ -501,7 +502,8 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eDivideMatrix:
 	case eModulo:
 
-		while((oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->order <= operatorPrecedence[i]) )
+		while((oper->top > -1) &&
+		      (((op_struct **)oper->stk)[oper->top]->order <= operatorPrecedence[i]) )
 			error = ex_num(num, var, pop(oper));
 
 		*tok = 0;
