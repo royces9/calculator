@@ -362,14 +362,12 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 		error = chk_var(buffer, input, iter, var, num, ch);
 		if(error == -5){
 			int bufferLen = strlen(buffer);
-			//buffer includes the '(', if it's there, replaced with 0
+
+			//buffer includes the '(', if it's there, replace with 0
 			if(buffer[bufferLen - 1] == '(') {
 				separatedString = sep_str(input, "()[]", ",", iter, &error);
 				buffer[bufferLen - 1] = '\0';
 				out = find_user_fun(buffer, separatedString, var, &error);
-
-			} else {
-				error = -5;
 			}
 		}
 		break;

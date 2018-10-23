@@ -274,7 +274,7 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 
 matrix *zeros(char **inp, vari *var, err_ret *error) {
 	uint8_t dim = numberOfArgs(inp);
-	uint16_t *newSize = NULL;
+	uint16_t *size = NULL;
 
 	//only one inp, make a square matrix of that size
 	//or if it's a matrix, make one of that size
@@ -288,62 +288,62 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 			//change dimension to make square matrix
 			dim = 2;
 
-			newSize = malloc(sizeof(*newSize) * (dim + 1));
-			__MALLOC_CHECK(newSize, *error);
+			size = malloc(sizeof(*size) * (dim + 1));
+			__MALLOC_CHECK(size, *error);
 
 			if(var->ans->elements[0]) {
-				newSize[0] = var->ans->elements[0];
-				newSize[1] = var->ans->elements[0];
-				newSize[2] = 0;
+				size[0] = var->ans->elements[0];
+				size[1] = var->ans->elements[0];
+				size[2] = 0;
 			} else {
 				*error = -11;
 			}
 
 		} else if(is_vec(var->ans)) {
 			dim = var->ans->dim;
-			newSize = malloc(sizeof(*newSize) * (dim + 1));
-			__MALLOC_CHECK(newSize, *error);
+			size = malloc(sizeof(*size) * (dim + 1));
+			__MALLOC_CHECK(size, *error);
 	
 			uint8_t i = 0;
 			for(; i < var->ans->len; ++i) {
 				if( !(var->ans->elements[i]) ) {
-					newSize[i] = var->ans->elements[i];
+					size[i] = var->ans->elements[i];
 				} else {
 					*error = -11;
 					break;
 				}
 			}
 
-			newSize[i] = 0;
+			size[i] = 0;
 		} else {
 			*error = -11;
 		}
 		break;
 
 	default:
-		newSize = malloc(sizeof(*newSize) * (dim + 1));
-		__MALLOC_CHECK(newSize, *error);
+		size = malloc(sizeof(*size) * (dim + 1));
+		__MALLOC_CHECK(size, *error);
 
 		for(uint8_t i = 0; i < dim; ++i) {
 			if((*error = sya(inp[i], var)))
 				break;
 
-			if(var->ans->dim != 1 || !var->ans->elements[0]) {
+			if( (var->ans->dim != 1) || !var->ans->elements[0]) {
 				*error = -10;
 				break;
 			}
 
-			newSize[i] = var->ans->elements[0];
+			size[i] = var->ans->elements[0];
 		}
 	}
 
 	matrix *out = NULL;
 	if( !(*error)) {
-		newSize[dim] = 0;
-		out = init_mat(newSize, dim, error);
+		size[dim] = 0;
+		out = init_mat(size, dim, error);
 	}
 
-	free(newSize);
+	free(size);
 
 	return out;
 }
@@ -393,23 +393,22 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 	}
 	ele a = tmp->ans->elements[0];
 
+
 	if((*error = sya(inp[1], tmp)))
 		goto err_ret;
-
 	if(tmp->ans->dim != 1) {
 		*error = -10;
 		goto err_ret;
 	}
 	ele b = tmp->ans->elements[0];
 
+
 	if((*error = sya(inp[2], tmp)))
 		goto err_ret;
-
 	if(tmp->ans->dim != 1) {
 		*error = -10;
 		goto err_ret;
 	}
-
 	ele len = tmp->ans->elements[0];
 
 
@@ -550,7 +549,7 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack 
 			return -5;
 		}
 
-		separatedString = sep_str(inp, "()", ",", iter, &error);
+		separatedString = sep_str(inp, "()[]", ",", iter, &error);
 
 		out = extractValue(separatedString, k, var, &error);
 

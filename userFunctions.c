@@ -36,9 +36,7 @@ char *chk_conf(char *name, char *cfg, err_ret *error) {
 	char *file_dir = NULL;
 
 	FILE *f_cfg = fopen(cfg, "r");
-	if( !f_cfg ) {
-		*error = -8;
-	} else {
+	if( f_cfg ) {
 		//read directories from config
 		while(fgets(paths, 1024, f_cfg)) {
 			file_dir = search_dir(name, paths, error);
@@ -54,6 +52,8 @@ char *chk_conf(char *name, char *cfg, err_ret *error) {
 				break;
 			}
 		}
+	} else {
+		*error = -8;
 	}
 
 	return out;
@@ -96,6 +96,10 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 	int argNo = numberOfArgs(args);
 
 	FILE *userFunction = fopen(path, "r");
+	if(!userFunction) {
+		*error = -8;
+		return NULL;
+	}
 
 	//get the header for the function
 	//right now it's hardcoded to get the first line
@@ -103,9 +107,6 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 	memset(title, 0, 1024);
 	fgets(title, 1024, userFunction);
 	fclose(userFunction);
-
-	//variable struct for the function
-	//essentially a new scope
 
 	matrix *out = NULL;
 	//confirm that the function is the first word in the file
@@ -142,6 +143,8 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 		//check that the given arguments match with the
 		//require number of arguments
 		if(functionArgNo == argNo) {
+			//variable struct for the function
+			//essentially a new scope
 			vari *fun_var = init_var(256);
 			if(!fun_var) {
 				*error = -6;
