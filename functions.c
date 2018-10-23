@@ -160,9 +160,8 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 	}
 
 
-	if(incrementFlag) {
+	if(incrementFlag)
 		++var->count;
-	}
 
 	return cpy_mat(a, error);
 }
@@ -195,22 +194,24 @@ matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
 	if(*error)
 		return NULL;
 
-	matrix *transposeA = t_mat(a, error);
+	matrix *t_a = t_mat(a, error);
 
 	//generic O(n^3) algorithm
 	//transpose a and then multiply every column with every other column in each matrix
 	for(uint16_t i = 0, l = 0; i < b->size[1]; ++i){
-		for(int j = 0; j < transposeA->size[1]; ++j){
+		for(uint16_t j = 0; j < t_a->size[1]; ++j){
 			ele tempSum = 0;
-			for(uint16_t k = 0; k < transposeA->size[0]; ++k){
-				tempSum += transposeA->elements[k + j * transposeA->size[0]] * b->elements[k + i * b->size[0]];
+			for(uint16_t k = 0; k < t_a->size[0]; ++k) {
+				uint64_t ind_a = k + j * t_a->size[0];
+				uint64_t ind_b = k + i * b->size[0];
+				tempSum += t_a->elements[ind_a] * b->elements[ind_b];
 			}
 			out->elements[l] = tempSum;
 			++l;
 		}
 	}
     
-	free_mat(transposeA);
+	free_mat(t_a);
 	return out;
 }
 
@@ -292,7 +293,7 @@ matrix *t_mat(matrix *a, err_ret *error) {
 
 	for(uint64_t i = 0; i < out->len; ++i) {
 		//subLoc is an int and gets rounded down
-		uint64_t subLoc = i/a->size[0];
+		uint64_t subLoc = i / a->size[0];
 		uint64_t newInd = subLoc + a->size[1] * (i - subLoc * a->size[0]);
 
 		out->elements[newInd] = a->elements[i];
@@ -354,7 +355,8 @@ matrix *sum(matrix *m, err_ret *error) {
 		newSize = malloc(sizeof(*newSize) * (new_dim + 1));
 		__MALLOC_CHECK(newSize, *error);
 
-		newSize = memcpy(newSize, m->size, sizeof(*newSize) * (new_dim + 1));
+		newSize = memcpy(newSize, m->size,
+				 sizeof(*newSize) * (new_dim + 1));
 		newSize[new_dim] = 0;
 	}
 
@@ -365,7 +367,8 @@ matrix *sum(matrix *m, err_ret *error) {
 
 	for(uint64_t i = 0; i < out->len; ++i){
 		for(uint16_t j = 0; j < m->size[m->dim - 2]; ++j){
-			out->elements[i] += m->elements[i * m->size[m->dim - 2] + j];
+			uint64_t index = i * m->size[m->dim - 2] + j;
+			out->elements[i] += m->elements[index];
 		}
 	}
 
@@ -425,7 +428,7 @@ ele two_arg(ele a, ele b, int o, err_ret *error) {
 	case eEqual: return a == b;
 	case eAnd: return a && b;
 	case eOr: return a || b;
-	case eModulo: return (int64_t) floor(a) % (int64_t) floor(b);
+	case eModulo: return (int64_t) a % (int64_t) b;
 	default: *error = 1; return a;
 	}
 }
