@@ -135,11 +135,11 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 	uint8_t aScalar = is_scalar(a);
 	uint8_t bScalar = is_scalar(b);
 
-	if(((aScalar + bScalar) > 0) && check){
+	if(((aScalar + bScalar) > 0) && check) {
 
 		//if the enum is for a matrix operation
 		//change to the scalar operator
-		switch(ch->_enum){
+		switch(ch->_enum) {
 		case eMultiplyMatrix:
 			check = 0;
 			ch->_enum = eMultiply;
@@ -173,7 +173,11 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 			break;
       
 		case 1: //only a or b is a scalar
-			out = cpy_mat(aScalar ? b : a, error);
+			if( !(out = cpy_mat(aScalar ? b : a)) ) {
+				*error = -6;
+				break;
+			}
+
 			ele *ans = out->elements;
 			ele *a_p = a->elements;
 			ele *b_p = b->elements;
@@ -197,8 +201,8 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 
 		}
 
-	} else{
-		switch(ch->_enum){
+	} else {
+		switch(ch->_enum) {
 		case eMultiplyMatrix: out = mult_mat(a, b, error); break;
 		case eExponentMatrix: out = exp_mat(a, b, error); break;
 			//case eDivideMatrix: out = div_mat(a, b, error); break;
@@ -269,7 +273,9 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 
 	case eAns:
 		//copy ans so it doesn't get freed
-		out = cpy_mat(var->ans, &error);
+		if( !(out = cpy_mat(var->ans)) )
+			error = -6;
+
 		*tok = 1;
 		break;
 
@@ -347,7 +353,9 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 		error = runFile(separatedString, var, 0);
 		if(!error) {
 			//copy ans matrix so it doesn't get freed
-			out = cpy_mat(var->ans, &error);
+			if( !(out = cpy_mat(var->ans)) )
+				error = -6;
+
 			*tok = 0;
 		}
 		break;
@@ -423,6 +431,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 			       && !error ) {
 				error = ex_num(num, var, pop(oper));
 			}
+
 			push(oper, init_op_struct("+", 2, 6, eAdd));
 		}
 
@@ -459,8 +468,6 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 			push(oper, init_op_struct("(", 0, 15, eLeftParen));
 		}
 		
-
-
 		break;
 
 	case eRightParen:
@@ -672,12 +679,17 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	//free matrixString, not needed anymore
 	free(mat_string);
 
-	vari *tempVari = cpy_var(var, error);
+	vari *tempVari = cpy_var(var);
+	if( !tempVari ) {
+		*error = -6;
+		goto err_ret;
+	}
+		
 	*error = sya(sepd_mat[0], tempVari);
 
-	matrix *temp = cpy_mat(tempVari->ans, error);
-	if( *error) {
-		free_mat(temp);
+	matrix *temp = cpy_mat(tempVari->ans);
+	if( !temp ) {
+		*error = -6;
 		goto err_ret;
 	}
 		
@@ -710,8 +722,13 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 			break;
 
 		case ';':
-			if( !(*error = sya(sepd_mat[i] + 1, tempVari)) )
-				temp = cpy_mat(tempVari->ans, error);
+			if( !(*error = sya(sepd_mat[i] + 1, tempVari)) ) {
+				if( !(temp = cpy_mat(tempVari->ans)) ) {
+					*error = -6;
+					goto err_ret;
+				}
+				
+			}
 
 			break;
       

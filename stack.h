@@ -2,7 +2,7 @@
 #define STACK
 
 typedef struct {
-
+	//stack, elements must be kept as pointers
 	void **stk;
 
 	//index to top of stack
@@ -25,11 +25,23 @@ typedef struct { //struct for operators, +, -, etc
 
 } op_struct;
 
+/*
+ * push and pop members of stack
+ * they both change the top member in stack
+ * pop returns the popped value
+ */
 void push(stack *stk, void *d);
 void *pop(stack *stk);
 
-op_struct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum);
+/*
+ * initialize operator struct
+ */
+op_struct *init_op_struct(char const *op, uint8_t argNo, uint8_t order, uint8_t _enum);
 
+/*
+ * initialize new stack
+ * size is the maximum number of elements
+ */
 void *new_stk(int size);
 
 /*

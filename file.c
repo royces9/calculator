@@ -45,8 +45,8 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 	stack *stk = new_stk(128);
 
 	for(int i = 0; i < skip; ++i)
-		fgets(buffer, 1024, inputFile);
-  
+		fgets(buffer, 1024, inputFile); 
+ 
 	//creates the tree structure
 	for(int i = 0; fgets(buffer, 1024, inputFile) && !error; ++i) {
 

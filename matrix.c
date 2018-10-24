@@ -59,21 +59,14 @@ matrix *init_scalar(ele e) {
 	out->dim = 1;
 	out->len = 1;
 
-	out->size = malloc(sizeof(*out->size) * 2);
-	if(!out->size) {
-		free(out);
+	if( !(out->size = malloc(sizeof(*out->size) * 2)) )
 		return NULL;
-	}
 
 	out->size[0] = 1;
 	out->size[1] = 0;
 
-	out->elements = malloc(sizeof(*out->elements));
-	if(!out->elements) {
-		free(out->size);
-		free(out);
+	if( !(out->elements = malloc(sizeof(*out->elements))) )
 		return NULL;
-	}
 
 	*out->elements = e;
 
@@ -83,25 +76,26 @@ matrix *init_scalar(ele e) {
 }
 
 
-matrix *cpy_mat(matrix *src, err_ret *error) {
+matrix *cpy_mat(matrix *src) {
 	if(!src)
 		return NULL;
 
 	matrix *dest = malloc(sizeof(*dest));
-	__MALLOC_CHECK(dest, *error);  
+	if( !dest )
+		return NULL;
 
 	dest->dim = src->dim;
 	dest->len = src->len;
 	dest->var = 0;
 
-	dest->elements = malloc(sizeof(*dest->elements) * dest->len);
-	__MALLOC_CHECK(dest->elements, *error);  
+	if( !(dest->elements = malloc(sizeof(*dest->elements) * dest->len)) )
+		return NULL;
 
 	dest->elements = memcpy(dest->elements, src->elements,
 				sizeof(*dest->elements) * dest->len);
 
-	dest->size = malloc(sizeof(*dest->size) * (dest->dim + 1));
-	__MALLOC_CHECK(dest->size, *error);  
+	if( !(dest->size = malloc(sizeof(*dest->size) * (dest->dim + 1))) )
+		return NULL;
 
 	dest->size = memcpy(dest->size, src->size,
 			    sizeof(*dest->size) * (dest->dim + 1));
@@ -146,6 +140,8 @@ matrix *cat_mat(matrix *a, matrix *b, uint8_t dim, err_ret *error) {
 
 	matrix *out = NULL;
 
+	uint16_t *size = NULL;
+	uint16_t fixed_size[3];
 	switch(aScalar + bScalar){
 
 	case 0: //a and b are not scalars
@@ -172,20 +168,20 @@ matrix *cat_mat(matrix *a, matrix *b, uint8_t dim, err_ret *error) {
 			}
 
 			if(cmp_size(sizeA, sizeB, a->dim - 1, b->dim - 1)){
-				uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
-				__MALLOC_CHECK(newSize, *error);
+				size = malloc(sizeof(*size) * (a->dim + 1));
+				__MALLOC_CHECK(size, *error);
 
-				newSize[a->dim] = 0;
+				size[a->dim] = 0;
 
 				for(int i = 0; i < a->dim; ++i){
-					newSize[i] = a->size[i];
+					size[i] = a->size[i];
 					if(i == dim){
-						newSize[i] += b->size[i];
+						size[i] += b->size[i];
 					}
 				}
 
-				out = init_mat(newSize, a->dim, error);
-				free(newSize);
+				out = init_mat(size, a->dim, error);
+				free(size);
 
 				assignConcat(out, a, b, dim);
 
@@ -199,71 +195,72 @@ matrix *cat_mat(matrix *a, matrix *b, uint8_t dim, err_ret *error) {
 		}
 
 		break;
-	case 1: //only one of a or b are scalars
-		{
-			//temporary variables for less writing in if blocks
-			matrix *tempVector = NULL;
-			ele tempScalar = 0;
-			//assign which matrix is a scalar and which is a matrix
-			if(aScalar){
-				tempVector = b;
-				tempScalar = a->elements[0];
 
-			} else{
-				tempVector = a;
-				tempScalar = b->elements[0];
+	case 1:; //only one of a or b are scalars
+		//temporary variables for less writing in if blocks
+		matrix *tempVector = NULL;
+		ele tempScalar = 0;
+		//assign which matrix is a scalar and which is a matrix
+		if(aScalar){
+			tempVector = b;
+			tempScalar = a->elements[0];
 
-			}
+		} else{
+			tempVector = a;
+			tempScalar = b->elements[0];
 
-			//check that the matrix is a vector, only vectors can be
-			//concatenated with scalars
-			if(!is_vec(tempVector)) {
-				*error = -15;
-				break;
-			}
-
-			//new size vector
-			uint16_t newSize[3];
-			memcpy(newSize, tempVector->size, sizeof(*newSize) * 3);
-
-			//increment size because of the concatenation
-			++newSize[dim];
-
-			//init new matrix
-			out = init_mat(newSize, tempVector->dim, error);
-
-
-			//put values into new matrix
-			//first vector values
-			for(uint64_t i = 0; i < tempVector->len; ++i)
-				out->elements[i + aScalar] = tempVector->elements[i];
-
-			//then scalar value
-			//assume that bScalar is either 0 or 1, this then puts
-			//the scalar value at either the beginning or the end
-			out->elements[tempVector->len * bScalar] = tempScalar;
 		}
+
+		//check that the matrix is a vector, only vectors can be
+		//concatenated with scalars
+		if(!is_vec(tempVector)) {
+			*error = -15;
+			break;
+		}
+
+		//new size vector
+		size = fixed_size;
+		memcpy(size, tempVector->size, sizeof(*size) * 3);
+
+		//increment size because of the concatenation
+		++size[dim];
+
+		//init new matrix
+		out = init_mat(size, tempVector->dim, error);
+
+
+		//put values into new matrix
+		//first vector values
+		for(uint64_t i = 0; i < tempVector->len; ++i)
+			out->elements[i + aScalar] = tempVector->elements[i];
+
+		//then scalar value
+		//assume that bScalar is either 0 or 1, this then puts
+		//the scalar value at either the beginning or the end
+		out->elements[tempVector->len * bScalar] = tempScalar;
 		break;
 
 	case 2: //both a and b are scalars
-		{
-			//create and set new size vector
+		//create and set new size vector
+		size = fixed_size;
 
-			uint16_t newSize[3] = {1, 1, 0};
-			if(dim == 0){
-				++newSize[0]; //set newSize to [2, 1]
-			} else if(dim == 1){
-				++newSize[1]; //set newSize to [1, 2]
-			} else{
-				*error = 13;
-				return NULL;
-			}
+		size[0] = 1;
+		size[1] = 1;
+		size[2] = 0;
 
-			out = init_mat(newSize, 2, error);
-
-			out->elements[0] = a->elements[0];
-			out->elements[1] = b->elements[0];
+		if(dim == 0){
+			++size[0]; //set newSize to [2, 1]
+		} else if(dim == 1){
+			++size[1]; //set newSize to [1, 2]
+		} else{
+			*error = 13;
+			return NULL;
 		}
+
+		out = init_mat(size, 2, error);
+
+		out->elements[0] = a->elements[0];
+		out->elements[1] = b->elements[0];
 		break;
 
 	default: *error = -14; break; //return error if something else

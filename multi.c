@@ -20,7 +20,11 @@ uint8_t numberOfArgs(char **inp) {
 
 matrix *deri(char **inp, vari *var, err_ret *error) {
 	//copy global struct to a local variable struct
-	vari *tmp = cpy_var(var, error);
+	vari *tmp = cpy_var(var);
+	if( !tmp ) {
+		*error = -6;
+		return NULL;
+	}
 
 	matrix *ans = NULL;
 
@@ -97,7 +101,12 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 	matrix *out = NULL;
 
 	//copy global struct to a local variable struct
-	vari *tmp = cpy_var(var, error);
+	vari *tmp = cpy_var(var);
+	if( !tmp ) {
+		*error = -6;
+		return NULL;
+	}
+
 	int var_ind = 0;
 
 	//get number of steps, and step size
@@ -192,7 +201,11 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	matrix *ans = NULL;
 
 	//copy global struct to a local variable struct
-	vari *tmp = cpy_var(var, error);
+	vari *tmp = cpy_var(var);
+	if( !tmp ) {
+		*error = -6;
+		return NULL;
+	}
   
 	double const delta = 0.000001;
 
@@ -215,7 +228,13 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	}
 
 	char *tmp_var = removeSpaces(inp[1]);
-	int var_ind = set_var(tmp, tmp_var, cpy_mat(tmp->ans, error), error);
+	matrix *cpy = cpy_mat(tmp->ans);
+	if( !cpy ) {
+		*error = -6;
+		goto err_ret;
+	}
+
+	int var_ind = set_var(tmp, tmp_var, cpy, error);
 
 	if((*error = sya(inp[3], tmp)))
 		goto err_ret;
@@ -263,7 +282,9 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	}
 
 
-	ans = cpy_mat(tmp->value[var_ind], error);
+	ans = cpy_mat(tmp->value[var_ind]);
+	if( !ans )
+		*error = -6;
 
  err_ret:
 	free_var(tmp);
@@ -383,7 +404,11 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 
 	matrix *out = NULL;
 
-	vari *tmp = cpy_var(var, error);
+	vari *tmp = cpy_var(var);
+	if( !tmp ) {
+		*error =-6;
+		return NULL;
+	}
 
 	if((*error = sya(inp[0], tmp)))
 		goto err_ret;
@@ -444,17 +469,20 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 	uint8_t dim = numberOfArgs(inp);    
 	matrix *out = NULL;
 
-	vari *tmp = cpy_var(var, error);
-	if(!tmp)
-		goto err_ret;
+	vari *tmp = cpy_var(var);
+	if(!tmp) {
+		*error = -6;
+		return NULL;
+	}
 
 	if(dim == 1) { //if the number of inps is 1
 		if((*error = sya(inp[0], tmp)))
 			goto err_ret;
 
-		out = cpy_mat(tmp->ans, error);
-		if(*error)
+		if( !(out = cpy_mat(tmp->ans)) ) {
+			*error = -6;
 			goto err_ret;
+		}
 
 		//out is a matrix that holds indices
 		for(uint64_t i = 0; i < out->len; ++i) {
@@ -640,7 +668,9 @@ err_ret printLine(char **inp, vari *var) {
 
 	uint8_t argNo = numberOfArgs(inp);
 
-	vari *tmp = cpy_var(var, &error);
+	vari *tmp = cpy_var(var);
+	if( !tmp )
+		return -6;
 
 	//loop over every argument
 	for(uint8_t i = 0; (i < argNo) && !error; ++i) {

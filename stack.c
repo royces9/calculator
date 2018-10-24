@@ -20,7 +20,7 @@ void *pop(stack *stk) {
 
 
 //initialize operatorStruct
-op_struct *init_op_struct(const char *op, uint8_t argNo, uint8_t order, uint8_t _enum){
+op_struct *init_op_struct(char const *op, uint8_t argNo, uint8_t order, uint8_t _enum){
 	op_struct *out = malloc(sizeof(*out));
 	if(!out)
 		return NULL;

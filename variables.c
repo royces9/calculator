@@ -40,7 +40,7 @@ vari *init_var(int size) {
 }
 
 
-vari *cpy_var(vari *var, err_ret *error){
+vari *cpy_var(vari *var){
 	vari *out = init_var(var->size);
 	if( !out )
 		return NULL;
@@ -52,31 +52,27 @@ vari *cpy_var(vari *var, err_ret *error){
 	if(var->count > -1){
 		int i = 0;
 		for(; i < var->count; ++i) {
-			out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
-			if( !out->name[i] ) {
-				free(out->ans);
-				free(out);
-				return NULL;
-			}
+			if( !(out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1))) )
+				goto err_ret;
 
 			strcpy(out->name[i], var->name[i]);
 
-			out->value[i] = cpy_mat(var->value[i], error);
+			if( !(out->value[i] = cpy_mat(var->value[i])) )
+				goto err_ret;
+
 			out->value[i]->var = 1;
 		}
 
 
 		if((var->value[i] != NULL) && (var->value[i]->size != NULL)) {
-			out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1));
-			if( !out->name[i] ) {
-				free(out->ans);
-				free(out);
-				return NULL;
-			}
+			if( !(out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1))) )
+				goto err_ret;
 
 			strcpy(out->name[i], var->name[i]);
 
-			out->value[i] = cpy_mat(var->value[i], error);
+			if( !(out->value[i] = cpy_mat(var->value[i])) )
+				goto err_ret;
+
 			out->value[i]->var = 1;
 		}
 		++i;
@@ -85,6 +81,11 @@ vari *cpy_var(vari *var, err_ret *error){
 	}
 
 	return out;
+
+ err_ret:
+	free(out->ans);
+	free(out);
+	return NULL;
 }
 
 
@@ -100,7 +101,7 @@ int find_var(vari *list, char *input) {
 }
 
 
-int set_var(vari *var, char *name, matrix *a, err_ret *error){
+int set_var(vari *var, char *name, matrix *a, err_ret *er) {
 	int index = find_var(var, name);
 
 	switch(index) {
@@ -120,8 +121,8 @@ int set_var(vari *var, char *name, matrix *a, err_ret *error){
 		break;
 	}
 
-	var->name[index] = malloc(sizeof(*var->name[index]) * (strlen(name) + 1));
-	__MALLOC_CHECK(var->name[index], *error);
+	if( !(var->name[index] = malloc(sizeof(*var->name[index]) * (strlen(name) + 1))) )
+		return NULL;
 
 	strcpy(var->name[index], name);
 	var->value[index] = a;

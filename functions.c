@@ -92,7 +92,9 @@ matrix *numel(matrix *a, err_ret *error) {
  *  b - the index
  */
 matrix *reference(matrix *a, matrix *b, err_ret *error) {
-	matrix *out = cpy_mat(b, error);
+	matrix *out = cpy_mat(b);
+	if( !out )
+		return NULL;
 
 	for(uint64_t i = 0; i < b->len; ++i)
 		out->elements[i] = a->elements[(uint64_t) (b->elements[i])];
@@ -163,7 +165,7 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 	if(incrementFlag)
 		++var->count;
 
-	return cpy_mat(a, error);
+	return cpy_mat(a);
 }
 
 
@@ -230,7 +232,10 @@ matrix *exp_mat(matrix *a, matrix *b, err_ret *error) {
 
 	case 1: //one of a or b is a scalar
 		if(aScalar) { //a is the scalar
-			out = cpy_mat(b, error);
+			if( !(out = cpy_mat(b)) ) {
+				*error = -6;
+				break;
+			}
 
 			for(uint64_t i = 0; i < out->len; ++i)
 				out->elements[i] = pow(a->elements[0],b->elements[i]);
@@ -256,7 +261,11 @@ matrix *exp_mat(matrix *a, matrix *b, err_ret *error) {
 						return NULL;
 					}
 
-					tmp = cpy_mat(out, error);
+					tmp = cpy_mat(out);
+					if( !tmp ) {
+						*error = -6;
+						return NULL;
+					}
 					free_mat(out);
 				}
 				out = tmp;
@@ -349,7 +358,7 @@ matrix *sum(matrix *m, err_ret *error) {
 		newSize[2] = 0;
  
 	} else if(m->dim == 1) {
-		return cpy_mat(m, error);
+		return cpy_mat(m);
 
 	} else {
 		newSize = malloc(sizeof(*newSize) * (new_dim + 1));

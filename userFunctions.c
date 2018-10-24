@@ -162,8 +162,8 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 				if(*error)
 					goto ret_out;
 
-				matrix* tmp_mat = cpy_mat(var->ans, error);
-				if(*error)
+				matrix* tmp_mat = cpy_mat(var->ans);
+				if( !tmp_mat )
 					goto ret_out;
 
 				set_var(fun_var, inputName, tmp_mat, error);
@@ -184,7 +184,7 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 			if(out_var < 0) {
 				*error = -12;
 			} else {
-				out = cpy_mat(fun_var->value[out_var], error);
+				out = cpy_mat(fun_var->value[out_var]);
 			}
 
 		ret_out:

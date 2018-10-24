@@ -28,12 +28,12 @@ typedef struct { //variable storage
 } vari;
 
 vari *init_var(int size);
-vari *cpy_var(vari *var, err_ret *error);
+vari *cpy_var(vari *var);
 
 //find variable named input in list
 int find_var(vari *list, char *input);
 
-int set_var(vari *var, char *name, matrix *a, err_ret *error);
+int set_var(vari *var, char *name, matrix *a, err_ret *er);
 void free_var(vari *var);
 
 
