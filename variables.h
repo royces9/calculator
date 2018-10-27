@@ -33,7 +33,7 @@ vari *cpy_var(vari *var);
 //find variable named input in list
 int find_var(vari *list, char *input);
 
-int set_var(vari *var, char *name, matrix *a, err_ret *er);
+int set_var(vari *var, char *name, matrix *a, err_ret *error);
 void free_var(vari *var);
 
 

@@ -101,7 +101,7 @@ int find_var(vari *list, char *input) {
 }
 
 
-int set_var(vari *var, char *name, matrix *a, err_ret *er) {
+int set_var(vari *var, char *name, matrix *a, err_ret *error) {
 	int index = find_var(var, name);
 
 	switch(index) {
@@ -121,8 +121,10 @@ int set_var(vari *var, char *name, matrix *a, err_ret *er) {
 		break;
 	}
 
-	if( !(var->name[index] = malloc(sizeof(*var->name[index]) * (strlen(name) + 1))) )
-		return NULL;
+	if( !(var->name[index] = malloc(sizeof(*var->name[index]) * (strlen(name) + 1))) ) {
+		*error = -6;
+		return 0;
+	}
 
 	strcpy(var->name[index], name);
 	var->value[index] = a;
