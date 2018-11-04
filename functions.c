@@ -20,6 +20,9 @@ matrix *eye(matrix *a, err_ret *error) {
 	if(a->dim != 1) {
 		*error = -12;
 		return NULL;
+	} else if(a->elements[0] < 1) {
+		*error = -4;
+		return NULL;
 	}
 
 	uint16_t newSize[3] = {a->elements[0], a->elements[0], 0};
@@ -76,7 +79,7 @@ matrix *magnitude(matrix *a, err_ret *error){
 
 
 //get the total number of elements of a
-matrix *numel(matrix *a, err_ret *error) {
+matrix *numel(matrix *a) {
 	return init_scalar(a->len);
 }
 
@@ -202,13 +205,15 @@ matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
 	//transpose a and then multiply every column with every other column in each matrix
 	for(uint16_t i = 0, l = 0; i < b->size[1]; ++i){
 		for(uint16_t j = 0; j < t_a->size[1]; ++j){
-			ele tempSum = 0;
+			ele tmp = 0;
+
 			for(uint16_t k = 0; k < t_a->size[0]; ++k) {
 				uint64_t ind_a = k + j * t_a->size[0];
 				uint64_t ind_b = k + i * b->size[0];
-				tempSum += t_a->elements[ind_a] * b->elements[ind_b];
+				tmp += t_a->elements[ind_a] * b->elements[ind_b];
 			}
-			out->elements[l] = tempSum;
+
+			out->elements[l] = tmp;
 			++l;
 		}
 	}
@@ -301,11 +306,11 @@ matrix *t_mat(matrix *a, err_ret *error) {
 		return NULL;
 
 	for(uint64_t i = 0; i < out->len; ++i) {
-		//subLoc is an int and gets rounded down
-		uint64_t subLoc = i / a->size[0];
-		uint64_t newInd = subLoc + a->size[1] * (i - subLoc * a->size[0]);
+		//tmp is an int and gets rounded down
+		uint64_t tmp = i / a->size[0];
+		uint64_t ind = tmp + a->size[1] * (i - tmp * a->size[0]);
 
-		out->elements[newInd] = a->elements[i];
+		out->elements[ind] = a->elements[i];
 	}
 
 	return out;
@@ -376,8 +381,8 @@ matrix *sum(matrix *m, err_ret *error) {
 
 	for(uint64_t i = 0; i < out->len; ++i){
 		for(uint16_t j = 0; j < m->size[m->dim - 2]; ++j){
-			uint64_t index = i * m->size[m->dim - 2] + j;
-			out->elements[i] += m->elements[index];
+			uint64_t ind = i * m->size[m->dim - 2] + j;
+			out->elements[i] += m->elements[ind];
 		}
 	}
 

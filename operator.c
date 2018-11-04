@@ -115,7 +115,7 @@ matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
 		case eMin: out = min(a, error); break;
 		case eAvg: out = avg(a, error); break;
 		case eSum: out = sum(a, error); break;
-		case eNumel: out = numel(a, error); break;
+		case eNumel: out = numel(a); break;
 		case eMagnitude: out = magnitude(a, error); break;
 		}
 	}

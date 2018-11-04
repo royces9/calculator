@@ -863,13 +863,13 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 				//increment the number of subStrings
 				++subString;
 			}
-
 		}
 
 		free(limiterCount);
 
 		sep[subString] = malloc(sizeof(**sep) * ((k - cur_len) + 1));
 		__MALLOC_CHECK(sep[subString], *error);
+
 		if(strchr(delim, inp[cur_len]))
 			++inp;
 		
@@ -882,9 +882,9 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	return sep;
 }
 
+
 void freeDoubleArray(char **inp) {
-	int i = 0;
-	for(i = 0; inp[i]; ++i)
+	for(int i = 0; inp[i]; ++i)
 		free(inp[i]);
 
 	free(inp);

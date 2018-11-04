@@ -9,6 +9,7 @@ fileTree *new_leaf(void) {
 	return calloc(1, sizeof(fileTree));
 }
 
+
 void cutDownTree(fileTree *tree) {
 	if(tree) {
 		free(tree->line);
