@@ -11,11 +11,8 @@ TARGET = calc2
 all: DEBUG_FLAGS += -g
 all: calc
 
-O3: FLAGS += -O3
-O3: calc
-
-
 usr: TARGET = $(USR)
+usr: FLAGS += -O2
 usr: calc
 
 calc: $(CFILES:.c=.o)

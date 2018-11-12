@@ -625,6 +625,8 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	//the first [ should be
 	input += (*iter);
 
+	matrix *out = NULL;
+
 	//find where the matrix declaration ends
 	//count brackets until they match
 	//also get the length of string
@@ -697,7 +699,6 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 
 	matrix *a = NULL;
 	matrix *b = NULL;
-	matrix *out = NULL;
 
 	for(int i = 1; sepd_mat[i]; ++i) {
 		temp = NULL;
