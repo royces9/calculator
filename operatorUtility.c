@@ -1,8 +1,9 @@
+#include <stddef.h>
 #include <stdint.h>
 
 #include "operatorUtility.h"
 
-char const *const FUNCTION_LIST[FUNCTION_COUNT] = {
+char const *const FUNCTION_LIST[FUNCTION_COUNT + 1] = {
 	"quit",
 	"clear",
 	"list",
@@ -51,11 +52,12 @@ char const *const FUNCTION_LIST[FUNCTION_COUNT] = {
 	"linspace(",
   
 	"run(",
-	"print("
+	"print(",
+	NULL
 };
 
 
-char const *const OPERATOR_LIST[OPERATOR_COUNT] = {
+char const *const OPERATOR_LIST[OPERATOR_COUNT + 1] = {
 	"+",
 	"-",
 	".*",
@@ -83,7 +85,8 @@ char const *const OPERATOR_LIST[OPERATOR_COUNT] = {
 	"||",
 	"~",
 
-	"r"
+	"r",
+	NULL
 };
 
 

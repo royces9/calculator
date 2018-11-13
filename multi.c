@@ -605,7 +605,6 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack 
 
 			} else {
 				error = -5;
-
 			}
 			//if assignment goes wrong, the variable name gets malloc'd
 			//but doesn't get assigned to, this ensures that if another

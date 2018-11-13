@@ -164,8 +164,7 @@ err_ret sya(char *input, vari *var) {
 			if(error)
 				break;
 
-			//if(checkOperator(bufferOper, input[i + 1]) == OPERATOR_COUNT) {
-			if(check_op == (OPERATOR_COUNT - 1)) {
+			if(check_op == (OPERATOR_COUNT)) {
 				bufferOper[oper_iter] = '\0';
 
 				//find the corresponding operator
@@ -237,7 +236,6 @@ err_ret sya(char *input, vari *var) {
 
 		} else {
 			error = -5;
-
 			var->ans->size = NULL;
 			var->ans->elements = NULL;
 		}

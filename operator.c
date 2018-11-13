@@ -368,7 +368,8 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 	case FUNCTION_COUNT: //variables
 		//if the variable does not exist
 		error = chk_var(buffer, input, iter, var, num, ch);
-		if(error == -5){
+
+		if(error == -5) {
 			int bufferLen = strlen(buffer);
 
 			//buffer includes the '(', if it's there, replace with 0
