@@ -340,6 +340,7 @@ matrix *max(matrix *m, err_ret *error) {
 
 
 //sums along the last dimension of the matrix
+//unless matrix, then sum the elements
 matrix *sum(matrix *m, err_ret *error) {
 	matrix *out = NULL;
 

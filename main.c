@@ -13,8 +13,10 @@ int main(int argc, char *argv[]) {
   
 	//initialize variable struct
 	vari *var = init_var(256);
-	if(!var)
+	if(!var) {
 		err_rep(-6);
+		return -1;
+	}
 	
 	//init random seed
 	srand(time(0));
