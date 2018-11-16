@@ -631,18 +631,15 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	//find where the matrix declaration ends
 	//count brackets until they match
 	//also get the length of string
-	int16_t bracketCount = 0;
+	int16_t bracketCount = 1;
 	int16_t length = 0;
 
-	for(length = 0; input[length]; ++length) {
+	for(length = 1; bracketCount && input[length]; ++length) {
 		if(input[length] == '[')
 			++bracketCount;
 
 		if(input[length] == ']')
 			--bracketCount;
-
-		if(!bracketCount)
-			break;
 	}
 
 	//check that the bracket count is correct
@@ -662,7 +659,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	strncpy(mat_string, input + 1, sizeof(*mat_string) * (length));
 
 	//replace the end ']' with a '\0'
-	mat_string[length-1] = 0;
+	mat_string[length-2] = 0;
 
 	if((mat_string[length-2] == ';') || (mat_string[length-2] == ',')) {
 		free(mat_string);
@@ -687,7 +684,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 		*error = -6;
 		goto err_ret;
 	}
-		
+
 	*error = sya(sepd_mat[0], tempVari);
 
 	matrix *temp = cpy_mat(tempVari->ans);
@@ -739,12 +736,10 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 			break;
 		}
 
-		if(temp) {
-			push(num, temp);
-		} else {
+		if(!temp)
 			break;
-		}
-		
+
+		push(num, temp);
 	}
 
 	if( !(*error) ) {

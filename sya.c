@@ -55,12 +55,10 @@ err_ret sya(char *input, vari *var) {
 			return -3;
 	}
 
-
 	//if the number of left and right ends are the same
 	//the count variables will be 0
 	if(parenthesisCount || bracketCount)
 		return -3;
-
 
 	//if input string ends in an operator, return error
 	if(strchr(".[,+-/*^(=&|~<>",input[len - 1]))
@@ -317,7 +315,7 @@ int chk_op(char *a, char b, err_ret *error) {
 //"[]" is 4, matrix operator
 //misc characters are 0, just ignore em
 //nonsupported characters are -1?
-int8_t chk_t(char a) {
+char chk_t(char a) {
 	switch(a) {
 
 	case '0' ... '9':
