@@ -5,6 +5,7 @@
 
 #include "types.h"
 
+#include "token.h"
 #include "sya.h"
 
 int main(int argc, char *argv[]) {
@@ -42,6 +43,20 @@ int main(int argc, char *argv[]) {
 		//user input and history
 		input = readline(">>");
 		add_history(input);
+
+		token **tok_list = tokenize(input);
+
+		/*
+		char cpy[100];
+		for(int i = 0; t[i]; ++i) {
+			memset(cpy, 0, 100);
+			strncpy(cpy, t[i]->tok, t[i]->len);
+			printf("%d: ", i);
+			puts(cpy);
+		}
+		*/
+
+		tok_tree *tree = make_tok_tree(tok_list);
 
 		//break on EOF
 		//skip empty lines

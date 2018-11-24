@@ -8,54 +8,68 @@ token **tokenize(char *inp) {
 	int len = strlen(inp);
 	token **out = malloc(sizeof(*out) * len);
 
-	for(int i = 0; inp[i]; ++i) {
-		char type = chk_t(inp[i]);
-		token *cur = malloc(sizeof(*cur));
-		switch(type) {
-		case 1:
-			break;
+	char *type = malloc(sizeof(*type) * (len + 1));
 
-		case 2:
-			break;
+        for(int l = 0; inp[l]; ++l) {
+		if( (type[l] = chk_tt(inp[l])) == 3) {
 
-		case 3:
-			break;
-			
-		case 4:
-			;
-			//start at the first char after '['
-			int j = i + 1;
-			//put everything enclosed in [] in a single token
-			for(int count = 1; count && inp[j]; ++j) {
-				if(inp[j] == '[')
-					++count;
-
-				if(inp[j] == ']')
-					--count;
+			if( (type[l + 1] = chk_tt(inp[l + 1])) == 2) {
+				type[l] = type[l + 1];
+			} else {
+				type[l] = 1;
 			}
 
-			cur->tok = inp[i];
-			cur->len = j - i + 1;
-			cur->type = 2;
-			cur->arg = 0;
+			++l;
+		}
+	}
 
-			//set i to the final ']'
+	int i = 0;
+	int tok_count = 0;
+	token *cur = malloc(sizeof(*cur));
+
+	while(inp[i]) {
+		switch(type[i]) {
+		case 1:
+		case 2:
+			;
+			int j = i;
+			while(type[i] == type[j])
+				++j;
+
+			cur->tok = inp + i;
+			cur->len = j - i;
+			cur->type = type[i];
+			cur->arg = -1;
+
 			i = j;
 			break;
 
+		case 4:
 		case 5:
+		case 6:
+			cur->tok = inp + i;
+			cur->len = 1;
+			cur->type = type[i];
+			cur->arg = 0;
+			++i;
 			break;
 
 		default:
-			break;
+			++i;
+			continue;
+
 		}
+
+		out[tok_count++] = cur;
+		cur = malloc(sizeof(*cur));
 	}
+	out[tok_count] = NULL;
 
 	return out;
 }
 
 
-int8_t chk_t(char a) {
+char chk_tt(char a) {
 	switch(a) {
 
 	case '0' ... '9':
@@ -64,12 +78,11 @@ int8_t chk_t(char a) {
 	case '_':
 		return 1;
 
+
 	case '^':
-	case '(':
 	case '*':
 	case '/':
 	case '+':
-	case ')':
 	case '=':
 	case '>':
 	case '<':
@@ -78,25 +91,43 @@ int8_t chk_t(char a) {
 	case '|':
 	case '~':
 	case '%':
+	case '-':
 		return 2;
+
 
 	case '.':
 		return 3;
+
 
 	case '[':
 	case ']':
 		return 4;
 
-	case '-':
+
+	case '(':
+	case ')':
 		return 5;
+
+
+	case ';':
+	case ',':
+		return 6;
+
 
 	case '\t':
 	case '\n':
-	case ';':
+		return -2;
+
+		
 	case ' ':
 		return 0;
 
 	default:
 		return -1;
 	}
+}
+
+
+tok_tree *make_tok_tree(token **tok_list) {
+	tok_tree *out = NULL;
 }

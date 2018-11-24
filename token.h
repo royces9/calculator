@@ -9,12 +9,14 @@ typedef struct {
 } token;
 
 
-typedef struct {
+typedef struct tok_tree {
 	token *leaf;
-	token **children;
+	struct tok_tree **children;
 } tok_tree;
 
 token **tokenize(char *inp);
-static int8_t chk_t(char a);
+char chk_tt(char a);
+
+tok_tree *make_tok_tree(token **tok_list);
 
 #endif //TOKEN
