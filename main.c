@@ -46,15 +46,13 @@ int main(int argc, char *argv[]) {
 
 		token **tok_list = tokenize(input);
 
-		/*
 		char cpy[100];
-		for(int i = 0; t[i]; ++i) {
+		for(int i = 0; tok_list[i]; ++i) {
 			memset(cpy, 0, 100);
-			strncpy(cpy, t[i]->tok, t[i]->len);
+			strncpy(cpy, tok_list[i]->tok, tok_list[i]->len);
 			printf("%d: ", i);
 			puts(cpy);
 		}
-		*/
 
 		tok_tree *tree = make_tok_tree(tok_list);
 

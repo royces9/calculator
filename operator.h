@@ -1,7 +1,6 @@
 #ifndef OPERATOR
 #define OPERATOR
 
-
 int search_str(char *buffer, char const *const list[]);
 err_ret ex_num(stack *num, vari *var, op_struct *ch);
 
