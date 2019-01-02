@@ -10,7 +10,7 @@
 extern char const *const FUNCTION_LIST[FUNCTION_COUNT + 1];
 extern char const *const OPERATOR_LIST[OPERATOR_COUNT + 1];
 
-extern uint8_t const operatorPrecedence[OPERATOR_COUNT];
+extern uint8_t const operatorPrecedence[OPERATOR_COUNT + 1];
 
 enum functionEnums {
 	eQuit,

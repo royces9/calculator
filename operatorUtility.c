@@ -4,119 +4,120 @@
 #include "operatorUtility.h"
 
 char const *const FUNCTION_LIST[FUNCTION_COUNT + 1] = {
-	"quit",
-	"clear",
-	"list",
-	"help",
+	[eQuit] "quit",
+	[eClear] "clear",
+	[eList] "list",
+	[eHelp] "help",
 
-	"pi",
-	"e",
-	"ans",
+	[ePi] "pi",
+	[eE] "e",
+	[eAns] "ans",
 
-	"sin(",
-	"cos(",
-	"tan(",
-	"ln(",
-	"log(",
+	[eSin] "sin(",
+	[eCos] "cos(",
+	[eTan] "tan(",
+	[eLn] "ln(",
+	[eLog] "log(",
 
-	"sqrt(",
+	[eSqrt] "sqrt(",
 
-	"asin(",
-	"acos(",
-	"atan(",
+	[eAsin] "asin(",
+	[eAcos] "acos(",
+	[eAtan] "atan(",
 
-	"floor(",
-	"ceil(",
-	"round(",
-	"min(",
-	"max(",
-	"avg(",
-	"sum(",
+	[eFloor] "floor(",
+	[eCeil] "ceil(",
+	[eRound] "round(",
+	[eMin] "min(",
+	[eMax] "max(",
+	[eAvg] "avg(",
+	[eSum] "sum(",
   
-	"factorial(",
+	[eFactorial] "factorial(",
 
-	"derivative(",
-	"integral(",
-	"solve(",
+	[eDeri] "derivative(",
+	[eInte] "integral(",
+	[eSolve] "solve(",
 
-	"zeros(",
-	"ones(",
-	"eye(",
-	"rand(",
-	"size(",
+	[eZeros] "zeros(",
+	[eOnes] "ones(",
+	[eEye] "eye(",
+	[eRand] "rand(",
+	[eSize] "size(",
 
-	"numel(",
-	"magnitude(",
+	[eNumel] "numel(",
+	[eMagnitude] "magnitude(",
 	
-	"transpose(",
-	"linspace(",
+	[eTranspose] "transpose(",
+	[eLinspace] "linspace(",
   
-	"run(",
-	"print(",
+	[eRun] "run(",
+	[ePrint] "print(",
 	NULL
 };
 
 
 char const *const OPERATOR_LIST[OPERATOR_COUNT + 1] = {
-	"+",
-	"-",
-	".*",
-	"./",
+	[eAdd] "+",
+	[eSubtract] "-",
+	[eMultiply] ".*",
+	[eDivide] "./",
 
-	".^",
-	"=",
-	"(",
-	")",
+	[eExponent] ".^",
+	[eAssign] "=",
+	[eLeftParen] "(",
+	[eRightParen] ")",
 
-	"*",
-	"/",
-	"^",
-	"%",
+	[eMultiplyMatrix] "*",
+	[eDivideMatrix] "/",
+	[eExponentMatrix] "^",
+	[eModulo] "%",
 
-	"<",
-	">",
-	"<=",
-	">=",
+	[eLess] "<",
+	[eGreater] ">",
+	[eLessEqual] "<=",
+	[eGreaterEqual] ">=",
 
-	"!=",
-	"==",
+	[eNotEqual] "!=",
+	[eEqual] "==",
 
-	"&&",
-	"||",
-	"~",
+	[eAnd] "&&",
+	[eOr] "||",
+	[eNot] "~",
 
-	"r",
+	[eReference] "r",
 	NULL
 };
 
 
-uint8_t const operatorPrecedence[OPERATOR_COUNT] = {
-	6,
-	6,
-	5,
-	5,
+uint8_t const operatorPrecedence[OPERATOR_COUNT + 1] = {
+	[eAdd] 6,
+	[eSubtract] 6,
+	[eMultiply] 5,
+	[eDivide] 5,
 
-	4,
-	4,
-	16,
-	15,
+	[eExponent] 4,
+	[eAssign] 4,
+	[eLeftParen] 16,
+	[eRightParen] 15,
 
-	5,
-	5,
-	4,
-	5,
+	[eMultiplyMatrix] 5,
+	[eDivideMatrix] 5,
+	[eExponentMatrix] 4,
+	[eModulo] 5,
   
-	15,
-	8,
-	8,
-	8,
+	[eLess] 15,
+	[eGreater] 8,
+	[eLessEqual] 8,
+	[eGreaterEqual] 8,
 
-	8,
-	9,
+	[eNotEqual] 8,
+	[eEqual] 9,
 
-	9,
-	11,
-	12,
+	[eAnd] 9,
+	[eOr] 11,
+	[eNot] 12,
 
-	0
+	[eReference] 0,
+	0,
 }; //~is not implemented at the moment
