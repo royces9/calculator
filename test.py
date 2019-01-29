@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import subprocess
 
 #making unit tests for different features
