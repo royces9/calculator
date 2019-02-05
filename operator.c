@@ -476,9 +476,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 			error = ex_num(num, var, pop(oper));
 		} while( (oper->top > -1) &&
 			 (((op_struct **)oper->stk)[oper->top]->_enum != eLeftParen) );
-
 		*tok = 1;
-		free(pop(oper));
 		break;
 
 

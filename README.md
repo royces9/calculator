@@ -32,9 +32,10 @@ derivate(), integral(), solve()
 ### Scripts
 run()
 
-### Current known bugs:
-9 ^ (((log(2)) / log(3)))
-causes a seg fault
+### Custom functions
+create a function like:
 
-9 ^ (log(2) / log(3))
-evalutes as (9 ^ log(2)) / log(3)
+function [out] = func(a, b)
+out = a + b;
+
+### Current known bugs:

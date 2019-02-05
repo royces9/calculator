@@ -23,7 +23,7 @@ calc: $(CFILES:.c=.o)
 
 .PHONY: clean
 clean:
-	del *.o *.d
+	del *.o *.d vgcore.*
 
 .PHONY: cleano
 cleano:

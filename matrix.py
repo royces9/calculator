@@ -1,19 +1,11 @@
+#!/usr/bin/python
+
 import subprocess
 
-#making unit tests for different features
-#do this instead of using file scripts
-#because file scripts may be broken
-#after changes
+#test matrix stuff with this file
 
 def main():
-    test_input = ["1 + 2",
-                  "sin(31)",
-                  "pi * 2",
-                  "ans + 1",
-                  "sin(ans)",
-                  "1 + 2 * 3",
-                  "2 + 3 * sin(5)",
-                  "a = zeros(3)",
+    test_input = ["a = zeros(3)",
                   "a(2) = 3",
                   "a(2, 3) = 1",
                   "b = [4; 8; 9];",
