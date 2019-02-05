@@ -33,3 +33,8 @@ derivate(), integral(), solve()
 run()
 
 ### Current known bugs:
+9 ^ (((log(2)) / log(3)))
+causes a seg fault
+
+9 ^ (log(2) / log(3))
+evalutes as (9 ^ log(2)) / log(3)
