@@ -275,7 +275,7 @@ void err_rep(err_ret error) {
 
 
 //check if the string is a number/variable
-err_ret chk_num(char *input) {
+int chk_num(char *input) {
 	for(int i = 0; input[i]; ++i) {
 		if(((input[i] < '0') && (input[i] != '.')) ||
 		   (input[i] > '9') ||
