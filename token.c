@@ -144,7 +144,7 @@ tok_tree *make_tok_tree(token **tok_list) {
 
 		switch(cur->type) {
 		case 1: //alphanumerics
-			if(chk_num(cur)) {
+			if(chk_numm(cur)) {
 				push(num, cur);
 			} else {
 			}
@@ -175,7 +175,7 @@ tok_tree *make_tok_tree(token **tok_list) {
 }
 
 
-int chk_num(token *tok) {
+int chk_numm(token *tok) {
 	for(int i = 0; i < tok->len; ++i) {
 		if( ((tok->tok[i] <'0') && (tok->tok[i] != '.')) ||
 		    (tok->tok[i] > '9') ||

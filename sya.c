@@ -275,7 +275,7 @@ void err_rep(err_ret error) {
 
 
 //check if the string is a number/variable
-err_ret chk_num(char *input) {
+int chk_num(char *input) {
 	for(int i = 0; input[i]; ++i) {
 		if(((input[i] < '0') && (input[i] != '.')) ||
 		   (input[i] > '9') ||
@@ -315,7 +315,7 @@ int chk_op(char *a, char b, err_ret *error) {
 //"[]" is 4, matrix operator
 //misc characters are 0, just ignore em
 //nonsupported characters are -1?
-char chk_t(char a) {
+int chk_t(char a) {
 	switch(a) {
 
 	case '0' ... '9':
