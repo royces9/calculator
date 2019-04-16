@@ -35,7 +35,7 @@ op_struct *init_op_struct(char const *op, uint8_t argNo, uint8_t order, uint8_t 
 }
 
 
-void *new_stk(int size) {
+stack *new_stk(int size) {
 	stack *out = malloc(sizeof(*out));
 	if(!out)
 		return NULL;

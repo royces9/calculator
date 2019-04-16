@@ -42,7 +42,7 @@ op_struct *init_op_struct(char const *op, uint8_t argNo, uint8_t order, uint8_t 
  * initialize new stack
  * size is the maximum number of elements
  */
-void *new_stk(int size);
+stack *new_stk(int size);
 
 /*
  * stk - pointer to the stack
