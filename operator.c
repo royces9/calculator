@@ -301,7 +301,7 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 	case eTranspose:
 	case eMagnitude:
 	case eNumel:
-		push(ch, init_op_struct(FUNCTION_LIST[i], 1, 15, i));
+		push(ch, init_op_struct(1, 15, i));
 		*tok = 0;
 		break;
 
@@ -433,11 +433,11 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 				error = ex_num(num, var, pop(oper));
 			}
 
-			push(oper, init_op_struct("+", 2, 6, eAdd));
+			push(oper, init_op_struct(2, 6, eAdd));
 		}
 
 		*tok = 0;
-		push(oper, init_op_struct("*", 2, 5, eMultiply));
+		push(oper, init_op_struct(2, 5, eMultiply));
 		matrix *temp = init_scalar(-1);
 		if(!temp) {
 			error = -6;
@@ -450,12 +450,12 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 	case eExponentMatrix:
 		*tok = 0;
-		push(oper, init_op_struct("^", 2, 4, eExponentMatrix));
+		push(oper, init_op_struct(2, 4, eExponentMatrix));
 		break;
     
 	case eExponent:
 		*tok = 0;
-		push(oper, init_op_struct(".^", 2, 4, eExponent));
+		push(oper, init_op_struct(2, 4, eExponent));
 		break;
 
 	case eLeftParen:
@@ -463,10 +463,10 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 		if( (oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->order == 2) ) {
 			op_struct *temp = pop(oper);
-			push(oper, init_op_struct("(", 0, 15, eLeftParen));
+			push(oper, init_op_struct(0, 15, eLeftParen));
 			push(oper, temp);
 		} else {
-			push(oper, init_op_struct("(", 0, 15, eLeftParen));
+			push(oper, init_op_struct(0, 15, eLeftParen));
 		}
 		
 		break;
@@ -490,7 +490,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 			free(pop(oper));
 		}
 
-		push(oper, init_op_struct("=", 3, 16, eAssign));
+		push(oper, init_op_struct(3, 16, eAssign));
 		break;
 
 	case eAdd:
@@ -513,7 +513,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 			error = ex_num(num, var, pop(oper));
 
 		*tok = 0;
-		push(oper, init_op_struct(buffer, 2, operatorPrecedence[i], i));
+		push(oper, init_op_struct(2, operatorPrecedence[i], i));
 		break;
 
 	default:

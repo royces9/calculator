@@ -11,9 +11,6 @@ typedef struct {
 } stack;
 
 typedef struct { //struct for operators, +, -, etc
-	//operator/function string
-	char op[16];
-
 	//order of operation, higher is higher priority
 	uint8_t order;
 
@@ -21,7 +18,7 @@ typedef struct { //struct for operators, +, -, etc
 	uint8_t argNo;
 
 	//corresponding enum, in operatorUtility.h
-	uint8_t _enum;
+	uint16_t _enum;
 
 } op_struct;
 
@@ -36,7 +33,7 @@ void *pop(stack *stk);
 /*
  * initialize operator struct
  */
-op_struct *init_op_struct(char const *op, uint8_t argNo, uint8_t order, uint8_t _enum);
+op_struct *init_op_struct(uint8_t argNo, uint8_t order, uint16_t _enum);
 
 /*
  * initialize new stack
