@@ -1,122 +1,183 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <math.h>
 
+#include "types.h"
+#include "functions.h"
+#include "multi.h"
 #include "operatorUtility.h"
 
 char const *const FUNCTION_LIST[FUNCTION_COUNT + 1] = {
-	"quit",
-	"clear",
-	"list",
-	"help",
+						       "quit",
+						       "clear",
+						       "list",
+						       "help",
 
-	"pi",
-	"e",
-	"ans",
+						       "pi",
+						       "e",
+						       "ans",
 
-	"sin(",
-	"cos(",
-	"tan(",
-	"ln(",
-	"log(",
+						       "sin(",
+						       "cos(",
+						       "tan(",
+						       "ln(",
+						       "log(",
 
-	"sqrt(",
+						       "sqrt(",
 
-	"asin(",
-	"acos(",
-	"atan(",
+						       "asin(",
+						       "acos(",
+						       "atan(",
 
-	"floor(",
-	"ceil(",
-	"round(",
-	"min(",
-	"max(",
-	"avg(",
-	"sum(",
+						       "floor(",
+						       "ceil(",
+						       "round(",
+						       "min(",
+						       "max(",
+						       "avg(",
+						       "sum(",
   
-	"factorial(",
+						       "factorial(",
 
-	"derivative(",
-	"integral(",
-	"solve(",
+						       "derivative(",
+						       "integral(",
+						       "solve(",
 
-	"zeros(",
-	"ones(",
-	"eye(",
-	"rand(",
-	"size(",
+						       "zeros(",
+						       "ones(",
+						       "eye(",
+						       "rand(",
+						       "size(",
 
-	"numel(",
-	"magnitude(",
+						       "numel(",
+						       "magnitude(",
 	
-	"transpose(",
-	"linspace(",
+						       "transpose(",
+						       "linspace(",
   
-	"run(",
-	"print(",
-	NULL
+						       "run(",
+						       "print(",
+						       NULL
 };
 
+void *const FUNCTION_POINTER[FUNCTION_COUNT + 1] = {
+					      NULL,
+					      NULL,
+					      NULL,
+					      NULL,
+
+					      NULL,
+					      NULL,
+					      NULL,
+
+					      &sin,
+					      &cos,
+					      &tan,
+					      &log,
+					      &log10,
+
+					      &sqrt,
+
+					      &asin,
+					      &acos,
+					      &atan,
+
+					      &floor,
+					      &ceil,
+					      &round,
+					      &min,
+					      &max,
+					      &avg,
+					      &sum
+
+					      &factorial,
+
+					      &deri,
+					      &inte,
+					      &solve,
+
+					      &zeros,
+					      &ones,
+					      &eye,
+					      &rand_mat,
+					      &get_size,
+
+					      &numel,
+					      &magnitude,
+
+					      &t_mat,
+					      &llinspace,
+
+					      &run,
+					      &print
+					      NULL
+};
+
+void *const OPERATOR_POINTER[OPERATOR_COUNT + 1] = {
+
+};
 
 char const *const OPERATOR_LIST[OPERATOR_COUNT + 1] = {
-	"+",
-	"-",
-	".*",
-	"./",
+						       "+",
+						       "-",
+						       ".*",
+						       "./",
 
-	".^",
-	"=",
-	"(",
-	")",
+						       ".^",
+						       "=",
+						       "(",
+						       ")",
 
-	"*",
-	"/",
-	"^",
-	"%",
+						       "*",
+						       "/",
+						       "^",
+						       "%",
 
-	"<",
-	">",
-	"<=",
-	">=",
+						       "<",
+						       ">",
+						       "<=",
+						       ">=",
 
-	"!=",
-	"==",
+						       "!=",
+						       "==",
 
-	"&&",
-	"||",
-	"~",
+						       "&&",
+						       "||",
+						       "~",
 
-	"r",
-	NULL
+						       "r",
+						       NULL
 };
 
 
 uint8_t const operatorPrecedence[OPERATOR_COUNT] = {
-	6,
-	6,
-	5,
-	5,
+						    6,
+						    6,
+						    5,
+						    5,
 
-	4,
-	4,
-	16,
-	15,
+						    4,
+						    4,
+						    16,
+						    15,
 
-	5,
-	5,
-	4,
-	5,
+						    5,
+						    5,
+						    4,
+						    5,
   
-	15,
-	8,
-	8,
-	8,
+						    15,
+						    8,
+						    8,
+						    8,
 
-	8,
-	9,
+						    8,
+						    9,
 
-	9,
-	11,
-	12,
+						    9,
+						    11,
+						    12,
 
-	0
+						    0
 }; //~is not implemented at the moment
+

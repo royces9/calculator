@@ -20,6 +20,8 @@ typedef struct { //struct for operators, +, -, etc
 	//corresponding enum, in operatorUtility.h
 	uint16_t _enum;
 
+	//function pointer
+	void *fp;
 } op_struct;
 
 /*

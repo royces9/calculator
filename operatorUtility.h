@@ -9,6 +9,8 @@
 
 extern char const *const FUNCTION_LIST[FUNCTION_COUNT + 1];
 extern char const *const OPERATOR_LIST[OPERATOR_COUNT + 1];
+extern void *const FUNCTION_POINTER[FUNCTION_COUNT + 1];
+extern void *const OPERATOR_POINTER[OPERATOR_COUNT + 1];
 
 extern uint8_t const operatorPrecedence[OPERATOR_COUNT];
 
