@@ -785,3 +785,73 @@ void help_print(void) {
 	printf("run(file)\n   file - path to a text file\n   This function parses each line of the file as if it were entered into the console directly, with the exception of \"while\", \"if/else\" and \"end\".\n    \"while\" - loops until the statement inside the \"while\"'s conditional is false. The inside is executed as if it were entered into the console directly. There may be floating point round off errors.\n   \"if/else\" - Executes the block of lines inside the \"if\"'s conditional if the statement is true, Otherwise it will execute the \"else\" block.\n   '#' at the beginning of\
  a line comments out a line\n   ';' at the end of a line suppresses output\n\n");
 }
+
+
+ele add(ele a, ele b) {
+	return a + b;
+}
+
+
+ele subtract(ele a, ele b) {
+	return a - b;
+}
+
+
+ele multiply(ele a, ele b) {
+	return a * b;
+}
+
+
+ele divide(ele a, ele b) {
+	return a / b;
+}
+
+
+ele exponent(ele a, ele b) {
+	return pow(*a, b);
+}
+
+
+ele less(ele a, ele b) {
+	return a < b;
+}
+
+
+ele greater(ele a, ele b) {
+	return a > b;
+}
+
+
+ele less_equal(ele a, ele b) {
+	return a <= b;
+}
+
+
+ele greater_equal(ele a, ele b) {
+	return a >=b;
+}
+
+
+ele not_equal(ele a, ele b) {
+	return a != b;
+}
+
+
+ele equal(ele a, ele b) {
+	return a == b;
+}
+
+
+ele and(ele a, ele b) {
+	return a && b;
+}
+
+
+ele or(ele a, ele b) {
+	return a || b;
+}
+
+
+ele modulo(ele a, ele b) {
+	return (int64_t) a & (int64_t) b;
+}

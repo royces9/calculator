@@ -17,6 +17,9 @@ typedef struct { //struct for operators, +, -, etc
 	//number of arguments it takes, generally two or one
 	uint8_t argNo;
 
+	//1 if matrix operator, 0 if scalar
+	uint8_t mat_op;
+
 	//corresponding enum, in operatorUtility.h
 	uint16_t _enum;
 

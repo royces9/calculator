@@ -15,4 +15,19 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error);
 
 void help_print(void);
 
+ele add(ele a, ele b);
+ele subtract(ele a, ele b);
+ele multiply(ele a, ele b);
+ele divide(ele a, ele b);
+ele exponent(ele a, ele b);
+ele less(ele a, ele b);
+ele greater(ele a, ele b);
+ele less_equal(ele a, ele b);
+ele greater_equal(ele a, ele b);
+ele not_equal(ele a, ele b);
+ele equal(ele a, ele b);
+ele and(ele a, ele b);
+ele or(ele a, ele b);
+ele modulo(ele a, ele b);
+
 #endif //OPERATOR
