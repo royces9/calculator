@@ -214,7 +214,7 @@ uint8_t const operatorPrecedence[OPERATOR_COUNT] = {
 						    0
 }; //~is not implemented at the moment
 
-op_struct const
+op_struct
 F_STRUCT[FUNCTION_COUNT + 1] = {
 				[eQuit] = empty_op,
 				[eClear] = empty_op,
@@ -225,48 +225,48 @@ F_STRUCT[FUNCTION_COUNT + 1] = {
 				[eE] = empty_op,
 				[eAns] = empty_op,
 
-				[eSin] = {.order = 15, .argNo = 1, .fp = &sin, .mat_op = 0},
-				[eCos] = {.order = 15, .argNo = 1, .fp = &cos, .mat_op = 0},
-				[eTan] = {.order = 15, .argNo = 1, .fp = &tan, .mat_op = 0},
-				[eLn] = {.order = 15, .argNo = 1, .fp = &log, .mat_op = 0},
-				[eLog] = {.order = 15, .argNo = 1, .fp = &log10, .mat_op = 0},
+				[eSin] = {.order = 15, .argNo = 1, .fp = &_sin, .mat_op = 0},
+				[eCos] = {.order = 15, .argNo = 1, .fp = &_cos, .mat_op = 0},
+				[eTan] = {.order = 15, .argNo = 1, .fp = &_tan, .mat_op = 0},
+				[eLn] = {.order = 15, .argNo = 1, .fp = &_log, .mat_op = 0},
+				[eLog] = {.order = 15, .argNo = 1, .fp = &_log10, .mat_op = 0},
 
-				[eSqrt] = {.order = 15, .argNo = 1, .fp = &sqrt, .mat_op = 0},
+				[eSqrt] = {.order = 15, .argNo = 1, .fp = &_sqrt, .mat_op = 0},
 
-				[eAsin] = {.order = 15, .argNo = 1, .fp = &asin, .mat_op = 0},
-				[eAcos] = {.order = 15, .argNo = 1, .fp = &acos, .mat_op = 0},
-				[eAtan] = {.order = 15, .argNo = 1, .fp = &atan, .mat_op = 0},
+				[eAsin] = {.order = 15, .argNo = 1, .fp = &_asin, .mat_op = 0},
+				[eAcos] = {.order = 15, .argNo = 1, .fp = &_acos, .mat_op = 0},
+				[eAtan] = {.order = 15, .argNo = 1, .fp = &_atan, .mat_op = 0},
 
-				[eFloor] = {.order = 15, .argNo = 1, .fp = &floor, .mat_op = 0},
-				[eCeil] = {.order = 15, .argNo = 1, .fp = &ceil, .mat_op = 0},
-				[eRound] = {.order = 15, .argNo = 1, .fp = &round, .mat_op = 0},
+				[eFloor] = {.order = 15, .argNo = 1, .fp = &_floor, .mat_op = 0},
+				[eCeil] = {.order = 15, .argNo = 1, .fp = &_ceil, .mat_op = 0},
+				[eRound] = {.order = 15, .argNo = 1, .fp = &_round, .mat_op = 0},
 				[eMin] = {.order = 15, .argNo = 1, .fp = &min, .mat_op = 1},
 				[eMax] = {.order = 15, .argNo = 1, .fp = &max, .mat_op = 1},
 				[eAvg] = {.order = 15, .argNo = 1, .fp = &avg, .mat_op = 1},
 				[eSum] = {.order = 15, .argNo = 1, .fp = &sum, .mat_op = 1},
 
-				[eFactorial] = {.order = 15, .argNo = 1, .fp = &round, .mat_op = 0},
+				[eFactorial] = {.order = 15, .argNo = 1, .fp = &factorial, .mat_op = 0},
 
 				[eDeri] = {.order = 15, .argNo = 1, .fp = &deri, .mat_op = 0},
 				[eInte] = {.order = 15, .argNo = 1, .fp = &round, .mat_op = 0},
 				[eSolve] = {.order = 15, .argNo = 1, .fp = &round, .mat_op = 0},
 
-				[eZeros] = {.order = 15, .argNo = 1, .fp = &zeros, .mat_op = 0},
-				[eOnes] = {.order = 15, .argNo = 1, .fp = &ones, .mat_op = 0},
-				[eEye] = {.order = 15, .argNo = 1, .fp = &eye, .mat_op = 0},
-				[eRand] = {.order = 15, .argNo = 1, .fp = &rand_mat, .mat_op = 0},
-				[eSize] = {.order = 15, .argNo = 1, .fp = &get_size, .mat_op = 0},
-				[eNumel] = {.order = 15, .argNo = 1, .fp = &numel, .mat_op = 0},
-				[eMagnitude] = {.order = 15, .argNo = 1, .fp = &magnitude, .mat_op = 0},
+				[eZeros] = {.order = 15, .argNo = 1, .fp = &zeros, .mat_op = 1},
+				[eOnes] = {.order = 15, .argNo = 1, .fp = &ones, .mat_op = 1},
+				[eEye] = {.order = 15, .argNo = 1, .fp = &eye, .mat_op = 1},
+				[eRand] = {.order = 15, .argNo = 1, .fp = &rand_mat, .mat_op = 1},
+				[eSize] = {.order = 15, .argNo = 1, .fp = &get_size, .mat_op = 1},
+				[eNumel] = {.order = 15, .argNo = 1, .fp = &numel, .mat_op = 1},
+				[eMagnitude] = {.order = 15, .argNo = 1, .fp = &magnitude, .mat_op = 1},
 						       
-				[eTranspose] = {.order = 15, .argNo = 1, .fp = &t_mat, .mat_op = 0},
+				[eTranspose] = {.order = 15, .argNo = 1, .fp = &t_mat, .mat_op = 1},
 				[eLinspace] = {.order = 15, .argNo = 1, .fp = &linspace, .mat_op = 0},
 				[eRun] = {.order = 15, .argNo = 1, .fp = &runFile, .mat_op = 0},
 				[ePrint] = {.order = 15, .argNo = 1, .fp = &printLine, .mat_op = 0},
 				empty_op
 };
 
-op_struct const
+op_struct
 O_STRUCT[OPERATOR_COUNT + 1] = {
 				[eAdd] = {.order = 6, .argNo = 2, .fp = &add, .mat_op = 0},
 				[eSubtract] = {.order = 6, .argNo = 2, .fp = &subtract, .mat_op = 0},

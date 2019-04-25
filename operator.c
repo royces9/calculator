@@ -86,9 +86,7 @@ err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 
 matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
 	matrix *out = NULL;
-
-	//ch._enum is in oneArg if check is 0
-	if(ch->mat_op) {
+	if(!ch->mat_op) {
 		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
 		if(!newSize)
 			return NULL;
@@ -102,21 +100,10 @@ matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
 
 		for(uint64_t i = 0; i < out->len; ++i)
 			out->elements[i] = ((ele (*)(ele, err_ret *))ch->fp)(a->elements[i], error);
+
 	} else {
+
 		out = ((matrix * (*)(matrix *, err_ret *)) ch->fp)(a, error);
-		/*
-		switch(ch->_enum){
-		case eEye: out = eye(a, error); break;
-		case eSize: out = get_size(a, error); break;
-		case eTranspose: out = t_mat(a, error); break;
-		case eMax: out = max(a, error); break;
-		case eMin: out = min(a, error); break;
-		case eAvg: out = avg(a, error); break;
-		case eSum: out = sum(a, error); break;
-		case eNumel: out = numel(a); break;
-		case eMagnitude: out = magnitude(a, error); break;
-		}
-		*/
 	}
 
 	return out;
@@ -130,18 +117,7 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 	uint8_t aScalar = is_scalar(a);
 	uint8_t bScalar = is_scalar(b);
 
-	if(((aScalar + bScalar) > 0) && ch->mat_op) {
 
-		//if the enum is for a matrix operation
-		//change to the scalar operator
-		if(ch->fp == &mult_mat) {
-			ch = &O_STRUCT[eMultiply];
-		} else if(ch->fp == &div_mat) {
-			ch = &O_STRUCT[eDivide];
-		}
-	}
-
-	//ch._enum is in twoArg if check is 0
 	if(!ch->mat_op) {
 		switch(aScalar + bScalar) {
 		case 0: //neither is a scalar
@@ -161,19 +137,25 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 
 			break;
       
-		case 1: //only a or b is a scalar
-			if( !(out = cpy_mat(aScalar ? b : a)) ) {
-				*error = -6;
-				break;
-			}
-
-			ele *ans = out->elements;
+		case 1:; //only a or b is a scalar
 			ele *a_p = a->elements;
 			ele *b_p = b->elements;
 			ele **inc = aScalar ? &b_p : &a_p;
 
+			if(aScalar) {
+				out = cpy_mat(b);
+				inc = &b_p;
+			} else {
+				out = cpy_mat(a);
+				inc = &a_p;
+			}
+			if(!out) {
+				*error = -6;
+				break;
+			}
+
 			for(uint64_t i = 0; i < out->len; ++i, ++(*inc))
-				ans[i] = ((ele (*)(ele, ele))ch->fp)(*a_p, *b_p);
+				out->elements[i] = ((ele (*)(ele, ele))ch->fp)(*a_p, *b_p);
 
 			break;
 
@@ -191,13 +173,17 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 		}
 
 	} else {
-		switch(ch->_enum) {
-		case eMultiplyMatrix: out = mult_mat(a, b, error); break;
-		case eExponentMatrix: out = exp_mat(a, b, error); break;
-		case eDivideMatrix: out = div_mat(a, b, error); break;
-		case eReference: out = reference(a, b, error); break;
-		default: *error = -10; break;
+		if((aScalar + bScalar) > 0) {
+			//if the fp is for a matrix operation
+			//change to the scalar operator
+			if(ch->fp == &mult_mat) {
+				ch = &O_STRUCT[eMultiply];
+			} else if(ch->fp == &div_mat) {
+				ch = &O_STRUCT[eDivide];
+			}
 		}
+
+		out = ((matrix * (*)(matrix *, matrix *, err_ret *))ch->fp)(a, b, error);
 	}
 
 	return out;
@@ -416,11 +402,6 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eSubtract:
 		if(*tok == 1) {
 			//if the stack is occupied, should short-circuit
-			/*
-			while( (oper->top > -1) &&
-			       (((op_struct **)oper->stk)[oper->top]->order <= 6)
-			       && !error ) {
-			*/
 			while( (oper->top > -1) &&
 			       (((op_struct *) top_stk(oper))->order <= 6)
 			       && !error ) {
@@ -503,10 +484,6 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 		while((oper->top > -1) &&
 		      (((op_struct *) top_stk(oper))->order <= O_STRUCT[i].order) )
-			/*
-		while((oper->top > -1) &&
-		      (((op_struct **)oper->stk)[oper->top]->order <= operatorPrecedence[i]) )
-			*/
 			error = ex_num(num, var, pop(oper));
 
 		*tok = 0;

@@ -8,13 +8,6 @@
 #include "operatorUtility.h"
 #include "functions.h"
 
-//factorial function
-ele factorial(ele a) {
-	a = floor(a);
-
-	return a < 2 ? 1 : a * factorial(a - 1);
-}
-
 
 matrix *eye(matrix *a, err_ret *error) {
 	if(a->dim != 1) {
@@ -179,7 +172,6 @@ matrix *div_mat(matrix *a, matrix *b, err_ret *error) {
 
 matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
 	matrix *out = NULL;
-
 	//matrix multiplication only defined for 2d arrays
 	if((a->dim != 2) || (b->dim != 2)) {
 		*error = -10;
@@ -404,6 +396,61 @@ matrix *avg(matrix *m, err_ret *error) {
 }
 
 
+ele _sin(ele a, err_ret *e) {
+	return sin(a);
+}
+
+ele _cos(ele a, err_ret *e) {
+	return cos(a);
+}
+
+ele _tan(ele a, err_ret *e) {
+	return tan(a);
+}
+
+ele _log(ele a, err_ret *e) {
+	return log(a);
+}
+
+ele _log10(ele a, err_ret *e) {
+	return log10(a);
+}
+
+ele _sqrt(ele a, err_ret *e) {
+	return sqrt(a);
+}
+
+ele _asin(ele a, err_ret *e) {
+	return asin(a);
+}
+
+ele _acos(ele a, err_ret *e) {
+	return acos(a);
+}
+
+ele _atan(ele a, err_ret *e) {
+	return atan(a);
+}
+
+ele _floor(ele a, err_ret *e) {
+	return floor(a);
+}
+
+ele _ceil(ele a, err_ret *e) {
+	return ceil(a);
+}
+
+ele _round(ele a, err_ret *e) {
+	return round(a);
+}
+
+ele factorial(ele a, err_ret *e) {
+	a = floor(a);
+
+	return a < 2 ? 1 : a * factorial(a - 1, e);
+}
+
+
 //returns value from one argument functions
 ele one_arg(ele a, int o, err_ret *error) {
 	switch(o) {
@@ -419,7 +466,7 @@ ele one_arg(ele a, int o, err_ret *error) {
 	case eFloor: return floor(a);
 	case eCeil: return ceil(a);
 	case eRound: return round(a);
-	case eFactorial: return factorial(a);
+	case eFactorial: return factorial(a, error);
 	default: *error = 1; return a;
 	}
 }
