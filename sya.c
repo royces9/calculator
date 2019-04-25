@@ -130,7 +130,6 @@ err_ret sya(char *input, vari *var) {
 						break;
 
 					push(num, temp);
-
 				} else { //check if command is a function or variable
 					if(input[i + 1] == '(')
 						bufferLetters[char_iter++] = '(';

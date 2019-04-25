@@ -172,7 +172,7 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 }
 
 
-matrix *divideMatrix(matrix *a, matrix *b, err_ret *error) {
+matrix *div_mat(matrix *a, matrix *b, err_ret *error) {
 	return NULL;
 }
 

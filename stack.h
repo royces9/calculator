@@ -11,6 +11,11 @@ typedef struct {
 } stack;
 
 typedef struct { //struct for operators, +, -, etc
+	//function pointer
+	void *fp;
+	
+	int _enum;
+
 	//order of operation, higher is higher priority
 	uint8_t order;
 
@@ -19,9 +24,6 @@ typedef struct { //struct for operators, +, -, etc
 
 	//1 if matrix operator, 0 if scalar
 	uint8_t mat_op;
-
-	//function pointer
-	void *fp;
 } op_struct;
 
 /*
@@ -50,5 +52,6 @@ stack *new_stk(int size);
  *            does nothing if NULL
  */
 void free_stk(stack *stk, void (*free_fun)(void *));
+void *top_stk(stack *stk);
 
 #endif //STACK

@@ -57,3 +57,8 @@ void free_stk(stack *stk, void (*free_fun)(void *)) {
 	free(stk->stk);
 	free(stk);
 }
+
+
+void *top_stk(stack *stk) {
+	return stk->stk[stk->top];
+}
