@@ -11,7 +11,7 @@ matrix *numel(matrix *a);
 matrix *reference(matrix *a, matrix *b, err_ret *error);
 matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error);
 
-//matrix *div_mat(matrix *a, matrix *b, err_ret *error);
+matrix *div_mat(matrix *a, matrix *b, err_ret *error);
 matrix *mult_mat(matrix *a, matrix *b, err_ret *error);
 matrix *exp_mat(matrix *a, matrix *b, err_ret *error);
 matrix *t_mat(matrix *a, err_ret *error);

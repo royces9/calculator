@@ -205,7 +205,7 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 		switch(ch->_enum) {
 		case eMultiplyMatrix: out = mult_mat(a, b, error); break;
 		case eExponentMatrix: out = exp_mat(a, b, error); break;
-			//case eDivideMatrix: out = div_mat(a, b, error); break;
+		case eDivideMatrix: out = div_mat(a, b, error); break;
 		case eReference: out = reference(a, b, error); break;
 		default: *error = -10; break;
 		}
@@ -301,7 +301,8 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 	case eTranspose:
 	case eMagnitude:
 	case eNumel:
-		push(ch, init_op_struct(1, 15, i));
+		push(ch, F_STRUCT[i]);
+		//push(ch, init_op_struct(1, 15, i));
 		*tok = 0;
 		break;
 

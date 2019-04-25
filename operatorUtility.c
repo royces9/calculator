@@ -8,6 +8,8 @@
 #include "multi.h"
 #include "operatorUtility.h"
 
+op_struct const empty_op = {order = 0, argNo = 0, fp = NULL, mat_op = 0};
+
 char const *const FUNCTION_LIST[FUNCTION_COUNT + 1] = {
 						       "quit",
 						       "clear",
@@ -211,59 +213,87 @@ uint8_t const operatorPrecedence[OPERATOR_COUNT] = {
 						    0
 }; //~is not implemented at the moment
 
-op_struct const *const F_STRUCT[FUNCTION_COUNT + 1] = {
-						       [eQuit] = NULL,
-						       [eClear] = NULL,
-						       [eList] = NULL,
-						       [eHelp] = NULL,
+op_struct const
+F_STRUCT[FUNCTION_COUNT + 1] = {
+				[eQuit] = empty_op,
+				[eClear] = empty_op,
+				[eList] = empty_op,
+				[eHelp] = empty_op,
 
-						       [ePi] = NULL,
-						       [eE] = NULL,
-						       [eAns] = NULL,
+				[ePi] = empty_op,
+				[eE] = empty_op,
+				[eAns] = empty_op,
 
-						       [eSin] = &{order = 15, argNo = 1, _enum = eSin, fp = &sin, mat_op = 0},
-						       [eCos] = &{order = 15, argNo = 1, _enum = eCos, fp = &cos, mat_op = 0},
-						       [eTan] = &{order = 15, argNo = 1, _enum = eTan, fp = &tan, mat_op = 0},
-						       [eLn] = &{order = 15, argNo = 1, _enum = eLn, fp = &log, mat_op = 0},
-						       [eLog] = &{order = 15, argNo = 1, _enum = eLog, fp = &log10, mat_op = 0},
+				[eSin] = {order = 15, argNo = 1, fp = &sin, mat_op = 0},
+				[eCos] = {order = 15, argNo = 1, fp = &cos, mat_op = 0},
+				[eTan] = {order = 15, argNo = 1, fp = &tan, mat_op = 0},
+				[eLn] = {order = 15, argNo = 1,, fp = &log, mat_op = 0},
+				[eLog] = {order = 15, argNo = 1, fp = &log10, mat_op = 0},
 
-						       [eSqrt] = &{order = 15, argNo = 1, _enum = eSqrt, fp = &sqrt, mat_op = 0},
+				[eSqrt] = {order = 15, argNo = 1, fp = &sqrt, mat_op = 0},
 
-						       [eAsin] = &{order = 15, argNo = 1, _enum = eAsin, fp = &asin, mat_op = 0},
-						       [eAcos] = &{order = 15, argNo = 1, _enum = eAcos, fp = &acos, mat_op = 0},
-						       [eAtan] = &{order = 15, argNo = 1, _enum = eAtan, fp = &atan, mat_op = 0},
+				[eAsin] = {order = 15, argNo = 1, fp = &asin, mat_op = 0},
+				[eAcos] = {order = 15, argNo = 1, fp = &acos, mat_op = 0},
+				[eAtan] = {order = 15, argNo = 1, fp = &atan, mat_op = 0},
 
-						       [eFloor] = &{order = 15, argNo = 1, _enum = eFloor, fp = &floor, mat_op = 0},
-						       [eCeil] = &{order = 15, argNo = 1, _enum = eCeil, fp = &ceil, mat_op = 0},
-						       [eRound] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-						       [eMin] = &{order = 15, argNo = 1, _enum = eMin, fp = &min, mat_op = 1},
-						       [eMax] = &{order = 15, argNo = 1, _enum = eMax, fp = &max, mat_op = 1},
-						       [eAvg] = &{order = 15, argNo = 1, _enum = eAvg, fp = &avg, mat_op = 1},
-						       [eSum] = &{order = 15, argNo = 1, _enum = eSum, fp = &sum, mat_op = 1},
+				[eFloor] = {order = 15, argNo = 1, fp = &floor, mat_op = 0},
+				[eCeil] = {order = 15, argNo = 1, fp = &ceil, mat_op = 0},
+				[eRound] = {order = 15, argNo = 1, fp = &round, mat_op = 0},
+				[eMin] = {order = 15, argNo = 1, fp = &min, mat_op = 1},
+				[eMax] = {order = 15, argNo = 1, fp = &max, mat_op = 1},
+				[eAvg] = {order = 15, argNo = 1, fp = &avg, mat_op = 1},
+				[eSum] = {order = 15, argNo = 1, fp = &sum, mat_op = 1},
 
-						       [eFactorial] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
+				[eFactorial] = {order = 15, argNo = 1, fp = &round, mat_op = 0},
 
-						       [eDeri] = &{order = 15, argNo = 1, _enum = eDeri, fp = &deri, mat_op = 0},
-						       [eInte] = &{order = 15, argNo = 1, _enum = eInte, fp = &round, mat_op = 0},
-						       [eSolve] = &{order = 15, argNo = 1, _enum = eSolve, fp = &round, mat_op = 0},
+				[eDeri] = {order = 15, argNo = 1, fp = &deri, mat_op = 0},
+				[eInte] = {order = 15, argNo = 1, fp = &round, mat_op = 0},
+				[eSolve] = {order = 15, argNo = 1, fp = &round, mat_op = 0},
 
-						[eZeros] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-						[eOnes] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-						[eEye] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-						[eRand] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-						[eSize] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-
-						[eNumel] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-						[eMagnitude] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-
-						[eTranspose] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-						[eLinspace] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-
-						[eRun] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-						[ePrint] = &{order = 15, argNo = 1, _enum = eRound, fp = &round, mat_op = 0},
-						NULL
+				[eZeros] = {order = 15, argNo = 1, fp = &zeros, mat_op = 0},
+				[eOnes] = {order = 15, argNo = 1, fp = &ones, mat_op = 0},
+				[eEye] = {order = 15, argNo = 1, fp = &eye, mat_op = 0},
+				[eRand] = {order = 15, argNo = 1, fp = &rand_mat, mat_op = 0},
+				[eSize] = {order = 15, argNo = 1, fp = &get_size, mat_op = 0},
+				[eNumel] = {order = 15, argNo = 1, fp = &numel, mat_op = 0},
+				[eMagnitude] = {order = 15, argNo = 1, fp = &magnitude, mat_op = 0},
+						       
+				[eTranspose] = {order = 15, argNo = 1, fp = &t_mat, mat_op = 0},
+				[eLinspace] = {order = 15, argNo = 1, fp = &linspace, mat_op = 0},
+				[eRun] = {order = 15, argNo = 1, fp = &run, mat_op = 0},
+				[ePrint] = {order = 15, argNo = 1, fp = &printLine, mat_op = 0},
+				empty_op
 };
 
-op_struct const O_STRUCT[OPERATOR_COUNT + 1] = {
+op_struct const
+O_STRUCT[OPERATOR_COUNT + 1] = {
+				[eAdd] = {order = 6, argNo = 2, fp = &add, mat_op = 0}
+				[eSubtract] = {order = 6, argNo = 2, fp = &subtract, mat_op = 0},
+				[eMultiply] = {order = 5, argNo = 2, fp = &multiply, mat_op = 0},
+				[eDivide] = {order = 5, argNo = 2, fp = &divide, mat_op = 0},
 
+				[eExponent] = {order = 4, argNo = 2, fp = &exponent, mat_op = 0},
+				[eAssign] = {order = 4, argNo = 3, fp = &assign, mat_op = 0},
+				[eLeftParen] = {order = 16, argNo = 1, fp = NULL, mat_op = 0},
+				[eRightParen] = {order = 15, argNo = 1, fp = NULL, mat_op = 0},
+
+				[eMultiplyMatrix] = {order = 5, argNo = 2, fp = &mult_mat, mat_op = 1},
+				[eDivideMatrix] = {order = 5, argNo = 2, fp = &div_mat, mat_op = 1},
+				[eExponentMatrix] = {order = 4, argNo = 2, fp = &exp_mat, mat_op = 1},
+				[eModulo] = {order = 5, argNo = 2, fp = &modulo, mat_op = 0},
+
+				[eLess] = {order = 8, argNo = 2, fp = &less, mat_op = 0},
+				[eGreater] = {order = 8, argNo = 2, fp = &greater, mat_op = 0},
+				[eLessEqual] = {order = 8, argNo = 2, fp = &less_equal, mat_op = 0},
+				[eGreaterEqual] = {order = 8, argNo = 2, fp = &greater_equal, mat_op = 0},
+
+				[eNotEqual] = {order = 9, argNo = 2, fp = &not_equal, mat_op = 0},
+				[eEqual] = {order = 9, argNo = 2, fp = &equal, mat_op = 0},
+
+				[eAnd] = {order = 13, argNo = 2, fp = &and, mat_op = 0},
+				[eOr] = {order = 14, argNo = 2, fp = &or, mat_op = 0},
+				[eNot] = empty_op,
+
+				[eReference] = {order = 16, argNo = 2, fp = &reference, mat_op = 1},
+				
 };

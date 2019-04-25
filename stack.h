@@ -20,9 +20,6 @@ typedef struct { //struct for operators, +, -, etc
 	//1 if matrix operator, 0 if scalar
 	uint8_t mat_op;
 
-	//corresponding enum, in operatorUtility.h
-	uint16_t _enum;
-
 	//function pointer
 	void *fp;
 } op_struct;
