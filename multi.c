@@ -585,7 +585,7 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack 
 			push(num, var->value[k]);
 			push(num, out);
 
-			push(ch, init_op_struct("r", 2, 0, eReference));
+			push(ch, init_op_struct(2, 0, eReference));
 		} 
 
 		freeDoubleArray(separatedString);

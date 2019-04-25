@@ -11,18 +11,20 @@ typedef struct {
 } stack;
 
 typedef struct { //struct for operators, +, -, etc
-	//operator/function string
-	char op[16];
-
 	//order of operation, higher is higher priority
 	uint8_t order;
 
 	//number of arguments it takes, generally two or one
 	uint8_t argNo;
 
-	//corresponding enum, in operatorUtility.h
-	uint8_t _enum;
+	//1 if matrix operator, 0 if scalar
+	uint8_t mat_op;
 
+	//corresponding enum, in operatorUtility.h
+	uint16_t _enum;
+
+	//function pointer
+	void *fp;
 } op_struct;
 
 /*
@@ -36,13 +38,13 @@ void *pop(stack *stk);
 /*
  * initialize operator struct
  */
-op_struct *init_op_struct(char const *op, uint8_t argNo, uint8_t order, uint8_t _enum);
+op_struct *init_op_struct(uint8_t argNo, uint8_t order, uint16_t _enum);
 
 /*
  * initialize new stack
  * size is the maximum number of elements
  */
-void *new_stk(int size);
+stack *new_stk(int size);
 
 /*
  * stk - pointer to the stack

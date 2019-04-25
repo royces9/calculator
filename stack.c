@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "types.h"
+#include "operatorUtility.h"
 
 void push(stack *stk, void *d) {
 	stk->stk[++stk->top] = d;
@@ -20,22 +21,20 @@ void *pop(stack *stk) {
 
 
 //initialize operatorStruct
-op_struct *init_op_struct(char const *op, uint8_t argNo, uint8_t order, uint8_t _enum){
+op_struct *init_op_struct(uint8_t argNo, uint8_t order, uint16_t _enum){
 	op_struct *out = malloc(sizeof(*out));
 	if(!out)
 		return NULL;
 
-	strcpy(out->op, op);
-
 	out->order = order;
 	out->argNo = argNo;
 	out->_enum = _enum;
-
+	out->fp = OPERATOR_POINTER[_enum];
 	return out;
 }
 
 
-void *new_stk(int size) {
+stack *new_stk(int size) {
 	stack *out = malloc(sizeof(*out));
 	if(!out)
 		return NULL;

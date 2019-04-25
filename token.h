@@ -19,5 +19,4 @@ char chk_tt(char a);
 
 tok_tree *make_tok_tree(token **tok_list);
 int chk_numm(token *tok);
-
 #endif //TOKEN
