@@ -111,7 +111,6 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 
 	free_stk(stk, NULL);
 	fclose(inputFile);
-
 	return error;
 }
 
@@ -137,7 +136,7 @@ err_ret executeTree(fileTree *tree, vari *var){
   
 	//executes the tree
 	//checks that the current leaf and the string it holds are not NULL
-	for(;tree && tree->line; error = 0) {
+	for(;tree && tree->line;) {
 		//check whether to branch left or right down tree
 		int8_t dir = checkProgramFlow(tree->line);
 

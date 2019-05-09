@@ -108,7 +108,6 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 			//init new matrix
 			//copyMatrix not done because the
 			//pointer 'a' is malloc'd in find_fun
-
 			if(a->size) {
 				free(a->size);
 				free(a->elements);

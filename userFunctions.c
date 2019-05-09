@@ -18,7 +18,6 @@ matrix *find_user_fun(char *name, char **args, vari *var, err_ret *error) {
 	matrix *out = NULL;
 	//get the path to the file
 	char *path = find_path(name, error);
-
 	if(path)
 		out = exec_fun(path, args, var, error);
 
@@ -110,96 +109,95 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 
 	matrix *out = NULL;
 	//confirm that the function is the first word in the file
-	if(!strncmp(title, "function", 8)) {
-		char out_buff[1024];
-
-		int i = 9;
-		//finds the name of the output variable
-		//starts from the first char after function
-		//to where the equal is
-		for(int j = 0; title[i] != '='; ++i, ++j) {
-			out_buff[j] = title[i];
-			out_buff[j + 1] = '\0';
-		}
-
-		//remove spaces from the name
-		char *outName = removeSpaces(out_buff);
-
-		//increment title to where input arguments are
-		//first find left end paren
-		for(;title[i] != '('; ++i);
-		int j = i--;
-
-		//then find right end paren
-		for(; title[j] != ')'; ++j);
-		title[j + 1] = '\0';
-
-		//separate the string, to know what the variable names are
-		char **arg_names = sep_str(title, "()", ",", (uint16_t *) &i, error);
-
-		//count the number of arguments required
-		int functionArgNo = numberOfArgs(arg_names);
-
-		//check that the given arguments match with the
-		//require number of arguments
-		if(functionArgNo == argNo) {
-			//variable struct for the function
-			//essentially a new scope
-			vari *fun_var = init_var(256);
-			if(!fun_var) {
-				*error = -6;
-				goto ret_out;
-			}
-
-			for(int j = 0; j < functionArgNo; ++j) {
-				char *inputName = removeSpaces(arg_names[j]);
-
-				//calcuate value of first input argument
-				//gets stored in var->ans
-				//use var instead of functionVar because the input
-				//arguments might have variable in them
-				*error = sya(args[j], var);
-				if(*error)
-					goto ret_out;
-
-				matrix* tmp_mat = cpy_mat(var->ans);
-				if( !tmp_mat )
-					goto ret_out;
-
-				set_var(fun_var, inputName, tmp_mat, error);
-
-				if(*error)
-					goto ret_out;
-			}
-
-			//run the file
-			//offset by one line
-			*error = runFile(&path, fun_var, 1);
-			if(*error)
-				goto ret_out;
-
-			//check that the out variable exists
-			int out_var = find_var(fun_var, outName);
-
-			if(out_var < 0) {
-				*error = -12;
-			} else {
-				out = cpy_mat(fun_var->value[out_var]);
-			}
-
-		ret_out:
-			free_var(fun_var);
-
-		} else {
-			*error = -2;
-		}
-
-		freeDoubleArray(arg_names);
-	} else {
+	if(strncmp(title, "function", 8)) {
 		*error = -8;
+		return out;
 	}
 
+	char out_buff[1024];
 
+	int i = 9;
+	//finds the name of the output variable
+	//starts from the first char after function
+	//to where the equal is
+	for(int j = 0; title[i] != '='; ++i, ++j) {
+		out_buff[j] = title[i];
+		out_buff[j + 1] = '\0';
+	}
+
+	//remove spaces from the name
+	char *outName = removeSpaces(out_buff);
+
+	//increment title to where input arguments are
+	//first find left end paren
+	for(;title[i] != '('; ++i);
+	int j = i--;
+
+	//then find right end paren
+	for(; title[j] != ')'; ++j);
+	title[j + 1] = '\0';
+
+	//separate the string, to know what the variable names are
+	char **arg_names = sep_str(title, "()", ",", (uint16_t *) &i, error);
+
+	//count the number of arguments required
+	int functionArgNo = numberOfArgs(arg_names);
+
+	//check that the given arguments match with the
+	//require number of arguments
+	if(functionArgNo != argNo) {
+		*error = -2;
+		return out;
+	}
+
+	//variable struct for the function
+	//essentially a new scope
+	vari *fun_var = init_var(256);
+	if(!fun_var) {
+		*error = -6;
+		goto ret_out;
+	}
+
+	for(int j = 0; j < functionArgNo; ++j) {
+		char *inputName = removeSpaces(arg_names[j]);
+
+		//calcuate value of first input argument
+		//gets stored in var->ans
+		//use var instead of functionVar because the input
+		//arguments might have variable in them
+		*error = sya(args[j], var);
+		if(*error)
+			goto ret_out;
+
+		matrix* tmp_mat = cpy_mat(var->ans);
+		if( !tmp_mat )
+			goto ret_out;
+
+		set_var(fun_var, inputName, tmp_mat, error);
+
+		if(*error)
+			goto ret_out;
+	}
+
+	//run the file
+	//offset by one line
+	*error = runFile(&path, fun_var, 1);
+	if(*error)
+		goto ret_out;
+
+	//check that the out variable exists
+	int out_var = find_var(fun_var, outName);
+
+	if(out_var < 0) {
+		*error = -12;
+	} else {
+		out = cpy_mat(fun_var->value[out_var]);
+	}
+
+ ret_out:
+	free_var(fun_var);
+
+	freeDoubleArray(arg_names);
 
 	return out;  
 }

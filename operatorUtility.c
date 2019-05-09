@@ -274,7 +274,7 @@ O_STRUCT[OPERATOR_COUNT + 1] = {
 				[eDivide] = {.order = 5, .argNo = 2, .fp = &divide, .mat_op = 0},
 
 				[eExponent] = {.order = 4, .argNo = 2, .fp = &exponent, .mat_op = 0},
-				[eAssign] = {.order = 4, .argNo = 3, .fp = &assign, .mat_op = 0},
+				[eAssign] = {.order = 4, .argNo = 3, .fp = &assign, .mat_op = 11},
 				[eLeftParen] = {.order = 16, .argNo = 0, .fp = NULL, .mat_op = 9},
 				[eRightParen] = {.order = 15, .argNo = 0, .fp = NULL, .mat_op = 10},
 

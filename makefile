@@ -4,33 +4,28 @@ DEBUG_FLAGS =
 CC = gcc
 
 CFILES = $(wildcard *.c)
+OFILES = $(addprefix $(OBJD)/, $(CFILES:.c=.o))
 
 USR = /usr/local/bin/calc
 TARGET = calc2
 
 all: DEBUG_FLAGS += -g
-all: calc
+all: $(TARGET)
 
 usr: TARGET = $(USR)
 usr: FLAGS += -O2
-usr: calc
+usr: $(TARGET)
 
-calc: $(CFILES:.c=.o)
+OBJD = obj
+
+$(TARGET): $(OFILES)
 	$(CC) $^ -o $(TARGET) $(LDFLAGS)
 
-%.o: %.c
-	$(CC) $(FLAGS) $(DEBUG_FLAGS) -c $<
+$(OBJD)/%.o: %.c
+	$(CC) $(FLAGS) $(DEBUG_FLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:
-	del *.o *.d
-
-.PHONY: cleano
-cleano:
-	del *.o
-
-.PHONY: cleand
-cleand:
-	del *.d
+	del $(OBJD)/*.o $(OBJD)/*.d
 
 -include $(CFILES:.c=.d)
