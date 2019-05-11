@@ -450,7 +450,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 		do {
 			error = ex_num(num, var, pop(oper));
 		} while( (oper->top > -1) &&
-			 (((op_struct *)top_stk(oper))->mat_op == 9) );
+			 (((op_struct *)top_stk(oper))->mat_op != eLeftParen) );
 		*tok = 1;
 		pop(oper);
 		break;
@@ -459,7 +459,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eAssign:
 		*tok = 0;
 		if((oper->top > -1) &&
-		   (((op_struct *) top_stk(oper))->mat_op == 11) ) {
+		   (((op_struct *) top_stk(oper))->mat_op == eReference) ) {
 			var->assign = pop(num);
 			pop(oper);
 		}

@@ -163,7 +163,6 @@ err_ret sya(char *input, vari *var) {
 
 			if(check_op == (OPERATOR_COUNT)) {
 				bufferOper[oper_iter] = '\0';
-
 				//find the corresponding operator
 				error = find_op(bufferOper, num, op, var, &negativeCheck);
 
@@ -207,7 +206,6 @@ err_ret sya(char *input, vari *var) {
 		free(var->ans->size);
 		free(var->ans->elements);
 
-  
 		//copy num_stack->stk[0] to var->ans
 		//if num_stack->stk is occupied, and
 		//if num_stack->stk[0] is not NULL
