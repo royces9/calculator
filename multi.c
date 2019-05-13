@@ -62,7 +62,7 @@ matrix *deri(char **inp, vari *var, err_ret *error) {
 		*error = -6;
 		goto err_ret;
 	}
-	
+
 	int var_ind = set_var(tmp, tmp_var, temp, error);
 
 	//f(x+h)

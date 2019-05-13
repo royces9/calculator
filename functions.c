@@ -103,57 +103,56 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 
 	uint8_t incrementFlag = 1;
 
-	if(a->var) {
-		if(!var->assign) {
-			//init new matrix
-			//copyMatrix not done because the
-			//pointer 'a' is malloc'd in find_fun
-			if(a->size) {
-				free(a->size);
-				free(a->elements);
-
-				a->size = NULL;
-				a->elements = NULL;
-
-				incrementFlag = 0;
-			}
-      
-			a->len = b->len;
-			a->dim = b->dim;
-
-
-			a->elements = malloc(sizeof(*a->elements) * a->len);
-			__MALLOC_CHECK(a->elements, *error);
-
-			memcpy(a->elements, b->elements, sizeof(*a->elements) * a->len);
-
-
-			a->size = malloc(sizeof(*a->size) * (a->dim + 1));
-			__MALLOC_CHECK(a->size, *error);
-
-			memcpy(a->size, b->size, sizeof(*a->size) * (a->dim + 1));
-
-		} else {
-			for(uint64_t i = 0, k = 0, *j = is_scalar(b) ? &k : &i;
-			    i < var->assign->len;
-			    ++i) {
-				uint64_t index = var->assign->elements[i];
-				if(!index) {
-					*error = -13;
-					break;
-				}
-				a->elements[index] = b->elements[*j];
-			} 
-
-			incrementFlag = 0;
-			free_mat(var->assign);
-			var->assign = NULL;
-
-		}
-	} else {
+	if(!a->var) {
 		*error = -13;
 		free_mat(a);
 		return NULL;
+
+	}
+
+	if(!var->assign) {
+		//init new matrix
+		//copyMatrix not done because the
+		//pointer 'a' is malloc'd in find_fun
+		if(a->size) {
+			free(a->size);
+			free(a->elements);
+
+			a->size = NULL;
+			a->elements = NULL;
+
+			incrementFlag = 0;
+		}
+      
+		a->len = b->len;
+		a->dim = b->dim;
+
+		a->elements = malloc(sizeof(*a->elements) * a->len);
+		__MALLOC_CHECK(a->elements, *error);
+
+		memcpy(a->elements, b->elements, sizeof(*a->elements) * a->len);
+
+		a->size = malloc(sizeof(*a->size) * (a->dim + 1));
+		__MALLOC_CHECK(a->size, *error);
+
+		memcpy(a->size, b->size, sizeof(*a->size) * (a->dim + 1));
+
+	} else {
+		for(uint64_t i = 0, k = 0, *j = is_scalar(b) ? &k : &i;
+		    i < var->assign->len;
+		    ++i) {
+			uint64_t index = var->assign->elements[i];
+			if(!index) {
+				*error = -13;
+				break;
+			}
+			a->elements[index] = b->elements[*j];
+		} 
+
+		incrementFlag = 0;
+		free_mat(var->assign);
+		var->assign = NULL;
+
 	}
 
 

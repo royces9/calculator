@@ -46,6 +46,7 @@ err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 	case 2:
 		b = pop(num);
 		a = pop(num);
+
 		if(!a) {
 			error = -4;
 		} else if(a->size && b->size) {
@@ -117,8 +118,21 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 	uint8_t aScalar = is_scalar(a);
 	uint8_t bScalar = is_scalar(b);
 
+	int check = ch->mat_op;
 
-	if(!ch->mat_op) {
+	if(((aScalar + bScalar) > 0) && check) {
+		//if the fp is for a matrix operation
+		//change to the scalar operator
+		if(ch->fp == &mult_mat) {
+			check = 0;
+			ch = &O_STRUCT[eMultiply];
+		} else if(ch->fp == &div_mat) {
+			check = 0;
+			ch = &O_STRUCT[eDivide];
+		}
+	}
+
+	if(!check) {
 		switch(aScalar + bScalar) {
 		case 0: //neither is a scalar
 
@@ -160,8 +174,8 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 			break;
 
 		case 2: //a and b are both scalars
-
 			out = init_scalar(two_arg(a->elements[0], b->elements[0], ch->_enum, error));
+
 			if(!out)
 				*error = -6;
 			break;
@@ -173,17 +187,6 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 		}
 
 	} else {
-		if((aScalar + bScalar) > 0) {
-			//if the fp is for a matrix operation
-			//change to the scalar operator
-			if(ch->fp == &mult_mat) {
-				ch = &O_STRUCT[eMultiply];
-			} else if(ch->fp == &div_mat) {
-				ch = &O_STRUCT[eDivide];
-			}
-		}
-
-		out = ((matrix * (*)(matrix *, matrix *, err_ret *))ch->fp)(a, b, error);
 	}
 
 	return out;
@@ -450,7 +453,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 		do {
 			error = ex_num(num, var, pop(oper));
 		} while( (oper->top > -1) &&
-			 (((op_struct *)top_stk(oper))->mat_op != eLeftParen) );
+			 (((op_struct *)top_stk(oper))->_enum != eLeftParen) );
 		*tok = 1;
 		pop(oper);
 		break;
@@ -459,7 +462,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eAssign:
 		*tok = 0;
 		if((oper->top > -1) &&
-		   (((op_struct *) top_stk(oper))->mat_op == eReference) ) {
+		   (((op_struct *) top_stk(oper))->_enum == eReference) ) {
 			var->assign = pop(num);
 			pop(oper);
 		}
