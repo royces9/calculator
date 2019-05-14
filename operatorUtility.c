@@ -64,92 +64,6 @@ char const *const FUNCTION_LIST[FUNCTION_COUNT + 1] = {
 						       NULL
 };
 
-void *const FUNCTION_POINTER[FUNCTION_COUNT + 1] = {
-					      NULL,
-					      NULL,
-					      NULL,
-					      NULL,
-
-					      NULL,
-					      NULL,
-					      NULL,
-
-					      &sin,
-					      &cos,
-					      &tan,
-					      &log,
-					      &log10,
-
-					      &sqrt,
-
-					      &asin,
-					      &acos,
-					      &atan,
-
-					      &floor,
-					      &ceil,
-					      &round,
-					      &min,
-					      &max,
-					      &avg,
-					      &sum,
-
-					      &factorial,
-
-					      &deri,
-					      &inte,
-					      &solve,
-
-					      &zeros,
-					      &ones,
-					      &eye,
-					      &rand_mat,
-					      &get_size,
-
-					      &numel,
-					      &magnitude,
-
-					      &t_mat,
-					      &linspace,
-
-					      &runFile,
-					      &printLine,
-					      NULL
-};
-
-void *const OPERATOR_POINTER[OPERATOR_COUNT + 1] = {
-						    &add,
-						    &subtract,
-						    &multiply,
-						    &divide,
-
-						    &exponent,
-						    &assign,
-						    NULL,
-						    NULL,
-						    
-						    &mult_mat,
-						    NULL,
-						    &exp_mat,
-						    &modulo,
-						    
-						    &less,
-						    &greater,
-						    &less_equal,
-						    &greater_equal,
-
-						    &not_equal,
-						    &equal,
-
-						    &and,
-						    &or,
-						    NULL,
-
-						    &reference,
-						    NULL
-						    
-};
-
 char const *const OPERATOR_LIST[OPERATOR_COUNT + 1] = {
 						       "+",
 						       "-",
@@ -182,37 +96,6 @@ char const *const OPERATOR_LIST[OPERATOR_COUNT + 1] = {
 						       NULL
 };
 
-
-uint8_t const operatorPrecedence[OPERATOR_COUNT] = {
-						    6,
-						    6,
-						    5,
-						    5,
-
-						    4,
-						    4,
-						    16,
-						    15,
-
-						    5,
-						    5,
-						    4,
-						    5,
-  
-						    15,
-						    8,
-						    8,
-						    8,
-
-						    8,
-						    9,
-
-						    9,
-						    11,
-						    12,
-
-						    0
-}; //~is not implemented at the moment
 
 op_struct
 F_STRUCT[FUNCTION_COUNT + 1] = {
@@ -295,6 +178,5 @@ O_STRUCT[OPERATOR_COUNT + 1] = {
 				[eOr] = {.order = 14, .argNo = 2, .fp = &or, .mat_op = 0, ._enum = eOr},
 				[eNot] = empty_op,
 
-				[eReference] = {.order = 16, .argNo = 2, .fp = &reference, .mat_op = eReference},
-				
+				[eReference] = {.order = 16, .argNo = 2, .fp = &reference, .mat_op = 1, ._enum = eReference},
 };

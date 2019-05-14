@@ -30,7 +30,7 @@ err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 	matrix *b = NULL;
 	matrix *out = NULL;
 	err_ret error = 0;
-
+	
 	switch(ch->argNo) {
 	case 1:
 		a = pop(num);
@@ -187,6 +187,13 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 		}
 
 	} else {
+		switch(ch->_enum) {
+		case eMultiplyMatrix: out = mult_mat(a, b, error); break;
+		case eExponentMatrix: out = exp_mat(a, b, error); break;
+			//case eDivideMatrix: out = div_mat(a, b, error); break;
+		case eReference: out = reference(a, b, error); break;
+		default: *error = -10; break;
+		}
 	}
 
 	return out;
@@ -451,11 +458,12 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 	case eRightParen:
 		do {
-			error = ex_num(num, var, pop(oper));
+			op_struct *top = pop(oper);
+			error = ex_num(num, var, top);
 		} while( (oper->top > -1) &&
 			 (((op_struct *)top_stk(oper))->_enum != eLeftParen) );
+
 		*tok = 1;
-		pop(oper);
 		break;
 
 

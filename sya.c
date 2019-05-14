@@ -238,7 +238,7 @@ err_ret sya(char *input, vari *var) {
  err_ret:
 	//free stacks
 	free_stk(num, (void (*) (void *))&free_mat);
-	free_stk(op, &free);
+	free_stk(op, NULL);
 
 	//reset assignment
 	var->f_assign = 0;

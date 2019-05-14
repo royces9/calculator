@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
 		input = readline(">>");
 		add_history(input);
 
+		/*
 		token **tok_list = tokenize(input);
 
 		char cpy[100];
@@ -55,7 +56,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		tok_tree *tree = make_tok_tree(tok_list);
-
+		*/
 		//break on EOF
 		//skip empty lines
 		if( !input ) {
