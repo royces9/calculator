@@ -20,19 +20,6 @@ void *pop(stack *stk) {
 }
 
 
-//initialize operatorStruct
-op_struct *init_op_struct(uint8_t argNo, uint8_t order, uint16_t _enum){
-	op_struct *out = malloc(sizeof(*out));
-	if(!out)
-		return NULL;
-
-	out->order = order;
-	out->argNo = argNo;
-	//out->fp = OPERATOR_POINTER[_enum];
-	return out;
-}
-
-
 stack *new_stk(int size) {
 	stack *out = malloc(sizeof(*out));
 	if(!out)
