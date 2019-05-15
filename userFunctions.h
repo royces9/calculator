@@ -1,10 +1,10 @@
 #ifndef USER_FUNCTIONS
 #define USER_FUNCTIONS
 
-matrix *find_user_fun(char *name, char **args, vari *var, err_ret *error);
+struct matrix *find_user_fun(char *name, char **args, struct vari *var, err_ret *error);
 char *chk_conf(char *name, char *configPath, err_ret *error);
 char *find_path(char *functionName, err_ret *error);
-matrix *exec_fun(char *functionPath, char **functionArgs, vari *var, err_ret *error);
+struct matrix *exec_fun(char *functionPath, char **functionArgs, struct vari *var, err_ret *error);
 
 /*
  * compare given function name, with file in directory

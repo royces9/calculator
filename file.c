@@ -9,7 +9,7 @@
 #include "file.h"
 
 
-err_ret runFile(char **input, vari *var, int offset) {
+err_ret runFile(char **input, struct vari *var, int offset) {
 	//error variable
 	err_ret error = 0;
 
@@ -42,7 +42,7 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 	err_ret error = 0;
 
 	//stack data structure convenient for creating tree
-	stack *stk = new_stk(128);
+	struct stack *stk = new_stk(128);
 
 	for(int i = 0; i < skip; ++i)
 		fgets(buffer, 1024, inputFile); 
@@ -115,7 +115,7 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 }
 
 
-err_ret executeTree(fileTree *tree, vari *var){
+err_ret executeTree(fileTree *tree, struct vari *var){
 	//stack structure for nested conditionals
 	int8_t *checkStack = calloc(256, sizeof(*checkStack));
 	if(!checkStack)
@@ -128,7 +128,7 @@ err_ret executeTree(fileTree *tree, vari *var){
 	err_ret error = 0;
 
 	//create new file stack
-	stack *stk = new_stk(128);
+	struct stack *stk = new_stk(128);
 	if(!stk) {
 		free(checkStack);
 		return -6;
@@ -281,7 +281,7 @@ char *parseCondition(char *input, int type) {
 
 
 //checks conditionals in while/if
-int8_t checkConditional(char *input, int type, vari *var) {
+int8_t checkConditional(char *input, int type, struct vari *var) {
 	input = parseCondition(input, type);
 
 	err_ret error = sya(input, var);

@@ -14,8 +14,8 @@
 char *configFilePath = "~/.calc.cfg";
 
 //find and execute a user made function
-matrix *find_user_fun(char *name, char **args, vari *var, err_ret *error) {
-	matrix *out = NULL;
+struct matrix *find_user_fun(char *name, char **args, struct vari *var, err_ret *error) {
+	struct matrix *out = NULL;
 	//get the path to the file
 	char *path = find_path(name, error);
 	if(path)
@@ -91,7 +91,7 @@ char *find_path(char *name, err_ret *error) {
 }
 
 
-matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
+struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *error) {
 	int argNo = numberOfArgs(args);
 
 	FILE *userFunction = fopen(path, "r");
@@ -107,7 +107,7 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 	fgets(title, 1024, userFunction);
 	fclose(userFunction);
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 	//confirm that the function is the first word in the file
 	if(strncmp(title, "function", 8)) {
 		*error = -8;
@@ -152,7 +152,7 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 
 	//variable struct for the function
 	//essentially a new scope
-	vari *fun_var = init_var(256);
+	struct vari *fun_var = init_var(256);
 	if(!fun_var) {
 		*error = -6;
 		goto ret_out;
@@ -169,7 +169,7 @@ matrix *exec_fun(char *path, char **args, vari *var, err_ret *error) {
 		if(*error)
 			goto ret_out;
 
-		matrix* tmp_mat = cpy_mat(var->ans);
+		struct matrix *tmp_mat = cpy_mat(var->ans);
 		if( !tmp_mat )
 			goto ret_out;
 

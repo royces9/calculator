@@ -5,8 +5,8 @@
 
 #include "operator.h"
 
-vari *init_var(int size) {
-	vari *var = malloc(sizeof(*var));
+struct vari *init_var(int size) {
+	struct vari *var = malloc(sizeof(*var));
 	if(!var)
 		return NULL;
 
@@ -40,8 +40,8 @@ vari *init_var(int size) {
 }
 
 
-vari *cpy_var(vari *var){
-	vari *out = init_var(var->size);
+struct vari *cpy_var(struct vari *var){
+	struct vari *out = init_var(var->size);
 	if( !out )
 		return NULL;
 
@@ -89,7 +89,7 @@ vari *cpy_var(vari *var){
 }
 
 
-int find_var(vari *list, char *input) {
+int find_var(struct vari *list, char *input) {
 	if(list->count < 0)
 		return -1;
 
@@ -101,7 +101,7 @@ int find_var(vari *list, char *input) {
 }
 
 
-int set_var(vari *var, char *name, matrix *a, err_ret *error) {
+int set_var(struct vari *var, char *name, struct matrix *a, err_ret *error) {
 	int index = find_var(var, name);
 
 	switch(index) {
@@ -135,7 +135,7 @@ int set_var(vari *var, char *name, matrix *a, err_ret *error) {
 }
 
 
-void free_var(vari *var){
+void free_var(struct vari *var){
 
 	for(int i = 0; var->name[i]; ++i)
 		free(var->name[i]);

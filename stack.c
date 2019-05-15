@@ -5,12 +5,12 @@
 #include "types.h"
 #include "operatorUtility.h"
 
-void push(stack *stk, void *d) {
+void push(struct stack *stk, void *d) {
 	stk->stk[++stk->top] = d;
 }
 
 
-void *pop(stack *stk) {
+void *pop(struct stack *stk) {
 	void *out = NULL;
 
 	if(stk->top > -1)
@@ -20,8 +20,8 @@ void *pop(stack *stk) {
 }
 
 
-stack *new_stk(int size) {
-	stack *out = malloc(sizeof(*out));
+struct stack *new_stk(int size) {
+	struct stack *out = malloc(sizeof(*out));
 	if(!out)
 		return NULL;
 
@@ -36,7 +36,7 @@ stack *new_stk(int size) {
 }
 
 
-void free_stk(stack *stk, void (*free_fun)(void *)) {
+void free_stk(struct stack *stk, void (*free_fun)(void *)) {
 	if(free_fun)
 		while(stk->top > -1)
 			free_fun(stk->stk[stk->top--]);
@@ -46,6 +46,6 @@ void free_stk(stack *stk, void (*free_fun)(void *)) {
 }
 
 
-void *top_stk(stack *stk) {
+void *top_stk(struct stack *stk) {
 	return stk->stk[stk->top];
 }

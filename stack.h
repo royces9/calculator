@@ -1,18 +1,31 @@
 #ifndef STACK
 #define STACK
 
-typedef struct {
+struct stack {
 	//stack, elements must be kept as pointers
 	void **stk;
 
 	//index to top of stack
 	//-1 is empty
 	int top;
-} stack;
+};
 
-typedef struct { //struct for operators, +, -, etc
+struct matrix;
+struct vari;
+
+union fp {
+	struct matrix * (*mult)(char **, struct vari *, err_ret *);
+	struct matrix * (*m_one)(struct matrix *, err_ret *);
+	struct matrix * (*m_two)(struct matrix *, struct matrix *, err_ret *);
+	ele (*s_one)(ele, err_ret *);
+	ele (*s_two)(ele, ele);
+	void *p;
+};
+
+
+struct oper{ //struct for operators, +, -, etc
 	//function pointer
-	void *fp;
+	union fp fp;
 	
 	int _enum;
 
@@ -24,21 +37,21 @@ typedef struct { //struct for operators, +, -, etc
 
 	//1 if matrix operator, 0 if scalar
 	uint8_t mat_op;
-} op_struct;
+};
 
 /*
  * push and pop members of stack
  * they both change the top member in stack
  * pop returns the popped value
  */
-void push(stack *stk, void *d);
-void *pop(stack *stk);
+void push(struct stack *stk, void *d);
+void *pop(struct stack *stk);
 
 /*
  * initialize new stack
  * size is the maximum number of elements
  */
-stack *new_stk(int size);
+struct stack *new_stk(int size);
 
 /*
  * stk - pointer to the stack
@@ -46,7 +59,7 @@ stack *new_stk(int size);
  *            for every member of the stack
  *            does nothing if NULL
  */
-void free_stk(stack *stk, void (*free_fun)(void *));
-void *top_stk(stack *stk);
+void free_stk(struct stack *stk, void (*free_fun)(void *));
+void *top_stk(struct stack *stk);
 
 #endif //STACK

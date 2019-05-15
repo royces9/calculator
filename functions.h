@@ -1,25 +1,23 @@
 #ifndef FUNCTIONS
 #define FUNCTIONS
 
+struct matrix *eye(struct matrix *a, err_ret *error);
+struct matrix *get_size(struct matrix *a, err_ret *error);
+struct matrix *magnitude(struct matrix *a, err_ret *error);
+struct matrix *numel(struct matrix *a, err_ret *error);
 
+struct matrix *reference(struct matrix *a, struct matrix *b, err_ret *error);
+struct matrix *assign(struct matrix *a, struct matrix *b, struct vari *var, err_ret *error);
 
-matrix *eye(matrix *a, err_ret *error);
-matrix *get_size(matrix *a, err_ret *error);
-matrix *magnitude(matrix *a, err_ret *error);
-matrix *numel(matrix *a);
+struct matrix *div_mat(struct matrix *a, struct matrix *b, err_ret *error);
+struct matrix *mult_mat(struct matrix *a, struct matrix *b, err_ret *error);
+struct matrix *exp_mat(struct matrix *a, struct matrix *b, err_ret *error);
+struct matrix *t_mat(struct matrix *a, err_ret *error);
 
-matrix *reference(matrix *a, matrix *b, err_ret *error);
-matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error);
-
-matrix *div_mat(matrix *a, matrix *b, err_ret *error);
-matrix *mult_mat(matrix *a, matrix *b, err_ret *error);
-matrix *exp_mat(matrix *a, matrix *b, err_ret *error);
-matrix *t_mat(matrix *a, err_ret *error);
-
-matrix *min(matrix *m, err_ret *error);
-matrix *max(matrix *m, err_ret *error);
-matrix *sum(matrix *m, err_ret *error);
-matrix *avg(matrix *m, err_ret *error);
+struct matrix *min(struct matrix *m, err_ret *error);
+struct matrix *max(struct matrix *m, err_ret *error);
+struct matrix *sum(struct matrix *m, err_ret *error);
+struct matrix *avg(struct matrix *m, err_ret *error);
 
 
 ele _sin(ele a, err_ret *e);

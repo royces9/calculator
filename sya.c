@@ -10,7 +10,7 @@
 
 
 //shunting yard algorithm
-err_ret sya(char *input, vari *var) {
+err_ret sya(char *input, struct vari *var) {
 
 	//iterators
 	//character buffer iterator
@@ -99,12 +99,12 @@ err_ret sya(char *input, vari *var) {
 	type[len] = 0;
 
 	//stack for output numbers
-	stack *num = new_stk(512);
+	struct stack *num = new_stk(512);
 	if(!num)
 		return -6;
 
 	//stack for operators
-	stack *op = new_stk(512);
+	struct stack *op = new_stk(512);
 	if(!op)
 		return -6;
 
@@ -125,7 +125,7 @@ err_ret sya(char *input, vari *var) {
 
 				//if the buffer is all numbers
 				if(chk_num(bufferLetters)) {
-					matrix *temp = init_scalar(strtod(bufferLetters, NULL));
+					struct matrix *temp = init_scalar(strtod(bufferLetters, NULL));
 					if(!temp)
 						break;
 
@@ -176,7 +176,7 @@ err_ret sya(char *input, vari *var) {
 			//reset letters and oper counters
 			char_iter = 0;
 			oper_iter = 0;
-			matrix *a = ext_mat(var, &i, input, &error);
+			struct matrix *a = ext_mat(var, &i, input, &error);
 
 			if(!error)
 				push(num, a);
@@ -209,16 +209,16 @@ err_ret sya(char *input, vari *var) {
 		//copy num_stack->stk[0] to var->ans
 		//if num_stack->stk is occupied, and
 		//if num_stack->stk[0] is not NULL
-		if((num->top > -1) && (((matrix **)num->stk)[0]->size)) {
-			var->ans->len = ((matrix **)num->stk)[0]->len;
-			var->ans->dim = ((matrix **)num->stk)[0]->dim;
+		if((num->top > -1) && (((struct matrix **)num->stk)[0]->size)) {
+			var->ans->len = ((struct matrix **)num->stk)[0]->len;
+			var->ans->dim = ((struct matrix **)num->stk)[0]->dim;
 
 			var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->len);
 			if(!var->ans->elements)
 				return -6;
 
 			memcpy(var->ans->elements,
-			       ((matrix **)num->stk)[0]->elements,
+			       ((struct matrix **)num->stk)[0]->elements,
 			       sizeof(*var->ans->elements) * var->ans->len);
 
 			var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dim + 1));
@@ -226,7 +226,7 @@ err_ret sya(char *input, vari *var) {
 				return -6;
 
 			memcpy(var->ans->size,
-			       ((matrix **)num->stk)[0]->size,
+			       ((struct matrix **)num->stk)[0]->size,
 			       sizeof(*var->ans->size) * (var->ans->dim + 1));
 
 		} else {

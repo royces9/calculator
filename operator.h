@@ -2,16 +2,16 @@
 #define OPERATOR
 
 int search_str(char *buffer, char const *const list[]);
-err_ret ex_num(stack *num, vari *var, op_struct *ch);
+err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch);
 
-matrix *mat_one(matrix *a, op_struct *ch, err_ret *error);
-matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error);
+struct matrix *mat_one(struct matrix *a, struct oper *ch, err_ret *error);
+struct matrix *mat_two(struct matrix *a, struct matrix *b, struct oper *ch, err_ret *error);
 
-err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, uint16_t *iter, char *input);
-err_ret find_op(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok);
+err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok, uint16_t *iter, char *input);
+err_ret find_op(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok);
 
 char **sep_mat(char *input, uint16_t length, err_ret *error);
-matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error);
+struct matrix *ext_mat(struct vari *var, uint16_t *iter, char *input, err_ret *error);
 
 void help_print(void);
 

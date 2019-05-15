@@ -18,15 +18,15 @@ uint8_t numberOfArgs(char **inp) {
 }
 
 
-matrix *deri(char **inp, vari *var, err_ret *error) {
+struct matrix *deri(char **inp, struct vari *var, err_ret *error) {
 	//copy global struct to a local variable struct
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp ) {
 		*error = -6;
 		return NULL;
 	}
 
-	matrix *ans = NULL;
+	struct matrix *ans = NULL;
 
 	//check the number of inps is correct
 	if(numberOfArgs(inp) != 4) {
@@ -57,7 +57,7 @@ matrix *deri(char **inp, vari *var, err_ret *error) {
   
 	//set up a dummy variable specified by user  
 	char *tmp_var = removeSpaces(inp[1]);
-	matrix *temp = init_scalar(point + h);
+	struct matrix *temp = init_scalar(point + h);
 	if(!temp) {
 		*error = -6;
 		goto err_ret;
@@ -91,17 +91,17 @@ matrix *deri(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *inte(char **inp, vari *var, err_ret *error) {
+struct matrix *inte(char **inp, struct vari *var, err_ret *error) {
 	//check number of arguments
 	if(numberOfArgs(inp) != 5) {
 		*error = -2;
 		return NULL;
 	}
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
 	//copy global struct to a local variable struct
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp ) {
 		*error = -6;
 		return NULL;
@@ -144,7 +144,7 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 	//set dummy variable
 	char *tmp_var = removeSpaces(inp[1]);
 
-	matrix *temp = init_scalar(0);
+	struct matrix *temp = init_scalar(0);
 	if(!temp) {
 		*error = -6;
 		goto err_ret;
@@ -191,17 +191,17 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *solve(char **inp, vari *var, err_ret *error) {
+struct matrix *solve(char **inp, struct vari *var, err_ret *error) {
 	//check number of arguments
 	if(numberOfArgs(inp) != 4) {
 		*error = -2;
 		return NULL;
 	}
 
-	matrix *ans = NULL;
+	struct matrix *ans = NULL;
 
 	//copy global struct to a local variable struct
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp ) {
 		*error = -6;
 		return NULL;
@@ -228,7 +228,7 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	}
 
 	char *tmp_var = removeSpaces(inp[1]);
-	matrix *cpy = cpy_mat(tmp->ans);
+	struct matrix *cpy = cpy_mat(tmp->ans);
 	if( !cpy ) {
 		*error = -6;
 		goto err_ret;
@@ -293,7 +293,7 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *zeros(char **inp, vari *var, err_ret *error) {
+struct matrix *zeros(char **inp, struct vari *var, err_ret *error) {
 	uint8_t dim = numberOfArgs(inp);
 	uint16_t *size = NULL;
 
@@ -358,7 +358,7 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 		}
 	}
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 	if( !(*error)) {
 		size[dim] = 0;
 		out = init_mat(size, dim, error);
@@ -370,9 +370,9 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *ones(char **inp, vari *var, err_ret *error) {
+struct matrix *ones(char **inp, struct vari *var, err_ret *error) {
 	//call zeros and just replace all the inp
-	matrix *out = zeros(inp, var, error);
+	struct matrix *out = zeros(inp, var, error);
 
 	if( !(*error) ) {
 		for(uint64_t i = 0; i < out->len; ++i)
@@ -383,8 +383,8 @@ matrix *ones(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *rand_mat(char **inp, vari *var, err_ret *error) {
-	matrix *out = zeros(inp, var, error);
+struct matrix *rand_mat(char **inp, struct vari *var, err_ret *error) {
+	struct matrix *out = zeros(inp, var, error);
 	if( !(*error) ) {
 		for(uint64_t i = 0; i < out->len; ++i)
 			out->elements[i] = (ele)rand() / RAND_MAX;
@@ -395,16 +395,16 @@ matrix *rand_mat(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *linspace(char **inp, vari *var, err_ret *error) {
+struct matrix *linspace(char **inp, struct vari *var, err_ret *error) {
 	int argNo = numberOfArgs(inp);
 	if(argNo != 3) {
 		*error = -2;
 		return NULL;
 	}
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp ) {
 		*error =-6;
 		return NULL;
@@ -460,16 +460,16 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
+struct matrix *extractValue(char **inp, int var_ind, struct vari *var, err_ret *error) {
 	if(!inp[0][0]) {
 		*error = -4;
 		return NULL;
 	}
 
 	uint8_t dim = numberOfArgs(inp);    
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if(!tmp) {
 		*error = -6;
 		return NULL;
@@ -551,7 +551,7 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 }
 
 
-err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack *num, stack *ch) {
+err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, struct vari *var, struct stack *num, struct stack *ch) {
 	err_ret error = 0;
 
 	uint16_t len = strlen(buffer);
@@ -564,7 +564,7 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack 
 
 	int k = 0;
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 	char **separatedString = NULL;
 
 	if(nameBuffer[len - 1] == '(') {
@@ -662,12 +662,12 @@ char *removeSpaces(char *inp) {
 /*
  * print to stdout, formatting is similar to matlab
  */
-err_ret printLine(char **inp, vari *var) {
+err_ret printLine(char **inp, struct vari *var) {
 	err_ret error = 0;
 
 	uint8_t argNo = numberOfArgs(inp);
 
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp )
 		return -6;
 

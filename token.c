@@ -136,8 +136,8 @@ char chk_tt(char a) {
 tok_tree *make_tok_tree(token **tok_list) {
 	tok_tree *out = malloc(sizeof(*out));
 
-	stack *num = new_stk(512);
-	stack *op = new_stk(512);
+	struct stack *num = new_stk(512);
+	struct stack *op = new_stk(512);
 
 	for(int i = 0; tok_list[i]; ++i) {
 		token *cur = tok_list[i];

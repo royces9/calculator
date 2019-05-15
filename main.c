@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 	err_ret error = 0;
   
 	//initialize variable struct
-	vari *var = init_var(256);
+	struct vari *var = init_var(256);
 	if(!var) {
 		err_rep(-6);
 		return -1;

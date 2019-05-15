@@ -9,7 +9,7 @@
 #include "functions.h"
 
 
-matrix *eye(matrix *a, err_ret *error) {
+struct matrix *eye(struct matrix *a, err_ret *error) {
 	if(a->dim != 1) {
 		*error = -12;
 		return NULL;
@@ -20,7 +20,7 @@ matrix *eye(matrix *a, err_ret *error) {
 
 	uint16_t newSize[3] = {a->elements[0], a->elements[0], 0};
 
-	matrix *out = init_mat(newSize, 2, error);
+	struct matrix *out = init_mat(newSize, 2, error);
 	if(*error)
 		return NULL;
 
@@ -31,7 +31,7 @@ matrix *eye(matrix *a, err_ret *error) {
 }
 
 
-matrix *get_size(matrix *a, err_ret *error){
+struct matrix *get_size(struct matrix *a, err_ret *error){
 	uint16_t newSize[3];
 
 	//output is a row vector
@@ -39,7 +39,7 @@ matrix *get_size(matrix *a, err_ret *error){
 	newSize[1] = a->dim;
 	newSize[2] = 0;
   
-	matrix *out = init_mat(newSize, 2, error);
+	struct matrix *out = init_mat(newSize, 2, error);
 	if(*error)
 		return NULL;
 
@@ -50,13 +50,13 @@ matrix *get_size(matrix *a, err_ret *error){
 }
 
 
-matrix *magnitude(matrix *a, err_ret *error){
+struct matrix *magnitude(struct matrix *a, err_ret *error){
 	if(!is_vec(a)) {
 		*error = -10;
 		return NULL;
 	}		
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 	ele mag_a = 0;
 
 	for(uint64_t i = 0; i < a->len; ++i)
@@ -72,7 +72,7 @@ matrix *magnitude(matrix *a, err_ret *error){
 
 
 //get the total number of elements of a
-matrix *numel(matrix *a) {
+struct matrix *numel(struct matrix *a, err_ret *error) {
 	return init_scalar(a->len);
 }
 
@@ -87,8 +87,8 @@ matrix *numel(matrix *a) {
  *  a - the matrix
  *  b - the index
  */
-matrix *reference(matrix *a, matrix *b, err_ret *error) {
-	matrix *out = cpy_mat(b);
+struct matrix *reference(struct matrix *a, struct matrix *b, err_ret *error) {
+	struct matrix *out = cpy_mat(b);
 	if( !out )
 		return NULL;
 
@@ -99,7 +99,7 @@ matrix *reference(matrix *a, matrix *b, err_ret *error) {
 }
 
 
-matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
+struct matrix *assign(struct matrix *a, struct matrix *b, struct vari *var, err_ret *error) {
 
 	uint8_t incrementFlag = 1;
 
@@ -163,13 +163,13 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 }
 
 
-matrix *div_mat(matrix *a, matrix *b, err_ret *error) {
+struct matrix *div_mat(struct matrix *a, struct matrix *b, err_ret *error) {
 	return NULL;
 }
 
 
-matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
-	matrix *out = NULL;
+struct matrix *mult_mat(struct matrix *a, struct matrix *b, err_ret *error) {
+	struct matrix *out = NULL;
 	//matrix multiplication only defined for 2d arrays
 	if((a->dim != 2) || (b->dim != 2)) {
 		*error = -10;
@@ -187,7 +187,7 @@ matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
 	if(*error)
 		return NULL;
 
-	matrix *t_a = t_mat(a, error);
+	struct matrix *t_a = t_mat(a, error);
 
 	//generic O(n^3) algorithm
 	//transpose a and then multiply every column with every other column in each matrix
@@ -211,12 +211,12 @@ matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
 }
 
 
-matrix *exp_mat(matrix *a, matrix *b, err_ret *error) {
+struct matrix *exp_mat(struct matrix *a, struct matrix *b, err_ret *error) {
 	uint8_t aScalar = is_scalar(a);
 	uint8_t bScalar = is_scalar(b);
 
-	matrix *tmp = NULL;
-	matrix *out = NULL;
+	struct matrix *tmp = NULL;
+	struct matrix *out = NULL;
 
 	switch(aScalar + bScalar) {
 	case 0: //neither a nor b are scalars
@@ -279,7 +279,7 @@ matrix *exp_mat(matrix *a, matrix *b, err_ret *error) {
 }
 
 
-matrix *t_mat(matrix *a, err_ret *error) {
+struct matrix *t_mat(struct matrix *a, err_ret *error) {
 	//transpose only defined for 2d matrix
 	if(a->dim != 2) {
 		*error = -10;
@@ -289,7 +289,7 @@ matrix *t_mat(matrix *a, err_ret *error) {
 	//new transposed size is same as a->size
 	//but the dimensions are swapped
 	uint16_t newSize[3] = {a->size[1], a->size[0], 0};
-	matrix *out = init_mat(newSize, 2, error);
+	struct matrix *out = init_mat(newSize, 2, error);
 	if(*error)
 		return NULL;
 
@@ -306,7 +306,7 @@ matrix *t_mat(matrix *a, err_ret *error) {
 
 
 //determinies minimum value in the matrix
-matrix *min(matrix *m, err_ret *error) {
+struct matrix *min(struct matrix *m, err_ret *error) {
 	ele out = m->elements[0];
 
 	for(uint64_t i = 1; i < m->len; ++i)
@@ -317,7 +317,7 @@ matrix *min(matrix *m, err_ret *error) {
 
 
 //determines maximum value in the matrix
-matrix *max(matrix *m, err_ret *error) {
+struct matrix *max(struct matrix *m, err_ret *error) {
 	ele out = m->elements[0];
 
 	for(uint64_t i = 1; i < m->len; ++i)
@@ -329,8 +329,8 @@ matrix *max(matrix *m, err_ret *error) {
 
 //sums along the last dimension of the matrix
 //unless matrix, then sum the elements
-matrix *sum(matrix *m, err_ret *error) {
-	matrix *out = NULL;
+struct matrix *sum(struct matrix *m, err_ret *error) {
+	struct matrix *out = NULL;
 
 	int new_dim = m->dim - 1;
 	uint16_t *newSize = NULL;
@@ -384,8 +384,8 @@ matrix *sum(matrix *m, err_ret *error) {
 //3 4
 //should return
 //2 3
-matrix *avg(matrix *m, err_ret *error) {
-	matrix *out = sum(m, error);
+struct matrix *avg(struct matrix *m, err_ret *error) {
+	struct matrix *out = sum(m, error);
 
 	for(uint64_t i = 0; i < out->len; ++i)
 		out->elements[i] /= m->size[m->dim - 1];

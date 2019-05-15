@@ -10,8 +10,8 @@
 extern char const *const FUNCTION_LIST[FUNCTION_COUNT + 1];
 extern char const *const OPERATOR_LIST[OPERATOR_COUNT + 1];
 
-extern op_struct O_STRUCT[OPERATOR_COUNT + 1];
-extern op_struct F_STRUCT[FUNCTION_COUNT + 1];
+extern struct oper O_STRUCT[OPERATOR_COUNT + 1];
+extern struct oper F_STRUCT[FUNCTION_COUNT + 1];
 
 enum functionEnums {
 	eQuit,

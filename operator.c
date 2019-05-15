@@ -25,10 +25,10 @@ int search_str(char *buffer, char const *const list[]) {
 
 
 //executes either one argument function or two argument function
-err_ret ex_num(stack *num, vari *var, op_struct *ch) {
-	matrix *a = NULL;
-	matrix *b = NULL;
-	matrix *out = NULL;
+err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
+	struct matrix *a = NULL;
+	struct matrix *b = NULL;
+	struct matrix *out = NULL;
 	err_ret error = 0;
 	
 	switch(ch->argNo) {
@@ -85,8 +85,8 @@ err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 }
 
 
-matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
-	matrix *out = NULL;
+struct matrix *mat_one(struct matrix *a, struct oper *ch, err_ret *error) {
+	struct matrix *out = NULL;
 	if(!ch->mat_op) {
 		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
 		if(!newSize)
@@ -100,19 +100,18 @@ matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
 			return NULL;
 
 		for(uint64_t i = 0; i < out->len; ++i)
-			out->elements[i] = ((ele (*)(ele, err_ret *))ch->fp)(a->elements[i], error);
+			out->elements[i] = ch->fp.s_one(a->elements[i], error);
 
 	} else {
-
-		out = ((matrix * (*)(matrix *, err_ret *)) ch->fp)(a, error);
+		out = ch->fp.m_one(a, error);
 	}
 
 	return out;
 }
 
 
-matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
-	matrix *out = NULL;
+struct matrix *mat_two(struct matrix *a, struct matrix *b, struct oper *ch, err_ret *error) {
+	struct matrix *out = NULL;
 
 	//check if inputs are scalar
 	uint8_t aScalar = is_scalar(a);
@@ -147,14 +146,14 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 				break;
 
 			for(uint64_t i = 0; i < a->len; ++i)
-				out->elements[i] = ((ele (*)(ele, ele))ch->fp)(a->elements[i], b->elements[i]);
+				out->elements[i] = ch->fp.s_two(a->elements[i], b->elements[i]);
 
 			break;
       
 		case 1:; //only a or b is a scalar
 			ele *a_p = a->elements;
 			ele *b_p = b->elements;
-			ele **inc = aScalar ? &b_p : &a_p;
+			ele **inc = NULL;
 
 			if(aScalar) {
 				out = cpy_mat(b);
@@ -169,7 +168,7 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 			}
 
 			for(uint64_t i = 0; i < out->len; ++i, ++(*inc))
-				out->elements[i] = ((ele (*)(ele, ele))ch->fp)(*a_p, *b_p);
+				out->elements[i] = ch->fp.s_two(*a_p, *b_p);
 
 			break;
 
@@ -187,22 +186,16 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 		}
 
 	} else {
-		switch(ch->_enum) {
-		case eMultiplyMatrix: out = mult_mat(a, b, error); break;
-		case eExponentMatrix: out = exp_mat(a, b, error); break;
-			//case eDivideMatrix: out = div_mat(a, b, error); break;
-		case eReference: out = reference(a, b, error); break;
-		default: *error = -10; break;
-		}
+		out = ch->fp.m_two(a, b, error);
 	}
 
 	return out;
 }
 
 
-err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, uint16_t *iter, char *input) {
+err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok, uint16_t *iter, char *input) {
 	char **separatedString = NULL;
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
 	int i = search_str(buffer, FUNCTION_LIST);
 	err_ret error = 0;
@@ -384,7 +377,7 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 }
 
 
-err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
+err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari *var, int8_t *tok) {
 	int i = search_str(buffer, OPERATOR_LIST);
 	err_ret error = 0;
 
@@ -414,7 +407,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 		if(*tok == 1) {
 			//if the stack is occupied, should short-circuit
 			while( (oper->top > -1) &&
-			       (((op_struct *) top_stk(oper))->order <= 6)
+			       (((struct oper *) top_stk(oper))->order <= 6)
 			       && !error ) {
 				error = ex_num(num, var, pop(oper));
 			}
@@ -424,7 +417,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 		*tok = 0;
 		push(oper, &O_STRUCT[eMultiply]);
-		matrix *temp = init_scalar(-1);
+		struct matrix *temp = init_scalar(-1);
 		if(!temp) {
 			error = -6;
 			break;
@@ -447,7 +440,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eLeftParen:
 		*tok = 0;
 		if(oper->top > -1) {
-			if(((op_struct *) top_stk(oper))->order != 15)
+			if(((struct oper *) top_stk(oper))->order != 15)
 				push(oper, &O_STRUCT[eLeftParen]);
 		} else {
 			push(oper, &O_STRUCT[eLeftParen]);
@@ -456,12 +449,12 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 	case eRightParen:
 
-		while( (oper->top > -1) && (((op_struct *) top_stk(oper))->_enum != eLeftParen )) {
-			op_struct *top = pop(oper);
+		while( (oper->top > -1) && (((struct oper *) top_stk(oper))->_enum != eLeftParen )) {
+			struct oper *top = pop(oper);
 			error = ex_num(num, var, top);
 		}
 
-		if((oper->top > -1) && (((op_struct *) top_stk(oper))->_enum == eLeftParen))
+		if((oper->top > -1) && (((struct oper *) top_stk(oper))->_enum == eLeftParen))
 			pop(oper);
 		
 		*tok = 1;
@@ -471,7 +464,7 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eAssign:
 		*tok = 0;
 		if((oper->top > -1) &&
-		   (((op_struct *) top_stk(oper))->_enum == eReference) ) {
+		   (((struct oper *) top_stk(oper))->_enum == eReference) ) {
 			var->assign = pop(num);
 			pop(oper);
 		}
@@ -494,11 +487,11 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eDivideMatrix:
 	case eModulo:
 		//if(oper->top > -1)
-			//printf("%d %d\n", ((op_struct *)oper->stk[oper->top - 1])->order, O_STRUCT[i].order);
+			//printf("%d %d\n", ((struct oper *)oper->stk[oper->top - 1])->order, O_STRUCT[i].order);
 
 		while((oper->top > -1) &&
-		      (((op_struct *) top_stk(oper))->order <= O_STRUCT[i].order) ) {
-			op_struct *top = pop(oper);
+		      (((struct oper *) top_stk(oper))->order <= O_STRUCT[i].order) ) {
+			struct oper *top = pop(oper);
 			error = ex_num(num, var, top);
 		}
 
@@ -611,12 +604,12 @@ uint16_t countDelimiter(char *input){
 
 
 //iter is the counter for the main loop in sya
-matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
+struct matrix *ext_mat(struct vari *var, uint16_t *iter, char *input, err_ret *error) {
 	//input is incremented to start at input[*iter], which is where
 	//the first [ should be
 	input += (*iter);
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
 	//find where the matrix declaration ends
 	//count brackets until they match
@@ -658,7 +651,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	}
 
 	//number stack for creating the matrix
-	stack *num = new_stk(128);
+	struct stack *num = new_stk(128);
 	__MALLOC_CHECK(num, *error);
 
 	//char array that holds each element of
@@ -669,7 +662,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	//free matrixString, not needed anymore
 	free(mat_string);
 
-	vari *tempVari = cpy_var(var);
+	struct vari *tempVari = cpy_var(var);
 	if( !tempVari ) {
 		*error = -6;
 		goto err_ret;
@@ -677,7 +670,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 
 	*error = sya(sepd_mat[0], tempVari);
 
-	matrix *temp = cpy_mat(tempVari->ans);
+	struct matrix *temp = cpy_mat(tempVari->ans);
 	if( !temp ) {
 		*error = -6;
 		goto err_ret;
@@ -685,8 +678,8 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 		
 	push(num, temp);
 
-	matrix *a = NULL;
-	matrix *b = NULL;
+	struct matrix *a = NULL;
+	struct matrix *b = NULL;
 
 	for(int i = 1; sepd_mat[i]; ++i) {
 		temp = NULL;

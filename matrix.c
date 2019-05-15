@@ -4,8 +4,8 @@
 
 #include "types.h"
 
-matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
-	matrix *out = malloc(sizeof(*out));
+struct matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
+	struct matrix *out = malloc(sizeof(*out));
 	if(!out) {
 		*error = -6;
 		return NULL;
@@ -51,8 +51,8 @@ matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
 //define a scalar as just a single dim matrix
 //also define that a vector is always 2 dims, with one of
 //the two dims being 1
-matrix *init_scalar(ele e) {
-	matrix *out = malloc(sizeof(*out));
+struct matrix *init_scalar(ele e) {
+	struct matrix *out = malloc(sizeof(*out));
 	if(!out)
 		return NULL;
 
@@ -76,11 +76,11 @@ matrix *init_scalar(ele e) {
 }
 
 
-matrix *cpy_mat(matrix *src) {
+struct matrix *cpy_mat(struct matrix *src) {
 	if(!src)
 		return NULL;
 
-	matrix *dest = malloc(sizeof(*dest));
+	struct matrix *dest = malloc(sizeof(*dest));
 	if( !dest )
 		return NULL;
 
@@ -107,7 +107,7 @@ matrix *cpy_mat(matrix *src) {
 //a being concatenated to b along dim and sent to out
 //the size of out is determined and error checking for sizes of a and b
 //is done in concatMatrix, this function only populates the matrix
-matrix *assignConcat(matrix *out, matrix *a, matrix *b, uint8_t dim) {
+struct matrix *assignConcat(struct matrix *out, struct matrix *a, struct matrix *b, uint8_t dim) {
 	uint64_t aIncrement = 1;
 	uint64_t bIncrement = 1;
 
@@ -134,11 +134,11 @@ matrix *assignConcat(matrix *out, matrix *a, matrix *b, uint8_t dim) {
 
 //dim is a number to specifiy along which direction to concatenate
 //along, it starts from 0
-matrix *cat_mat(matrix *a, matrix *b, uint8_t dim, err_ret *error) {
+struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret *error) {
 	int aScalar = is_scalar(a);
 	int bScalar = is_scalar(b);
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
 	uint16_t *size = NULL;
 	uint16_t fixed_size[3];
@@ -198,7 +198,7 @@ matrix *cat_mat(matrix *a, matrix *b, uint8_t dim, err_ret *error) {
 
 	case 1:; //only one of a or b are scalars
 		//temporary variables for less writing in if blocks
-		matrix *tempVector = NULL;
+		struct matrix *tempVector = NULL;
 		ele tempScalar = 0;
 		//assign which matrix is a scalar and which is a matrix
 		if(aScalar){
@@ -272,7 +272,7 @@ matrix *cat_mat(matrix *a, matrix *b, uint8_t dim, err_ret *error) {
 
 //free the matrix and all of the data
 //associated with it
-void free_mat(matrix *m) {
+void free_mat(struct matrix *m) {
 	if(m && !m->var) {
 		free(m->size);
 		free(m->elements);
@@ -293,7 +293,7 @@ void free_mat(matrix *m) {
 //the second print will have an offset of 4 and print:
 //5 7
 //6 8
-void print_two_d(const matrix *m, int offset) {
+void print_two_d(const struct matrix *m, int offset) {
 
 	printf("\n");
 	for(int columns = 0; columns < m->size[0]; ++columns) {
@@ -312,7 +312,7 @@ void print_two_d(const matrix *m, int offset) {
 
 //print out a matrix of any size
 //prints out 2d slices of the matrix
-void print_mat(const matrix *m) {
+void print_mat(const struct matrix *m) {
 	int offset = 0;
 	if(m->dim > 2) {
 		uint64_t twoDimSize = m->size[0] * m->size[1];
@@ -362,11 +362,11 @@ uint64_t sub2ind(uint16_t *location, uint16_t *size, uint8_t dim) {
 
 //check if a matrix is a scalar (true)
 //else false
-err_ret is_scalar(matrix *m) {
+err_ret is_scalar(struct matrix *m) {
 	return (m->dim == 1);
 }
 
-err_ret is_vec(matrix *m) {
+err_ret is_vec(struct matrix *m) {
 	return (m->dim == 2) && ( (m->size[0] == 1) || (m->size[1] == 1) );
 }
 
@@ -386,6 +386,6 @@ err_ret cmp_size(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB) {
 
 
 //check that the inner dims of the matrix match
-err_ret chk_inner(matrix *a, matrix *b){
+err_ret chk_inner(struct matrix *a, struct matrix *b){
 	return (a->size[a->dim - 1] == b->size[0]);
 }
