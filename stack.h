@@ -35,11 +35,6 @@ void push(stack *stk, void *d);
 void *pop(stack *stk);
 
 /*
- * initialize operator struct
- */
-op_struct *init_op_struct(uint8_t argNo, uint8_t order, uint16_t _enum);
-
-/*
  * initialize new stack
  * size is the maximum number of elements
  */

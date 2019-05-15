@@ -51,21 +51,21 @@ matrix *get_size(matrix *a, err_ret *error){
 
 
 matrix *magnitude(matrix *a, err_ret *error){
-	matrix *out = NULL;
-
-	if(is_vec(a)) {
-		ele mag_a = 0;
-
-		for(uint64_t i = 0; i < a->len; ++i)
-			mag_a += (a->elements[i] * a->elements[i]);
-
-		mag_a = sqrt(mag_a);
-
-		out = init_scalar(mag_a);
-		__MALLOC_CHECK(out, *error);
-	} else {
+	if(!is_vec(a)) {
 		*error = -10;
-	}
+		return NULL;
+	}		
+
+	matrix *out = NULL;
+	ele mag_a = 0;
+
+	for(uint64_t i = 0; i < a->len; ++i)
+		mag_a += (a->elements[i] * a->elements[i]);
+
+	mag_a = sqrt(mag_a);
+
+	out = init_scalar(mag_a);
+	__MALLOC_CHECK(out, *error);
 
 	return out;
 }
@@ -141,8 +141,8 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 		for(uint64_t i = 0, k = 0, *j = is_scalar(b) ? &k : &i;
 		    i < var->assign->len;
 		    ++i) {
-			uint64_t index = var->assign->elements[i];
-			if(!index) {
+			int index = var->assign->elements[i];
+			if(index < 0) {
 				*error = -13;
 				break;
 			}

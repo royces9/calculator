@@ -123,10 +123,10 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 	if(((aScalar + bScalar) > 0) && check) {
 		//if the fp is for a matrix operation
 		//change to the scalar operator
-		if(ch->fp == &mult_mat) {
+		if(ch->_enum == eMultiplyMatrix) {
 			check = 0;
 			ch = &O_STRUCT[eMultiply];
-		} else if(ch->fp == &div_mat) {
+		} else if(ch->_enum == eDivideMatrix) {
 			check = 0;
 			ch = &O_STRUCT[eDivide];
 		}
@@ -286,6 +286,7 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 	case eTranspose:
 	case eMagnitude:
 	case eNumel:
+		push(ch, &O_STRUCT[eLeftParen]);
 		push(ch, &F_STRUCT[i]);
 		*tok = 0;
 		break;
@@ -445,24 +446,24 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 	case eLeftParen:
 		*tok = 0;
-
-		if( (oper->top > -1) && (((op_struct *) top_stk(oper))->order == 2) ) {
-			op_struct *temp = pop(oper);
-			push(oper, &O_STRUCT[eLeftParen]);
-			push(oper, temp);
+		if(oper->top > -1) {
+			if(((op_struct *) top_stk(oper))->order != 15)
+				push(oper, &O_STRUCT[eLeftParen]);
 		} else {
 			push(oper, &O_STRUCT[eLeftParen]);
 		}
-		
 		break;
 
 	case eRightParen:
-		do {
+
+		while( (oper->top > -1) && (((op_struct *) top_stk(oper))->_enum != eLeftParen )) {
 			op_struct *top = pop(oper);
 			error = ex_num(num, var, top);
-		} while( (oper->top > -1) &&
-			 (((op_struct *)top_stk(oper))->_enum != eLeftParen) );
+		}
 
+		if((oper->top > -1) && (((op_struct *) top_stk(oper))->_enum == eLeftParen))
+			pop(oper);
+		
 		*tok = 1;
 		break;
 
@@ -492,10 +493,14 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eMultiplyMatrix:
 	case eDivideMatrix:
 	case eModulo:
+		//if(oper->top > -1)
+			//printf("%d %d\n", ((op_struct *)oper->stk[oper->top - 1])->order, O_STRUCT[i].order);
 
 		while((oper->top > -1) &&
-		      (((op_struct *) top_stk(oper))->order <= O_STRUCT[i].order) )
-			error = ex_num(num, var, pop(oper));
+		      (((op_struct *) top_stk(oper))->order <= O_STRUCT[i].order) ) {
+			op_struct *top = pop(oper);
+			error = ex_num(num, var, top);
+		}
 
 		*tok = 0;
 		push(oper, &O_STRUCT[i]);
@@ -634,7 +639,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	}
 
 	//increment the main loop counter up to the ']' 
-	*iter += (length);
+	*iter += (length - 1);
 
 	//the string that will contain every character
 	//that contains elements of the matrix
