@@ -173,7 +173,7 @@ struct matrix *mat_two(struct matrix *a, struct matrix *b, struct oper *ch, err_
 			break;
 
 		case 2: //a and b are both scalars
-			out = init_scalar(two_arg(a->elements[0], b->elements[0], ch->_enum, error));
+			out = init_scalar(ch->fp.s_two(a->elements[0], b->elements[0]));
 
 			if(!out)
 				*error = -6;
@@ -836,5 +836,5 @@ ele or(ele a, ele b) {
 
 
 ele modulo(ele a, ele b) {
-	return (int64_t) a & (int64_t) b;
+	return (int64_t) a % (int64_t) b;
 }

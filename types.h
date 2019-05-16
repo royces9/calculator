@@ -14,8 +14,36 @@
 typedef int8_t err_ret;
 typedef double ele;
 
-#include "stack.h"
-#include "matrix.h"
 #include "variables.h"
+
+union fp {
+	struct matrix * (*mult)(char **, struct vari *, err_ret *);
+	struct matrix * (*m_one)(struct matrix *, err_ret *);
+	struct matrix * (*m_two)(struct matrix *, struct matrix *, err_ret *);
+	ele (*s_one)(ele, err_ret *);
+	ele (*s_two)(ele, ele);
+	void *p;
+};
+
+
+struct oper { //struct for operators, +, -, etc
+	//function pointer
+	union fp fp;
+
+	int _enum;
+
+	//order of operation, higher is higher priority
+	uint8_t order;
+
+	//number of arguments it takes, generally two or one
+	uint8_t argNo;
+
+	//1 if matrix operator, 0 if scalar
+	uint8_t mat_op;
+};
+
+
+#include "matrix.h"
+#include "stack.h"
 
 #endif //TYPES

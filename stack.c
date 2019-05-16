@@ -38,8 +38,8 @@ struct stack *new_stk(int size) {
 
 void free_stk(struct stack *stk, void (*free_fun)(void *)) {
 	if(free_fun)
-		while(stk->top > -1)
-			free_fun(stk->stk[stk->top--]);
+		for(;stk->top > -1; --stk->top)
+			free_fun(stk->stk[stk->top]);
 
 	free(stk->stk);
 	free(stk);

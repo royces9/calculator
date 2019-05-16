@@ -4,7 +4,7 @@
 /*
  * count number of strings in the double array
  */
-uint8_t numberOfArgs(char **input);
+int numberOfArgs(char **input);
 
 /*
  * numerically calculate derivative

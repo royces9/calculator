@@ -11,8 +11,8 @@
 #include "multi.h"
 
 
-uint8_t numberOfArgs(char **inp) {
-	uint8_t i = 0;
+int numberOfArgs(char **inp) {
+	int i = 0;
 	for(; inp[i]; ++i); //empty for
 	return i;
 }
@@ -294,7 +294,7 @@ struct matrix *solve(char **inp, struct vari *var, err_ret *error) {
 
 
 struct matrix *zeros(char **inp, struct vari *var, err_ret *error) {
-	uint8_t dim = numberOfArgs(inp);
+	int dim = numberOfArgs(inp);
 	uint16_t *size = NULL;
 
 	//only one inp, make a square matrix of that size
@@ -466,7 +466,7 @@ struct matrix *extractValue(char **inp, int var_ind, struct vari *var, err_ret *
 		return NULL;
 	}
 
-	uint8_t dim = numberOfArgs(inp);    
+	int dim = numberOfArgs(inp);    
 	struct matrix *out = NULL;
 
 	struct vari *tmp = cpy_var(var);
@@ -665,7 +665,7 @@ char *removeSpaces(char *inp) {
 err_ret printLine(char **inp, struct vari *var) {
 	err_ret error = 0;
 
-	uint8_t argNo = numberOfArgs(inp);
+	int argNo = numberOfArgs(inp);
 
 	struct vari *tmp = cpy_var(var);
 	if( !tmp )

@@ -23,8 +23,6 @@ struct vari { //variable storage
 
 	//flag if an assignment occured
 	int8_t f_assign;
-
-
 };
 
 struct vari *init_var(int size);
