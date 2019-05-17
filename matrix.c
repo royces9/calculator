@@ -146,54 +146,52 @@ struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret 
 
 	case 0: //a and b are not scalars
 		//a and b are the same dim
-		if( !(abs(a->dim - b->dim)) ) {
-			uint16_t *sizeA = malloc(sizeof(*sizeA) * (a->dim + 1));
-			__MALLOC_CHECK(sizeA, *error);
+		if(a->dim != b->dim)
+			break;
 
-			uint16_t *sizeB = malloc(sizeof(*sizeB) * (b->dim + 1));
-			__MALLOC_CHECK(sizeB, *error);
+		uint16_t *sizeA = malloc(sizeof(*sizeA) * (a->dim + 1));
+		__MALLOC_CHECK(sizeA, *error);
 
-			sizeA[a->dim] = 0;
-			sizeB[b->dim] = 0;
+		uint16_t *sizeB = malloc(sizeof(*sizeB) * (b->dim + 1));
+		__MALLOC_CHECK(sizeB, *error);
 
-			//creates a new size matrix, that skips the dim that
-			//is being concatenated against
-			for(int i = 0, j = 0; i < ( a->dim - 1); ++i, ++j){
-				if(i == dim){
-					++i;
-				}
+		sizeA[a->dim] = 0;
+		sizeB[b->dim] = 0;
 
-				sizeA[j] = a->size[i];
-				sizeB[j] = b->size[i];
-			}
+		//creates a new size matrix, that skips the dim that
+		//is being concatenated against
+		for(int i = 0, j = 0; i < ( a->dim - 1); ++i, ++j){
+			if(i == dim)
+				++i;
 
-			if(cmp_size(sizeA, sizeB, a->dim - 1, b->dim - 1)){
-				size = malloc(sizeof(*size) * (a->dim + 1));
-				__MALLOC_CHECK(size, *error);
-
-				size[a->dim] = 0;
-
-				for(int i = 0; i < a->dim; ++i){
-					size[i] = a->size[i];
-					if(i == dim){
-						size[i] += b->size[i];
-					}
-				}
-
-				out = init_mat(size, a->dim, error);
-				free(size);
-
-				assignConcat(out, a, b, dim);
-
-			} else{
-				*error = -15;
-				out = NULL;
-			}
-
-			free(sizeA);
-			free(sizeB);
+			sizeA[j] = a->size[i];
+			sizeB[j] = b->size[i];
 		}
 
+		if(!cmp_size(sizeA, sizeB, a->dim - 1, b->dim - 1)){
+			*error = -15;
+			out = NULL;
+			break;
+		}
+
+		size = malloc(sizeof(*size) * (a->dim + 1));
+		__MALLOC_CHECK(size, *error);
+
+		size[a->dim] = 0;
+			
+		for(int i = 0; i < a->dim; ++i){
+			size[i] = a->size[i];
+			if(i == dim)
+				size[i] += b->size[i];
+		}
+
+		out = init_mat(size, a->dim, error);
+		free(size);
+
+		assignConcat(out, a, b, dim);
+
+		free(sizeA);
+		free(sizeB);
 		break;
 
 	case 1:; //only one of a or b are scalars
@@ -201,11 +199,11 @@ struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret 
 		struct matrix *tempVector = NULL;
 		ele tempScalar = 0;
 		//assign which matrix is a scalar and which is a matrix
-		if(aScalar){
+		if(aScalar) {
 			tempVector = b;
 			tempScalar = a->elements[0];
 
-		} else{
+		} else {
 			tempVector = a;
 			tempScalar = b->elements[0];
 

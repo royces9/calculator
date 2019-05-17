@@ -54,7 +54,7 @@ struct matrix *magnitude(struct matrix *a, err_ret *error){
 	if(!is_vec(a)) {
 		*error = -10;
 		return NULL;
-	}		
+	}
 
 	struct matrix *out = NULL;
 	ele mag_a = 0;
@@ -272,7 +272,9 @@ struct matrix *exp_mat(struct matrix *a, struct matrix *b, err_ret *error) {
 		__MALLOC_CHECK(out, *error);
 		break;
 
-	default: *error = -10; break;
+	default:
+		*error = -10;
+		break;
 	}
 
 	return out;

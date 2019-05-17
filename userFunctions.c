@@ -29,30 +29,33 @@ struct matrix *find_user_fun(char *name, char **args, struct vari *var, err_ret 
 
 //checks a config file with a list of paths to check if functionName exists
 char *chk_conf(char *name, char *cfg, err_ret *error) {
-	char paths[1024];
+
+	FILE *f_cfg = fopen(cfg, "r");
+	if( !f_cfg ) {
+		*error = -8;
+		return NULL;
+	}
+
+	char *paths = malloc(1024 * sizeof(*paths));
+	__MALLOC_CHECK(paths, *error);
 
 	char *out = NULL;
 	char *file_dir = NULL;
 
-	FILE *f_cfg = fopen(cfg, "r");
-	if( f_cfg ) {
-		//read directories from config
-		while(fgets(paths, 1024, f_cfg)) {
-			file_dir = search_dir(name, paths, error);
+	//read directories from config
+	while(fgets(paths, 1024, f_cfg)) {
+		file_dir = search_dir(name, paths, error);
 
-			if(file_dir) {
-				out = malloc(sizeof(*out) * (strlen(paths) + strlen(file_dir) + 1));
-				__MALLOC_CHECK(out, *error);
+		if(file_dir) {
+			out = malloc(sizeof(*out) * (strlen(paths) + strlen(file_dir) + 1));
+			__MALLOC_CHECK(out, *error);
 
-				strcpy(out, paths);
-				strcat(out, file_dir);
+			strcpy(out, paths);
+			strcat(out, file_dir);
 
-				free(file_dir);
-				break;
-			}
+			free(file_dir);
+			break;
 		}
-	} else {
-		*error = -8;
 	}
 
 	return out;
@@ -65,27 +68,28 @@ char *find_path(char *name, err_ret *error) {
 
 	//checks config file paths
 	//if fileDirectory is still NULL
-	if(!file_dir) {
-		//assume that the user is NOT going to use sudo
-		char *home = getenv("HOME");
-		char *configPath = "/.config/calc.conf";
-
-		int conf_len = strlen(home) + strlen(configPath) + 1;
-		char *config = malloc(sizeof(*config) * conf_len);
-		__MALLOC_CHECK(config, *error);
-
-		strcpy(config, home);
-		strcat(config, configPath);
-
-		file_dir = chk_conf(name, config, error);
-
-		if(!file_dir)
-			*error = -8;
-
-		free(config);
-	} else {
+	if(file_dir) {
 		*error = -5;
+		return NULL;
 	}
+
+	//assume that the user is NOT going to use sudo
+	char *home = getenv("HOME");
+	char *configPath = "/.config/calc.conf";
+
+	int conf_len = strlen(home) + strlen(configPath) + 1;
+	char *config = malloc(sizeof(*config) * conf_len);
+	__MALLOC_CHECK(config, *error);
+
+	strcpy(config, home);
+	strcat(config, configPath);
+
+	file_dir = chk_conf(name, config, error);
+
+	if(!file_dir)
+		*error = -8;
+
+	free(config);
   
 	return file_dir;
 }
@@ -215,21 +219,24 @@ char *search_dir(char *name, char *dir_name, err_ret *error) {
 
 	if(!dir) {
 		*error = -8;
-	} else {
-		struct dirent *d;
+		closedir(dir);
+		return NULL;
+	}
 
-		while( (d = readdir(dir)) ) {
-			//checks that function name is the same, and ends in ".cr"
-			if(chk_name(name, d->d_name)) {
-				uint16_t len = strlen(d->d_name);
-				out = malloc(sizeof(*out) * (len + 1));
-				__MALLOC_CHECK(out, *error);
+	struct dirent *d;
 
-				strcpy(out, d->d_name);
-				break;
-			}
+	while( (d = readdir(dir)) ) {
+		//checks that function name is the same, and ends in ".cr"
+		if(chk_name(name, d->d_name)) {
+			uint16_t len = strlen(d->d_name);
+			out = malloc(sizeof(*out) * (len + 1));
+			__MALLOC_CHECK(out, *error);
+
+			strcpy(out, d->d_name);
+			break;
 		}
 	}
+
 	closedir(dir);
 	
 	return out;

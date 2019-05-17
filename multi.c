@@ -439,19 +439,20 @@ struct matrix *linspace(char **inp, struct vari *var, err_ret *error) {
 
 	if( (len < 0) || ((len - floor(len)) > 0) ) {
 		*error = -4;
+		goto err_ret;
 
-	} else {
-		uint16_t size[3] = {len, 1, 0};
-
-		out = init_mat(size, 2, error);
-		if(*error)
-			goto err_ret;
-
-		ele step = (b - a) / (len - 1);
-
-		for(uint64_t i = 0; i < out->len; ++i)
-			out->elements[i] = step * (ele) i + a;
 	}
+
+	uint16_t size[3] = {len, 1, 0};
+
+	out = init_mat(size, 2, error);
+	if(*error)
+		goto err_ret;
+
+	ele step = (b - a) / (len - 1);
+
+	for(uint64_t i = 0; i < out->len; ++i)
+		out->elements[i] = step * (ele) i + a;
 
  err_ret:
 	free_var(tmp);
@@ -508,23 +509,24 @@ struct matrix *extractValue(char **inp, int var_ind, struct vari *var, err_ret *
 			}
 
 			//check that the inp is one dimensional
-			if(tmp->ans->dim == 1) {
-				//location is 1 indexed, while sub2ind is 0 indexed
-				//so subtract 1 to 0 index
-				loc[i] = tmp->ans->elements[0] - 1;
-
-				//check that each sublocation is also within bounds
-				if(loc[i] >= tmp->value[var_ind]->size[i]) {
-					*error = -11;
-					free(loc);
-					goto err_ret;
-				}
-			} else {
+			if(tmp->ans->dim != 1) {
 				*error = -10;
 				free(loc);
 				goto err_ret;
 			}
+
+			//location is 1 indexed, while sub2ind is 0 indexed
+			//so subtract 1 to 0 index
+			loc[i] = tmp->ans->elements[0] - 1;
+
+			//check that each sublocation is also within bounds
+			if(loc[i] >= tmp->value[var_ind]->size[i]) {
+				*error = -11;
+				free(loc);
+				goto err_ret;
+			}
 		}
+
 		loc[dim] = 0;
 
 		uint64_t ind = sub2ind(loc, tmp->value[var_ind]->size,
