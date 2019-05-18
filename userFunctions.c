@@ -11,8 +11,6 @@
 #include "file.h"
 #include "userFunctions.h"
 
-char *configFilePath = "~/.calc.cfg";
-
 //find and execute a user made function
 struct matrix *find_user_fun(char *name, char **args, struct vari *var, err_ret *error) {
 	struct matrix *out = NULL;
@@ -68,10 +66,8 @@ char *find_path(char *name, err_ret *error) {
 
 	//checks config file paths
 	//if fileDirectory is still NULL
-	if(file_dir) {
-		*error = -5;
-		return NULL;
-	}
+	if(file_dir)
+		return file_dir;
 
 	//assume that the user is NOT going to use sudo
 	char *home = getenv("HOME");
@@ -85,7 +81,6 @@ char *find_path(char *name, err_ret *error) {
 	strcat(config, configPath);
 
 	file_dir = chk_conf(name, config, error);
-
 	if(!file_dir)
 		*error = -8;
 
