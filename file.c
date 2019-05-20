@@ -123,7 +123,7 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 
 err_ret executeTree(fileTree *tree, struct vari *var){
 	//stack structure for nested conditionals
-	int8_t *checkStack = calloc(256, sizeof(*checkStack));
+	int8_t *checkStack = calloc(BUFF_SIZE / 4, sizeof(*checkStack));
 	if(!checkStack)
 		return -6;
 
