@@ -35,20 +35,23 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 	if(!inputFile)
 		return -8;
 
-	//size of char buffer that each line of the file is copied too
-	char buffer[1024];
-
 	//error checking
 	err_ret error = 0;
+
+	//size of char buffer that each line of the file is copied too
+	char *buffer = malloc(BUFF_SIZE * sizeof(*buffer));
+	if(!buffer)
+		return -6;
+
 
 	//stack data structure convenient for creating tree
 	struct stack *stk = new_stk(128);
 
 	for(int i = 0; i < skip; ++i)
-		fgets(buffer, 1024, inputFile); 
+		fgets(buffer, BUFF_SIZE, inputFile); 
  
 	//creates the tree structure
-	for(int i = 0; fgets(buffer, 1024, inputFile) && !error; ++i) {
+	for(int i = 0; fgets(buffer, BUFF_SIZE, inputFile) && !error; ++i) {
 
 		int offset = 0;
 
@@ -110,7 +113,10 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 	}  
 
 	free_stk(stk, NULL);
+	free(buffer);
+
 	fclose(inputFile);
+
 	return error;
 }
 

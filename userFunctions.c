@@ -34,14 +34,14 @@ char *chk_conf(char *name, char *cfg, err_ret *error) {
 		return NULL;
 	}
 
-	char *paths = malloc(1024 * sizeof(*paths));
+	char *paths = malloc(BUFF_SIZE * sizeof(*paths));
 	__MALLOC_CHECK(paths, *error);
 
 	char *out = NULL;
 	char *file_dir = NULL;
 
 	//read directories from config
-	while(fgets(paths, 1024, f_cfg)) {
+	while(fgets(paths, BUFF_SIZE, f_cfg)) {
 		file_dir = search_dir(name, paths, error);
 
 		if(file_dir) {
@@ -55,6 +55,8 @@ char *chk_conf(char *name, char *cfg, err_ret *error) {
 			break;
 		}
 	}
+
+	free(paths);
 
 	return out;
 }
@@ -101,9 +103,10 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 
 	//get the header for the function
 	//right now it's hardcoded to get the first line
-	char title[1024];
-	memset(title, 0, 1024);
-	fgets(title, 1024, userFunction);
+	char *title = calloc(BUFF_SIZE, sizeof(*title));
+	__MALLOC_CHECK(title, *error);
+	
+	fgets(title, BUFF_SIZE, userFunction);
 	fclose(userFunction);
 
 	struct matrix *out = NULL;
@@ -113,7 +116,8 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 		return out;
 	}
 
-	char out_buff[1024];
+	char *out_buff = malloc(BUFF_SIZE * sizeof(*out_buff));
+	__MALLOC_CHECK(out_buff, *error);
 
 	int i = 9;
 	//finds the name of the output variable
@@ -126,6 +130,7 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 
 	//remove spaces from the name
 	char *outName = removeSpaces(out_buff);
+	free(out_buff);
 
 	//increment title to where input arguments are
 	//first find left end paren
@@ -138,6 +143,7 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 
 	//separate the string, to know what the variable names are
 	char **arg_names = sep_str(title, "()", ",", (uint16_t *) &i, error);
+	free(title);
 
 	//count the number of arguments required
 	int functionArgNo = numberOfArgs(arg_names);

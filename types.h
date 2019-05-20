@@ -14,6 +14,7 @@
 typedef int8_t err_ret;
 typedef double ele;
 
+#define BUFF_SIZE 1024
 #include "variables.h"
 
 union fp {
