@@ -130,7 +130,6 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 
 	//remove spaces from the name
 	char *outName = removeSpaces(out_buff);
-	free(out_buff);
 
 	//increment title to where input arguments are
 	//first find left end paren
@@ -192,6 +191,7 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 
 	//check that the out variable exists
 	int out_var = find_var(fun_var, outName);
+	free(out_buff);
 
 	if(out_var < 0) {
 		*error = -12;
