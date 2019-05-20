@@ -650,14 +650,13 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, struct vari *var,
 char *removeSpaces(char *inp) {
 	int len = strlen(inp);
 
-	uint16_t i = 0;
-	for(; *(inp + i) == ' '; ++i);
+	int i = 0;
+	for(; inp[i] == ' '; ++i);
 
-	for(uint16_t j = len - 1; inp[j] == ' '; --j) {
+	for(int j = len - 1; inp[j] == ' '; --j)
 		inp[j] = 0;
-	}
 
-	return (inp + i);
+	return &inp[i];
 }
 
 
@@ -674,15 +673,15 @@ err_ret printLine(char **inp, struct vari *var) {
 		return -6;
 
 	//loop over every argument
-	for(uint8_t i = 0; (i < argNo) && !error; ++i) {
-		uint16_t len = strlen(inp[i]);
+	for(int i = 0; (i < argNo) && !error; ++i) {
+		int len = strlen(inp[i]);
 
 		//check if the string is quote limited
-		uint8_t string = 0;
+		int string = 0;
 
 		//iterators for counting from the front/back of string
-		uint16_t front = 0;
-		uint16_t back = 0;
+		int front = 0;
+		int back = 0;
 
 		//check if there is a quote in beginning of string, or spaces then a quote
 		if(inp[i][0] == '"') {
