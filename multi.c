@@ -753,22 +753,22 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	inp += (*iter + 1);
 
 	//length of string
-	uint16_t len = 0;
+	int len = 0;
 
 	//the number of types of delimiters
-	uint8_t delimiterType = strlen(delim);
+	int delimiterType = strlen(delim);
 
 	//the number of delimiters in inp
-	uint16_t delimiterCount = 0;
+	int delimiterCount = 0;
 
 	//number of types of limiters
 	//assume that the number of limiters is going to be even
 	//there will always be a left and right end
-	uint8_t limiterType = strlen(lim) / 2;
+	int limiterType = strlen(lim) / 2;
 
 	//find where parenthesis are closed
 	//also count delimiters
-	for(int16_t a = 0; inp[len]; ++len) {
+	for(int a = 0; inp[len]; ++len) {
 		if(inp[len] == '(')
 			++a;
 
@@ -780,7 +780,7 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 			break;
 
 
-		for(uint8_t j = 0; j < delimiterType; ++j) {
+		for(int j = 0; j < delimiterType; ++j) {
 			if(inp[len] == delim[j]) {
 				++delimiterCount;
 				break;
@@ -803,7 +803,7 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	__MALLOC_CHECK(sep, *error);
 
 	//count of the number of elements
-	uint16_t subString = 0;
+	int subString = 0;
 
 	if(!delimiterCount) {
 		sep[0] = calloc(len, sizeof(**sep));
@@ -812,25 +812,25 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	} else {
 
 		//counter for each of the limiters
-		int16_t *limiterCount = calloc(limiterType, sizeof(*limiterCount));
+		int *limiterCount = calloc(limiterType, sizeof(*limiterCount));
 		__MALLOC_CHECK(limiterCount, *error);
 
 		//last index where a delimiter was found
-		uint16_t cur_len = 0;
+		int cur_len = 0;
 
 		//loop counter
-		uint16_t k = 0;
+		int k = 0;
 
 		//separate string, by delimiters
 		//however, only separate if the limiters
 		//like parenthesis or brackets are closed
 		for(; inp + k != inp_end; ++k) {
 			//count to check that all limiters are balanced
-			uint8_t allCount = 0;
+			int allCount = 0;
 
 			//check that each limiter is balanced
 			//limiterCount is 0 if the pair is balanced
-			for(uint8_t l = 0; l < limiterType; ++l) {
+			for(int l = 0; l < limiterType; ++l) {
 				if(inp[k] == lim[l * 2])
 					++limiterCount[l];
 
