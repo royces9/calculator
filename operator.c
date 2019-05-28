@@ -25,12 +25,12 @@ int search_str(char *buffer, char const *const list[]) {
 
 
 //executes either one argument function or two argument function
-err_ret ex_num(stack *num, vari *var, op_struct *ch) {
-	matrix *a = NULL;
-	matrix *b = NULL;
-	matrix *out = NULL;
+err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
+	struct matrix *a = NULL;
+	struct matrix *b = NULL;
+	struct matrix *out = NULL;
 	err_ret error = 0;
-
+	
 	switch(ch->argNo) {
 	case 1:
 		a = pop(num);
@@ -46,6 +46,7 @@ err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 	case 2:
 		b = pop(num);
 		a = pop(num);
+
 		if(!a) {
 			error = -4;
 		} else if(a->size && b->size) {
@@ -79,20 +80,14 @@ err_ret ex_num(stack *num, vari *var, op_struct *ch) {
 	if(out)
 		push(num, out);
 
-	free(ch);
+	//free(ch);
 	return error;
 }
 
 
-matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
-	matrix *out = NULL;
-	err_ret check = 0;
-
-	//check if ch._enum is a scalar operator
-	one_arg(0, ch->_enum, &check);
-
-	//ch._enum is in oneArg if check is 0
-	if(!check) {
+struct matrix *mat_one(struct matrix *a, struct oper *ch, err_ret *error) {
+	struct matrix *out = NULL;
+	if(!ch->mat_op) {
 		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
 		if(!newSize)
 			return NULL;
@@ -105,54 +100,37 @@ matrix *mat_one(matrix *a, op_struct *ch, err_ret *error) {
 			return NULL;
 
 		for(uint64_t i = 0; i < out->len; ++i)
-			out->elements[i] = one_arg(a->elements[i], ch->_enum, error);
+			out->elements[i] = ch->fp.s_one(a->elements[i], error);
+
 	} else {
-		switch(ch->_enum){
-		case eEye: out = eye(a, error); break;
-		case eSize: out = get_size(a, error); break;
-		case eTranspose: out = t_mat(a, error); break;
-		case eMax: out = max(a, error); break;
-		case eMin: out = min(a, error); break;
-		case eAvg: out = avg(a, error); break;
-		case eSum: out = sum(a, error); break;
-		case eNumel: out = numel(a); break;
-		case eMagnitude: out = magnitude(a, error); break;
-		}
+		out = ch->fp.m_one(a, error);
 	}
 
 	return out;
 }
 
 
-matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
-	matrix *out = NULL;
-	err_ret check = 0;
-
-	//check if ch._enum is a scalar operator
-	two_arg(1, 1, ch->_enum, &check);
+struct matrix *mat_two(struct matrix *a, struct matrix *b, struct oper *ch, err_ret *error) {
+	struct matrix *out = NULL;
 
 	//check if inputs are scalar
 	uint8_t aScalar = is_scalar(a);
 	uint8_t bScalar = is_scalar(b);
 
+	int check = ch->mat_op;
+
 	if(((aScalar + bScalar) > 0) && check) {
-
-		//if the enum is for a matrix operation
+		//if the fp is for a matrix operation
 		//change to the scalar operator
-		switch(ch->_enum) {
-		case eMultiplyMatrix:
+		if(ch->_enum == eMultiplyMatrix) {
 			check = 0;
-			ch->_enum = eMultiply;
-			break;
-
-		case eDivideMatrix:
+			ch = &O_STRUCT[eMultiply];
+		} else if(ch->_enum == eDivideMatrix) {
 			check = 0;
-			ch->_enum = eDivide;
-			break;
+			ch = &O_STRUCT[eDivide];
 		}
 	}
 
-	//ch._enum is in twoArg if check is 0
 	if(!check) {
 		switch(aScalar + bScalar) {
 		case 0: //neither is a scalar
@@ -168,29 +146,35 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 				break;
 
 			for(uint64_t i = 0; i < a->len; ++i)
-				out->elements[i] = two_arg(a->elements[i], b->elements[i], ch->_enum, error);
+				out->elements[i] = ch->fp.s_two(a->elements[i], b->elements[i]);
 
 			break;
       
-		case 1: //only a or b is a scalar
-			if( !(out = cpy_mat(aScalar ? b : a)) ) {
+		case 1:; //only a or b is a scalar
+			ele *a_p = a->elements;
+			ele *b_p = b->elements;
+			ele **inc = NULL;
+
+			if(aScalar) {
+				out = cpy_mat(b);
+				inc = &b_p;
+			} else {
+				out = cpy_mat(a);
+				inc = &a_p;
+			}
+			if(!out) {
 				*error = -6;
 				break;
 			}
 
-			ele *ans = out->elements;
-			ele *a_p = a->elements;
-			ele *b_p = b->elements;
-			ele **inc = aScalar ? &b_p : &a_p;
-
 			for(uint64_t i = 0; i < out->len; ++i, ++(*inc))
-				ans[i] = two_arg(*a_p, *b_p, ch->_enum, error);
+				out->elements[i] = ch->fp.s_two(*a_p, *b_p);
 
 			break;
 
 		case 2: //a and b are both scalars
+			out = init_scalar(ch->fp.s_two(a->elements[0], b->elements[0]));
 
-			out = init_scalar(two_arg(a->elements[0], b->elements[0], ch->_enum, error));
 			if(!out)
 				*error = -6;
 			break;
@@ -202,22 +186,16 @@ matrix *mat_two(matrix *a, matrix *b, op_struct *ch, err_ret *error) {
 		}
 
 	} else {
-		switch(ch->_enum) {
-		case eMultiplyMatrix: out = mult_mat(a, b, error); break;
-		case eExponentMatrix: out = exp_mat(a, b, error); break;
-			//case eDivideMatrix: out = div_mat(a, b, error); break;
-		case eReference: out = reference(a, b, error); break;
-		default: *error = -10; break;
-		}
+		out = ch->fp.m_two(a, b, error);
 	}
 
 	return out;
 }
 
 
-err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, uint16_t *iter, char *input) {
+err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok, uint16_t *iter, char *input) {
 	char **separatedString = NULL;
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
 	int i = search_str(buffer, FUNCTION_LIST);
 	err_ret error = 0;
@@ -301,7 +279,8 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 	case eTranspose:
 	case eMagnitude:
 	case eNumel:
-		push(ch, init_op_struct(FUNCTION_LIST[i], 1, 15, i));
+		push(ch, &O_STRUCT[eLeftParen]);
+		push(ch, &F_STRUCT[i]);
 		*tok = 0;
 		break;
 
@@ -398,7 +377,7 @@ err_ret find_fun(char *buffer, stack *num, stack *ch, vari *var, int8_t *tok, ui
 }
 
 
-err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
+err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari *var, int8_t *tok) {
 	int i = search_str(buffer, OPERATOR_LIST);
 	err_ret error = 0;
 
@@ -428,17 +407,17 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 		if(*tok == 1) {
 			//if the stack is occupied, should short-circuit
 			while( (oper->top > -1) &&
-			       (((op_struct **)oper->stk)[oper->top]->order <= 6)
+			       (((struct oper *) top_stk(oper))->order <= 6)
 			       && !error ) {
 				error = ex_num(num, var, pop(oper));
 			}
 
-			push(oper, init_op_struct("+", 2, 6, eAdd));
+			push(oper, &O_STRUCT[eAdd]);
 		}
 
 		*tok = 0;
-		push(oper, init_op_struct("*", 2, 5, eMultiply));
-		matrix *temp = init_scalar(-1);
+		push(oper, &O_STRUCT[eMultiply]);
+		struct matrix *temp = init_scalar(-1);
 		if(!temp) {
 			error = -6;
 			break;
@@ -450,32 +429,33 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 
 	case eExponentMatrix:
 		*tok = 0;
-		push(oper, init_op_struct("^", 2, 4, eExponentMatrix));
+		push(oper, &O_STRUCT[eExponentMatrix]);
 		break;
     
 	case eExponent:
 		*tok = 0;
-		push(oper, init_op_struct(".^", 2, 4, eExponent));
+		push(oper, &O_STRUCT[eExponent]);
 		break;
 
 	case eLeftParen:
 		*tok = 0;
-
-		if( (oper->top > -1) && (((op_struct **)oper->stk)[oper->top]->order == 2) ) {
-			op_struct *temp = pop(oper);
-			push(oper, init_op_struct("(", 0, 15, eLeftParen));
-			push(oper, temp);
+		if(oper->top > -1) {
+			if(((struct oper *) top_stk(oper))->order != 15)
+				push(oper, &O_STRUCT[eLeftParen]);
 		} else {
-			push(oper, init_op_struct("(", 0, 15, eLeftParen));
+			push(oper, &O_STRUCT[eLeftParen]);
 		}
-		
 		break;
 
 	case eRightParen:
-		do {
-			error = ex_num(num, var, pop(oper));
-		} while( (oper->top > -1) &&
-			 (((op_struct **)oper->stk)[oper->top]->_enum != eLeftParen) );
+		while( (oper->top > -1) && (((struct oper *) top_stk(oper))->_enum != eLeftParen )) {
+			struct oper *top = pop(oper);
+			error = ex_num(num, var, top);
+		}
+
+		if((oper->top > -1) && (((struct oper *) top_stk(oper))->_enum == eLeftParen))
+			pop(oper);
+		
 		*tok = 1;
 		break;
 
@@ -483,12 +463,12 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eAssign:
 		*tok = 0;
 		if((oper->top > -1) &&
-		   (((op_struct **)oper->stk)[oper->top]->_enum == eReference) ) {
+		   (((struct oper *) top_stk(oper))->_enum == eReference) ) {
 			var->assign = pop(num);
-			free(pop(oper));
+			pop(oper);
 		}
 
-		push(oper, init_op_struct("=", 3, 16, eAssign));
+		push(oper, &O_STRUCT[eAssign]);
 		break;
 
 	case eAdd:
@@ -505,13 +485,14 @@ err_ret find_op(char *buffer, stack *num, stack *oper, vari *var, int8_t *tok) {
 	case eMultiplyMatrix:
 	case eDivideMatrix:
 	case eModulo:
-
 		while((oper->top > -1) &&
-		      (((op_struct **)oper->stk)[oper->top]->order <= operatorPrecedence[i]) )
-			error = ex_num(num, var, pop(oper));
+		      (((struct oper *) top_stk(oper))->order <= O_STRUCT[i].order) ) {
+			struct oper *top = pop(oper);
+			error = ex_num(num, var, top);
+		}
 
 		*tok = 0;
-		push(oper, init_op_struct(buffer, 2, operatorPrecedence[i], i));
+		push(oper, &O_STRUCT[i]);
 		break;
 
 	default:
@@ -619,28 +600,25 @@ uint16_t countDelimiter(char *input){
 
 
 //iter is the counter for the main loop in sya
-matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
+struct matrix *ext_mat(struct vari *var, uint16_t *iter, char *input, err_ret *error) {
 	//input is incremented to start at input[*iter], which is where
 	//the first [ should be
 	input += (*iter);
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
 	//find where the matrix declaration ends
 	//count brackets until they match
 	//also get the length of string
-	int16_t bracketCount = 0;
+	int16_t bracketCount = 1;
 	int16_t length = 0;
 
-	for(length = 0; input[length]; ++length) {
+	for(length = 1; bracketCount && input[length]; ++length) {
 		if(input[length] == '[')
 			++bracketCount;
 
 		if(input[length] == ']')
 			--bracketCount;
-
-		if(!bracketCount)
-			break;
 	}
 
 	//check that the bracket count is correct
@@ -650,7 +628,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	}
 
 	//increment the main loop counter up to the ']' 
-	*iter += (length);
+	*iter += (length - 1);
 
 	//the string that will contain every character
 	//that contains elements of the matrix
@@ -660,7 +638,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	strncpy(mat_string, input + 1, sizeof(*mat_string) * (length));
 
 	//replace the end ']' with a '\0'
-	mat_string[length-1] = 0;
+	mat_string[length-2] = 0;
 
 	if((mat_string[length-2] == ';') || (mat_string[length-2] == ',')) {
 		free(mat_string);
@@ -669,7 +647,7 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	}
 
 	//number stack for creating the matrix
-	stack *num = new_stk(128);
+	struct stack *num = new_stk(128);
 	__MALLOC_CHECK(num, *error);
 
 	//char array that holds each element of
@@ -680,15 +658,15 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 	//free matrixString, not needed anymore
 	free(mat_string);
 
-	vari *tempVari = cpy_var(var);
+	struct vari *tempVari = cpy_var(var);
 	if( !tempVari ) {
 		*error = -6;
 		goto err_ret;
 	}
-		
+
 	*error = sya(sepd_mat[0], tempVari);
 
-	matrix *temp = cpy_mat(tempVari->ans);
+	struct matrix *temp = cpy_mat(tempVari->ans);
 	if( !temp ) {
 		*error = -6;
 		goto err_ret;
@@ -696,8 +674,8 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 		
 	push(num, temp);
 
-	matrix *a = NULL;
-	matrix *b = NULL;
+	struct matrix *a = NULL;
+	struct matrix *b = NULL;
 
 	for(int i = 1; sepd_mat[i]; ++i) {
 		temp = NULL;
@@ -737,12 +715,10 @@ matrix *ext_mat(vari *var, uint16_t *iter, char *input, err_ret *error) {
 			break;
 		}
 
-		if(temp) {
-			push(num, temp);
-		} else {
+		if(!temp)
 			break;
-		}
-		
+
+		push(num, temp);
 	}
 
 	if( !(*error) ) {
@@ -787,4 +763,74 @@ void help_print(void) {
 
 	printf("run(file)\n   file - path to a text file\n   This function parses each line of the file as if it were entered into the console directly, with the exception of \"while\", \"if/else\" and \"end\".\n    \"while\" - loops until the statement inside the \"while\"'s conditional is false. The inside is executed as if it were entered into the console directly. There may be floating point round off errors.\n   \"if/else\" - Executes the block of lines inside the \"if\"'s conditional if the statement is true, Otherwise it will execute the \"else\" block.\n   '#' at the beginning of\
  a line comments out a line\n   ';' at the end of a line suppresses output\n\n");
+}
+
+
+ele add(ele a, ele b) {
+	return a + b;
+}
+
+
+ele subtract(ele a, ele b) {
+	return a - b;
+}
+
+
+ele multiply(ele a, ele b) {
+	return a * b;
+}
+
+
+ele divide(ele a, ele b) {
+	return a / b;
+}
+
+
+ele exponent(ele a, ele b) {
+	return pow(a, b);
+}
+
+
+ele less(ele a, ele b) {
+	return a < b;
+}
+
+
+ele greater(ele a, ele b) {
+	return a > b;
+}
+
+
+ele less_equal(ele a, ele b) {
+	return a <= b;
+}
+
+
+ele greater_equal(ele a, ele b) {
+	return a >=b;
+}
+
+
+ele not_equal(ele a, ele b) {
+	return a != b;
+}
+
+
+ele equal(ele a, ele b) {
+	return a == b;
+}
+
+
+ele and(ele a, ele b) {
+	return a && b;
+}
+
+
+ele or(ele a, ele b) {
+	return a || b;
+}
+
+
+ele modulo(ele a, ele b) {
+	return (int64_t) a % (int64_t) b;
 }

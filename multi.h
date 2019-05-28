@@ -4,7 +4,7 @@
 /*
  * count number of strings in the double array
  */
-uint8_t numberOfArgs(char **input);
+int numberOfArgs(char **input);
 
 /*
  * numerically calculate derivative
@@ -16,13 +16,13 @@ uint8_t numberOfArgs(char **input);
  *   input[2]: point, point at which to calculate derivative
  *   input[3]: delta, difference used for finite difference
  *
- * vari *var
+ * struct vari *var
  *   variable struct for variables in input variables
  *
  * err_ret *error
  *   non zero value if something goes wrong
  */
-matrix *deri(char **input, vari *var, err_ret *error);
+struct matrix *deri(char **input, struct vari *var, err_ret *error);
 
 /*
  * numerically calculate derivative
@@ -35,7 +35,7 @@ matrix *deri(char **input, vari *var, err_ret *error);
  *   input[3]: right bound
  *   input[4]: partition count, number of partitions between left and right bounds
  */
-matrix *inte(char **input, vari *var, err_ret *error);
+struct matrix *inte(char **input, struct vari *var, err_ret *error);
 
 /*
  * numerically solve f(x) = 0
@@ -47,7 +47,7 @@ matrix *inte(char **input, vari *var, err_ret *error);
  *   input[2]: initial guess, inital value for independent variable to start from
  *   input[3]: tolerance, difference between iterations stop
  */
-matrix *solve(char **input, vari *var, err_ret *error);
+struct matrix *solve(char **input, struct vari *var, err_ret *error);
 
 /*
  * make a matrix of zeros/ones/random vals between 0 and 1
@@ -57,9 +57,9 @@ matrix *solve(char **input, vari *var, err_ret *error);
  *   is the size of the output matrix
  *   can be a single or multiple string(s)
  */
-matrix *zeros(char **input, vari *var, err_ret *error);
-matrix *ones(char **input, vari *var, err_ret *error);
-matrix *rand_mat(char **input, vari *var, err_ret *error);
+struct matrix *zeros(char **input, struct vari *var, err_ret *error);
+struct matrix *ones(char **input, struct vari *var, err_ret *error);
+struct matrix *rand_mat(char **input, struct vari *var, err_ret *error);
 
 /*
  * make a column vector with linearlly spaced values
@@ -70,7 +70,7 @@ matrix *rand_mat(char **input, vari *var, err_ret *error);
  *   input[1]: right limit, last index will have this value
  *   input[2]: number of elements
  */
-matrix *linspace(char **input, vari *var, err_ret *error);
+struct matrix *linspace(char **input, struct vari *var, err_ret *error);
 
 /*
  * get value of variable
@@ -82,7 +82,7 @@ matrix *linspace(char **input, vari *var, err_ret *error);
  * int varIndex
  *   the index in vari the variable is in
  */
-matrix *extractValue(char **input, int varIndex, vari *var, err_ret *error);
+struct matrix *extractValue(char **input, int varIndex, struct vari *var, err_ret *error);
 
 /*
  * check if variable exists
@@ -94,7 +94,7 @@ matrix *extractValue(char **input, int varIndex, vari *var, err_ret *error);
  * int *tok
  *   int to determine if '-' is negative or minus
  */
-err_ret chk_var(const char *buffer, char *input, uint16_t *iter, vari *var, stack *num, stack *ch);
+err_ret chk_var(const char *buffer, char *input, uint16_t *iter, struct vari *var, struct stack *num, struct stack *ch);
 
 /*
  * remove spaces from input
@@ -108,7 +108,7 @@ char *removeSpaces(char *input);
  * char **input
  *   formatting is similar to matlab print
  */
-err_ret printLine(char **input, vari *var);
+err_ret printLine(char **input, struct vari *var);
 
 /*
  * separate string

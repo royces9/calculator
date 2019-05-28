@@ -5,6 +5,7 @@
 
 #include "types.h"
 
+#include "token.h"
 #include "sya.h"
 
 int main(int argc, char *argv[]) {
@@ -12,7 +13,7 @@ int main(int argc, char *argv[]) {
 	err_ret error = 0;
   
 	//initialize variable struct
-	vari *var = init_var(256);
+	struct vari *var = init_var(256);
 	if(!var) {
 		err_rep(-6);
 		return -1;
@@ -43,6 +44,19 @@ int main(int argc, char *argv[]) {
 		input = readline(">>");
 		add_history(input);
 
+		/*
+		token **tok_list = tokenize(input);
+
+		char cpy[100];
+		for(int i = 0; tok_list[i]; ++i) {
+			memset(cpy, 0, 100);
+			strncpy(cpy, tok_list[i]->tok, tok_list[i]->len);
+			printf("%d: ", i);
+			puts(cpy);
+		}
+
+		tok_tree *tree = make_tok_tree(tok_list);
+		*/
 		//break on EOF
 		//skip empty lines
 		if( !input ) {

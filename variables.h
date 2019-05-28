@@ -1,18 +1,18 @@
 #ifndef VARIABLE
 #define VARIABLE
 
-typedef struct { //variable storage
+struct vari { //variable storage
 	//pointer to matrix index to assign to, if assignment
-	matrix *assign;
+	struct matrix *assign;
 
 	//stores variable values
-	matrix **value;
+	struct matrix **value;
 
 	//stores variable names
 	char **name;
 
 	//answer matrix
-	matrix *ans;
+	struct matrix *ans;
 
 	//index for the newest variable
 	//-1 if empty
@@ -23,18 +23,16 @@ typedef struct { //variable storage
 
 	//flag if an assignment occured
 	int8_t f_assign;
+};
 
-
-} vari;
-
-vari *init_var(int size);
-vari *cpy_var(vari *var);
+struct vari *init_var(int size);
+struct vari *cpy_var(struct vari *var);
 
 //find variable named input in list
-int find_var(vari *list, char *input);
+int find_var(struct vari *list, char *input);
 
-int set_var(vari *var, char *name, matrix *a, err_ret *error);
-void free_var(vari *var);
+int set_var(struct vari *var, char *name, struct matrix *a, err_ret *error);
+void free_var(struct vari *var);
 
 
 #endif //VARIABLE

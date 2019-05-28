@@ -3,13 +3,14 @@
 #include <string.h>
 
 #include "types.h"
+#include "operatorUtility.h"
 
-void push(stack *stk, void *d) {
+void push(struct stack *stk, void *d) {
 	stk->stk[++stk->top] = d;
 }
 
 
-void *pop(stack *stk) {
+void *pop(struct stack *stk) {
 	void *out = NULL;
 
 	if(stk->top > -1)
@@ -19,24 +20,8 @@ void *pop(stack *stk) {
 }
 
 
-//initialize operatorStruct
-op_struct *init_op_struct(char const *op, uint8_t argNo, uint8_t order, uint8_t _enum){
-	op_struct *out = malloc(sizeof(*out));
-	if(!out)
-		return NULL;
-
-	strcpy(out->op, op);
-
-	out->order = order;
-	out->argNo = argNo;
-	out->_enum = _enum;
-
-	return out;
-}
-
-
-void *new_stk(int size) {
-	stack *out = malloc(sizeof(*out));
+struct stack *new_stk(int size) {
+	struct stack *out = malloc(sizeof(*out));
 	if(!out)
 		return NULL;
 
@@ -51,11 +36,16 @@ void *new_stk(int size) {
 }
 
 
-void free_stk(stack *stk, void (*free_fun)(void *)) {
+void free_stk(struct stack *stk, void (*free_fun)(void *)) {
 	if(free_fun)
-		while(stk->top > -1)
-			free_fun(stk->stk[stk->top--]);
+		for(;stk->top > -1; --stk->top)
+			free_fun(stk->stk[stk->top]);
 
 	free(stk->stk);
 	free(stk);
+}
+
+
+void *top_stk(struct stack *stk) {
+	return stk->stk[stk->top];
 }

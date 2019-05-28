@@ -8,15 +8,8 @@
 #include "operatorUtility.h"
 #include "functions.h"
 
-//factorial function
-ele factorial(ele a) {
-	a = floor(a);
 
-	return a < 2 ? 1 : a * factorial(a - 1);
-}
-
-
-matrix *eye(matrix *a, err_ret *error) {
+struct matrix *eye(struct matrix *a, err_ret *error) {
 	if(a->dim != 1) {
 		*error = -12;
 		return NULL;
@@ -27,7 +20,7 @@ matrix *eye(matrix *a, err_ret *error) {
 
 	uint16_t newSize[3] = {a->elements[0], a->elements[0], 0};
 
-	matrix *out = init_mat(newSize, 2, error);
+	struct matrix *out = init_mat(newSize, 2, error);
 	if(*error)
 		return NULL;
 
@@ -38,7 +31,7 @@ matrix *eye(matrix *a, err_ret *error) {
 }
 
 
-matrix *get_size(matrix *a, err_ret *error){
+struct matrix *get_size(struct matrix *a, err_ret *error){
 	uint16_t newSize[3];
 
 	//output is a row vector
@@ -46,7 +39,7 @@ matrix *get_size(matrix *a, err_ret *error){
 	newSize[1] = a->dim;
 	newSize[2] = 0;
   
-	matrix *out = init_mat(newSize, 2, error);
+	struct matrix *out = init_mat(newSize, 2, error);
 	if(*error)
 		return NULL;
 
@@ -57,29 +50,29 @@ matrix *get_size(matrix *a, err_ret *error){
 }
 
 
-matrix *magnitude(matrix *a, err_ret *error){
-	matrix *out = NULL;
-
-	if(is_vec(a)) {
-		ele mag_a = 0;
-
-		for(uint64_t i = 0; i < a->len; ++i)
-			mag_a += (a->elements[i] * a->elements[i]);
-
-		mag_a = sqrt(mag_a);
-
-		out = init_scalar(mag_a);
-		__MALLOC_CHECK(out, *error);
-	} else {
+struct matrix *magnitude(struct matrix *a, err_ret *error){
+	if(!is_vec(a)) {
 		*error = -10;
+		return NULL;
 	}
+
+	struct matrix *out = NULL;
+	ele mag_a = 0;
+
+	for(uint64_t i = 0; i < a->len; ++i)
+		mag_a += (a->elements[i] * a->elements[i]);
+
+	mag_a = sqrt(mag_a);
+
+	out = init_scalar(mag_a);
+	__MALLOC_CHECK(out, *error);
 
 	return out;
 }
 
 
 //get the total number of elements of a
-matrix *numel(matrix *a) {
+struct matrix *numel(struct matrix *a, err_ret *error) {
 	return init_scalar(a->len);
 }
 
@@ -94,8 +87,8 @@ matrix *numel(matrix *a) {
  *  a - the matrix
  *  b - the index
  */
-matrix *reference(matrix *a, matrix *b, err_ret *error) {
-	matrix *out = cpy_mat(b);
+struct matrix *reference(struct matrix *a, struct matrix *b, err_ret *error) {
+	struct matrix *out = cpy_mat(b);
 	if( !out )
 		return NULL;
 
@@ -106,62 +99,60 @@ matrix *reference(matrix *a, matrix *b, err_ret *error) {
 }
 
 
-matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
+struct matrix *assign(struct matrix *a, struct matrix *b, struct vari *var, err_ret *error) {
 
 	uint8_t incrementFlag = 1;
 
-	if(a->var) {
-		if(!var->assign) {
-			//init new matrix
-			//copyMatrix not done because the
-			//pointer 'a' is malloc'd in find_fun
-
-			if(a->size) {
-				free(a->size);
-				free(a->elements);
-
-				a->size = NULL;
-				a->elements = NULL;
-
-				incrementFlag = 0;
-			}
-      
-			a->len = b->len;
-			a->dim = b->dim;
-
-
-			a->elements = malloc(sizeof(*a->elements) * a->len);
-			__MALLOC_CHECK(a->elements, *error);
-
-			memcpy(a->elements, b->elements, sizeof(*a->elements) * a->len);
-
-
-			a->size = malloc(sizeof(*a->size) * (a->dim + 1));
-			__MALLOC_CHECK(a->size, *error);
-
-			memcpy(a->size, b->size, sizeof(*a->size) * (a->dim + 1));
-
-		} else {
-			for(uint64_t i = 0, k = 0, *j = is_scalar(b) ? &k : &i;
-			    i < var->assign->len;
-			    ++i) {
-				uint64_t index = var->assign->elements[i];
-				if(!index) {
-					*error = -13;
-					break;
-				}
-				a->elements[index] = b->elements[*j];
-			} 
-
-			incrementFlag = 0;
-			free_mat(var->assign);
-			var->assign = NULL;
-
-		}
-	} else {
+	if(!a->var) {
 		*error = -13;
 		free_mat(a);
 		return NULL;
+
+	}
+
+	if(!var->assign) {
+		//init new matrix
+		//copyMatrix not done because the
+		//pointer 'a' is malloc'd in find_fun
+		if(a->size) {
+			free(a->size);
+			free(a->elements);
+
+			a->size = NULL;
+			a->elements = NULL;
+
+			incrementFlag = 0;
+		}
+      
+		a->len = b->len;
+		a->dim = b->dim;
+
+		a->elements = malloc(sizeof(*a->elements) * a->len);
+		__MALLOC_CHECK(a->elements, *error);
+
+		memcpy(a->elements, b->elements, sizeof(*a->elements) * a->len);
+
+		a->size = malloc(sizeof(*a->size) * (a->dim + 1));
+		__MALLOC_CHECK(a->size, *error);
+
+		memcpy(a->size, b->size, sizeof(*a->size) * (a->dim + 1));
+
+	} else {
+		for(uint64_t i = 0, k = 0, *j = is_scalar(b) ? &k : &i;
+		    i < var->assign->len;
+		    ++i) {
+			int index = var->assign->elements[i];
+			if(index < 0) {
+				*error = -13;
+				break;
+			}
+			a->elements[index] = b->elements[*j];
+		} 
+
+		incrementFlag = 0;
+		free_mat(var->assign);
+		var->assign = NULL;
+
 	}
 
 
@@ -172,16 +163,13 @@ matrix *assign(matrix *a, matrix *b, vari *var, err_ret *error) {
 }
 
 
-/*
-matrix *divideMatrix(matrix *a, matrix *b, err_ret *error) {
+struct matrix *div_mat(struct matrix *a, struct matrix *b, err_ret *error) {
 	return NULL;
 }
-*/
 
 
-matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
-	matrix *out = NULL;
-
+struct matrix *mult_mat(struct matrix *a, struct matrix *b, err_ret *error) {
+	struct matrix *out = NULL;
 	//matrix multiplication only defined for 2d arrays
 	if((a->dim != 2) || (b->dim != 2)) {
 		*error = -10;
@@ -199,7 +187,7 @@ matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
 	if(*error)
 		return NULL;
 
-	matrix *t_a = t_mat(a, error);
+	struct matrix *t_a = t_mat(a, error);
 
 	//generic O(n^3) algorithm
 	//transpose a and then multiply every column with every other column in each matrix
@@ -223,12 +211,12 @@ matrix *mult_mat(matrix *a, matrix *b, err_ret *error) {
 }
 
 
-matrix *exp_mat(matrix *a, matrix *b, err_ret *error) {
+struct matrix *exp_mat(struct matrix *a, struct matrix *b, err_ret *error) {
 	uint8_t aScalar = is_scalar(a);
 	uint8_t bScalar = is_scalar(b);
 
-	matrix *tmp = NULL;
-	matrix *out = NULL;
+	struct matrix *tmp = NULL;
+	struct matrix *out = NULL;
 
 	switch(aScalar + bScalar) {
 	case 0: //neither a nor b are scalars
@@ -284,14 +272,16 @@ matrix *exp_mat(matrix *a, matrix *b, err_ret *error) {
 		__MALLOC_CHECK(out, *error);
 		break;
 
-	default: *error = -10; break;
+	default:
+		*error = -10;
+		break;
 	}
 
 	return out;
 }
 
 
-matrix *t_mat(matrix *a, err_ret *error) {
+struct matrix *t_mat(struct matrix *a, err_ret *error) {
 	//transpose only defined for 2d matrix
 	if(a->dim != 2) {
 		*error = -10;
@@ -301,7 +291,7 @@ matrix *t_mat(matrix *a, err_ret *error) {
 	//new transposed size is same as a->size
 	//but the dimensions are swapped
 	uint16_t newSize[3] = {a->size[1], a->size[0], 0};
-	matrix *out = init_mat(newSize, 2, error);
+	struct matrix *out = init_mat(newSize, 2, error);
 	if(*error)
 		return NULL;
 
@@ -318,7 +308,7 @@ matrix *t_mat(matrix *a, err_ret *error) {
 
 
 //determinies minimum value in the matrix
-matrix *min(matrix *m, err_ret *error) {
+struct matrix *min(struct matrix *m, err_ret *error) {
 	ele out = m->elements[0];
 
 	for(uint64_t i = 1; i < m->len; ++i)
@@ -329,7 +319,7 @@ matrix *min(matrix *m, err_ret *error) {
 
 
 //determines maximum value in the matrix
-matrix *max(matrix *m, err_ret *error) {
+struct matrix *max(struct matrix *m, err_ret *error) {
 	ele out = m->elements[0];
 
 	for(uint64_t i = 1; i < m->len; ++i)
@@ -341,8 +331,8 @@ matrix *max(matrix *m, err_ret *error) {
 
 //sums along the last dimension of the matrix
 //unless matrix, then sum the elements
-matrix *sum(matrix *m, err_ret *error) {
-	matrix *out = NULL;
+struct matrix *sum(struct matrix *m, err_ret *error) {
+	struct matrix *out = NULL;
 
 	int new_dim = m->dim - 1;
 	uint16_t *newSize = NULL;
@@ -396,8 +386,8 @@ matrix *sum(matrix *m, err_ret *error) {
 //3 4
 //should return
 //2 3
-matrix *avg(matrix *m, err_ret *error) {
-	matrix *out = sum(m, error);
+struct matrix *avg(struct matrix *m, err_ret *error) {
+	struct matrix *out = sum(m, error);
 
 	for(uint64_t i = 0; i < out->len; ++i)
 		out->elements[i] /= m->size[m->dim - 1];
@@ -406,44 +396,57 @@ matrix *avg(matrix *m, err_ret *error) {
 }
 
 
-//returns value from one argument functions
-ele one_arg(ele a, int o, err_ret *error) {
-	switch(o) {
-	case eSin: return sin(a);
-	case eCos: return cos(a);
-	case eTan: return tan(a);
-	case eLn: return log(a);
-	case eLog: return log10(a);
-	case eSqrt: return sqrt(a);
-	case eAsin: return asin(a);
-	case eAcos: return acos(a);
-	case eAtan: return atan(a);
-	case eFloor: return floor(a);
-	case eCeil: return ceil(a);
-	case eRound: return round(a);
-	case eFactorial: return factorial(a);
-	default: *error = 1; return a;
-	}
+ele _sin(ele a, err_ret *e) {
+	return sin(a);
 }
 
-
-//returns value from two argument function
-ele two_arg(ele a, ele b, int o, err_ret *error) {
-	switch(o) {
-	case eAdd: return a + b;
-	case eSubtract: return a - b;
-	case eMultiply: return a * b;
-	case eDivide: return a / b;
-	case eExponent: return pow(a, b);
-	case eLess: return a < b;
-	case eGreater: return a > b;
-	case eLessEqual: return a <= b;
-	case eGreaterEqual: return a >= b;
-	case eNotEqual: return a != b;
-	case eEqual: return a == b;
-	case eAnd: return a && b;
-	case eOr: return a || b;
-	case eModulo: return (int64_t) a % (int64_t) b;
-	default: *error = 1; return a;
-	}
+ele _cos(ele a, err_ret *e) {
+	return cos(a);
 }
+
+ele _tan(ele a, err_ret *e) {
+	return tan(a);
+}
+
+ele _log(ele a, err_ret *e) {
+	return log(a);
+}
+
+ele _log10(ele a, err_ret *e) {
+	return log10(a);
+}
+
+ele _sqrt(ele a, err_ret *e) {
+	return sqrt(a);
+}
+
+ele _asin(ele a, err_ret *e) {
+	return asin(a);
+}
+
+ele _acos(ele a, err_ret *e) {
+	return acos(a);
+}
+
+ele _atan(ele a, err_ret *e) {
+	return atan(a);
+}
+
+ele _floor(ele a, err_ret *e) {
+	return floor(a);
+}
+
+ele _ceil(ele a, err_ret *e) {
+	return ceil(a);
+}
+
+ele _round(ele a, err_ret *e) {
+	return round(a);
+}
+
+ele factorial(ele a, err_ret *e) {
+	a = floor(a);
+
+	return a < 2 ? 1 : a * factorial(a - 1, e);
+}
+

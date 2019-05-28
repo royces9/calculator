@@ -11,22 +11,22 @@
 #include "multi.h"
 
 
-uint8_t numberOfArgs(char **inp) {
-	uint8_t i = 0;
+int numberOfArgs(char **inp) {
+	int i = 0;
 	for(; inp[i]; ++i); //empty for
 	return i;
 }
 
 
-matrix *deri(char **inp, vari *var, err_ret *error) {
+struct matrix *deri(char **inp, struct vari *var, err_ret *error) {
 	//copy global struct to a local variable struct
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp ) {
 		*error = -6;
 		return NULL;
 	}
 
-	matrix *ans = NULL;
+	struct matrix *ans = NULL;
 
 	//check the number of inps is correct
 	if(numberOfArgs(inp) != 4) {
@@ -57,12 +57,12 @@ matrix *deri(char **inp, vari *var, err_ret *error) {
   
 	//set up a dummy variable specified by user  
 	char *tmp_var = removeSpaces(inp[1]);
-	matrix *temp = init_scalar(point + h);
+	struct matrix *temp = init_scalar(point + h);
 	if(!temp) {
 		*error = -6;
 		goto err_ret;
 	}
-	
+
 	int var_ind = set_var(tmp, tmp_var, temp, error);
 
 	//f(x+h)
@@ -91,17 +91,17 @@ matrix *deri(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *inte(char **inp, vari *var, err_ret *error) {
+struct matrix *inte(char **inp, struct vari *var, err_ret *error) {
 	//check number of arguments
 	if(numberOfArgs(inp) != 5) {
 		*error = -2;
 		return NULL;
 	}
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
 	//copy global struct to a local variable struct
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp ) {
 		*error = -6;
 		return NULL;
@@ -144,7 +144,7 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 	//set dummy variable
 	char *tmp_var = removeSpaces(inp[1]);
 
-	matrix *temp = init_scalar(0);
+	struct matrix *temp = init_scalar(0);
 	if(!temp) {
 		*error = -6;
 		goto err_ret;
@@ -191,17 +191,17 @@ matrix *inte(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *solve(char **inp, vari *var, err_ret *error) {
+struct matrix *solve(char **inp, struct vari *var, err_ret *error) {
 	//check number of arguments
 	if(numberOfArgs(inp) != 4) {
 		*error = -2;
 		return NULL;
 	}
 
-	matrix *ans = NULL;
+	struct matrix *ans = NULL;
 
 	//copy global struct to a local variable struct
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp ) {
 		*error = -6;
 		return NULL;
@@ -228,7 +228,7 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 	}
 
 	char *tmp_var = removeSpaces(inp[1]);
-	matrix *cpy = cpy_mat(tmp->ans);
+	struct matrix *cpy = cpy_mat(tmp->ans);
 	if( !cpy ) {
 		*error = -6;
 		goto err_ret;
@@ -293,8 +293,8 @@ matrix *solve(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *zeros(char **inp, vari *var, err_ret *error) {
-	uint8_t dim = numberOfArgs(inp);
+struct matrix *zeros(char **inp, struct vari *var, err_ret *error) {
+	int dim = numberOfArgs(inp);
 	uint16_t *size = NULL;
 
 	//only one inp, make a square matrix of that size
@@ -358,7 +358,7 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 		}
 	}
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 	if( !(*error)) {
 		size[dim] = 0;
 		out = init_mat(size, dim, error);
@@ -370,9 +370,9 @@ matrix *zeros(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *ones(char **inp, vari *var, err_ret *error) {
+struct matrix *ones(char **inp, struct vari *var, err_ret *error) {
 	//call zeros and just replace all the inp
-	matrix *out = zeros(inp, var, error);
+	struct matrix *out = zeros(inp, var, error);
 
 	if( !(*error) ) {
 		for(uint64_t i = 0; i < out->len; ++i)
@@ -383,8 +383,8 @@ matrix *ones(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *rand_mat(char **inp, vari *var, err_ret *error) {
-	matrix *out = zeros(inp, var, error);
+struct matrix *rand_mat(char **inp, struct vari *var, err_ret *error) {
+	struct matrix *out = zeros(inp, var, error);
 	if( !(*error) ) {
 		for(uint64_t i = 0; i < out->len; ++i)
 			out->elements[i] = (ele)rand() / RAND_MAX;
@@ -395,16 +395,16 @@ matrix *rand_mat(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *linspace(char **inp, vari *var, err_ret *error) {
+struct matrix *linspace(char **inp, struct vari *var, err_ret *error) {
 	int argNo = numberOfArgs(inp);
 	if(argNo != 3) {
 		*error = -2;
 		return NULL;
 	}
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp ) {
 		*error =-6;
 		return NULL;
@@ -439,19 +439,20 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 
 	if( (len < 0) || ((len - floor(len)) > 0) ) {
 		*error = -4;
+		goto err_ret;
 
-	} else {
-		uint16_t size[3] = {len, 1, 0};
-
-		out = init_mat(size, 2, error);
-		if(*error)
-			goto err_ret;
-
-		ele step = (b - a) / (len - 1);
-
-		for(uint64_t i = 0; i < out->len; ++i)
-			out->elements[i] = step * (ele) i + a;
 	}
+
+	uint16_t size[3] = {len, 1, 0};
+
+	out = init_mat(size, 2, error);
+	if(*error)
+		goto err_ret;
+
+	ele step = (b - a) / (len - 1);
+
+	for(uint64_t i = 0; i < out->len; ++i)
+		out->elements[i] = step * (ele) i + a;
 
  err_ret:
 	free_var(tmp);
@@ -460,16 +461,16 @@ matrix *linspace(char **inp, vari *var, err_ret *error) {
 }
 
 
-matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
+struct matrix *extractValue(char **inp, int var_ind, struct vari *var, err_ret *error) {
 	if(!inp[0][0]) {
 		*error = -4;
 		return NULL;
 	}
 
-	uint8_t dim = numberOfArgs(inp);    
-	matrix *out = NULL;
+	int dim = numberOfArgs(inp);    
+	struct matrix *out = NULL;
 
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if(!tmp) {
 		*error = -6;
 		return NULL;
@@ -508,23 +509,24 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 			}
 
 			//check that the inp is one dimensional
-			if(tmp->ans->dim == 1) {
-				//location is 1 indexed, while sub2ind is 0 indexed
-				//so subtract 1 to 0 index
-				loc[i] = tmp->ans->elements[0] - 1;
-
-				//check that each sublocation is also within bounds
-				if(loc[i] >= tmp->value[var_ind]->size[i]) {
-					*error = -11;
-					free(loc);
-					goto err_ret;
-				}
-			} else {
+			if(tmp->ans->dim != 1) {
 				*error = -10;
 				free(loc);
 				goto err_ret;
 			}
+
+			//location is 1 indexed, while sub2ind is 0 indexed
+			//so subtract 1 to 0 index
+			loc[i] = tmp->ans->elements[0] - 1;
+
+			//check that each sublocation is also within bounds
+			if(loc[i] >= tmp->value[var_ind]->size[i]) {
+				*error = -11;
+				free(loc);
+				goto err_ret;
+			}
 		}
+
 		loc[dim] = 0;
 
 		uint64_t ind = sub2ind(loc, tmp->value[var_ind]->size,
@@ -551,7 +553,7 @@ matrix *extractValue(char **inp, int var_ind, vari *var, err_ret *error) {
 }
 
 
-err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack *num, stack *ch) {
+err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, struct vari *var, struct stack *num, struct stack *ch) {
 	err_ret error = 0;
 
 	uint16_t len = strlen(buffer);
@@ -564,7 +566,7 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack 
 
 	int k = 0;
 
-	matrix *out = NULL;
+	struct matrix *out = NULL;
 	char **separatedString = NULL;
 
 	if(nameBuffer[len - 1] == '(') {
@@ -585,7 +587,7 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack 
 			push(num, var->value[k]);
 			push(num, out);
 
-			push(ch, init_op_struct("r", 2, 0, eReference));
+			push(ch, &O_STRUCT[eReference]);
 		} 
 
 		freeDoubleArray(separatedString);
@@ -648,39 +650,38 @@ err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, vari *var, stack 
 char *removeSpaces(char *inp) {
 	int len = strlen(inp);
 
-	uint16_t i = 0;
-	for(; *(inp + i) == ' '; ++i);
+	int i = 0;
+	for(; inp[i] == ' '; ++i);
 
-	for(uint16_t j = len - 1; inp[j] == ' '; --j) {
+	for(int j = len - 1; inp[j] == ' '; --j)
 		inp[j] = 0;
-	}
 
-	return (inp + i);
+	return &inp[i];
 }
 
 
 /*
  * print to stdout, formatting is similar to matlab
  */
-err_ret printLine(char **inp, vari *var) {
+err_ret printLine(char **inp, struct vari *var) {
 	err_ret error = 0;
 
-	uint8_t argNo = numberOfArgs(inp);
+	int argNo = numberOfArgs(inp);
 
-	vari *tmp = cpy_var(var);
+	struct vari *tmp = cpy_var(var);
 	if( !tmp )
 		return -6;
 
 	//loop over every argument
-	for(uint8_t i = 0; (i < argNo) && !error; ++i) {
-		uint16_t len = strlen(inp[i]);
+	for(int i = 0; (i < argNo) && !error; ++i) {
+		int len = strlen(inp[i]);
 
 		//check if the string is quote limited
-		uint8_t string = 0;
+		int string = 0;
 
 		//iterators for counting from the front/back of string
-		uint16_t front = 0;
-		uint16_t back = 0;
+		int front = 0;
+		int back = 0;
 
 		//check if there is a quote in beginning of string, or spaces then a quote
 		if(inp[i][0] == '"') {
@@ -752,22 +753,22 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	inp += (*iter + 1);
 
 	//length of string
-	uint16_t len = 0;
+	int len = 0;
 
 	//the number of types of delimiters
-	uint8_t delimiterType = strlen(delim);
+	int delimiterType = strlen(delim);
 
 	//the number of delimiters in inp
-	uint16_t delimiterCount = 0;
+	int delimiterCount = 0;
 
 	//number of types of limiters
 	//assume that the number of limiters is going to be even
 	//there will always be a left and right end
-	uint8_t limiterType = strlen(lim) / 2;
+	int limiterType = strlen(lim) / 2;
 
 	//find where parenthesis are closed
 	//also count delimiters
-	for(int16_t a = 0; inp[len]; ++len) {
+	for(int a = 0; inp[len]; ++len) {
 		if(inp[len] == '(')
 			++a;
 
@@ -779,7 +780,7 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 			break;
 
 
-		for(uint8_t j = 0; j < delimiterType; ++j) {
+		for(int j = 0; j < delimiterType; ++j) {
 			if(inp[len] == delim[j]) {
 				++delimiterCount;
 				break;
@@ -802,7 +803,7 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	__MALLOC_CHECK(sep, *error);
 
 	//count of the number of elements
-	uint16_t subString = 0;
+	int subString = 0;
 
 	if(!delimiterCount) {
 		sep[0] = calloc(len, sizeof(**sep));
@@ -811,25 +812,25 @@ char **sep_str(char *inp, char const * const lim, char const * const delim, uint
 	} else {
 
 		//counter for each of the limiters
-		int16_t *limiterCount = calloc(limiterType, sizeof(*limiterCount));
+		int *limiterCount = calloc(limiterType, sizeof(*limiterCount));
 		__MALLOC_CHECK(limiterCount, *error);
 
 		//last index where a delimiter was found
-		uint16_t cur_len = 0;
+		int cur_len = 0;
 
 		//loop counter
-		uint16_t k = 0;
+		int k = 0;
 
 		//separate string, by delimiters
 		//however, only separate if the limiters
 		//like parenthesis or brackets are closed
 		for(; inp + k != inp_end; ++k) {
 			//count to check that all limiters are balanced
-			uint8_t allCount = 0;
+			int allCount = 0;
 
 			//check that each limiter is balanced
 			//limiterCount is 0 if the pair is balanced
-			for(uint8_t l = 0; l < limiterType; ++l) {
+			for(int l = 0; l < limiterType; ++l) {
 				if(inp[k] == lim[l * 2])
 					++limiterCount[l];
 

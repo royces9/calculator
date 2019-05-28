@@ -9,7 +9,7 @@
 #include "file.h"
 
 
-err_ret runFile(char **input, vari *var, int offset) {
+err_ret runFile(char **input, struct vari *var, int offset) {
 	//error variable
 	err_ret error = 0;
 
@@ -35,20 +35,23 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 	if(!inputFile)
 		return -8;
 
-	//size of char buffer that each line of the file is copied too
-	char buffer[1024];
-
 	//error checking
 	err_ret error = 0;
 
+	//size of char buffer that each line of the file is copied too
+	char *buffer = malloc(BUFF_SIZE * sizeof(*buffer));
+	if(!buffer)
+		return -6;
+
+
 	//stack data structure convenient for creating tree
-	stack *stk = new_stk(128);
+	struct stack *stk = new_stk(128);
 
 	for(int i = 0; i < skip; ++i)
-		fgets(buffer, 1024, inputFile); 
+		fgets(buffer, BUFF_SIZE, inputFile); 
  
 	//creates the tree structure
-	for(int i = 0; fgets(buffer, 1024, inputFile) && !error; ++i) {
+	for(int i = 0; fgets(buffer, BUFF_SIZE, inputFile) && !error; ++i) {
 
 		int offset = 0;
 
@@ -110,15 +113,17 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 	}  
 
 	free_stk(stk, NULL);
+	free(buffer);
+
 	fclose(inputFile);
 
 	return error;
 }
 
 
-err_ret executeTree(fileTree *tree, vari *var){
+err_ret executeTree(fileTree *tree, struct vari *var){
 	//stack structure for nested conditionals
-	int8_t *checkStack = calloc(256, sizeof(*checkStack));
+	int8_t *checkStack = calloc(BUFF_SIZE / 4, sizeof(*checkStack));
 	if(!checkStack)
 		return -6;
 
@@ -129,7 +134,7 @@ err_ret executeTree(fileTree *tree, vari *var){
 	err_ret error = 0;
 
 	//create new file stack
-	stack *stk = new_stk(128);
+	struct stack *stk = new_stk(128);
 	if(!stk) {
 		free(checkStack);
 		return -6;
@@ -137,7 +142,7 @@ err_ret executeTree(fileTree *tree, vari *var){
   
 	//executes the tree
 	//checks that the current leaf and the string it holds are not NULL
-	for(;tree && tree->line; error = 0) {
+	for(;tree && tree->line;) {
 		//check whether to branch left or right down tree
 		int8_t dir = checkProgramFlow(tree->line);
 
@@ -282,7 +287,7 @@ char *parseCondition(char *input, int type) {
 
 
 //checks conditionals in while/if
-int8_t checkConditional(char *input, int type, vari *var) {
+int8_t checkConditional(char *input, int type, struct vari *var) {
 	input = parseCondition(input, type);
 
 	err_ret error = sya(input, var);

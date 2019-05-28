@@ -10,7 +10,7 @@
 
 
 //shunting yard algorithm
-err_ret sya(char *input, vari *var) {
+err_ret sya(char *input, struct vari *var) {
 
 	//iterators
 	//character buffer iterator
@@ -55,12 +55,10 @@ err_ret sya(char *input, vari *var) {
 			return -3;
 	}
 
-
 	//if the number of left and right ends are the same
 	//the count variables will be 0
 	if(parenthesisCount || bracketCount)
 		return -3;
-
 
 	//if input string ends in an operator, return error
 	if(strchr(".[,+-/*^(=&|~<>",input[len - 1]))
@@ -101,12 +99,12 @@ err_ret sya(char *input, vari *var) {
 	type[len] = 0;
 
 	//stack for output numbers
-	stack *num = new_stk(512);
+	struct stack *num = new_stk(512);
 	if(!num)
 		return -6;
 
 	//stack for operators
-	stack *op = new_stk(512);
+	struct stack *op = new_stk(512);
 	if(!op)
 		return -6;
 
@@ -127,12 +125,11 @@ err_ret sya(char *input, vari *var) {
 
 				//if the buffer is all numbers
 				if(chk_num(bufferLetters)) {
-					matrix *temp = init_scalar(strtod(bufferLetters, NULL));
+					struct matrix *temp = init_scalar(strtod(bufferLetters, NULL));
 					if(!temp)
 						break;
 
 					push(num, temp);
-
 				} else { //check if command is a function or variable
 					if(input[i + 1] == '(')
 						bufferLetters[char_iter++] = '(';
@@ -166,7 +163,6 @@ err_ret sya(char *input, vari *var) {
 
 			if(check_op == (OPERATOR_COUNT)) {
 				bufferOper[oper_iter] = '\0';
-
 				//find the corresponding operator
 				error = find_op(bufferOper, num, op, var, &negativeCheck);
 
@@ -180,7 +176,7 @@ err_ret sya(char *input, vari *var) {
 			//reset letters and oper counters
 			char_iter = 0;
 			oper_iter = 0;
-			matrix *a = ext_mat(var, &i, input, &error);
+			struct matrix *a = ext_mat(var, &i, input, &error);
 
 			if(!error)
 				push(num, a);
@@ -210,20 +206,19 @@ err_ret sya(char *input, vari *var) {
 		free(var->ans->size);
 		free(var->ans->elements);
 
-  
 		//copy num_stack->stk[0] to var->ans
 		//if num_stack->stk is occupied, and
 		//if num_stack->stk[0] is not NULL
-		if((num->top > -1) && (((matrix **)num->stk)[0]->size)) {
-			var->ans->len = ((matrix **)num->stk)[0]->len;
-			var->ans->dim = ((matrix **)num->stk)[0]->dim;
+		if((num->top > -1) && (((struct matrix **)num->stk)[0]->size)) {
+			var->ans->len = ((struct matrix **)num->stk)[0]->len;
+			var->ans->dim = ((struct matrix **)num->stk)[0]->dim;
 
 			var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->len);
 			if(!var->ans->elements)
 				return -6;
 
 			memcpy(var->ans->elements,
-			       ((matrix **)num->stk)[0]->elements,
+			       ((struct matrix **)num->stk)[0]->elements,
 			       sizeof(*var->ans->elements) * var->ans->len);
 
 			var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dim + 1));
@@ -231,7 +226,7 @@ err_ret sya(char *input, vari *var) {
 				return -6;
 
 			memcpy(var->ans->size,
-			       ((matrix **)num->stk)[0]->size,
+			       ((struct matrix **)num->stk)[0]->size,
 			       sizeof(*var->ans->size) * (var->ans->dim + 1));
 
 		} else {
@@ -243,7 +238,7 @@ err_ret sya(char *input, vari *var) {
  err_ret:
 	//free stacks
 	free_stk(num, (void (*) (void *))&free_mat);
-	free_stk(op, &free);
+	free_stk(op, NULL);
 
 	//reset assignment
 	var->f_assign = 0;
@@ -277,7 +272,7 @@ void err_rep(err_ret error) {
 
 
 //check if the string is a number/variable
-err_ret chk_num(char *input) {
+int chk_num(char *input) {
 	for(int i = 0; input[i]; ++i) {
 		if(((input[i] < '0') && (input[i] != '.')) ||
 		   (input[i] > '9') ||
@@ -317,7 +312,7 @@ int chk_op(char *a, char b, err_ret *error) {
 //"[]" is 4, matrix operator
 //misc characters are 0, just ignore em
 //nonsupported characters are -1?
-int8_t chk_t(char a) {
+int chk_t(char a) {
 	switch(a) {
 
 	case '0' ... '9':
