@@ -486,9 +486,6 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 	case eMultiplyMatrix:
 	case eDivideMatrix:
 	case eModulo:
-		//if(oper->top > -1)
-			//printf("%d %d\n", ((struct oper *)oper->stk[oper->top - 1])->order, O_STRUCT[i].order);
-
 		while((oper->top > -1) &&
 		      (((struct oper *) top_stk(oper))->order <= O_STRUCT[i].order) ) {
 			struct oper *top = pop(oper);
@@ -759,14 +756,32 @@ void help_print(void) {
 	printf("list - list variables\n");
 	printf("clear - clear variables\n\n");
 
-	printf("derivative(f(x), x, c, delta)\n   f(x) - function\n   x - variable used in function\n   c - point of the tangent line\n   delta - the difference used (finite difference)\n\n");
+	printf("derivative(f(x), x, c, delta)\n");
+	printf("   f(x) - function\n");
+	printf("   x - variable used in function\n");
+	printf("   c - point of the tangent line\n");
+	printf("delta - the difference used (finite difference)\n\n");
 
-	printf("integral(f(x), x, a, b, n)\n   f(x) - function\n   x - variable used in function\n   a - starting point\nb - ending point\n   n - number of partitions (composite Simpson's rule, odd n is equivalent to n-1)\n\n");
+	printf("integral(f(x), x, a, b, n)\n");
+	printf("   f(x) - function\n");
+	printf("   x - variable used in function\n");
+	printf("   a - starting point\n");
+	printf("   b - ending point\n");
+	printf("   n - number of partitions (composite Simpson's rule, odd n is equivalent to n-1)\n\n");   
 
-	printf("solve(f(x), x, guess, delta)\n   f(x) - function\n   x - variable used in function\n   guess - initial guess (Newton's Method)\n   delta - largest difference allowed between x_n+1 and x_n\n\n");
+	printf("solve(f(x), x, guess, delta)\n");
+	printf("   f(x) - function\n");
+	printf("   x - variable used in function\n");
+	printf("   guess - initial guess (Newton's Method)\n");
+	printf("   delta - largest difference allowed between x_n+1 and x_n\n\n");
 
-	printf("run(file)\n   file - path to a text file\n   This function parses each line of the file as if it were entered into the console directly, with the exception of \"while\", \"if/else\" and \"end\".\n    \"while\" - loops until the statement inside the \"while\"'s conditional is false. The inside is executed as if it were entered into the console directly. There may be floating point round off errors.\n   \"if/else\" - Executes the block of lines inside the \"if\"'s conditional if the statement is true, Otherwise it will execute the \"else\" block.\n   '#' at the beginning of\
- a line comments out a line\n   ';' at the end of a line suppresses output\n\n");
+	printf("run(file)\n");
+	printf("file - path to a text file\n");
+	printf("   This function parses each line of the file as if it were entered into the console directly, with the exception of \"while\", \"if/else\" and \"end\".\n");
+	printf("   \"while\" - loops until the statement inside the \"while\"'s conditional is false. The inside is executed as if it were entered into the console directly. There may be floating point round off errors.\n");
+	printf("   \"if/else\" - Executes the block of lines inside the \"if\"'s conditional if the statement is true, Otherwise it will execute the \"else\" block.\n");
+	printf("   '#' at the beginning of a line comments out a line\n");
+	printf("   ';' at the end of a line suppresses output\n\n");
 }
 
 

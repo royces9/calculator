@@ -192,8 +192,7 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 	//check that the out variable exists
 	int out_var = find_var(fun_var, outName);
 	free(out_buff);
-
-	if(out_var < 0) {
+   	if(out_var < 0) {
 		*error = -12;
 	} else {
 		out = cpy_mat(fun_var->value[out_var]);

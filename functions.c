@@ -89,8 +89,11 @@ struct matrix *numel(struct matrix *a, err_ret *error) {
  */
 struct matrix *reference(struct matrix *a, struct matrix *b, err_ret *error) {
 	struct matrix *out = cpy_mat(b);
-	if( !out )
+
+	if( !out ) {
+		*error = -6;
 		return NULL;
+	}
 
 	for(uint64_t i = 0; i < b->len; ++i)
 		out->elements[i] = a->elements[(uint64_t) (b->elements[i])];

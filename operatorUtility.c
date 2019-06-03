@@ -180,5 +180,5 @@ O_STRUCT[OPERATOR_COUNT + 1] = {
 	[eOr] = {.order = 14, .argNo = 2, .fp.s_two = &or, .mat_op = 0, ._enum = eOr},
 	[eNot] = empty_op,
 
-	[eReference] = {.order = 16, .argNo = 2, .fp.m_two = &reference, .mat_op = 1, ._enum = eReference},
+	[eReference] = {.order = 0, .argNo = 2, .fp.m_two = &reference, .mat_op = 1, ._enum = eReference},
 };
