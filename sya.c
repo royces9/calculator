@@ -91,7 +91,10 @@ err_ret sya(char *input, struct vari *var) {
 		//by checking the next character
 		if(type[l] == 3){
 			type[l + 1] = chk_t(input[l + 1]);
-			type[l] = type[l + 1];
+			if(!type[l + 1])
+				type[l] = 2;
+			else
+				type[l] = type[l + 1];
 			++l;
 		}
 	}
@@ -252,21 +255,23 @@ void err_rep(err_ret error) {
 		printf("\nError %d:\n", error);
 		switch(error) {
 
-		case -2: printf("Incorrect number of function arguments."); break;
-		case -3: printf("Mismatched parenthesis."); break;
-		case -4: printf("Invalid expression."); break;
-		case -5: printf("Invalid function or variable name."); break;
-		case -6: printf("Malloc error."); break;
-		case -7: printf("Invalid operator."); break;
-		case -8: printf("File does not exist."); break;
-		case -9: printf("Mismatched quotation marks."); break;
-		case -10:printf("Matrix dimensions do not match."); break;
-		case -11:printf("Out of matrix bounds."); break;
-		case -12:printf("No output variable."); break;
-		case -13:printf("Invalid assignment."); break;
+		case -2: puts("Incorrect number of function arguments."); break;
+		case -3: puts("Mismatched parenthesis."); break;
+		case -4: puts("Invalid expression."); break;
+		case -5: puts("Invalid function or variable name."); break;
+		case -6: puts("Malloc error."); break;
+		case -7: puts("Invalid operator."); break;
+		case -8: puts("File does not exist."); break;
+		case -9: puts("Mismatched quotation marks."); break;
+		case -10:puts("Matrix dimensions do not match."); break;
+		case -11:puts("Out of matrix bounds."); break;
+		case -12:puts("No output variable."); break;
+		case -13:puts("Invalid assignment."); break;
+		case -14:puts("Fatal error in cat_mat");
+		case -15:puts("Concatenating matrices do not match."); break;
 		default: break;
 		}
-		printf("\n\n");
+		puts("");
 	}
 }
 

@@ -327,12 +327,12 @@ struct matrix *zeros(char **inp, struct vari *var, err_ret *error) {
 	
 			uint8_t i = 0;
 			for(; i < var->ans->len; ++i) {
-				if( !(var->ans->elements[i]) ) {
-					size[i] = var->ans->elements[i];
-				} else {
+				if(var->ans->elements[i]) {
 					*error = -11;
 					break;
 				}
+
+				size[i] = var->ans->elements[i];
 			}
 
 			size[i] = 0;

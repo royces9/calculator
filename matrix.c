@@ -108,24 +108,22 @@ struct matrix *cpy_mat(struct matrix *src) {
 //the size of out is determined and error checking for sizes of a and b
 //is done in concatMatrix, this function only populates the matrix
 struct matrix *assignConcat(struct matrix *out, struct matrix *a, struct matrix *b, uint8_t dim) {
-	uint64_t aIncrement = 1;
-	uint64_t bIncrement = 1;
+	uint64_t aIncr = 1;
+	uint64_t bIncr = 1;
 
 	for(uint16_t i = 0; i <= dim; ++i){
-		aIncrement *= a->size[i];
-		bIncrement *= b->size[i];
+		aIncr *= a->size[i];
+		bIncr *= b->size[i];
 	}
 
-	for(uint64_t aIterator = 0, bIterator = 0, sizeOffset = 0, k = 0; k < out->len; ++sizeOffset) {
-		for(aIterator = 0; aIterator < aIncrement; ++aIterator) {
-			out->elements[k] = a->elements[aIterator + aIncrement * sizeOffset];
-			++k;
-		}
+	for(uint64_t aIter = 0, bIter = 0, sizeOffset = 0, k = 0;
+	    k < out->len;
+	    ++sizeOffset) {
+		for(aIter = 0; aIter < aIncr; ++aIter, ++k)
+			out->elements[k] = a->elements[aIter + aIncr * sizeOffset];
       
-		for(bIterator = 0; bIterator < bIncrement; ++bIterator) {
-			out->elements[k] = b->elements[bIterator + bIncrement * sizeOffset];
-			++k;
-		}
+		for(bIter = 0; bIter < bIncr; ++bIter, ++k)
+			out->elements[k] = b->elements[bIter + bIncr * sizeOffset];
 	}
 
 	return out;
@@ -293,16 +291,16 @@ void free_mat(struct matrix *m) {
 //6 8
 void print_two_d(const struct matrix *m, int offset) {
 
-	printf("\n");
+	puts("");
 	for(int columns = 0; columns < m->size[0]; ++columns) {
 		for(int rows = 0; rows < m->size[1]; ++rows) {
 			//the below is the same as sub2ind for a 2d matrix
 			//columns + m.size[0] * rows
 			printf("%lf ", m->elements[offset + (columns + m->size[0] * rows)]);
 		}
-		printf("\n");
+		puts("");
 	}
-	printf("\n");
+	puts("");
 
 	return;
 }

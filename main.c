@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 		//break on EOF
 		//skip empty lines
 		if( !input ) {
-			printf("\n");
+			puts("");
 			break;
 		} else if( (*input) ) {
 			//parses string and does all the calculations

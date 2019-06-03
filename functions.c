@@ -193,7 +193,8 @@ struct matrix *mult_mat(struct matrix *a, struct matrix *b, err_ret *error) {
 	struct matrix *t_a = t_mat(a, error);
 
 	//generic O(n^3) algorithm
-	//transpose a and then multiply every column with every other column in each matrix
+	//transpose a and then multiply every column
+	//with every other column in each matrix
 	for(uint16_t i = 0, l = 0; i < b->size[1]; ++i){
 		for(uint16_t j = 0; j < t_a->size[1]; ++j){
 			ele tmp = 0;

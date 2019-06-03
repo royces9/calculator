@@ -9,7 +9,7 @@
 #include "multi.h"
 #include "operatorUtility.h"
 
-//struct oper const empty_op = {.order = 0, .argNo = 0, .fp = NULL, .mat_op = 0, ._enum = 0};
+//struct oper const empty_op = {.order = 0, .argNo = 0, .fp.p = NULL, .mat_op = 0, ._enum = 0};
 #define empty_op {.order = 0, .argNo = 0, .fp.p = NULL, .mat_op = 0, ._enum = 0}
 
 char const *const FUNCTION_LIST[FUNCTION_COUNT + 1] = {

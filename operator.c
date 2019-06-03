@@ -214,18 +214,18 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 			var->name[i] = NULL;
 		}
 		var->count =  -1;
-		printf("\nAll variables cleared\n\n");
+		puts("\nAll variables cleared\n");
 		return -1;
 
 	case eList:
 		if(var->count > -1) {
-			printf("\nVariable List:\n");
+			puts("\nVariable List:");
 			for(int j = 0; j <= var->count; ++j) {
 				printf("%s =", var->name[j]);
 				print_mat(var->value[j]);
 			}
 		} else {
-			printf("\nNo variables set\n\n");
+			puts("\nNo variables set\n");
 		}
 		return -1;
 
@@ -752,36 +752,41 @@ struct matrix *ext_mat(struct vari *var, uint16_t *iter, char *input, err_ret *e
 
 
 void help_print(void) {
-	printf("quit - quit program\n");
-	printf("list - list variables\n");
-	printf("clear - clear variables\n\n");
+	puts("quit - quit program");
+	puts("list - list variables");
+	puts("clear - clear variables");
+	puts("");
 
-	printf("derivative(f(x), x, c, delta)\n");
-	printf("   f(x) - function\n");
-	printf("   x - variable used in function\n");
-	printf("   c - point of the tangent line\n");
-	printf("delta - the difference used (finite difference)\n\n");
+	puts("derivative(f(x), x, c, delta)");
+	puts("   f(x) - function");
+	puts("   x - variable used in function");
+	puts("   c - point of the tangent line");
+	puts("   delta - the difference used (finite difference)");
+	puts("");
 
-	printf("integral(f(x), x, a, b, n)\n");
-	printf("   f(x) - function\n");
-	printf("   x - variable used in function\n");
-	printf("   a - starting point\n");
-	printf("   b - ending point\n");
-	printf("   n - number of partitions (composite Simpson's rule, odd n is equivalent to n-1)\n\n");   
-
-	printf("solve(f(x), x, guess, delta)\n");
-	printf("   f(x) - function\n");
-	printf("   x - variable used in function\n");
-	printf("   guess - initial guess (Newton's Method)\n");
-	printf("   delta - largest difference allowed between x_n+1 and x_n\n\n");
-
-	printf("run(file)\n");
-	printf("file - path to a text file\n");
-	printf("   This function parses each line of the file as if it were entered into the console directly, with the exception of \"while\", \"if/else\" and \"end\".\n");
-	printf("   \"while\" - loops until the statement inside the \"while\"'s conditional is false. The inside is executed as if it were entered into the console directly. There may be floating point round off errors.\n");
-	printf("   \"if/else\" - Executes the block of lines inside the \"if\"'s conditional if the statement is true, Otherwise it will execute the \"else\" block.\n");
-	printf("   '#' at the beginning of a line comments out a line\n");
-	printf("   ';' at the end of a line suppresses output\n\n");
+	puts("integral(f(x), x, a, b, n)");
+	puts("   f(x) - function");
+	puts("   x - variable used in function");
+	puts("   a - starting point");
+	puts("   b - ending point");
+	puts("   n - number of partitions (composite Simpson's rule, odd n is equivalent to n-1)");   
+	puts("");
+	
+	puts("solve(f(x), x, guess, delta)");
+	puts("   f(x) - function");
+	puts("   x - variable used in function");
+	puts("   guess - initial guess (Newton's Method)");
+	puts("   delta - largest difference allowed between x_n+1 and x_n");
+	puts("");
+	
+	puts("run(file)");
+	puts("file - path to a text file");
+	puts("   This function parses each line of the file as if it were entered into the console directly, with the exception of \"while\", \"if/else\" and \"end\".");
+	puts("   \"while\" - loops until the statement inside the \"while\"'s conditional is false. The inside is executed as if it were entered into the console directly. There may be floating point round off errors.");
+	puts("   \"if/else\" - Executes the block of lines inside the \"if\"'s conditional if the statement is true, Otherwise it will execute the \"else\" block.");
+	puts("   '#' at the beginning of a line comments out a line");
+	puts("   ';' at the end of a line suppresses output");
+	puts("");
 }
 
 
