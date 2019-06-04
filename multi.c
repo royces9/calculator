@@ -556,7 +556,7 @@ struct matrix *extractValue(char **inp, int var_ind, struct vari *var, err_ret *
 err_ret chk_var(const char *buffer, char *inp, uint16_t *iter, struct vari *var, struct stack *num, struct stack *ch) {
 	err_ret error = 0;
 
-	uint16_t len = strlen(buffer);
+	int len = strlen(buffer);
 
 	char *nameBuffer = malloc(sizeof(*nameBuffer) * (len + 1));
 	__MALLOC_CHECK(nameBuffer, error);

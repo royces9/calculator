@@ -14,7 +14,7 @@
 #include "operator.h"
 
 
-int search_str(char *buffer, char const *const list[]) {
+int search_str(char *buffer, char const *const *const list) {
 	int i = 0;
 	for(; list[i]; ++i)
 		if(!strcmp(list[i], buffer))
@@ -88,8 +88,10 @@ struct matrix *mat_one(struct matrix *a, struct oper *ch, err_ret *error) {
 	struct matrix *out = NULL;
 	if(!ch->mat_op) {
 		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
-		if(!newSize)
+		if(!newSize) {
+			*error = -6;
 			return NULL;
+		}
 		memcpy(newSize, a->size, sizeof(*newSize) * (a->dim + 1));
 
 		out = init_mat(newSize, a->dim, error);

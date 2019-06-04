@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -94,7 +95,7 @@ int find_var(struct vari *list, char *input) {
 		return -1;
 
 	int i = search_str(input, (char const *const *const) list->name);
-	if(i == (list->count + 1))
+	if(i > list->count)
 		i = -2;
 
 	return i;
@@ -111,7 +112,8 @@ int set_var(struct vari *var, char *name, struct matrix *a, err_ret *error) {
 		break;
 
 	case -2: //new variable, struct is not empty
-		index = ++var->count;
+		++var->count;
+		index = var->count;
 		break;
 
 	default: //variable exists already

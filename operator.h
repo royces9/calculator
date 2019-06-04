@@ -1,7 +1,7 @@
 #ifndef OPERATOR
 #define OPERATOR
 
-int search_str(char *buffer, char const *const list[]);
+int search_str(char *buffer, char const *const *const list);
 err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch);
 
 struct matrix *mat_one(struct matrix *a, struct oper *ch, err_ret *error);
