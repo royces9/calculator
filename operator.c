@@ -77,10 +77,9 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 		break;
 	}
 
-	if(out)
+	if(out && !error)
 		push(num, out);
 
-	//free(ch);
 	return error;
 }
 
@@ -100,7 +99,7 @@ struct matrix *mat_one(struct matrix *a, struct oper *ch, err_ret *error) {
 			return NULL;
 
 		for(uint64_t i = 0; i < out->len; ++i)
-			out->elements[i] = ch->fp.s_one(a->elements[i], error);
+			out->elements[i] = ch->fp.s_one(a->elements[i]);
 
 	} else {
 		out = ch->fp.m_one(a, error);

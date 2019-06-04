@@ -20,20 +20,20 @@ struct matrix *sum(struct matrix *m, err_ret *error);
 struct matrix *avg(struct matrix *m, err_ret *error);
 
 
-ele _sin(ele a, err_ret *e);
-ele _cos(ele a, err_ret *e);
-ele _tan(ele a, err_ret *e);
-ele _log(ele a, err_ret *e);
-ele _log10(ele a, err_ret *e);
-ele _sqrt(ele a, err_ret *e);
-ele _asin(ele a, err_ret *e);
-ele _acos(ele a, err_ret *e);
-ele _atan(ele a, err_ret *e);
-ele _floor(ele a, err_ret *e);
-ele _ceil(ele a, err_ret *e);
-ele _round(ele a, err_ret *e);
+ele _sin(ele a);
+ele _cos(ele a);
+ele _tan(ele a);
+ele _log(ele a);
+ele _log10(ele a);
+ele _sqrt(ele a);
+ele _asin(ele a);
+ele _acos(ele a);
+ele _atan(ele a);
+ele _floor(ele a);
+ele _ceil(ele a);
+ele _round(ele a);
 
-ele factorial(ele a, err_ret *e);
+ele factorial(ele a);
 
 ele one_arg(ele a, int o, err_ret *error);
 ele two_arg(ele a, ele b, int o, err_ret *error);

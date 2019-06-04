@@ -267,7 +267,7 @@ void err_rep(err_ret error) {
 		case -11:puts("Out of matrix bounds."); break;
 		case -12:puts("No output variable."); break;
 		case -13:puts("Invalid assignment."); break;
-		case -14:puts("Fatal error in cat_mat");
+		case -14:puts("Fatal error in cat_mat"); break;
 		case -15:puts("Concatenating matrices do not match."); break;
 		default: break;
 		}

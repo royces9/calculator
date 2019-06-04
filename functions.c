@@ -31,7 +31,7 @@ struct matrix *eye(struct matrix *a, err_ret *error) {
 }
 
 
-struct matrix *get_size(struct matrix *a, err_ret *error){
+struct matrix *get_size(struct matrix *a, err_ret *error) {
 	uint16_t newSize[3];
 
 	//output is a row vector
@@ -50,7 +50,7 @@ struct matrix *get_size(struct matrix *a, err_ret *error){
 }
 
 
-struct matrix *magnitude(struct matrix *a, err_ret *error){
+struct matrix *magnitude(struct matrix *a, err_ret *error) {
 	if(!is_vec(a)) {
 		*error = -10;
 		return NULL;
@@ -195,11 +195,11 @@ struct matrix *mult_mat(struct matrix *a, struct matrix *b, err_ret *error) {
 	//generic O(n^3) algorithm
 	//transpose a and then multiply every column
 	//with every other column in each matrix
-	for(uint16_t i = 0, l = 0; i < b->size[1]; ++i){
-		for(uint16_t j = 0; j < t_a->size[1]; ++j){
+	for(int i = 0, l = 0; i < b->size[1]; ++i){
+		for(int j = 0; j < t_a->size[1]; ++j){
 			ele tmp = 0;
 
-			for(uint16_t k = 0; k < t_a->size[0]; ++k) {
+			for(int k = 0; k < t_a->size[0]; ++k) {
 				uint64_t ind_a = k + j * t_a->size[0];
 				uint64_t ind_b = k + i * b->size[0];
 				tmp += t_a->elements[ind_a] * b->elements[ind_b];
@@ -247,26 +247,30 @@ struct matrix *exp_mat(struct matrix *a, struct matrix *b, err_ret *error) {
 			free_mat(out);
 
 			//really small number
-			if((b->elements[0] - floor(b->elements[0])) < 0.00000000001) {
-				int64_t power = b->elements[0];
-				for(int64_t i = 0; i < power; ++i) {
-					out = mult_mat(tmp, a, error);
-					free_mat(tmp);
-
-					if(*error) {
-						free_mat(out);
-						return NULL;
-					}
-
-					tmp = cpy_mat(out);
-					if( !tmp ) {
-						*error = -6;
-						return NULL;
-					}
-					free_mat(out);
-				}
-				out = tmp;
+			if((b->elements[0] - floor(b->elements[0])) > 0.00000000001) {
+				*error = -10;
+				free_mat(tmp);
+				break;
 			}
+
+			int64_t power = b->elements[0];
+			for(int64_t i = 0; i < power; ++i) {
+				out = mult_mat(tmp, a, error);
+				free_mat(tmp);
+
+				if(*error) {
+					free_mat(out);
+					return NULL;
+				}
+
+				tmp = cpy_mat(out);
+				if( !tmp ) {
+					*error = -6;
+					return NULL;
+				}
+				free_mat(out);
+			}
+			out = tmp;
 		}
 		break;
 
@@ -400,57 +404,57 @@ struct matrix *avg(struct matrix *m, err_ret *error) {
 }
 
 
-ele _sin(ele a, err_ret *e) {
+ele _sin(ele a) {
 	return sin(a);
 }
 
-ele _cos(ele a, err_ret *e) {
+ele _cos(ele a) {
 	return cos(a);
 }
 
-ele _tan(ele a, err_ret *e) {
+ele _tan(ele a) {
 	return tan(a);
 }
 
-ele _log(ele a, err_ret *e) {
+ele _log(ele a) {
 	return log(a);
 }
 
-ele _log10(ele a, err_ret *e) {
+ele _log10(ele a) {
 	return log10(a);
 }
 
-ele _sqrt(ele a, err_ret *e) {
+ele _sqrt(ele a) {
 	return sqrt(a);
 }
 
-ele _asin(ele a, err_ret *e) {
+ele _asin(ele a) {
 	return asin(a);
 }
 
-ele _acos(ele a, err_ret *e) {
+ele _acos(ele a) {
 	return acos(a);
 }
 
-ele _atan(ele a, err_ret *e) {
+ele _atan(ele a) {
 	return atan(a);
 }
 
-ele _floor(ele a, err_ret *e) {
+ele _floor(ele a) {
 	return floor(a);
 }
 
-ele _ceil(ele a, err_ret *e) {
+ele _ceil(ele a) {
 	return ceil(a);
 }
 
-ele _round(ele a, err_ret *e) {
+ele _round(ele a) {
 	return round(a);
 }
 
-ele factorial(ele a, err_ret *e) {
+ele factorial(ele a) {
 	a = floor(a);
 
-	return a < 2 ? 1 : a * factorial(a - 1, e);
+	return a < 2 ? 1 : a * factorial(a - 1);
 }
 
