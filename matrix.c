@@ -34,14 +34,15 @@ struct matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
 	//if there is a 0 element in size
 	if(!out->len) {
 		*error = -10;
-	} else {
-		out->elements = calloc(out->len, sizeof(*out->elements));
-		if(!out->elements) {
-			free(out->size);
-			free(out);
-			out = NULL;
-			*error = -6;
-		}
+		return NULL;
+	}
+
+	out->elements = calloc(out->len, sizeof(*out->elements));
+	if(!out->elements) {
+		free(out->size);
+		free(out);
+		out = NULL;
+		*error = -6;
 	}
 
 	return out;

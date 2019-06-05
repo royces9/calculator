@@ -346,15 +346,16 @@ struct matrix *sum(struct matrix *m, err_ret *error) {
 	uint16_t *newSize = NULL;
 
 	if(is_vec(m)) {
-		newSize = malloc(sizeof(*newSize) * (new_dim + 1));
+		new_dim = 2;
+		newSize = malloc(2 * sizeof(*newSize));
 		__MALLOC_CHECK(newSize, *error);
 
 		newSize[0] = 1;
 		newSize[1] = 0;
-
+		
 	} else if(m->dim == 2) {
-		new_dim = 2;
-		newSize = malloc(sizeof(*newSize) * (new_dim + 1));
+		new_dim = 3;
+		newSize = malloc(2 * sizeof(*newSize));
 		__MALLOC_CHECK(newSize, *error);
 		
 		newSize[0] = 1;
@@ -365,12 +366,12 @@ struct matrix *sum(struct matrix *m, err_ret *error) {
 		return cpy_mat(m);
 
 	} else {
-		newSize = malloc(sizeof(*newSize) * (new_dim + 1));
+		newSize = malloc(m->dim * sizeof(*newSize));
 		__MALLOC_CHECK(newSize, *error);
 
 		newSize = memcpy(newSize, m->size,
-				 sizeof(*newSize) * (new_dim + 1));
-		newSize[new_dim] = 0;
+				 m->dim * sizeof(*newSize));
+		newSize[m->dim - 1] = 0;
 	}
 
 	out = init_mat(newSize, new_dim, error);
@@ -378,13 +379,27 @@ struct matrix *sum(struct matrix *m, err_ret *error) {
 	if(*error)
 		return NULL;
 
-	for(uint64_t i = 0; i < out->len; ++i){
-		for(uint16_t j = 0; j < m->size[m->dim - 2]; ++j){
+	if(is_vec(m)) {
+		for(int i = 0; i < m->len; ++i)
+			out->elements[0] += m->elements[i];
+	} else if(m->dim == 2) {
+		for(int i = 0; i < out->len; ++i) {
+			for(int j = 0; j < m->size[m->dim - 2]; ++j) {
+				uint64_t ind = i * m->size[m->dim - 2] + j;
+				out->elements[i] += m->elements[ind];
+			}
+		}
+	} else {
+		
+	}
+	/*
+	for(uint64_t i = 0; i < out->len; ++i) {
+		for(int j = 0; j < m->size[m->dim - 2]; ++j) {
 			uint64_t ind = i * m->size[m->dim - 2] + j;
 			out->elements[i] += m->elements[ind];
 		}
 	}
-
+	*/
 	return out;
 }
 
