@@ -343,8 +343,10 @@ struct matrix *sum(struct matrix *m, err_ret *error) {
 	struct matrix *out = NULL;
 
 	if(is_vec(m)) {
-		out = init_scalar(0);
-		__MALLOC_CHECK(out, *error);		
+		if( !(out = init_scalar(0))) {
+			*error = -6;
+			return NULL;
+		}
 
 		for(int i = 0; i < m->len; ++i)
 			out->elements[0] += m->elements[i];
@@ -353,7 +355,8 @@ struct matrix *sum(struct matrix *m, err_ret *error) {
 		uint16_t new_size[] = {1, m->size[1], 0};
 
 		out = init_mat(new_size, 2, error);
-		__MALLOC_CHECK(out, *error);
+		if(*error)
+			return out:
 
 		for(int i = 0; i < out->len; ++i) {
 			for(int j = 0; j < m->size[m->dim - 2]; ++j) {
