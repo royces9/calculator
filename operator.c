@@ -123,10 +123,10 @@ struct matrix *mat_two(struct matrix *a, struct matrix *b, struct oper *ch, err_
 	if(((aScalar + bScalar) > 0) && check) {
 		//if the fp is for a matrix operation
 		//change to the scalar operator
-		if(ch->_enum == eMultiplyMatrix) {
+		if(ch->m_enum == eMultiplyMatrix) {
 			check = 0;
 			ch = &O_STRUCT[eMultiply];
-		} else if(ch->_enum == eDivideMatrix) {
+		} else if(ch->m_enum == eDivideMatrix) {
 			check = 0;
 			ch = &O_STRUCT[eDivide];
 		}
@@ -450,12 +450,12 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 
 	case eRightParen:
 
-		while( (oper->top > -1) && (((struct oper *) top_stk(oper))->_enum != eLeftParen )) {
+		while( (oper->top > -1) && (((struct oper *) top_stk(oper))->m_enum != eLeftParen )) {
 			struct oper *top = pop(oper);
 			error = ex_num(num, var, top);
 		}
 
-		if((oper->top > -1) && (((struct oper *) top_stk(oper))->_enum == eLeftParen))
+		if((oper->top > -1) && (((struct oper *) top_stk(oper))->m_enum == eLeftParen))
 			pop(oper);
 		
 		*tok = 1;
@@ -465,7 +465,7 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 	case eAssign:
 		*tok = 0;
 		if((oper->top > -1) &&
-		   (((struct oper *) top_stk(oper))->_enum == eReference) ) {
+		   (((struct oper *) top_stk(oper))->m_enum == eReference) ) {
 			var->assign = pop(num);
 			pop(oper);
 		}

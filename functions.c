@@ -356,7 +356,7 @@ struct matrix *sum(struct matrix *m, err_ret *error) {
 
 		out = init_mat(new_size, 2, error);
 		if(*error)
-			return out:
+			return out;
 
 		for(int i = 0; i < out->len; ++i) {
 			for(int j = 0; j < m->size[m->dim - 2]; ++j) {

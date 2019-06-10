@@ -31,7 +31,7 @@ struct oper { //struct for operators, +, -, etc
 	//function pointer
 	union fp fp;
 
-	int _enum;
+	int m_enum;
 
 	//order of operation, higher is higher priority
 	uint8_t order;
