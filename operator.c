@@ -142,11 +142,14 @@ err_ret mat_two(struct matrix *a, struct matrix *b, struct oper *ch, struct matr
 				break;
 			}
 
-			if((err = init_mat(a->size, a->dim, out)))
+			err = init_mat(a->size, a->dim, out);
+			if(err)
 				break;
 
 			for(uint64_t i = 0; i < a->len; ++i)
-				out[0]->elements[i] = ch->fp.s_two(a->elements[i], b->elements[i]);
+				out[0]->elements[i] =
+					ch->fp.s_two(a->elements[i],
+						     b->elements[i]);
 
 			break;
       
@@ -178,7 +181,6 @@ err_ret mat_two(struct matrix *a, struct matrix *b, struct oper *ch, struct matr
 		default:
 			err = -2;
 			break;
-
 		}
 
 	} else {
@@ -189,7 +191,7 @@ err_ret mat_two(struct matrix *a, struct matrix *b, struct oper *ch, struct matr
 }
 
 
-err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok, uint16_t *iter, char *input) {
+err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok, int *iter, char *input) {
 	char **separatedString = NULL;
 	struct matrix *out = NULL;
 
@@ -277,42 +279,56 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 
 	case eDeri:
 		separatedString = sep_str(input, "()", ",", iter, &err);
+		if(err)
+			break;
 		err = deri(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eInte:
 		separatedString = sep_str(input, "()", ",", iter, &err);
+		if(err)
+			break;
 		err = inte(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eSolve:
 		separatedString = sep_str(input, "()", "," , iter, &err);
+		if(err)
+			break;
 		err = solve(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eRand:
 		separatedString = sep_str(input, "()", ",", iter, &err);
+		if(err)
+			break;
 		err = rand_mat(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eLinspace:
 		separatedString = sep_str(input, "()", ",", iter, &err);
+		if(err)
+			break;
 		err = linspace(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eZeros:
 		separatedString = sep_str(input, "()[]", ",", iter, &err);
+		if(err)
+			break;
 		err = zeros(separatedString, var, &out); 
 		*tok = 0;
 		break;
     
 	case eOnes:
 		separatedString = sep_str(input, "()[]", ",", iter, &err);
+		if(err)
+			break;
 		err = ones(separatedString, var, &out);
 		*tok = 0;
 		break;
@@ -320,6 +336,8 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 		
 	case eRun:
 		separatedString = sep_str(input, "()", "\0", iter, &err);
+		if(err)
+			break;
 		err = runFile(separatedString, var, 0);
 		if(!err) {
 			//copy ans matrix so it doesn't get freed
@@ -330,6 +348,8 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 
 	case ePrint:
 		separatedString = sep_str(input, "()[]", ",", iter, &err);
+		if(err)
+			break;
 		err = printLine(separatedString, var);
 		break;
 
@@ -591,7 +611,7 @@ uint16_t countDelimiter(char *input){
 
 
 //iter is the counter for the main loop in sya
-err_ret ext_mat(struct vari *var, uint16_t *iter, char *input, struct matrix **out) {
+err_ret ext_mat(struct vari *var, int *iter, char *input, struct matrix **out) {
 	err_ret err = 0;
 
 	//input is incremented to start at input[*iter], which is where
@@ -647,16 +667,16 @@ err_ret ext_mat(struct vari *var, uint16_t *iter, char *input, struct matrix **o
 	//free matrixString, not needed anymore
 	free(mat_string);
 
-	struct vari *tempVari = cpy_var(var);
-	if( !tempVari ) {
-		err = -6;
+	struct vari *tempVari = NULL;
+	err = cpy_var(var, &tempVari);
+	if(err)
 		goto err_ret;
-	}
 
 	err = sya(sepd_mat[0], tempVari);
 
 	struct matrix *temp = NULL;
-	if((err = cpy_mat(tempVari->ans, &temp)))
+	err = cpy_mat(tempVari->ans, &temp);
+	if(err)
 		goto err_ret;
 
 	push(num, temp);
@@ -675,22 +695,27 @@ err_ret ext_mat(struct vari *var, uint16_t *iter, char *input, struct matrix **o
 		switch(sepd_mat[i][0]) {
 		case ',':
 
-			if( !(err = sya(sepd_mat[i] + 1, tempVari)) ) {
-				a = pop(num);
-				err = cat_mat(a, tempVari->ans, 1, &temp);
-				free_mat(a);
+			err = sya(sepd_mat[i] + 1, tempVari);
+			if(err)
+				goto err_ret;
 
-				if(err)
-					goto err_ret;
-			}
+			a = pop(num);
+			err = cat_mat(a, tempVari->ans, 1, &temp);
+			free_mat(a);
+			if(err)
+				goto err_ret;
+
 
 			break;
 
 		case ';':
-			if( !(err = sya(sepd_mat[i] + 1, tempVari)) ) {
-				if((err = cpy_mat(tempVari->ans, &temp)))
-					goto err_ret;
-			}
+			err = sya(sepd_mat[i] + 1, tempVari);
+			if(err)
+				goto err_ret;
+
+			err = cpy_mat(tempVari->ans, &temp);
+			if(err)
+				goto err_ret;
 
 			break;
       

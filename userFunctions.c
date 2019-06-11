@@ -135,14 +135,15 @@ err_ret exec_fun(char *path, char **args, struct vari *var, struct matrix **out)
 	//increment title to where input arguments are
 	//first find left end paren
 	for(;title[i] != '('; ++i);
-	int j = i--;
-
+	int j = i;
+	--i;
+	
 	//then find right end paren
 	for(; title[j] != ')'; ++j);
 	title[j + 1] = '\0';
 
 	//separate the string, to know what the variable names are
-	char **arg_names = sep_str(title, "()", ",", (uint16_t *) &i, &err);
+	char **arg_names = sep_str(title, "()", ",", &i, &err);
 	free(title);
 
 	//count the number of arguments required
@@ -157,11 +158,10 @@ err_ret exec_fun(char *path, char **args, struct vari *var, struct matrix **out)
 
 	//variable struct for the function
 	//essentially a new scope
-	struct vari *fun_var = init_var(256);
-	if(!fun_var) {
-		err = -6;
+	struct vari *fun_var = NULL;
+	err = init_var(256, &fun_var);
+	if(err)
 		goto ret_out;
-	}
 
 	for(int j = 0; j < functionArgNo; ++j) {
 		char *inputName = removeSpaces(arg_names[j]);
