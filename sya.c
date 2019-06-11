@@ -128,8 +128,9 @@ err_ret sya(char *input, struct vari *var) {
 
 				//if the buffer is all numbers
 				if(chk_num(bufferLetters)) {
-					struct matrix *temp = init_scalar(strtod(bufferLetters, NULL));
-					if(!temp)
+					double buf_num = strtod(bufferLetters, NULL);
+					struct matrix *temp;
+					if((error = init_scalar(buf_num, &temp)))
 						break;
 
 					push(num, temp);

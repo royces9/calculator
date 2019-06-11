@@ -26,8 +26,8 @@ struct vari *init_var(int size) {
 	
 	var->assign = NULL;
 
-	var->ans = init_scalar(0);
-	if(!var->ans) {
+	err_ret err = init_scalar(0, &var->ans);
+	if(err) {
 		free(var->name);
 		free(var->value);
 		free(var);
@@ -42,6 +42,7 @@ struct vari *init_var(int size) {
 
 
 struct vari *cpy_var(struct vari *var){
+	err_ret err = 0;
 	struct vari *out = init_var(var->size);
 	if( !out )
 		return NULL;
@@ -53,12 +54,12 @@ struct vari *cpy_var(struct vari *var){
 	if(var->count > -1){
 		int i = 0;
 		for(; i < var->count; ++i) {
-			if( !(out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1))) )
+			if( !(out->name[i] = malloc((strlen(var->name[i]) + 1) * sizeof(*var->name[i]))) )
 				goto err_ret;
 
 			strcpy(out->name[i], var->name[i]);
 
-			if( !(out->value[i] = cpy_mat(var->value[i])) )
+			if((err = cpy_mat(var->value[i], &out->value[i])))
 				goto err_ret;
 
 			out->value[i]->var = 1;
@@ -66,12 +67,12 @@ struct vari *cpy_var(struct vari *var){
 
 
 		if((var->value[i] != NULL) && (var->value[i]->size != NULL)) {
-			if( !(out->name[i] = malloc(sizeof(*var->name[i]) * (strlen(var->name[i]) + 1))) )
+			if( !(out->name[i] = malloc((strlen(var->name[i]) + 1) * sizeof(*var->name[i]))) )
 				goto err_ret;
 
 			strcpy(out->name[i], var->name[i]);
 
-			if( !(out->value[i] = cpy_mat(var->value[i])) )
+			if((err = cpy_mat(var->value[i], &out->value[i])))
 				goto err_ret;
 
 			out->value[i]->var = 1;
