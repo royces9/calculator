@@ -180,9 +180,8 @@ err_ret sya(char *input, struct vari *var) {
 			//reset letters and oper counters
 			char_iter = 0;
 			oper_iter = 0;
-			struct matrix *a = ext_mat(var, &i, input, &error);
-
-			if(!error)
+			struct matrix *a = NULL;
+			if(!(error = ext_mat(var, &i, input, &a)))
 				push(num, a);
 
 			break;
