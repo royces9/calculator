@@ -5,7 +5,6 @@
 #include "types.h"
 
 #include "sya.h"
-#include "fileStruct.h"
 #include "file.h"
 
 
