@@ -34,6 +34,7 @@ struct stack *new_stk(int size) {
 		free(out);
 		return NULL;
 	}
+
 	out->top = -1;
 
 	return out;

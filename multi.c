@@ -764,7 +764,7 @@ err_ret printLine(char **inp, struct vari *var) {
 }
 
 
-char **sep_str(char *inp, char const * const lim, char const * const delim, int *iter, err_ret *error) {
+char **sep_str(char *inp, char const *const lim, char const *const delim, int *iter, err_ret *error) {
 
 	//increment inp to the first parenthesis
 	inp += (*iter + 1);
