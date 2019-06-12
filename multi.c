@@ -9,7 +9,7 @@
 #include "sya.h"
 #include "operatorUtility.h"
 #include "multi.h"
-
+#include "userFunctions.h"
 
 int numberOfArgs(char **inp) {
 	int i = 0;
@@ -559,48 +559,46 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 }
 
 
-err_ret chk_var(const char *buffer, char *inp, int *iter, struct vari *var, struct stack *num, struct stack *ch) {
+err_ret chk_var(char *buffer, char *inp, int *iter, struct vari *var, struct stack *num, struct stack *ch, struct matrix **out) {
 	err_ret err = 0;
 
 	int len = strlen(buffer);
 
-	char *nameBuffer = malloc((len + 1) * sizeof(*nameBuffer));
-	if(!nameBuffer)
-		return -6;
-
-	//copy buffer so we don't change the original string
-	strcpy(nameBuffer, buffer);
-
 	int k = 0;
 
-	struct matrix *out = NULL;
 	char **separatedString = NULL;
 
-	if(nameBuffer[len - 1] == '(') {
+	if(buffer[len - 1] == '(') {
 
-		nameBuffer[len - 1] = '\0';
+		buffer[len - 1] = '\0';
 
-		k = find_var(var, nameBuffer);
-		if(k < 0) {
-			free(nameBuffer);
-			return -5;
-		}
+		k = find_var(var, buffer);
 
 		separatedString = sep_str(inp, "()[]", ",", iter, &err);
+		if(err)
+			return err;
 
-		err = extractValue(separatedString, k, var, &out);
+		if(k < 0) {
+			err = find_user_fun(buffer, separatedString, var, out);
+			freeDoubleArray(separatedString);
+			return err;
+		}
+
+
+		err = extractValue(separatedString, k, var, out);
 
 		if(!(err < 0)) {
 			push(num, var->value[k]);
-			push(num, out);
+			push(num, *out);
 
 			push(ch, &O_STRUCT[eReference]);
-		} 
+			*out = NULL;
+		}
 
 		freeDoubleArray(separatedString);
 
 	} else {
-		k = find_var(var, nameBuffer);
+		k = find_var(var, buffer);
 		if(k >= 0) {
 			var->value[k]->var = 1;
 			push(num, var->value[k]);
@@ -630,7 +628,7 @@ err_ret chk_var(const char *buffer, char *inp, int *iter, struct vari *var, stru
 			if(!var->name[k])
 				return -6;
 
-			strcpy(var->name[k], nameBuffer);
+			strcpy(var->name[k], buffer);
 
 			var->value[k] = malloc(sizeof(*var->value[k]));
 			if(!var->value[k])
@@ -645,9 +643,20 @@ err_ret chk_var(const char *buffer, char *inp, int *iter, struct vari *var, stru
 			err = -5;
 			var->f_assign = 0;
 		}
-	}
 
-	free(nameBuffer);
+		if(err == -5) {
+			//buffer includes the '(', if it's there, replace with 0
+			if(buffer[len - 1] == '(') {
+				separatedString = sep_str(inp, "()[]", ",", iter, &err);
+				if(err)
+					return err;
+				
+				buffer[len - 1] = '\0';
+				err = find_user_fun(buffer, separatedString, var, out);
+				freeDoubleArray(separatedString);
+			}
+		}
+	}
 
 	return err;
 }

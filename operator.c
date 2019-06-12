@@ -355,18 +355,8 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 
 	case FUNCTION_COUNT: //variables
 		//if the variable does not exist
-		err = chk_var(buffer, input, iter, var, num, ch);
+		err = chk_var(buffer, input, iter, var, num, ch, &out);
 
-		if(err == -5) {
-			int bufferLen = strlen(buffer);
-
-			//buffer includes the '(', if it's there, replace with 0
-			if(buffer[bufferLen - 1] == '(') {
-				separatedString = sep_str(input, "()[]", ",", iter, &err);
-				buffer[bufferLen - 1] = '\0';
-				err = find_user_fun(buffer, separatedString, var, &out);
-			}
-		}
 		break;
 
 	default:

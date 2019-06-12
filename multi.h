@@ -94,7 +94,7 @@ err_ret extractValue(char **input, int varIndex, struct vari *var, struct matrix
  * int *tok
  *   int to determine if '-' is negative or minus
  */
-err_ret chk_var(const char *buffer, char *input, int *iter, struct vari *var, struct stack *num, struct stack *ch);
+err_ret chk_var(char *buffer, char *input, int *iter, struct vari *var, struct stack *num, struct stack *ch, struct matrix **out);
 
 /*
  * remove spaces from input

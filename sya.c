@@ -134,8 +134,10 @@ err_ret sya(char *input, struct vari *var) {
 
 					push(num, temp);
 				} else { //check if command is a function or variable
-					if(input[i + 1] == '(')
-						bufferLetters[char_iter++] = '(';
+					if(input[i + 1] == '(') {
+						bufferLetters[char_iter] = '(';
+						++char_iter;
+					}
 
 					bufferLetters[char_iter] = '\0';
 					err = find_fun(bufferLetters, num, op, var, &negativeCheck, &i, input);
