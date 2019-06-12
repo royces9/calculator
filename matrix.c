@@ -4,128 +4,126 @@
 
 #include "types.h"
 
-struct matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
-	struct matrix *out = malloc(sizeof(*out));
-	if(!out) {
-		*error = -6;
-		return NULL;
+//struct matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
+err_ret init_mat(uint16_t *size, uint8_t dim, struct matrix **out) {
+	*out = malloc(sizeof(**out));
+	if(!*out) {
+		return -6;
 	}
 
 	//dim of the matrix
-	out->dim = dim;
+	out[0]->dim = dim;
 
 	//size of each dims
 	//the last element of size must end with zero
-	out->size = malloc(sizeof(*out->size) * (dim + 1));
-	if(!out->size) {
+	out[0]->size = malloc((dim + 1) * sizeof(*(out[0]->size)));
+	if(!out[0]->size) {
 		free(out);
-		*error = -6;
-		return NULL;
+		return 6;
 	}
 
-	out->size = memcpy(out->size, size, sizeof(*out->size) * (dim + 1));
-	out->size[dim] = 0;
+	memcpy(out[0]->size, size, (dim + 1) * sizeof(*(out[0]->size)));
+	out[0]->size[dim] = 0;
 
-	out->var = 0;
+	out[0]->var = 0;
 
 	//get the total length of the array to malloc
-	out->len = get_len(size, dim);
+	out[0]->len = get_len(size, dim);
 
 	//if there is a 0 element in size
-	if(!out->len) {
-		*error = -10;
-	} else {
-		out->elements = calloc(out->len, sizeof(*out->elements));
-		if(!out->elements) {
-			free(out->size);
-			free(out);
-			out = NULL;
-			*error = -6;
-		}
+	if(!out[0]->len)
+		return -10;
+
+	out[0]->elements = calloc(out[0]->len, sizeof(*(out[0]->elements)));
+	if(!out[0]->elements) {
+		free(out[0]->size);
+		free(*out);
+		return -6;
 	}
 
-	return out;
+	return 0;
 }
 
 
 //define a scalar as just a single dim matrix
 //also define that a vector is always 2 dims, with one of
 //the two dims being 1
-struct matrix *init_scalar(ele e) {
-	struct matrix *out = malloc(sizeof(*out));
-	if(!out)
-		return NULL;
+err_ret init_scalar(ele e, struct matrix **out) {
+	*out = malloc(sizeof(**out));
+	if(!(*out))
+		return -6;
 
-	out->dim = 1;
-	out->len = 1;
+	out[0]->dim = 1;
+	out[0]->len = 1;
 
-	if( !(out->size = malloc(sizeof(*out->size) * 2)) )
-		return NULL;
+	if( !(out[0]->size = malloc(2 * sizeof(*(out[0]->size)))) )
+		return -6;
 
-	out->size[0] = 1;
-	out->size[1] = 0;
+	out[0]->size[0] = 1;
+	out[0]->size[1] = 0;
 
-	if( !(out->elements = malloc(sizeof(*out->elements))) )
-		return NULL;
+	if( !(out[0]->elements = malloc(sizeof(*(out[0]->elements)))) )
+		return -6;
 
-	*out->elements = e;
+	out[0]->elements[0] = e;
 
-	out->var = 0;
+	out[0]->var = 0;
 
-	return out;
+	return 0;
 }
 
 
-struct matrix *cpy_mat(struct matrix *src) {
+err_ret cpy_mat(struct matrix const *const src, struct matrix **out) {
 	if(!src)
-		return NULL;
+		return -6;
 
 	struct matrix *dest = malloc(sizeof(*dest));
 	if( !dest )
-		return NULL;
+		return -6;
 
 	dest->dim = src->dim;
 	dest->len = src->len;
 	dest->var = 0;
 
-	if( !(dest->elements = malloc(sizeof(*dest->elements) * dest->len)) )
-		return NULL;
+	if( !(dest->elements = malloc(dest->len * sizeof(*dest->elements))) )
+		return -6;
 
 	dest->elements = memcpy(dest->elements, src->elements,
-				sizeof(*dest->elements) * dest->len);
+				dest->len * sizeof(*dest->elements));
 
-	if( !(dest->size = malloc(sizeof(*dest->size) * (dest->dim + 1))) )
-		return NULL;
+	if( !(dest->size = malloc((dest->dim + 1) * sizeof(*dest->size))) )
+		return -6;
 
 	dest->size = memcpy(dest->size, src->size,
-			    sizeof(*dest->size) * (dest->dim + 1));
+			    (dest->dim + 1) * sizeof(*dest->size));
   
-	return dest;
+	*out = dest;
+
+	return 0;
 }
 
 
 //a being concatenated to b along dim and sent to out
 //the size of out is determined and error checking for sizes of a and b
 //is done in concatMatrix, this function only populates the matrix
-struct matrix *assignConcat(struct matrix *out, struct matrix *a, struct matrix *b, uint8_t dim) {
-	uint64_t aIncrement = 1;
-	uint64_t bIncrement = 1;
+struct matrix *assignConcat(struct matrix *out, struct matrix const *const a,
+			    struct matrix const *const b, uint8_t dim) {
+	uint64_t aIncr = 1;
+	uint64_t bIncr = 1;
 
 	for(uint16_t i = 0; i <= dim; ++i){
-		aIncrement *= a->size[i];
-		bIncrement *= b->size[i];
+		aIncr *= a->size[i];
+		bIncr *= b->size[i];
 	}
 
-	for(uint64_t aIterator = 0, bIterator = 0, sizeOffset = 0, k = 0; k < out->len; ++sizeOffset) {
-		for(aIterator = 0; aIterator < aIncrement; ++aIterator) {
-			out->elements[k] = a->elements[aIterator + aIncrement * sizeOffset];
-			++k;
-		}
+	for(uint64_t aIter = 0, bIter = 0, sizeOffset = 0, k = 0;
+	    k < out->len;
+	    ++sizeOffset) {
+		for(aIter = 0; aIter < aIncr; ++aIter, ++k)
+			out->elements[k] = a->elements[aIter + aIncr * sizeOffset];
       
-		for(bIterator = 0; bIterator < bIncrement; ++bIterator) {
-			out->elements[k] = b->elements[bIterator + bIncrement * sizeOffset];
-			++k;
-		}
+		for(bIter = 0; bIter < bIncr; ++bIter, ++k)
+			out->elements[k] = b->elements[bIter + bIncr * sizeOffset];
 	}
 
 	return out;
@@ -134,12 +132,11 @@ struct matrix *assignConcat(struct matrix *out, struct matrix *a, struct matrix 
 
 //dim is a number to specifiy along which direction to concatenate
 //along, it starts from 0
-struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret *error) {
+err_ret cat_mat(struct matrix const *const a, struct matrix const *const b, uint8_t dim, struct matrix **out) {
 	int aScalar = is_scalar(a);
 	int bScalar = is_scalar(b);
 
-	struct matrix *out = NULL;
-
+	err_ret err = 0;
 	uint16_t *size = NULL;
 	uint16_t fixed_size[3];
 	switch(aScalar + bScalar){
@@ -150,10 +147,12 @@ struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret 
 			break;
 
 		uint16_t *sizeA = malloc(sizeof(*sizeA) * (a->dim + 1));
-		__MALLOC_CHECK(sizeA, *error);
+		if(!sizeA)
+			return -6;
 
 		uint16_t *sizeB = malloc(sizeof(*sizeB) * (b->dim + 1));
-		__MALLOC_CHECK(sizeB, *error);
+		if(!sizeB)
+			return -6;
 
 		sizeA[a->dim] = 0;
 		sizeB[b->dim] = 0;
@@ -168,14 +167,12 @@ struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret 
 			sizeB[j] = b->size[i];
 		}
 
-		if(!cmp_size(sizeA, sizeB, a->dim - 1, b->dim - 1)){
-			*error = -15;
-			out = NULL;
-			break;
-		}
+		if(!cmp_size(sizeA, sizeB, a->dim - 1, b->dim - 1))
+			return -15;
 
 		size = malloc(sizeof(*size) * (a->dim + 1));
-		__MALLOC_CHECK(size, *error);
+		if(!size)
+			return -6;
 
 		size[a->dim] = 0;
 			
@@ -185,10 +182,12 @@ struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret 
 				size[i] += b->size[i];
 		}
 
-		out = init_mat(size, a->dim, error);
+
+		if((err = init_mat(size, a->dim, out)))
+			return err;
 		free(size);
 
-		assignConcat(out, a, b, dim);
+		assignConcat(*out, a, b, dim);
 
 		free(sizeA);
 		free(sizeB);
@@ -196,7 +195,7 @@ struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret 
 
 	case 1:; //only one of a or b are scalars
 		//temporary variables for less writing in if blocks
-		struct matrix *tempVector = NULL;
+		struct matrix const *tempVector = NULL;
 		ele tempScalar = 0;
 		//assign which matrix is a scalar and which is a matrix
 		if(aScalar) {
@@ -211,31 +210,29 @@ struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret 
 
 		//check that the matrix is a vector, only vectors can be
 		//concatenated with scalars
-		if(!is_vec(tempVector)) {
-			*error = -15;
-			break;
-		}
+		if(!is_vec(tempVector))
+			return -15;
 
 		//new size vector
 		size = fixed_size;
-		memcpy(size, tempVector->size, sizeof(*size) * 3);
+		memcpy(size, tempVector->size, 3 * sizeof(*size));
 
 		//increment size because of the concatenation
 		++size[dim];
 
 		//init new matrix
-		out = init_mat(size, tempVector->dim, error);
-
+		if((err = init_mat(size, tempVector->dim, out)))
+			return err;
 
 		//put values into new matrix
 		//first vector values
 		for(uint64_t i = 0; i < tempVector->len; ++i)
-			out->elements[i + aScalar] = tempVector->elements[i];
+			out[0]->elements[i + aScalar] = tempVector->elements[i];
 
 		//then scalar value
 		//assume that bScalar is either 0 or 1, this then puts
 		//the scalar value at either the beginning or the end
-		out->elements[tempVector->len * bScalar] = tempScalar;
+		out[0]->elements[tempVector->len * bScalar] = tempScalar;
 		break;
 
 	case 2: //both a and b are scalars
@@ -251,20 +248,20 @@ struct matrix *cat_mat(struct matrix *a, struct matrix *b, uint8_t dim, err_ret 
 		} else if(dim == 1){
 			++size[1]; //set newSize to [1, 2]
 		} else{
-			*error = 13;
-			return NULL;
+			return -13;
 		}
 
-		out = init_mat(size, 2, error);
+		if((err = init_mat(size, 2, out)))
+			return err;
 
-		out->elements[0] = a->elements[0];
-		out->elements[1] = b->elements[0];
+		out[0]->elements[0] = a->elements[0];
+		out[0]->elements[1] = b->elements[0];
 		break;
 
-	default: *error = -14; break; //return error if something else
+	default: return -14; //return error if something else
 	}
 
-	return out;
+	return err;
 }
 
 
@@ -293,16 +290,16 @@ void free_mat(struct matrix *m) {
 //6 8
 void print_two_d(const struct matrix *m, int offset) {
 
-	printf("\n");
+	puts("");
 	for(int columns = 0; columns < m->size[0]; ++columns) {
 		for(int rows = 0; rows < m->size[1]; ++rows) {
 			//the below is the same as sub2ind for a 2d matrix
 			//columns + m.size[0] * rows
 			printf("%lf ", m->elements[offset + (columns + m->size[0] * rows)]);
 		}
-		printf("\n");
+		puts("");
 	}
-	printf("\n");
+	puts("");
 
 	return;
 }
@@ -360,11 +357,11 @@ uint64_t sub2ind(uint16_t *location, uint16_t *size, uint8_t dim) {
 
 //check if a matrix is a scalar (true)
 //else false
-err_ret is_scalar(struct matrix *m) {
+err_ret is_scalar(struct matrix const *const m) {
 	return (m->dim == 1);
 }
 
-err_ret is_vec(struct matrix *m) {
+err_ret is_vec(struct matrix const *const m) {
 	return (m->dim == 2) && ( (m->size[0] == 1) || (m->size[1] == 1) );
 }
 

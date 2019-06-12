@@ -25,8 +25,8 @@ struct vari { //variable storage
 	int8_t f_assign;
 };
 
-struct vari *init_var(int size);
-struct vari *cpy_var(struct vari *var);
+err_ret init_var(int size, struct vari **out);
+err_ret cpy_var(struct vari *var, struct vari **out);
 
 //find variable named input in list
 int find_var(struct vari *list, char *input);

@@ -6,15 +6,18 @@
 #include "operatorUtility.h"
 
 void push(struct stack *stk, void *d) {
-	stk->stk[++stk->top] = d;
+	++stk->top;
+	stk->stk[stk->top] = d;
 }
 
 
 void *pop(struct stack *stk) {
 	void *out = NULL;
 
-	if(stk->top > -1)
-		out = stk->stk[stk->top--];
+	if(stk->top > -1) {
+		out = stk->stk[stk->top];
+		--stk->top;
+	}
 
 	return out;
 }
@@ -26,9 +29,11 @@ struct stack *new_stk(int size) {
 		return NULL;
 
 	//allocate pointers
-	out->stk = malloc(sizeof(*out->stk) * size);
-	if(!out->stk)
+	out->stk = malloc(size * sizeof(*out->stk));
+	if(!out->stk) {
+		free(out);
 		return NULL;
+	}
 
 	out->top = -1;
 

@@ -12,44 +12,45 @@
 #include "userFunctions.h"
 
 //find and execute a user made function
-struct matrix *find_user_fun(char *name, char **args, struct vari *var, err_ret *error) {
-	struct matrix *out = NULL;
+err_ret find_user_fun(char *name, char **args, struct vari *var, struct matrix **out) {
 	//get the path to the file
-	char *path = find_path(name, error);
-	if(path)
-		out = exec_fun(path, args, var, error);
+	char *path = NULL;
+	err_ret err = find_path(name, &path);
+	if(!err)
+		err = exec_fun(path, args, var, out);
 
 	free(path);
 
-	return out;  
+	return err;  
 }
 
 
 //checks a config file with a list of paths to check if functionName exists
-char *chk_conf(char *name, char *cfg, err_ret *error) {
+err_ret chk_conf(char *name, char *cfg, char **out) {
 
+	err_ret err = 0;
 	FILE *f_cfg = fopen(cfg, "r");
-	if( !f_cfg ) {
-		*error = -8;
-		return NULL;
-	}
+	if( !f_cfg )
+		return -8;
 
 	char *paths = malloc(BUFF_SIZE * sizeof(*paths));
-	__MALLOC_CHECK(paths, *error);
+	if(!paths)
+		return -6;
 
-	char *out = NULL;
 	char *file_dir = NULL;
 
 	//read directories from config
 	while(fgets(paths, BUFF_SIZE, f_cfg)) {
-		file_dir = search_dir(name, paths, error);
+		
+		err = search_dir(name, paths, &file_dir);
 
-		if(file_dir) {
-			out = malloc(sizeof(*out) * (strlen(paths) + strlen(file_dir) + 1));
-			__MALLOC_CHECK(out, *error);
+		if(!err) {
+			*out = malloc((strlen(paths) + strlen(file_dir) + 1) * sizeof(*out));
+			if(!(*out))
+				return -6;
 
-			strcpy(out, paths);
-			strcat(out, file_dir);
+			strcpy(*out, paths);
+			strcat(*out, file_dir);
 
 			free(file_dir);
 			break;
@@ -58,66 +59,66 @@ char *chk_conf(char *name, char *cfg, err_ret *error) {
 
 	free(paths);
 
-	return out;
+	return 0;
 }
 
 
 //returns the path to the function
-char *find_path(char *name, err_ret *error) {
-	char *file_dir = search_dir(name, ".", error);
+err_ret find_path(char *name, char **path) {
+	err_ret err = search_dir(name, ".", path);
 
 	//checks config file paths
 	//if fileDirectory is still NULL
-	if(file_dir)
-		return file_dir;
+	if(!err)
+		return err;
 
 	//assume that the user is NOT going to use sudo
 	char *home = getenv("HOME");
 	char *configPath = "/.config/calc.conf";
 
 	int conf_len = strlen(home) + strlen(configPath) + 1;
-	char *config = malloc(sizeof(*config) * conf_len);
-	__MALLOC_CHECK(config, *error);
+	char *config = malloc(conf_len * sizeof(*config));
+	if(!config) {
+		*path = NULL;
+		return -6;
+	}
 
 	strcpy(config, home);
 	strcat(config, configPath);
 
-	file_dir = chk_conf(name, config, error);
-	if(!file_dir)
-		*error = -8;
+	err = chk_conf(name, config, path);
 
 	free(config);
   
-	return file_dir;
+	return err;
 }
 
 
-struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *error) {
+err_ret exec_fun(char *path, char **args, struct vari *var, struct matrix **out) {
 	int argNo = numberOfArgs(args);
+	err_ret err = 0;
 
 	FILE *userFunction = fopen(path, "r");
-	if(!userFunction) {
-		*error = -8;
-		return NULL;
-	}
+	if(!userFunction)
+		return -8;
+
 
 	//get the header for the function
 	//right now it's hardcoded to get the first line
 	char *title = calloc(BUFF_SIZE, sizeof(*title));
-	__MALLOC_CHECK(title, *error);
+	if(!title)
+		return -6;
 	
 	fgets(title, BUFF_SIZE, userFunction);
 	fclose(userFunction);
 
-	struct matrix *out = NULL;
 	//confirm that the function is the first word in the file
-	if(strncmp(title, "function", 8)) {
-		*error = -8;
-		return out;
-	}
+	if(strncmp(title, "function", 8))
+		return -8;
 
 	char *out_buff = malloc(BUFF_SIZE * sizeof(*out_buff));
-	__MALLOC_CHECK(out_buff, *error);
+	if(!out_buff)
+		return -6;
 
 	int i = 9;
 	//finds the name of the output variable
@@ -134,14 +135,15 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 	//increment title to where input arguments are
 	//first find left end paren
 	for(;title[i] != '('; ++i);
-	int j = i--;
-
+	int j = i;
+	--i;
+	
 	//then find right end paren
 	for(; title[j] != ')'; ++j);
 	title[j + 1] = '\0';
 
 	//separate the string, to know what the variable names are
-	char **arg_names = sep_str(title, "()", ",", (uint16_t *) &i, error);
+	char **arg_names = sep_str(title, "()", ",", &i, &err);
 	free(title);
 
 	//count the number of arguments required
@@ -150,17 +152,16 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 	//check that the given arguments match with the
 	//require number of arguments
 	if(functionArgNo != argNo) {
-		*error = -2;
-		return out;
+		err = -2;
+		goto ret_out;
 	}
 
 	//variable struct for the function
 	//essentially a new scope
-	struct vari *fun_var = init_var(256);
-	if(!fun_var) {
-		*error = -6;
+	struct vari *fun_var = NULL;
+	err = init_var(256, &fun_var);
+	if(err)
 		goto ret_out;
-	}
 
 	for(int j = 0; j < functionArgNo; ++j) {
 		char *inputName = removeSpaces(arg_names[j]);
@@ -169,42 +170,39 @@ struct matrix *exec_fun(char *path, char **args, struct vari *var, err_ret *erro
 		//gets stored in var->ans
 		//use var instead of functionVar because the input
 		//arguments might have variable in them
-		*error = sya(args[j], var);
-		if(*error)
+		if((err = sya(args[j], var)))
 			goto ret_out;
 
-		struct matrix *tmp_mat = cpy_mat(var->ans);
-		if( !tmp_mat )
+		struct matrix *tmp_mat = NULL;
+		if((err = cpy_mat(var->ans, &tmp_mat)))
 			goto ret_out;
 
-		set_var(fun_var, inputName, tmp_mat, error);
+		set_var(fun_var, inputName, tmp_mat, &err);
 
-		if(*error)
+		if(err)
 			goto ret_out;
 	}
 
 	//run the file
 	//offset by one line
-	*error = runFile(&path, fun_var, 1);
-	if(*error)
+	if((err = runFile(&path, fun_var, 1)))
 		goto ret_out;
 
 	//check that the out variable exists
 	int out_var = find_var(fun_var, outName);
-	free(out_buff);
-
-	if(out_var < 0) {
-		*error = -12;
+   	if(out_var < 0) {
+		err = -12;
 	} else {
-		out = cpy_mat(fun_var->value[out_var]);
+		err = cpy_mat(fun_var->value[out_var], out);
 	}
 
  ret_out:
+	free(out_buff);
 	free_var(fun_var);
 
 	freeDoubleArray(arg_names);
 
-	return out;  
+	return err;  
 }
 
 
@@ -214,31 +212,32 @@ uint8_t chk_name(char *name, char *dir) {
 }
 
 
-char *search_dir(char *name, char *dir_name, err_ret *error) {
-	char *out = NULL;
+err_ret search_dir(char *name, char *dir_name, char **out) {
 	DIR *dir = opendir(dir_name);
 
 	if(!dir) {
-		*error = -8;
 		closedir(dir);
-		return NULL;
+		return -8;
 	}
 
 	struct dirent *d;
 
+	err_ret err = -8;
 	while( (d = readdir(dir)) ) {
 		//checks that function name is the same, and ends in ".cr"
 		if(chk_name(name, d->d_name)) {
 			uint16_t len = strlen(d->d_name);
-			out = malloc(sizeof(*out) * (len + 1));
-			__MALLOC_CHECK(out, *error);
+			*out = malloc(sizeof(*out) * (len + 1));
+			if(!(*out))
+				return -6;
 
-			strcpy(out, d->d_name);
+			strcpy(*out, d->d_name);
+			err = 0;
 			break;
 		}
 	}
 
 	closedir(dir);
 	
-	return out;
+	return err;
 }

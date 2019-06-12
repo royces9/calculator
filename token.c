@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "types.h"
+#include "sya.h"
 #include "token.h"
 #include "operator.h"
 #include "operatorUtility.h"
@@ -13,8 +14,8 @@ token **tokenize(char *inp) {
 	char *type = calloc(sizeof(*type), (len + 1));
 
         for(int l = 0; inp[l]; ++l) {
-		if( (type[l] = chk_tt(inp[l])) == 3) {
-			type[l + 1] = chk_tt(inp[l + 1]);
+		if( (type[l] = chk_t(inp[l])) == 3) {
+			type[l + 1] = chk_t(inp[l + 1]);
 
 			type[l] = (type[l + 1] == 2) ? type[l + 1] : 1;
 			++l;
@@ -74,6 +75,7 @@ token **tokenize(char *inp) {
 }
 
 
+/*
 char chk_tt(char a) {
 	switch(a) {
 
@@ -131,7 +133,7 @@ char chk_tt(char a) {
 		return -1;
 	}
 }
-
+*/
 
 tok_tree *make_tok_tree(token **tok_list) {
 	tok_tree *out = malloc(sizeof(*out));
@@ -144,7 +146,7 @@ tok_tree *make_tok_tree(token **tok_list) {
 
 		switch(cur->type) {
 		case 1: //alphanumerics
-			if(chk_numm(cur)) {
+			if(tok_chk_num(cur)) {
 				push(num, cur);
 			} else {
 			}
@@ -174,8 +176,7 @@ tok_tree *make_tok_tree(token **tok_list) {
 	return out;
 }
 
-
-int chk_numm(token *tok) {
+int tok_chk_num(token *tok) {
 	for(int i = 0; i < tok->len; ++i) {
 		if( ((tok->tok[i] <'0') && (tok->tok[i] != '.')) ||
 		    (tok->tok[i] > '9') ||
@@ -186,3 +187,4 @@ int chk_numm(token *tok) {
 
 	return 1;
 }
+

@@ -14,7 +14,7 @@
 #include "operator.h"
 
 
-int search_str(char *buffer, char const *const list[]) {
+int search_str(char *buffer, char const *const *const list) {
 	int i = 0;
 	for(; list[i]; ++i)
 		if(!strcmp(list[i], buffer))
@@ -29,15 +29,15 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 	struct matrix *a = NULL;
 	struct matrix *b = NULL;
 	struct matrix *out = NULL;
-	err_ret error = 0;
+	err_ret err = 0;
 	
 	switch(ch->argNo) {
 	case 1:
 		a = pop(num);
 		if(a->size) {
-			out = mat_one(a, ch, &error);
+			err = mat_one(a, ch, &out);
 		} else {
-			error = -5;
+			err = -5;
 		}
 
 		free_mat(a);
@@ -48,11 +48,11 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 		a = pop(num);
 
 		if(!a) {
-			error = -4;
+			err = -4;
 		} else if(a->size && b->size) {
-			out = mat_two(a, b, ch, &error);
+			err = mat_two(a, b, ch, &out);
 		} else {
-			error = -5;
+			err = -5;
 		}
 
 		free_mat(a);
@@ -63,10 +63,10 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 	case 3:
 		b = pop(num);
 		a = pop(num);
-		if(!a) {
-			error = -4;
+		if(a) {
+			err = assign(a, b, var, &out);
 		} else {
-			out = assign(a, b, var, &error);
+			err = -4;
 		}
 
 		free_mat(b);
@@ -77,41 +77,42 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 		break;
 	}
 
-	if(out)
+	if(out && !err)
 		push(num, out);
 
-	//free(ch);
-	return error;
+	return err;
 }
 
 
-struct matrix *mat_one(struct matrix *a, struct oper *ch, err_ret *error) {
-	struct matrix *out = NULL;
+err_ret mat_one(struct matrix *a, struct oper *ch, struct matrix **out) {
+	err_ret err = 0;
+
 	if(!ch->mat_op) {
 		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
 		if(!newSize)
-			return NULL;
+			return -6;
+
 		memcpy(newSize, a->size, sizeof(*newSize) * (a->dim + 1));
 
-		out = init_mat(newSize, a->dim, error);
+		err = init_mat(newSize, a->dim, out);
 		free(newSize);
 
-		if(*error)
-			return NULL;
+		if(err)
+			return err;
 
-		for(uint64_t i = 0; i < out->len; ++i)
-			out->elements[i] = ch->fp.s_one(a->elements[i], error);
+		for(uint64_t i = 0; i < out[0]->len; ++i)
+			out[0]->elements[i] = ch->fp.s_one(a->elements[i]);
 
 	} else {
-		out = ch->fp.m_one(a, error);
+		err = ch->fp.m_one(a, out);
 	}
 
-	return out;
+	return err;
 }
 
 
-struct matrix *mat_two(struct matrix *a, struct matrix *b, struct oper *ch, err_ret *error) {
-	struct matrix *out = NULL;
+err_ret mat_two(struct matrix *a, struct matrix *b, struct oper *ch, struct matrix **out) {
+	err_ret err = 0;
 
 	//check if inputs are scalar
 	uint8_t aScalar = is_scalar(a);
@@ -122,10 +123,10 @@ struct matrix *mat_two(struct matrix *a, struct matrix *b, struct oper *ch, err_
 	if(((aScalar + bScalar) > 0) && check) {
 		//if the fp is for a matrix operation
 		//change to the scalar operator
-		if(ch->_enum == eMultiplyMatrix) {
+		if(ch->m_enum == eMultiplyMatrix) {
 			check = 0;
 			ch = &O_STRUCT[eMultiply];
-		} else if(ch->_enum == eDivideMatrix) {
+		} else if(ch->m_enum == eDivideMatrix) {
 			check = 0;
 			ch = &O_STRUCT[eDivide];
 		}
@@ -137,16 +138,18 @@ struct matrix *mat_two(struct matrix *a, struct matrix *b, struct oper *ch, err_
 
 			//check if a and b are the same size
 			if(!cmp_size(a->size, b->size, a->dim, b->dim)) {
-				*error = -10;
+				err = -10;
 				break;
 			}
 
-			out = init_mat(a->size, a->dim, error);
-			if(*error)
+			err = init_mat(a->size, a->dim, out);
+			if(err)
 				break;
 
 			for(uint64_t i = 0; i < a->len; ++i)
-				out->elements[i] = ch->fp.s_two(a->elements[i], b->elements[i]);
+				out[0]->elements[i] =
+					ch->fp.s_two(a->elements[i],
+						     b->elements[i]);
 
 			break;
       
@@ -156,49 +159,44 @@ struct matrix *mat_two(struct matrix *a, struct matrix *b, struct oper *ch, err_
 			ele **inc = NULL;
 
 			if(aScalar) {
-				out = cpy_mat(b);
+				err = cpy_mat(b, out);
 				inc = &b_p;
 			} else {
-				out = cpy_mat(a);
+				err = cpy_mat(a, out);
 				inc = &a_p;
 			}
-			if(!out) {
-				*error = -6;
-				break;
-			}
 
-			for(uint64_t i = 0; i < out->len; ++i, ++(*inc))
-				out->elements[i] = ch->fp.s_two(*a_p, *b_p);
+			if(err)
+				break;
+
+			for(uint64_t i = 0; i < out[0]->len; ++i, ++(*inc))
+				out[0]->elements[i] = ch->fp.s_two(*a_p, *b_p);
 
 			break;
 
 		case 2: //a and b are both scalars
-			out = init_scalar(ch->fp.s_two(a->elements[0], b->elements[0]));
-
-			if(!out)
-				*error = -6;
+			err = init_scalar(ch->fp.s_two(a->elements[0], b->elements[0]), out);
 			break;
 
 		default:
-			*error = -2;
+			err = -2;
 			break;
-
 		}
 
 	} else {
-		out = ch->fp.m_two(a, b, error);
+		err = ch->fp.m_two(a, b, out);
 	}
 
-	return out;
+	return err;
 }
 
 
-err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok, uint16_t *iter, char *input) {
+err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok, int *iter, char *input) {
 	char **separatedString = NULL;
 	struct matrix *out = NULL;
 
 	int i = search_str(buffer, FUNCTION_LIST);
-	err_ret error = 0;
+	err_ret err = 0;
 
 	switch(i) {
 	case eQuit:
@@ -214,18 +212,18 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 			var->name[i] = NULL;
 		}
 		var->count =  -1;
-		printf("\nAll variables cleared\n\n");
+		puts("\nAll variables cleared\n");
 		return -1;
 
 	case eList:
 		if(var->count > -1) {
-			printf("\nVariable List:\n");
+			puts("\nVariable List:");
 			for(int j = 0; j <= var->count; ++j) {
 				printf("%s =", var->name[j]);
 				print_mat(var->value[j]);
 			}
 		} else {
-			printf("\nNo variables set\n\n");
+			puts("\nNo variables set\n");
 		}
 		return -1;
 
@@ -234,25 +232,20 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 		return -1;
 
 	case ePi:
-		out = init_scalar(M_PI);
-		if(!out)
-			error = -6;
+		err = init_scalar(M_PI, &out);
 
 		*tok = 1;
 		break;
 
 	case eE:
-		out = init_scalar(M_E);
-		if(!out)
-			error = -6;
+		err = init_scalar(M_E, &out);
 		
 		*tok = 1;
 		break;
 
 	case eAns:
 		//copy ans so it doesn't get freed
-		if( !(out = cpy_mat(var->ans)) )
-			error = -6;
+		err = cpy_mat(var->ans, &out);
 
 		*tok = 1;
 		break;
@@ -285,83 +278,89 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 		break;
 
 	case eDeri:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = deri(separatedString, var, &error);
+		separatedString = sep_str(input, "()", ",", iter, &err);
+		if(err)
+			break;
+		err = deri(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eInte:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = inte(separatedString, var, &error);
+		separatedString = sep_str(input, "()", ",", iter, &err);
+		if(err)
+			break;
+		err = inte(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eSolve:
-		separatedString = sep_str(input, "()", "," , iter, &error);
-		out = solve(separatedString, var, &error);
+		separatedString = sep_str(input, "()", "," , iter, &err);
+		if(err)
+			break;
+		err = solve(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eRand:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = rand_mat(separatedString, var, &error);
+		separatedString = sep_str(input, "()", ",", iter, &err);
+		if(err)
+			break;
+		err = rand_mat(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eLinspace:
-		separatedString = sep_str(input, "()", ",", iter, &error);
-		out = linspace(separatedString, var, &error);
+		separatedString = sep_str(input, "()", ",", iter, &err);
+		if(err)
+			break;
+		err = linspace(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 	case eZeros:
-		separatedString = sep_str(input, "()[]", ",", iter, &error);
-		out = zeros(separatedString, var, &error);
+		separatedString = sep_str(input, "()[]", ",", iter, &err);
+		if(err)
+			break;
+		err = zeros(separatedString, var, &out); 
 		*tok = 0;
 		break;
     
 	case eOnes:
-		separatedString = sep_str(input, "()[]", ",", iter, &error);
-		out = ones(separatedString, var, &error);
+		separatedString = sep_str(input, "()[]", ",", iter, &err);
+		if(err)
+			break;
+		err = ones(separatedString, var, &out);
 		*tok = 0;
 		break;
 
 		
 	case eRun:
-		separatedString = sep_str(input, "()", "\0", iter, &error);
-		error = runFile(separatedString, var, 0);
-		if(!error) {
+		separatedString = sep_str(input, "()", "\0", iter, &err);
+		if(err)
+			break;
+		err = runFile(separatedString, var, 0);
+		if(!err) {
 			//copy ans matrix so it doesn't get freed
-			if( !(out = cpy_mat(var->ans)) )
-				error = -6;
-
+			err = cpy_mat(var->ans, &out);
 			*tok = 0;
 		}
 		break;
 
 	case ePrint:
-		separatedString = sep_str(input, "()[]", ",", iter, &error);
-		error = printLine(separatedString, var);
+		separatedString = sep_str(input, "()[]", ",", iter, &err);
+		if(err)
+			break;
+		err = printLine(separatedString, var);
 		break;
 
 	case FUNCTION_COUNT: //variables
 		//if the variable does not exist
-		error = chk_var(buffer, input, iter, var, num, ch);
+		err = chk_var(buffer, input, iter, var, num, ch, &out);
 
-		if(error == -5) {
-			int bufferLen = strlen(buffer);
-
-			//buffer includes the '(', if it's there, replace with 0
-			if(buffer[bufferLen - 1] == '(') {
-				separatedString = sep_str(input, "()[]", ",", iter, &error);
-				buffer[bufferLen - 1] = '\0';
-				out = find_user_fun(buffer, separatedString, var, &error);
-			}
-		}
 		break;
 
 	default:
-		error = -5;
+		err = -5;
 		break;
 
 	}//end of switch
@@ -370,16 +369,16 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 	if(separatedString)
 		freeDoubleArray(separatedString);
 
-	if(out)
+	if(!err && out)
 		push(num, out);
 
-	return error;
+	return err;
 }
 
 
 err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari *var, int8_t *tok) {
 	int i = search_str(buffer, OPERATOR_LIST);
-	err_ret error = 0;
+	err_ret err = 0;
 
 	/*
 	 * Precedence values for operators: Reference wiki page of C/C++ operators
@@ -408,8 +407,8 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 			//if the stack is occupied, should short-circuit
 			while( (oper->top > -1) &&
 			       (((struct oper *) top_stk(oper))->order <= 6)
-			       && !error ) {
-				error = ex_num(num, var, pop(oper));
+			       && !err ) {
+				err = ex_num(num, var, pop(oper));
 			}
 
 			push(oper, &O_STRUCT[eAdd]);
@@ -417,9 +416,10 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 
 		*tok = 0;
 		push(oper, &O_STRUCT[eMultiply]);
-		struct matrix *temp = init_scalar(-1);
+		struct matrix *temp = NULL;
+		err = init_scalar(-1, &temp);
 		if(!temp) {
-			error = -6;
+			err = -6;
 			break;
 		}
 			
@@ -448,12 +448,12 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 		break;
 
 	case eRightParen:
-		while( (oper->top > -1) && (((struct oper *) top_stk(oper))->_enum != eLeftParen )) {
+		while( (oper->top > -1) && (((struct oper *) top_stk(oper))->m_enum != eLeftParen )) {
 			struct oper *top = pop(oper);
-			error = ex_num(num, var, top);
+			err = ex_num(num, var, top);
 		}
 
-		if((oper->top > -1) && (((struct oper *) top_stk(oper))->_enum == eLeftParen))
+		if((oper->top > -1) && (((struct oper *) top_stk(oper))->m_enum == eLeftParen))
 			pop(oper);
 		
 		*tok = 1;
@@ -463,7 +463,7 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 	case eAssign:
 		*tok = 0;
 		if((oper->top > -1) &&
-		   (((struct oper *) top_stk(oper))->_enum == eReference) ) {
+		   (((struct oper *) top_stk(oper))->m_enum == eReference) ) {
 			var->assign = pop(num);
 			pop(oper);
 		}
@@ -488,7 +488,7 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 		while((oper->top > -1) &&
 		      (((struct oper *) top_stk(oper))->order <= O_STRUCT[i].order) ) {
 			struct oper *top = pop(oper);
-			error = ex_num(num, var, top);
+			err = ex_num(num, var, top);
 		}
 
 		*tok = 0;
@@ -499,7 +499,7 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 		return -7;
 	}
 
-	return error;
+	return err;
 }
 
 
@@ -600,12 +600,12 @@ uint16_t countDelimiter(char *input){
 
 
 //iter is the counter for the main loop in sya
-struct matrix *ext_mat(struct vari *var, uint16_t *iter, char *input, err_ret *error) {
+err_ret ext_mat(struct vari *var, int *iter, char *input, struct matrix **out) {
+	err_ret err = 0;
+
 	//input is incremented to start at input[*iter], which is where
 	//the first [ should be
 	input += (*iter);
-
-	struct matrix *out = NULL;
 
 	//find where the matrix declaration ends
 	//count brackets until they match
@@ -622,56 +622,52 @@ struct matrix *ext_mat(struct vari *var, uint16_t *iter, char *input, err_ret *e
 	}
 
 	//check that the bracket count is correct
-	if(bracketCount) {
-		*error = -4;
-		return NULL;
-	}
+	if(bracketCount)
+		return -4;
 
 	//increment the main loop counter up to the ']' 
 	*iter += (length - 1);
 
 	//the string that will contain every character
 	//that contains elements of the matrix
-	char *mat_string = malloc(sizeof(*mat_string) * (length));
+	char *mat_string = malloc(length * sizeof(*mat_string));
 
 	//copy from the first character after the first '['
-	strncpy(mat_string, input + 1, sizeof(*mat_string) * (length));
+	strncpy(mat_string, input + 1, length * sizeof(*mat_string));
 
 	//replace the end ']' with a '\0'
 	mat_string[length-2] = 0;
 
 	if((mat_string[length-2] == ';') || (mat_string[length-2] == ',')) {
 		free(mat_string);
-		*error =  -4;
-		return NULL;
+		return -4;
 	}
 
 	//number stack for creating the matrix
 	struct stack *num = new_stk(128);
-	__MALLOC_CHECK(num, *error);
+	if(!num)
+		return -6;
 
 	//char array that holds each element of
 	//the array and a delimiter (, or ;)
 	//at the beginning
-	char **sepd_mat = sep_mat(mat_string, countDelimiter(mat_string), error);
+	char **sepd_mat = sep_mat(mat_string, countDelimiter(mat_string), &err);
 
 	//free matrixString, not needed anymore
 	free(mat_string);
 
-	struct vari *tempVari = cpy_var(var);
-	if( !tempVari ) {
-		*error = -6;
+	struct vari *tempVari = NULL;
+	err = cpy_var(var, &tempVari);
+	if(err)
 		goto err_ret;
-	}
 
-	*error = sya(sepd_mat[0], tempVari);
+	err = sya(sepd_mat[0], tempVari);
 
-	struct matrix *temp = cpy_mat(tempVari->ans);
-	if( !temp ) {
-		*error = -6;
+	struct matrix *temp = NULL;
+	err = cpy_mat(tempVari->ans, &temp);
+	if(err)
 		goto err_ret;
-	}
-		
+
 	push(num, temp);
 
 	struct matrix *a = NULL;
@@ -681,37 +677,39 @@ struct matrix *ext_mat(struct vari *var, uint16_t *iter, char *input, err_ret *e
 		temp = NULL;
 
 		if(!sepd_mat[i][1]) {
-			*error = -4;
+			err = -4;
 			break;
 		}
 
 		switch(sepd_mat[i][0]) {
 		case ',':
 
-			if( !(*error = sya(sepd_mat[i] + 1, tempVari)) ) {
-				a = pop(num);
-				temp = cat_mat(a, tempVari->ans, 1, error);
-				free_mat(a);
+			err = sya(sepd_mat[i] + 1, tempVari);
+			if(err)
+				goto err_ret;
 
-				if(*error)
-					goto err_ret;
-			}
+			a = pop(num);
+			err = cat_mat(a, tempVari->ans, 1, &temp);
+			free_mat(a);
+			if(err)
+				goto err_ret;
+
 
 			break;
 
 		case ';':
-			if( !(*error = sya(sepd_mat[i] + 1, tempVari)) ) {
-				if( !(temp = cpy_mat(tempVari->ans)) ) {
-					*error = -6;
-					goto err_ret;
-				}
-				
-			}
+			err = sya(sepd_mat[i] + 1, tempVari);
+			if(err)
+				goto err_ret;
+
+			err = cpy_mat(tempVari->ans, &temp);
+			if(err)
+				goto err_ret;
 
 			break;
       
 		default:
-			*error = -10;
+			err = -10;
 			break;
 		}
 
@@ -721,23 +719,22 @@ struct matrix *ext_mat(struct vari *var, uint16_t *iter, char *input, err_ret *e
 		push(num, temp);
 	}
 
-	if( !(*error) ) {
+	if( !(err) ) {
 		while(num->top > 0) {
 			b = pop(num);
 			a = pop(num);
 
-			temp = cat_mat(a, b, 0, error);
+			err = cat_mat(a, b, 0, &temp);
 
 			free_mat(a);
 			free_mat(b);
 
-			if(temp) {
-				push(num, temp);
-			} else {
+			if(!temp)
 				break;
-			}
+
+			push(num, temp);
 		}
-		out = pop(num);
+		*out = pop(num);
 
 	}
 
@@ -746,23 +743,46 @@ struct matrix *ext_mat(struct vari *var, uint16_t *iter, char *input, err_ret *e
 	freeDoubleArray(sepd_mat);
 	free_stk(num, (void (*) (void *)) &free_mat);
 
-	return out;
+	return err;
 }
 
 
 void help_print(void) {
-	printf("quit - quit program\n");
-	printf("list - list variables\n");
-	printf("clear - clear variables\n\n");
+	puts("quit - quit program");
+	puts("list - list variables");
+	puts("clear - clear variables");
+	puts("");
 
-	printf("derivative(f(x), x, c, delta)\n   f(x) - function\n   x - variable used in function\n   c - point of the tangent line\n   delta - the difference used (finite difference)\n\n");
+	puts("derivative(f(x), x, c, delta)");
+	puts("   f(x) - function");
+	puts("   x - variable used in function");
+	puts("   c - point of the tangent line");
+	puts("   delta - the difference used (finite difference)");
+	puts("");
 
-	printf("integral(f(x), x, a, b, n)\n   f(x) - function\n   x - variable used in function\n   a - starting point\nb - ending point\n   n - number of partitions (composite Simpson's rule, odd n is equivalent to n-1)\n\n");
-
-	printf("solve(f(x), x, guess, delta)\n   f(x) - function\n   x - variable used in function\n   guess - initial guess (Newton's Method)\n   delta - largest difference allowed between x_n+1 and x_n\n\n");
-
-	printf("run(file)\n   file - path to a text file\n   This function parses each line of the file as if it were entered into the console directly, with the exception of \"while\", \"if/else\" and \"end\".\n    \"while\" - loops until the statement inside the \"while\"'s conditional is false. The inside is executed as if it were entered into the console directly. There may be floating point round off errors.\n   \"if/else\" - Executes the block of lines inside the \"if\"'s conditional if the statement is true, Otherwise it will execute the \"else\" block.\n   '#' at the beginning of\
- a line comments out a line\n   ';' at the end of a line suppresses output\n\n");
+	puts("integral(f(x), x, a, b, n)");
+	puts("   f(x) - function");
+	puts("   x - variable used in function");
+	puts("   a - starting point");
+	puts("   b - ending point");
+	puts("   n - number of partitions (composite Simpson's rule, odd n is equivalent to n-1)");   
+	puts("");
+	
+	puts("solve(f(x), x, guess, delta)");
+	puts("   f(x) - function");
+	puts("   x - variable used in function");
+	puts("   guess - initial guess (Newton's Method)");
+	puts("   delta - largest difference allowed between x_n+1 and x_n");
+	puts("");
+	
+	puts("run(file)");
+	puts("file - path to a text file");
+	puts("   This function parses each line of the file as if it were entered into the console directly, with the exception of \"while\", \"if/else\" and \"end\".");
+	puts("   \"while\" - loops until the statement inside the \"while\"'s conditional is false. The inside is executed as if it were entered into the console directly. There may be floating point round off errors.");
+	puts("   \"if/else\" - Executes the block of lines inside the \"if\"'s conditional if the statement is true, Otherwise it will execute the \"else\" block.");
+	puts("   '#' at the beginning of a line comments out a line");
+	puts("   ';' at the end of a line suppresses output");
+	puts("");
 }
 
 

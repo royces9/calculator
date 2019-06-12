@@ -10,12 +10,12 @@
 
 int main(int argc, char *argv[]) {
 	char *input = NULL;
-	err_ret error = 0;
-  
+
+	struct vari *var = NULL;
 	//initialize variable struct
-	struct vari *var = init_var(256);
-	if(!var) {
-		err_rep(-6);
+	err_ret err = init_var(256, &var);
+	if(err) {
+		err_rep(err);
 		return -1;
 	}
 	
@@ -26,19 +26,19 @@ int main(int argc, char *argv[]) {
 	if(argc > 1) {
 		for(int i = 1; i < argc; ++i) {
 			printf(">>%s\n", argv[i]);
-			if( !(error = sya(argv[i], var)) ) {
+			
+			err = sya(argv[i], var);
+
+			if(!err)
 				print_mat(var->ans);
-
-			} else {
-				err_rep(error);
-
-			}
+			else
+				err_rep(err);
 		}
 	} 
 
 	//main loop
-	while(error <= 0) {
-		error = 0;
+	while(err <= 0) {
+		err = 0;
 
 		//user input and history
 		input = readline(">>");
@@ -60,17 +60,18 @@ int main(int argc, char *argv[]) {
 		//break on EOF
 		//skip empty lines
 		if( !input ) {
-			printf("\n");
+			puts("");
 			break;
 		} else if( (*input) ) {
 			//parses string and does all the calculations
-			if( !(error = sya(input, var)) ) {
+			err = sya(input, var);
+			if(!err) {
 				//suppress output if the line ends with ';'
 				if( input[strlen(input) - 1] != ';' )
 					print_mat(var->ans);
 
 			} else { //if the error is less than -1, prints an error code
-				err_rep(error);
+				err_rep(err);
 			}
 		}
 

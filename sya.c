@@ -11,17 +11,8 @@
 
 //shunting yard algorithm
 err_ret sya(char *input, struct vari *var) {
-
-	//iterators
-	//character buffer iterator
-	uint16_t char_iter = 0;
-
-	//operator buffer iterator
-	uint16_t oper_iter = 0;
-
 	//error checking int
-	err_ret error = 0;
-
+	err_ret err = 0;
 
 	//to check if the '-' char is subtraction or a negative
 	int8_t negativeCheck = 0;
@@ -91,7 +82,10 @@ err_ret sya(char *input, struct vari *var) {
 		//by checking the next character
 		if(type[l] == 3){
 			type[l + 1] = chk_t(input[l + 1]);
-			type[l] = type[l + 1];
+			if(!type[l + 1])
+				type[l] = 2;
+			else
+				type[l] = type[l + 1];
 			++l;
 		}
 	}
@@ -108,9 +102,16 @@ err_ret sya(char *input, struct vari *var) {
 	if(!op)
 		return -6;
 
+	//iterators
+	//character buffer iterator
+	int char_iter = 0;
+
+	//operator buffer iterator
+	int oper_iter = 0;
+
 	//main loop
 	//iterates through the input string, apply shunting-yard algorithm
-	for(uint16_t i = 0; input[i] && !error; ++i) {
+	for(int i = 0; input[i] && !err; ++i) {
 		switch(type[i]){
 
 		case 1: //alpha numerics
@@ -125,17 +126,21 @@ err_ret sya(char *input, struct vari *var) {
 
 				//if the buffer is all numbers
 				if(chk_num(bufferLetters)) {
-					struct matrix *temp = init_scalar(strtod(bufferLetters, NULL));
-					if(!temp)
+					double buf_num = strtod(bufferLetters, NULL);
+					struct matrix *temp;
+					err = init_scalar(buf_num, &temp);
+					if(err)
 						break;
 
 					push(num, temp);
 				} else { //check if command is a function or variable
-					if(input[i + 1] == '(')
-						bufferLetters[char_iter++] = '(';
+					if(input[i + 1] == '(') {
+						bufferLetters[char_iter] = '(';
+						++char_iter;
+					}
 
 					bufferLetters[char_iter] = '\0';
-					error = find_fun(bufferLetters, num, op, var, &negativeCheck, &i, input);
+					err = find_fun(bufferLetters, num, op, var, &negativeCheck, &i, input);
 				}
 
 				//reset bufferLetters counter
@@ -153,18 +158,19 @@ err_ret sya(char *input, struct vari *var) {
 			char_iter = 0;
 
 			//all consecutive operator characters put into a buffer
-			bufferOper[oper_iter++] = input[i];
+			bufferOper[oper_iter] = input[i];
+			++oper_iter;
 
 			//checks if the current buffer concatenated with the
 			//next character is an operator, if not, go into "if"
-			int check_op = chk_op(bufferOper, input[i + 1], &error);
-			if(error)
+			int check_op = chk_op(bufferOper, input[i + 1], &err);
+			if(err)
 				break;
 
 			if(check_op == (OPERATOR_COUNT)) {
 				bufferOper[oper_iter] = '\0';
 				//find the corresponding operator
-				error = find_op(bufferOper, num, op, var, &negativeCheck);
+				err = find_op(bufferOper, num, op, var, &negativeCheck);
 
 				//reset bufferOper counter
 				oper_iter = 0;
@@ -176,16 +182,14 @@ err_ret sya(char *input, struct vari *var) {
 			//reset letters and oper counters
 			char_iter = 0;
 			oper_iter = 0;
-			struct matrix *a = ext_mat(var, &i, input, &error);
-
-			if(!error)
+			struct matrix *a = NULL;
+			err = ext_mat(var, &i, input, &a);
+			if(!err)
 				push(num, a);
-
 			break;
-
       
 		case -1:
-			error = -4;
+			err = -4;
 			break;
 
 		}//end of switch
@@ -195,11 +199,12 @@ err_ret sya(char *input, struct vari *var) {
 	free(bufferLetters);
 	free(bufferOper);
 
-	if(!error){
+	if(!err){
 
 		//while the operator and number stack are occupied, keep executing
 		while(op->top > -1) {
-			if( (error = ex_num(num, var, pop(op))) )
+			err = ex_num(num, var, pop(op));
+			if(err)
 				goto err_ret;
 		}
 
@@ -230,7 +235,7 @@ err_ret sya(char *input, struct vari *var) {
 			       sizeof(*var->ans->size) * (var->ans->dim + 1));
 
 		} else {
-			error = -5;
+			err = -5;
 			var->ans->size = NULL;
 			var->ans->elements = NULL;
 		}
@@ -242,7 +247,7 @@ err_ret sya(char *input, struct vari *var) {
 
 	//reset assignment
 	var->f_assign = 0;
-	return error;
+	return err;
 }
 
 
@@ -252,21 +257,23 @@ void err_rep(err_ret error) {
 		printf("\nError %d:\n", error);
 		switch(error) {
 
-		case -2: printf("Incorrect number of function arguments."); break;
-		case -3: printf("Mismatched parenthesis."); break;
-		case -4: printf("Invalid expression."); break;
-		case -5: printf("Invalid function or variable name."); break;
-		case -6: printf("Malloc error."); break;
-		case -7: printf("Invalid operator."); break;
-		case -8: printf("File does not exist."); break;
-		case -9: printf("Mismatched quotation marks."); break;
-		case -10:printf("Matrix dimensions do not match."); break;
-		case -11:printf("Out of matrix bounds."); break;
-		case -12:printf("No output variable."); break;
-		case -13:printf("Invalid assignment."); break;
+		case -2: puts("Incorrect number of function arguments."); break;
+		case -3: puts("Mismatched parenthesis."); break;
+		case -4: puts("Invalid expression."); break;
+		case -5: puts("Invalid function or variable name."); break;
+		case -6: puts("Malloc error."); break;
+		case -7: puts("Invalid operator."); break;
+		case -8: puts("File does not exist."); break;
+		case -9: puts("Mismatched quotation marks."); break;
+		case -10:puts("Matrix dimensions do not match."); break;
+		case -11:puts("Out of matrix bounds."); break;
+		case -12:puts("No output variable."); break;
+		case -13:puts("Invalid assignment."); break;
+		case -14:puts("Fatal error in cat_mat"); break;
+		case -15:puts("Concatenating matrices do not match."); break;
 		default: break;
 		}
-		printf("\n\n");
+		puts("");
 	}
 }
 
@@ -304,6 +311,26 @@ int chk_op(char *a, char b, err_ret *error) {
 }
 
 
+int in_range(char a, char left, char right) {
+	return (a >= left) && (a <= right);
+}
+
+int is_alphanumeric(char a) {
+	if(in_range(a, '0', '9'))
+		return 1;
+
+	if(in_range(a, 'a', 'z'))
+		return 1;
+
+	if(in_range(a, 'A', 'Z'))
+		return 1;
+
+	if(a == '_')
+		return 1;
+
+	return 0;
+}
+
 //checks the type of character
 
 //alpha numeric is 1
@@ -314,13 +341,6 @@ int chk_op(char *a, char b, err_ret *error) {
 //nonsupported characters are -1?
 int chk_t(char a) {
 	switch(a) {
-
-	case '0' ... '9':
-	case 'a' ... 'z':
-	case 'A' ... 'Z':
-	case '_':
-		return 1;
-
 	case '^':
 	case '(':
 	case '*':
@@ -352,6 +372,9 @@ int chk_t(char a) {
 		return 0;
 
 	default:
+		if(is_alphanumeric(a))
+			return 1;
+		
 		return -1;
 	}
 }
