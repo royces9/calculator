@@ -311,6 +311,26 @@ int chk_op(char *a, char b, err_ret *error) {
 }
 
 
+int in_range(char a, char left, char right) {
+	return (a >= left) && (a <= right);
+}
+
+int is_alphanumeric(char a) {
+	if(in_range(a, '0', '9'))
+		return 1;
+
+	if(in_range(a, 'a', 'z'))
+		return 1;
+
+	if(in_range(a, 'A', 'Z'))
+		return 1;
+
+	if(a == '_')
+		return 1;
+
+	return 0;
+}
+
 //checks the type of character
 
 //alpha numeric is 1
@@ -321,13 +341,6 @@ int chk_op(char *a, char b, err_ret *error) {
 //nonsupported characters are -1?
 int chk_t(char a) {
 	switch(a) {
-
-	case '0' ... '9':
-	case 'a' ... 'z':
-	case 'A' ... 'Z':
-	case '_':
-		return 1;
-
 	case '^':
 	case '(':
 	case '*':
@@ -359,6 +372,9 @@ int chk_t(char a) {
 		return 0;
 
 	default:
+		if(is_alphanumeric(a))
+			return 1;
+		
 		return -1;
 	}
 }
