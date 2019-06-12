@@ -163,11 +163,12 @@ err_ret sya(char *input, struct vari *var) {
 
 			//checks if the current buffer concatenated with the
 			//next character is an operator, if not, go into "if"
-			int check_op = chk_op(bufferOper, input[i + 1], &err);
+			int op_ind = 0;
+			err = chk_op(bufferOper, input[i + 1], &op_ind);
 			if(err)
 				break;
 
-			if(check_op == (OPERATOR_COUNT)) {
+			if(op_ind == (OPERATOR_COUNT)) {
 				bufferOper[oper_iter] = '\0';
 				//find the corresponding operator
 				err = find_op(bufferOper, num, op, var, &negativeCheck);
@@ -293,21 +294,22 @@ int chk_num(char *input) {
 
 //check if "a" concatenated with "b"
 //is in the operator array
-int chk_op(char *a, char b, err_ret *error) {
+err_ret chk_op(char *a, char b, int *out) {
 
 	int len = strlen(a);
-	char *buffer = malloc(sizeof(*buffer) * (len + 2));
-	__MALLOC_CHECK(buffer, *error);
+	char *buffer = malloc((len + 2) * sizeof(*buffer));
+	if(!buffer)
+		return -6;
 
 	strcpy(buffer, a);
 
 	buffer[len] = b;
 	buffer[len + 1] = '\0';
 
-	int out = search_str(buffer, OPERATOR_LIST);
+	*out = search_str(buffer, OPERATOR_LIST);
 	free(buffer);
 
-	return out;
+	return 0;
 }
 
 
