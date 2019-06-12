@@ -9,29 +9,28 @@
 #include "functions.h"
 
 
-struct matrix *eye(struct matrix *a, err_ret *error) {
+err_ret eye(struct matrix const *const a, struct matrix **out) {
+	err_ret err = 0;
 	if(a->dim != 1) {
-		*error = -12;
-		return NULL;
+		return -12;
 	} else if(a->elements[0] < 1) {
-		*error = -4;
-		return NULL;
+		return -4;
 	}
 
 	uint16_t newSize[3] = {a->elements[0], a->elements[0], 0};
 
-	struct matrix *out = init_mat(newSize, 2, error);
-	if(*error)
-		return NULL;
+	if((err = init_mat(newSize, 2, out)))
+		return err;
 
 	for(uint64_t i = 0; i < a->elements[0]; ++i)
-		out->elements[i * (uint64_t)(a->elements[0] + 1)] = 1;
+		out[0]->elements[i * (uint64_t)(a->elements[0] + 1)] = 1;
 
-	return out;
+	return err;
 }
 
 
-struct matrix *get_size(struct matrix *a, err_ret *error) {
+err_ret get_size(struct matrix const *const a, struct matrix **out) {
+	err_ret err = 0;
 	uint16_t newSize[3];
 
 	//output is a row vector
@@ -39,24 +38,21 @@ struct matrix *get_size(struct matrix *a, err_ret *error) {
 	newSize[1] = a->dim;
 	newSize[2] = 0;
   
-	struct matrix *out = init_mat(newSize, 2, error);
-	if(*error)
-		return NULL;
+
+	if((err = init_mat(newSize, 2, out)))
+		return err;
 
 	for(uint64_t i = 0; a->size[i]; ++i)
-		out->elements[i] = a->size[i];
+		out[0]->elements[i] = a->size[i];
 
-	return out;
+	return err;
 }
 
 
-struct matrix *magnitude(struct matrix *a, err_ret *error) {
-	if(!is_vec(a)) {
-		*error = -10;
-		return NULL;
-	}
+err_ret magnitude(struct matrix const *const a, struct matrix **out) {
+	if(!is_vec(a))
+		return -10;
 
-	struct matrix *out = NULL;
 	ele mag_a = 0;
 
 	for(uint64_t i = 0; i < a->len; ++i)
@@ -64,16 +60,13 @@ struct matrix *magnitude(struct matrix *a, err_ret *error) {
 
 	mag_a = sqrt(mag_a);
 
-	out = init_scalar(mag_a);
-	__MALLOC_CHECK(out, *error);
-
-	return out;
+	return init_scalar(mag_a, out);
 }
 
 
 //get the total number of elements of a
-struct matrix *numel(struct matrix *a, err_ret *error) {
-	return init_scalar(a->len);
+err_ret numel(struct matrix const *const a, struct matrix **out) {
+	return init_scalar(a->len, out);
 }
 
 
@@ -87,30 +80,24 @@ struct matrix *numel(struct matrix *a, err_ret *error) {
  *  a - the matrix
  *  b - the index
  */
-struct matrix *reference(struct matrix *a, struct matrix *b, err_ret *error) {
-	struct matrix *out = cpy_mat(b);
-
-	if( !out ) {
-		*error = -6;
-		return NULL;
-	}
+err_ret reference(struct matrix const *const a, struct matrix const *const b, struct matrix **out) {
+	err_ret err = cpy_mat(b, out);
+	if(err)
+		return err;
 
 	for(uint64_t i = 0; i < b->len; ++i)
-		out->elements[i] = a->elements[(uint64_t) (b->elements[i])];
+		out[0]->elements[i] = a->elements[(uint64_t) (b->elements[i])];
 
-	return out;
+	return err;
 }
 
 
-struct matrix *assign(struct matrix *a, struct matrix *b, struct vari *var, err_ret *error) {
-
+err_ret assign(struct matrix *a, struct matrix *b, struct vari *var, struct matrix **out) {
 	uint8_t incrementFlag = 1;
 
 	if(!a->var) {
-		*error = -13;
 		free_mat(a);
-		return NULL;
-
+		return 0;
 	}
 
 	if(!var->assign) {
@@ -130,25 +117,26 @@ struct matrix *assign(struct matrix *a, struct matrix *b, struct vari *var, err_
 		a->len = b->len;
 		a->dim = b->dim;
 
-		a->elements = malloc(sizeof(*a->elements) * a->len);
-		__MALLOC_CHECK(a->elements, *error);
+		a->elements = malloc(a->len * sizeof(*a->elements));
+		if(!a->elements)
+			return -6;
 
-		memcpy(a->elements, b->elements, sizeof(*a->elements) * a->len);
+		memcpy(a->elements, b->elements, a->len * sizeof(*a->elements));
 
-		a->size = malloc(sizeof(*a->size) * (a->dim + 1));
-		__MALLOC_CHECK(a->size, *error);
+		a->size = malloc((a->dim + 1) * sizeof(*a->size));
+		if(!a->size)
+			return -6;
 
-		memcpy(a->size, b->size, sizeof(*a->size) * (a->dim + 1));
+		memcpy(a->size, b->size, (a->dim + 1) * sizeof(*a->size));
 
 	} else {
 		for(uint64_t i = 0, k = 0, *j = is_scalar(b) ? &k : &i;
 		    i < var->assign->len;
 		    ++i) {
 			int index = var->assign->elements[i];
-			if(index < 0) {
-				*error = -13;
-				break;
-			}
+			if(index < 0)
+				return -13;
+
 			a->elements[index] = b->elements[*j];
 		} 
 
@@ -162,35 +150,32 @@ struct matrix *assign(struct matrix *a, struct matrix *b, struct vari *var, err_
 	if(incrementFlag)
 		++var->count;
 
-	return cpy_mat(a);
+	return cpy_mat(a, out);
 }
 
 
-struct matrix *div_mat(struct matrix *a, struct matrix *b, err_ret *error) {
-	return NULL;
+err_ret div_mat(struct matrix const *const a, struct matrix const *const b, struct matrix **out) {
+	return 0;
 }
 
 
-struct matrix *mult_mat(struct matrix *a, struct matrix *b, err_ret *error) {
-	struct matrix *out = NULL;
+err_ret mult_mat(struct matrix const *const a, struct matrix const *const b, struct matrix **out) {
 	//matrix multiplication only defined for 2d arrays
-	if((a->dim != 2) || (b->dim != 2)) {
-		*error = -10;
-		return NULL;
-	}
+	if((a->dim != 2) || (b->dim != 2))
+		return -10;
 
 	//check that the inner dimensions match
-	if(a->size[1] != b->size[0]) {
-		*error = -10;
-		return NULL;
-	}
+	if(a->size[1] != b->size[0])
+		return -10;
 
+	err_ret err = 0;
 	uint16_t newSize[3] = {a->size[0], b->size[1], 0};
-	out = init_mat(newSize, 2, error);
-	if(*error)
-		return NULL;
+	if((err = init_mat(newSize, 2, out)))
+		return err;
 
-	struct matrix *t_a = t_mat(a, error);
+	struct matrix *t_a = NULL;
+	if((err = t_mat(a, &t_a)))
+		return err;
 
 	//generic O(n^3) algorithm
 	//transpose a and then multiply every column
@@ -205,202 +190,168 @@ struct matrix *mult_mat(struct matrix *a, struct matrix *b, err_ret *error) {
 				tmp += t_a->elements[ind_a] * b->elements[ind_b];
 			}
 
-			out->elements[l] = tmp;
+			out[0]->elements[l] = tmp;
 			++l;
 		}
 	}
     
 	free_mat(t_a);
-	return out;
+	return err;
 }
 
 
-struct matrix *exp_mat(struct matrix *a, struct matrix *b, err_ret *error) {
+err_ret exp_mat(struct matrix const *const a, struct matrix const *const b, struct matrix **out) {
 	uint8_t aScalar = is_scalar(a);
 	uint8_t bScalar = is_scalar(b);
 
 	struct matrix *tmp = NULL;
-	struct matrix *out = NULL;
 
+	err_ret err = 0;
 	switch(aScalar + bScalar) {
 	case 0: //neither a nor b are scalars
-		*error = -10;
-		break;
+		return -10;
 
 	case 1: //one of a or b is a scalar
 		if(aScalar) { //a is the scalar
-			if( !(out = cpy_mat(b)) ) {
-				*error = -6;
-				break;
-			}
+			if((err = cpy_mat(b, out)))
+				return err;
 
-			for(uint64_t i = 0; i < out->len; ++i)
-				out->elements[i] = pow(a->elements[0],b->elements[i]);
+			for(uint64_t i = 0; i < out[0]->len; ++i)
+				out[0]->elements[i] = pow(a->elements[0],b->elements[i]);
 
 		} else { //b is the scalar
 			//check that b is a whole number, no imaginary numbers (yet?)
 
-			out = init_scalar(a->size[0]);
-			__MALLOC_CHECK(out, *error);
+			if((err = init_scalar(a->size[0], out)))
+				return err;
 
-			tmp = eye(out, error);
-			free_mat(out);
+			err = eye(*out, &tmp);
+			free_mat(*out);
+			if(err)
+				return err;
 
 			//really small number
 			if((b->elements[0] - floor(b->elements[0])) > 0.00000000001) {
-				*error = -10;
 				free_mat(tmp);
-				break;
+				return -10;
 			}
 
 			int64_t power = b->elements[0];
 			for(int64_t i = 0; i < power; ++i) {
-				out = mult_mat(tmp, a, error);
+				err = mult_mat(tmp, a, out);
 				free_mat(tmp);
-
-				if(*error) {
-					free_mat(out);
-					return NULL;
+				if(err) {
+					free_mat(*out);
+					return err;
 				}
+					
+				if((err = cpy_mat(*out, &tmp)))
+					return err;
 
-				tmp = cpy_mat(out);
-				if( !tmp ) {
-					*error = -6;
-					return NULL;
-				}
-				free_mat(out);
+				free_mat(*out);
 			}
-			out = tmp;
+			*out = tmp;
 		}
 		break;
 
 
 	case 2: //a and b are both scalar
-		out = init_scalar(pow(a->elements[0], b->elements[0]));
-		__MALLOC_CHECK(out, *error);
+		err = init_scalar(pow(a->elements[0], b->elements[0]), out);
 		break;
 
 	default:
-		*error = -10;
+		err = -10;
 		break;
 	}
 
-	return out;
+	return err;
 }
 
 
-struct matrix *t_mat(struct matrix *a, err_ret *error) {
+err_ret t_mat(struct matrix const *const a, struct matrix **out) {
 	//transpose only defined for 2d matrix
-	if(a->dim != 2) {
-		*error = -10;
-		return NULL;
-	}
+	if(a->dim != 2)
+		return -10;
 
 	//new transposed size is same as a->size
 	//but the dimensions are swapped
 	uint16_t newSize[3] = {a->size[1], a->size[0], 0};
-	struct matrix *out = init_mat(newSize, 2, error);
-	if(*error)
-		return NULL;
+	err_ret err = init_mat(newSize, 2, out);
+	if(err)
+		return err;
 
-	for(uint64_t i = 0; i < out->len; ++i) {
+	for(uint64_t i = 0; i < out[0]->len; ++i) {
 		//tmp is an int and gets rounded down
 		uint64_t tmp = i / a->size[0];
 		uint64_t ind = tmp + a->size[1] * (i - tmp * a->size[0]);
 
-		out->elements[ind] = a->elements[i];
+		out[0]->elements[ind] = a->elements[i];
 	}
 
-	return out;
+	return err;
 }
 
 
 //determinies minimum value in the matrix
-struct matrix *min(struct matrix *m, err_ret *error) {
-	ele out = m->elements[0];
+err_ret min(struct matrix const *const m, struct matrix **out) {
+	ele cur_min = m->elements[0];
 
 	for(uint64_t i = 1; i < m->len; ++i)
-		out = fmin(out, m->elements[i]);
+		cur_min = fmin(cur_min, m->elements[i]);
 
-	return init_scalar(out);
+	return init_scalar(cur_min, out);
 }
 
 
 //determines maximum value in the matrix
-struct matrix *max(struct matrix *m, err_ret *error) {
-	ele out = m->elements[0];
+err_ret max(struct matrix const *const m, struct matrix **out) {
+	ele cur_max = m->elements[0];
 
 	for(uint64_t i = 1; i < m->len; ++i)
-		out = fmax(out, m->elements[i]);
+		cur_max = fmax(cur_max, m->elements[i]);
 
-	return init_scalar(out);
+	return init_scalar(cur_max, out);
 }
 
 
 //sums along the last dimension of the matrix
 //unless matrix, then sum the elements
-struct matrix *sum(struct matrix *m, err_ret *error) {
-	struct matrix *out = NULL;
-
-	int new_dim = m->dim - 1;
-	uint16_t *newSize = NULL;
-
+err_ret sum(struct matrix const *const m, struct matrix **out) {
+	err_ret err = 0;
 	if(is_vec(m)) {
-		new_dim = 2;
-		newSize = malloc(2 * sizeof(*newSize));
-		__MALLOC_CHECK(newSize, *error);
+		if((err = init_scalar(0, out)))
+			return err;
 
-		newSize[0] = 1;
-		newSize[1] = 0;
-		
-	} else if(m->dim == 2) {
-		new_dim = 3;
-		newSize = malloc(2 * sizeof(*newSize));
-		__MALLOC_CHECK(newSize, *error);
-		
-		newSize[0] = 1;
-		newSize[1] = m->size[1];
-		newSize[2] = 0;
- 
-	} else if(m->dim == 1) {
-		return cpy_mat(m);
-
-	} else {
-		newSize = malloc(m->dim * sizeof(*newSize));
-		__MALLOC_CHECK(newSize, *error);
-
-		newSize = memcpy(newSize, m->size,
-				 m->dim * sizeof(*newSize));
-		newSize[m->dim - 1] = 0;
-	}
-
-	out = init_mat(newSize, new_dim, error);
-	free(newSize);
-	if(*error)
-		return NULL;
-
-	if(is_vec(m)) {
 		for(int i = 0; i < m->len; ++i)
-			out->elements[0] += m->elements[i];
+			out[0]->elements[0] += m->elements[i];
+
 	} else if(m->dim == 2) {
-		for(int i = 0; i < out->len; ++i) {
+		uint16_t new_size[] = {1, m->size[1], 0};
+
+		if((err = init_mat(new_size, 2, out)))
+			return err;
+
+		for(int i = 0; i < out[0]->len; ++i) {
 			for(int j = 0; j < m->size[m->dim - 2]; ++j) {
 				uint64_t ind = i * m->size[m->dim - 2] + j;
-				out->elements[i] += m->elements[ind];
+				out[0]->elements[i] += m->elements[ind];
 			}
 		}
+	} else if(m->dim == 1) {
+		err = init_scalar(m->elements[0], out);
 	} else {
-		
-	}
-	/*
-	for(uint64_t i = 0; i < out->len; ++i) {
-		for(int j = 0; j < m->size[m->dim - 2]; ++j) {
-			uint64_t ind = i * m->size[m->dim - 2] + j;
-			out->elements[i] += m->elements[ind];
+		if((err = init_mat(m->size, m->dim - 1, out)))
+			return err;
+
+		for(int i = 0; i < out[0]->len; ++i) {
+			for(int j = 0; j < m->size[m->dim - 1]; ++j) {
+				uint64_t ind = j * out[0]->len + i;
+				out[0]->elements[i] += m->elements[ind];
+			}
 		}
 	}
-	*/
-	return out;
+
+	return err;
 }
 
 //calculates average value of the matrix along the last dimensions columns
@@ -409,13 +360,15 @@ struct matrix *sum(struct matrix *m, err_ret *error) {
 //3 4
 //should return
 //2 3
-struct matrix *avg(struct matrix *m, err_ret *error) {
-	struct matrix *out = sum(m, error);
+err_ret avg(struct matrix const *const m, struct matrix **out) {
+	err_ret err = sum(m, out);
+	if(err)
+		return err;
 
-	for(uint64_t i = 0; i < out->len; ++i)
-		out->elements[i] /= m->size[m->dim - 1];
+	for(uint64_t i = 0; i < out[0]->len; ++i)
+		out[0]->elements[i] /= m->size[m->dim - 1];
 
-	return out;
+	return err;
 }
 
 

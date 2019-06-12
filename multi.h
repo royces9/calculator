@@ -22,7 +22,7 @@ int numberOfArgs(char **input);
  * err_ret *error
  *   non zero value if something goes wrong
  */
-struct matrix *deri(char **input, struct vari *var, err_ret *error);
+err_ret deri(char **input, struct vari *var, struct matrix **out);
 
 /*
  * numerically calculate derivative
@@ -35,7 +35,7 @@ struct matrix *deri(char **input, struct vari *var, err_ret *error);
  *   input[3]: right bound
  *   input[4]: partition count, number of partitions between left and right bounds
  */
-struct matrix *inte(char **input, struct vari *var, err_ret *error);
+err_ret inte(char **input, struct vari *var, struct matrix **out);
 
 /*
  * numerically solve f(x) = 0
@@ -47,7 +47,7 @@ struct matrix *inte(char **input, struct vari *var, err_ret *error);
  *   input[2]: initial guess, inital value for independent variable to start from
  *   input[3]: tolerance, difference between iterations stop
  */
-struct matrix *solve(char **input, struct vari *var, err_ret *error);
+err_ret solve(char **input, struct vari *var, struct matrix **out);
 
 /*
  * make a matrix of zeros/ones/random vals between 0 and 1
@@ -57,9 +57,9 @@ struct matrix *solve(char **input, struct vari *var, err_ret *error);
  *   is the size of the output matrix
  *   can be a single or multiple string(s)
  */
-struct matrix *zeros(char **input, struct vari *var, err_ret *error);
-struct matrix *ones(char **input, struct vari *var, err_ret *error);
-struct matrix *rand_mat(char **input, struct vari *var, err_ret *error);
+err_ret zeros(char **input, struct vari *var, struct matrix **out);
+err_ret ones(char **input, struct vari *var, struct matrix **out);
+err_ret rand_mat(char **input, struct vari *var, struct matrix **out);
 
 /*
  * make a column vector with linearlly spaced values
@@ -70,7 +70,7 @@ struct matrix *rand_mat(char **input, struct vari *var, err_ret *error);
  *   input[1]: right limit, last index will have this value
  *   input[2]: number of elements
  */
-struct matrix *linspace(char **input, struct vari *var, err_ret *error);
+err_ret linspace(char **input, struct vari *var, struct matrix **out);
 
 /*
  * get value of variable
@@ -82,7 +82,7 @@ struct matrix *linspace(char **input, struct vari *var, err_ret *error);
  * int varIndex
  *   the index in vari the variable is in
  */
-struct matrix *extractValue(char **input, int varIndex, struct vari *var, err_ret *error);
+err_ret extractValue(char **input, int varIndex, struct vari *var, struct matrix **out);
 
 /*
  * check if variable exists
@@ -94,7 +94,7 @@ struct matrix *extractValue(char **input, int varIndex, struct vari *var, err_re
  * int *tok
  *   int to determine if '-' is negative or minus
  */
-err_ret chk_var(const char *buffer, char *input, uint16_t *iter, struct vari *var, struct stack *num, struct stack *ch);
+err_ret chk_var(char *buffer, char *input, int *iter, struct vari *var, struct stack *num, struct stack *ch, struct matrix **out);
 
 /*
  * remove spaces from input
@@ -127,7 +127,7 @@ err_ret printLine(char **input, struct vari *var);
  * int *iterator
  *   the main loop counter in sya, so it can be incremented the appropriate amount
  */
-char **sep_str(char *input, char const * const limiter, char const * const delimiter, uint16_t *iter, err_ret *error);
+char **sep_str(char *input, char const *const limiter, char const *const delimiter, int *iter, err_ret *error);
 
 /*
  * free string output from separateString

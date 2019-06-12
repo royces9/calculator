@@ -1,10 +1,10 @@
 #ifndef USER_FUNCTIONS
 #define USER_FUNCTIONS
 
-struct matrix *find_user_fun(char *name, char **args, struct vari *var, err_ret *error);
-char *chk_conf(char *name, char *configPath, err_ret *error);
-char *find_path(char *functionName, err_ret *error);
-struct matrix *exec_fun(char *functionPath, char **functionArgs, struct vari *var, err_ret *error);
+err_ret find_user_fun(char *name, char **args, struct vari *var, struct matrix **out);
+err_ret chk_conf(char *name, char *configPath, char **out);
+err_ret find_path(char *functionName, char **path);
+err_ret exec_fun(char *functionPath, char **functionArgs, struct vari *var, struct matrix **out);
 
 /*
  * compare given function name, with file in directory
@@ -14,6 +14,6 @@ uint8_t chk_name(char *name, char *dir);
 /*
  * search given directory for file matching name
  */
-char *search_dir(char *name, char *dir, err_ret *error);
+err_ret search_dir(char *name, char *dir, char **out);
 
 #endif //USER_FUNCTIONS

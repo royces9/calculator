@@ -18,9 +18,9 @@ typedef double ele;
 #include "variables.h"
 
 union fp {
-	struct matrix * (*mult)(char **, struct vari *, err_ret *);
-	struct matrix * (*m_one)(struct matrix *, err_ret *);
-	struct matrix * (*m_two)(struct matrix *, struct matrix *, err_ret *);
+	err_ret (*mult)(char **, struct vari *, struct matrix **);
+	err_ret (*m_one)(struct matrix const *const, struct matrix **);
+	err_ret (*m_two)(struct matrix const *const, struct matrix const *const, struct matrix **);
 	ele (*s_one)(ele);
 	ele (*s_two)(ele, ele);
 	void *p;
@@ -31,7 +31,7 @@ struct oper { //struct for operators, +, -, etc
 	//function pointer
 	union fp fp;
 
-	int _enum;
+	int m_enum;
 
 	//order of operation, higher is higher priority
 	uint8_t order;
