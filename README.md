@@ -17,7 +17,7 @@ git clone https://github.com/royces9/calculator.git
 make
 ```
 
-To build with optimizations
+To build with optimizations:
 ```
 make release
 ```
