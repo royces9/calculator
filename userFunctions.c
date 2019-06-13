@@ -215,10 +215,8 @@ uint8_t chk_name(char *name, char *dir) {
 err_ret search_dir(char *name, char *dir_name, char **out) {
 	DIR *dir = opendir(dir_name);
 
-	if(!dir) {
-		closedir(dir);
+	if(!dir)
 		return -8;
-	}
 
 	struct dirent *d;
 
