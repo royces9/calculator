@@ -7,9 +7,9 @@ Has limited support for vectors, matrices, and corresponding operators
 ## Building
 Only tested for Linux
 
-Requirements for building:
-GNU Readline library
-GNU make
+Requirements for building:<br/>
+GNU Readline library<br/>
+GNU make<br/>
 
 To build:
 ```
