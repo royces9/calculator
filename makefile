@@ -6,18 +6,17 @@ CC = gcc
 CFILES = $(wildcard *.c)
 OFILES = $(addprefix $(OBJD)/, $(CFILES:.c=.o))
 
-USR = /usr/local/bin/calc
-TARGET = calc2
+USR = calc
+TARGET = calc_d
 
 OBJD = obj
 
 all: DEBUG_FLAGS += -g
 all: $(TARGET)
 
-usr: TARGET = $(USR)
-usr: FLAGS += -O2
-usr: $(TARGET)
-
+release: TARGET = $(USR)
+release: FLAGS += -O2
+release: $(TARGET)
 
 
 $(TARGET): $(OFILES)

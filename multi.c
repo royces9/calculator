@@ -288,7 +288,7 @@ err_ret solve(char **inp, struct vari *var, struct matrix **out) {
  err_ret:
 	free_var(tmp);
 
-	return ans;
+	return err;
 }
 
 

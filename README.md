@@ -4,6 +4,25 @@ Basic calculator to do calculations
 
 Has limited support for vectors, matrices, and corresponding operators
 
+## Building
+Only tested for Linux
+
+Requirements for building:
+GNU Readline library
+GNU make
+
+To build:
+```
+git clone https://github.com/royces9/calculator.git
+make
+```
+
+To build with optimizations
+```
+make release
+```
+
+
 ## Currently implemented functions
 
 ### Arithmetic operators
