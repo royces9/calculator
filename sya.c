@@ -15,7 +15,7 @@ err_ret sya(char *input, struct vari *var) {
 	err_ret err = 0;
 
 	//to check if the '-' char is subtraction or a negative
-	int8_t negativeCheck = 0;
+	int negativeCheck = 0;
 
 	//Error checking
 	//count for the number of parentheses and brackets
@@ -118,8 +118,9 @@ err_ret sya(char *input, struct vari *var) {
 			//reset bufferOper counter
 			oper_iter = 0;
 			//put all consecutive alphanumeric characters in a buffer
-			bufferLetters[char_iter++] = input[i];
-
+			bufferLetters[char_iter] = input[i];
+			++char_iter;
+			
 			//for valid numbers/variables/functions
 			if( (type[i + 1] == 2) || (!type[i + 1]) ){
 				bufferLetters[char_iter] = '\0';

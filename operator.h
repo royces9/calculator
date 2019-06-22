@@ -7,8 +7,8 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch);
 err_ret mat_one(struct matrix *a, struct oper *ch, struct matrix **out);
 err_ret mat_two(struct matrix *a, struct matrix *b, struct oper *ch, struct matrix **out);
 
-err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok, int *iter, char *input);
-err_ret find_op(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok);
+err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int *tok, int *iter, char *input);
+err_ret find_op(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int *tok);
 
 char **sep_mat(char *input, uint16_t length, err_ret *error);
 err_ret ext_mat(struct vari *var, int *iter, char *input, struct matrix **out);

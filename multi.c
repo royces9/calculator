@@ -276,7 +276,8 @@ err_ret solve(char **inp, struct vari *var, struct matrix **out) {
 
 		//if counter overflows and goes back to 0
 		//this is true, max value is 65535 (2 bytes)
-		if(!(++counter)) {
+		++counter;
+		if(!counter) {
 			err = -12;
 			goto err_ret;
 		}
@@ -810,8 +811,9 @@ char **sep_str(char *inp, char const *const lim, char const *const delim, int *i
 	*iter += (len + 1);
 
 	//location of end paren, and skipping first paren
-	char *inp_end = (inp++) + len;
-
+	char *inp_end = inp + len;
+	++inp;
+	
 	//assume that each delimiter will have its own string
 	//also account for an end NULL pointer
 	//this will always be greater than or equal to the
@@ -894,7 +896,8 @@ char **sep_str(char *inp, char const *const lim, char const *const delim, int *i
 		sep[subString][k - cur_len] = '\0';
 	}
 
-	sep[++subString] = NULL;
+	++subString;
+	sep[subString] = NULL;
 
 	return sep;
 }

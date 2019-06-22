@@ -65,8 +65,10 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 			continue;
 
 		//replaces end new line with a null terminated character
-		if(bufferHold[len - 1] == '\n')
-			bufferHold[--len] = '\0';
+		if(bufferHold[len - 1] == '\n') {
+			--len;
+			bufferHold[len] = '\0';
+		}
 
 		//put line into tree struct
 		tree->line = malloc(sizeof(*tree->line) * (len + 1));
@@ -143,7 +145,7 @@ err_ret executeTree(fileTree *tree, struct vari *var){
 	//checks that the current leaf and the string it holds are not NULL
 	for(;tree && tree->line;) {
 		//check whether to branch left or right down tree
-		int8_t dir = checkProgramFlow(tree->line);
+		int dir = checkProgramFlow(tree->line);
 
 		switch(dir) {
 		case 1: //if
@@ -213,7 +215,8 @@ err_ret executeTree(fileTree *tree, struct vari *var){
 			//when the check is non 0, the if condition executed
 			//the else block is skipped
 
-			if(!checkStack[--top]) {
+			--top;
+			if(!checkStack[top]) {
 				push(stk, tree->left);
 				tree = tree->right;
 
@@ -254,7 +257,7 @@ err_ret executeTree(fileTree *tree, struct vari *var){
 
 
 //determine whether to branch left or right
-int8_t checkProgramFlow(char *input) {
+int checkProgramFlow(char *input) {
 	if(strstr(input, "else")) return -2;
 	if(strstr(input, "end")) return -1;
 	if(strstr(input, "if(")) return 1;

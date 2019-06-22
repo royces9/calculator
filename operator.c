@@ -174,8 +174,9 @@ err_ret mat_two(struct matrix *a, struct matrix *b, struct oper *ch, struct matr
 
 			break;
 
-		case 2: //a and b are both scalars
-			err = init_scalar(ch->fp.s_two(a->elements[0], b->elements[0]), out);
+		case 2:; //a and b are both scalars
+			ele tmp = ch->fp.s_two(a->elements[0], b->elements[0]);
+			err = init_scalar(tmp, out);
 			break;
 
 		default:
@@ -191,7 +192,7 @@ err_ret mat_two(struct matrix *a, struct matrix *b, struct oper *ch, struct matr
 }
 
 
-err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int8_t *tok, int *iter, char *input) {
+err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari *var, int *tok, int *iter, char *input) {
 	char **separatedString = NULL;
 	struct matrix *out = NULL;
 
@@ -376,7 +377,7 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 }
 
 
-err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari *var, int8_t *tok) {
+err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari *var, int *tok) {
 	int i = search_str(buffer, OPERATOR_LIST);
 	err_ret err = 0;
 
@@ -416,14 +417,11 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 
 		*tok = 0;
 		push(oper, &O_STRUCT[eMultiply]);
+
 		struct matrix *temp = NULL;
 		err = init_scalar(-1, &temp);
-		if(!temp) {
-			err = -6;
-			break;
-		}
-			
-		push(num, temp);
+		if(!err)
+			push(num, temp);
 
 		break;
 
@@ -540,7 +538,8 @@ char **sep_mat(char *input, uint16_t delimiter, err_ret *error) {
 				__MALLOC_CHECK(out[subMatrices], *error);
 
 				strncpy(out[subMatrices], input + currentLength, j - currentLength);
-				out[subMatrices++][j - currentLength] = '\0';
+				out[subMatrices][j - currentLength] = '\0';
+				++subMatrices;
 				currentLength = j;
 			}
 			break;
@@ -556,7 +555,8 @@ char **sep_mat(char *input, uint16_t delimiter, err_ret *error) {
 	strncpy(out[subMatrices], input + currentLength, j - currentLength);
 	out[subMatrices][j - currentLength] = '\0';
 
-	out[++subMatrices] = NULL;
+	++subMatrices;
+	out[subMatrices] = NULL;
 	return out;
 }
 
