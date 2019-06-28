@@ -30,6 +30,6 @@ $(OBJD):
 
 .PHONY: clean
 clean:
-	del $(OBJD)/*.o $(OBJD)/*.d
+	del $(OBJD)/*.o $(OBJD)/*.d $(USR) $(TARGET)
 
 -include $(CFILES:.c=.d)
