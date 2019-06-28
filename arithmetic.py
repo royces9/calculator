@@ -15,11 +15,20 @@ def main():
                   "sin(1)",
                   "2 * sin(1)",
                   "sin(1) * 2",
+
                   "3 + 2 * sin(1)",
                   "2 * sin(1) + 3",
+                  "3 + sin(1) * 2",
+                  "sin(1) * 2 + 3",
+
+                  "3 + 2 * sin(5 - 4)",
+                  "2 * sin(5 - 4) + 3",
+                  "3 + sin(5 - 4) * 2",
+                  "sin(5 - 4) * 2 + 3",
+
                   ];
 
-    p = subprocess.Popen(["./calc2"], shell = True, stdin = subprocess.PIPE);
+    p = subprocess.Popen(["./calc_d"], shell = True, stdin = subprocess.PIPE);
 
     for line in test_input:
         b = bytearray();
