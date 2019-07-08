@@ -151,6 +151,8 @@ err_ret exec_fun(char *path, char **args, struct vari *var, struct matrix **out)
 
 	//check that the given arguments match with the
 	//require number of arguments
+	struct vari *fun_var = NULL;
+
 	if(functionArgNo != argNo) {
 		err = -2;
 		goto ret_out;
@@ -158,7 +160,7 @@ err_ret exec_fun(char *path, char **args, struct vari *var, struct matrix **out)
 
 	//variable struct for the function
 	//essentially a new scope
-	struct vari *fun_var = NULL;
+
 	err = init_var(256, &fun_var);
 	if(err)
 		goto ret_out;

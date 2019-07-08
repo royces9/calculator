@@ -1,5 +1,5 @@
 #ifndef MATRIX
-#define MATRIx
+#define MATRIX
 
 struct matrix{
 	//number of elements;
