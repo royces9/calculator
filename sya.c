@@ -19,10 +19,10 @@ err_ret sya(char *input, struct vari *var) {
 
 	//Error checking
 	//count for the number of parentheses and brackets
-	int16_t parenthesisCount = 0; 
-	int16_t bracketCount = 0;
+	int parenthesisCount = 0; 
+	int bracketCount = 0;
 
-	int16_t len = 0;
+	int len = 0;
 
 	//count left and right end parens/brackets, check that they match
 	//also measure length of string
@@ -35,7 +35,7 @@ err_ret sya(char *input, struct vari *var) {
 			--parenthesisCount;
 
 		if(parenthesisCount < 0)
-			return -3;
+			return e_mismatched_brackets;
 
 		if(input[len] == '[')
 			++bracketCount;
@@ -43,32 +43,32 @@ err_ret sya(char *input, struct vari *var) {
 			--bracketCount;
 
 		if(bracketCount < 0)
-			return -3;
+			return e_mismatched_brackets;
 	}
 
 	//if the number of left and right ends are the same
 	//the count variables will be 0
 	if(parenthesisCount || bracketCount)
-		return -3;
+		return e_mismatched_brackets;
 
 	//if input string ends in an operator, return error
 	if(strchr(".[,+-/*^(=&|~<>",input[len - 1]))
-		return -4;
+		return e_invalid_expr;
 
 
 	//buffers for characters and operators
 	char *bufferLetters = calloc(len + 1, sizeof(*bufferLetters));
 	if(!bufferLetters)
-		return -6;
+		return e_malloc;
 
 	char *bufferOper = calloc(len + 1, sizeof(*bufferOper));
 	if(!bufferOper)
-		return -6;
+		return e_malloc;
 
 
 	int8_t *type = malloc(sizeof(*type) * (len + 1));
 	if(!type)
-		return -6;
+		return e_malloc;
 
 	//assign a type to each char in string
 	//for the switch in the main loop
@@ -95,12 +95,12 @@ err_ret sya(char *input, struct vari *var) {
 	//stack for output numbers
 	struct stack *num = new_stk(512);
 	if(!num)
-		return -6;
+		return e_malloc;
 
 	//stack for operators
 	struct stack *op = new_stk(512);
 	if(!op)
-		return -6;
+		return e_malloc;
 
 	//iterators
 	//character buffer iterator
@@ -191,7 +191,7 @@ err_ret sya(char *input, struct vari *var) {
 			break;
       
 		case -1:
-			err = -4;
+			err = e_invalid_expr;
 			break;
 
 		}//end of switch
@@ -222,7 +222,7 @@ err_ret sya(char *input, struct vari *var) {
 
 			var->ans->elements = malloc(sizeof(*var->ans->elements) * var->ans->len);
 			if(!var->ans->elements)
-				return -6;
+				return e_malloc;
 
 			memcpy(var->ans->elements,
 			       ((struct matrix **)num->stk)[0]->elements,
@@ -230,14 +230,14 @@ err_ret sya(char *input, struct vari *var) {
 
 			var->ans->size = malloc(sizeof(*var->ans->size) * (var->ans->dim + 1));
 			if(!var->ans->size)
-				return -6;
+				return e_malloc;
 
 			memcpy(var->ans->size,
 			       ((struct matrix **)num->stk)[0]->size,
 			       sizeof(*var->ans->size) * (var->ans->dim + 1));
 
 		} else {
-			err = -5;
+			err = e_invalid_func;
 			var->ans->size = NULL;
 			var->ans->elements = NULL;
 		}
@@ -250,33 +250,6 @@ err_ret sya(char *input, struct vari *var) {
 	//reset assignment
 	var->f_assign = 0;
 	return err;
-}
-
-
-//print out errors if there are any
-void err_rep(err_ret error) {
-	if(error < -1){ //error codes for -2 or lower
-		printf("\nError %d:\n", error);
-		switch(error) {
-
-		case -2: puts("Incorrect number of function arguments."); break;
-		case -3: puts("Mismatched parenthesis."); break;
-		case -4: puts("Invalid expression."); break;
-		case -5: puts("Invalid function or variable name."); break;
-		case -6: puts("Malloc error."); break;
-		case -7: puts("Invalid operator."); break;
-		case -8: puts("File does not exist."); break;
-		case -9: puts("Mismatched quotation marks."); break;
-		case -10:puts("Matrix dimensions do not match."); break;
-		case -11:puts("Out of matrix bounds."); break;
-		case -12:puts("No output variable."); break;
-		case -13:puts("Invalid assignment."); break;
-		case -14:puts("Fatal error in cat_mat"); break;
-		case -15:puts("Concatenating matrices do not match."); break;
-		default: break;
-		}
-		puts("");
-	}
 }
 
 
@@ -300,7 +273,7 @@ err_ret chk_op(char *a, char b, int *out) {
 	int len = strlen(a);
 	char *buffer = malloc((len + 2) * sizeof(*buffer));
 	if(!buffer)
-		return -6;
+		return e_malloc;
 
 	strcpy(buffer, a);
 

@@ -75,66 +75,6 @@ token **tokenize(char *inp) {
 }
 
 
-/*
-char chk_tt(char a) {
-	switch(a) {
-
-	case '0' ... '9':
-	case 'a' ... 'z':
-	case 'A' ... 'Z':
-	case '_':
-		return 1;
-
-
-	case '^':
-	case '*':
-	case '/':
-	case '+':
-	case '=':
-	case '>':
-	case '<':
-	case '!':
-	case '&':
-	case '|':
-	case '~':
-	case '%':
-	case '-':
-		return 2;
-
-
-	case '.':
-		return 3;
-
-
-	case '[':
-		return 4;
-	case ']':
-		return 5;
-
-	case '(':
-		return 6;
-	case ')':
-		return 7;
-
-	case ';':
-	case ',':
-		return 8;
-
-
-	case '\t':
-	case '\n':
-		return -2;
-
-		
-	case ' ':
-		return 0;
-
-	default:
-		return -1;
-	}
-}
-*/
-
 tok_tree *make_tok_tree(token **tok_list) {
 	tok_tree *out = malloc(sizeof(*out));
 

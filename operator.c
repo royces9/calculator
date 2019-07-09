@@ -37,7 +37,7 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 		if(a->size) {
 			err = mat_one(a, ch, &out);
 		} else {
-			err = -5;
+			err = e_invalid_func;
 		}
 
 		free_mat(a);
@@ -48,11 +48,11 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 		a = pop(num);
 
 		if(!a) {
-			err = -4;
+			err = e_invalid_expr;
 		} else if(a->size && b->size) {
 			err = mat_two(a, b, ch, &out);
 		} else {
-			err = -5;
+			err = e_invalid_func;
 		}
 
 		free_mat(a);
@@ -66,7 +66,7 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 		if(a) {
 			err = assign(a, b, var, &out);
 		} else {
-			err = -4;
+			err = e_invalid_expr;
 		}
 
 		free_mat(b);
@@ -90,7 +90,7 @@ err_ret mat_one(struct matrix *a, struct oper *ch, struct matrix **out) {
 	if(!ch->mat_op) {
 		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
 		if(!newSize)
-			return -6;
+			return e_malloc;
 
 		memcpy(newSize, a->size, sizeof(*newSize) * (a->dim + 1));
 
@@ -138,7 +138,7 @@ err_ret mat_two(struct matrix *a, struct matrix *b, struct oper *ch, struct matr
 
 			//check if a and b are the same size
 			if(!cmp_size(a->size, b->size, a->dim, b->dim)) {
-				err = -10;
+				err = e_size_mismatch;
 				break;
 			}
 
@@ -180,7 +180,7 @@ err_ret mat_two(struct matrix *a, struct matrix *b, struct oper *ch, struct matr
 			break;
 
 		default:
-			err = -2;
+			err = e_func_args;
 			break;
 		}
 
@@ -201,7 +201,7 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 
 	switch(i) {
 	case eQuit:
-		return 1;
+		return e_exit;
 
 	case eClear:
 		for(int i = 0; i <= var->count; ++i){
@@ -214,7 +214,7 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 		}
 		var->count =  -1;
 		puts("\nAll variables cleared\n");
-		return -1;
+		return e_exit;
 
 	case eList:
 		if(var->count > -1) {
@@ -226,11 +226,11 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 		} else {
 			puts("\nNo variables set\n");
 		}
-		return -1;
+		return e_exit;
 
 	case eHelp:
 		help_print();
-		return -1;
+		return e_next;
 
 	case ePi:
 		err = init_scalar(M_PI, &out);
@@ -361,7 +361,7 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 		break;
 
 	default:
-		err = -5;
+		err = e_invalid_func;
 		break;
 
 	}//end of switch
@@ -494,7 +494,7 @@ err_ret find_op(char *buffer, struct stack *num, struct stack *oper, struct vari
 		break;
 
 	default:
-		return -7;
+		return e_invalid_oper;
 	}
 
 	return err;
@@ -623,7 +623,7 @@ err_ret ext_mat(struct vari *var, int *iter, char *input, struct matrix **out) {
 
 	//check that the bracket count is correct
 	if(bracketCount)
-		return -4;
+		return e_mismatched_brackets;
 
 	//increment the main loop counter up to the ']' 
 	*iter += (length - 1);
@@ -640,13 +640,13 @@ err_ret ext_mat(struct vari *var, int *iter, char *input, struct matrix **out) {
 
 	if((mat_string[length-2] == ';') || (mat_string[length-2] == ',')) {
 		free(mat_string);
-		return -4;
+		return e_mismatched_brackets;
 	}
 
 	//number stack for creating the matrix
 	struct stack *num = new_stk(128);
 	if(!num)
-		return -6;
+		return e_malloc;
 
 	//char array that holds each element of
 	//the array and a delimiter (, or ;)
@@ -677,7 +677,7 @@ err_ret ext_mat(struct vari *var, int *iter, char *input, struct matrix **out) {
 		temp = NULL;
 
 		if(!sepd_mat[i][1]) {
-			err = -4;
+			err = e_invalid_expr;
 			break;
 		}
 
@@ -709,7 +709,7 @@ err_ret ext_mat(struct vari *var, int *iter, char *input, struct matrix **out) {
 			break;
       
 		default:
-			err = -10;
+			err = e_size_mismatch;
 			break;
 		}
 

@@ -14,7 +14,7 @@ err_ret runFile(char **input, struct vari *var, int offset) {
 
 	fileTree *tree = new_leaf();
 	if(!tree)
-		return -6;
+		return e_malloc;
 
 	//make tree structure
 	if( !(error = createTree(input[0], tree, offset)) )
@@ -32,7 +32,7 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 	//file to read from
 	FILE *inputFile = fopen(fileName, "r");
 	if(!inputFile)
-		return -8;
+		return e_file_dne;
 
 	//error checking
 	err_ret error = 0;
@@ -40,7 +40,7 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 	//size of char buffer that each line of the file is copied too
 	char *buffer = malloc(BUFF_SIZE * sizeof(*buffer));
 	if(!buffer)
-		return -6;
+		return e_malloc;
 
 
 	//stack data structure convenient for creating tree
@@ -73,7 +73,7 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 		//put line into tree struct
 		tree->line = malloc(sizeof(*tree->line) * (len + 1));
 		if(!tree->line) {
-			error = -6;
+			error = e_malloc;
 			break;
 		}
 
@@ -92,7 +92,7 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 			if( (tree->right = new_leaf()) ) {
 				tree = tree->right;
 			} else {
-				error = -6;
+				error = e_malloc;
 			}
 			break;
 
@@ -106,7 +106,7 @@ err_ret createTree(char *fileName, fileTree *tree, int skip){
 			if( (tree->left = new_leaf()) ) {
 				tree = tree->left;
 			} else {
-				error = -6;
+				error = e_malloc;
 			}
 
 			break;
@@ -126,7 +126,7 @@ err_ret executeTree(fileTree *tree, struct vari *var){
 	//stack structure for nested conditionals
 	int8_t *checkStack = calloc(BUFF_SIZE / 4, sizeof(*checkStack));
 	if(!checkStack)
-		return -6;
+		return e_malloc;
 
 	//top of check stack
 	int8_t top = 0;
@@ -138,7 +138,7 @@ err_ret executeTree(fileTree *tree, struct vari *var){
 	struct stack *stk = new_stk(128);
 	if(!stk) {
 		free(checkStack);
-		return -6;
+		return e_malloc;
 	}
   
 	//executes the tree
@@ -289,7 +289,7 @@ char *parseCondition(char *input, int type) {
 
 
 //checks conditionals in while/if
-int8_t checkConditional(char *input, int type, struct vari *var) {
+err_ret checkConditional(char *input, int type, struct vari *var) {
 	input = parseCondition(input, type);
 
 	err_ret error = sya(input, var);

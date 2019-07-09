@@ -31,11 +31,11 @@ err_ret chk_conf(char *name, char *cfg, char **out) {
 	err_ret err = 0;
 	FILE *f_cfg = fopen(cfg, "r");
 	if( !f_cfg )
-		return -8;
+		return e_file_dne;
 
 	char *paths = malloc(BUFF_SIZE * sizeof(*paths));
 	if(!paths)
-		return -6;
+		return e_malloc;
 
 	char *file_dir = NULL;
 
@@ -47,7 +47,7 @@ err_ret chk_conf(char *name, char *cfg, char **out) {
 		if(!err) {
 			*out = malloc((strlen(paths) + strlen(file_dir) + 1) * sizeof(*out));
 			if(!(*out))
-				return -6;
+				return e_malloc;
 
 			strcpy(*out, paths);
 			strcat(*out, file_dir);
@@ -80,7 +80,7 @@ err_ret find_path(char *name, char **path) {
 	char *config = malloc(conf_len * sizeof(*config));
 	if(!config) {
 		*path = NULL;
-		return -6;
+		return e_malloc;
 	}
 
 	strcpy(config, home);
@@ -100,25 +100,25 @@ err_ret exec_fun(char *path, char **args, struct vari *var, struct matrix **out)
 
 	FILE *userFunction = fopen(path, "r");
 	if(!userFunction)
-		return -8;
+		return e_file_dne;
 
 
 	//get the header for the function
 	//right now it's hardcoded to get the first line
 	char *title = calloc(BUFF_SIZE, sizeof(*title));
 	if(!title)
-		return -6;
+		return e_malloc;
 	
 	fgets(title, BUFF_SIZE, userFunction);
 	fclose(userFunction);
 
 	//confirm that the function is the first word in the file
 	if(strncmp(title, "function", 8))
-		return -8;
+		return e_file_dne;
 
 	char *out_buff = malloc(BUFF_SIZE * sizeof(*out_buff));
 	if(!out_buff)
-		return -6;
+		return e_malloc;
 
 	int i = 9;
 	//finds the name of the output variable
@@ -154,7 +154,7 @@ err_ret exec_fun(char *path, char **args, struct vari *var, struct matrix **out)
 	struct vari *fun_var = NULL;
 
 	if(functionArgNo != argNo) {
-		err = -2;
+		err = e_func_args;
 		goto ret_out;
 	}
 
@@ -193,7 +193,7 @@ err_ret exec_fun(char *path, char **args, struct vari *var, struct matrix **out)
 	//check that the out variable exists
 	int out_var = find_var(fun_var, outName);
    	if(out_var < 0) {
-		err = -12;
+		err = e_no_output;
 	} else {
 		err = cpy_mat(fun_var->value[out_var], out);
 	}
@@ -217,19 +217,21 @@ uint8_t chk_name(char *name, char *dir) {
 err_ret search_dir(char *name, char *dir_name, char **out) {
 	DIR *dir = opendir(dir_name);
 
+	err_ret err = e_file_dne;
+
 	if(!dir)
-		return -8;
+		return err;
 
 	struct dirent *d;
 
-	err_ret err = -8;
+
 	while( (d = readdir(dir)) ) {
 		//checks that function name is the same, and ends in ".cr"
 		if(chk_name(name, d->d_name)) {
 			uint16_t len = strlen(d->d_name);
 			*out = malloc(sizeof(*out) * (len + 1));
 			if(!(*out))
-				return -6;
+				return e_malloc;
 
 			strcpy(*out, d->d_name);
 			err = 0;

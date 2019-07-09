@@ -27,7 +27,7 @@ err_ret deri(char **inp, struct vari *var, struct matrix **out) {
 
 	//check the number of inps is correct
 	if(numberOfArgs(inp) != 4) {
-		err = -2;
+		err = e_func_args;
 		goto err_ret;
 	}
 
@@ -37,7 +37,7 @@ err_ret deri(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 	ele point = tmp->ans->elements[0];
@@ -48,7 +48,7 @@ err_ret deri(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 	ele h = tmp->ans->elements[0];
@@ -95,7 +95,7 @@ err_ret deri(char **inp, struct vari *var, struct matrix **out) {
 err_ret inte(char **inp, struct vari *var, struct matrix **out) {
 	//check number of arguments
 	if(numberOfArgs(inp) != 5)
-		return -2;
+		return e_func_args;
 
 	//copy global struct to a local variable struct
 	struct vari *tmp = NULL;
@@ -111,7 +111,7 @@ err_ret inte(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 	ele a = tmp->ans->elements[0];
@@ -122,7 +122,7 @@ err_ret inte(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 	ele b = tmp->ans->elements[0];
@@ -133,7 +133,7 @@ err_ret inte(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 	ele number = tmp->ans->elements[0];
@@ -157,7 +157,7 @@ err_ret inte(char **inp, struct vari *var, struct matrix **out) {
 
 	ele sum = 0;
 	for(int i = 1; i <= number; ++i) {
-		//f(x_2i-2)
+		//f(x_2ie_func_args)
 		tmp->value[var_ind]->elements[0] = a + (((2 * i) - 2) * step);
 		err = sya(inp[0], tmp);
 		if(err)
@@ -195,7 +195,7 @@ err_ret inte(char **inp, struct vari *var, struct matrix **out) {
 err_ret solve(char **inp, struct vari *var, struct matrix **out) {
 	//check number of arguments
 	if(numberOfArgs(inp) != 4)
-		return -2;
+		return e_func_args;
 	
 	struct vari *tmp = NULL;
 	//copy global struct to a local variable struct
@@ -221,7 +221,7 @@ err_ret solve(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 
@@ -238,7 +238,7 @@ err_ret solve(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 	ele h = tmp->ans->elements[0];
@@ -278,7 +278,7 @@ err_ret solve(char **inp, struct vari *var, struct matrix **out) {
 		//this is true, max value is 65535 (2 bytes)
 		++counter;
 		if(!counter) {
-			err = -12;
+			err = e_no_output;
 			goto err_ret;
 		}
 	}
@@ -313,12 +313,12 @@ err_ret zeros(char **inp, struct vari *var, struct matrix **out) {
 
 			size = malloc((dim + 1) * sizeof(*size));
 			if(!size) {
-				err = -6;
+				err = e_malloc;
 				break;
 			}
 
 			if(!var->ans->elements[0]) {
-				err = -11;
+				err = e_bound;
 				break;
 			}				
 
@@ -330,14 +330,14 @@ err_ret zeros(char **inp, struct vari *var, struct matrix **out) {
 			dim = var->ans->dim;
 			size = malloc((dim + 1) * sizeof(*size));
 			if(!size) {
-				err = -6;
+				err = e_malloc;
 				break;
 			}
 	
 			uint8_t i = 0;
 			for(; i < var->ans->len; ++i) {
 				if(var->ans->elements[i]) {
-					err = -11;
+					err = e_bound;
 					break;
 				}
 
@@ -346,14 +346,14 @@ err_ret zeros(char **inp, struct vari *var, struct matrix **out) {
 
 			size[i] = 0;
 		} else {
-			err = -11;
+			err = e_bound;
 		}
 		break;
 
 	default:
 		size = malloc((dim + 1) * sizeof(*size));
 		if(!size) {
-			err = -6;
+			err = e_malloc;
 			break;
 		}
 
@@ -363,7 +363,7 @@ err_ret zeros(char **inp, struct vari *var, struct matrix **out) {
 				break;
 
 			if( (var->ans->dim != 1) || !var->ans->elements[0]) {
-				err = -10;
+				err = e_size_mismatch;
 				break;
 			}
 
@@ -411,7 +411,7 @@ err_ret rand_mat(char **inp, struct vari *var, struct matrix **out) {
 err_ret linspace(char **inp, struct vari *var, struct matrix **out) {
 	int argNo = numberOfArgs(inp);
 	if(argNo != 3)
-		return -2;
+		return e_func_args;
 
 	struct vari *tmp = NULL;
 	err_ret err = cpy_var(var, &tmp);
@@ -423,7 +423,7 @@ err_ret linspace(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 	
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 	ele a = tmp->ans->elements[0];
@@ -434,7 +434,7 @@ err_ret linspace(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 	
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 	ele b = tmp->ans->elements[0];
@@ -445,14 +445,14 @@ err_ret linspace(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 
 	if(tmp->ans->dim != 1) {
-		err = -10;
+		err = e_size_mismatch;
 		goto err_ret;
 	}
 	ele len = tmp->ans->elements[0];
 
 
 	if( (len < 0) || ((len - floor(len)) > 0) ) {
-		err = -4;
+		err = e_invalid_expr;
 		goto err_ret;
 	}
 
@@ -476,7 +476,7 @@ err_ret linspace(char **inp, struct vari *var, struct matrix **out) {
 
 err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **out) {
 	if(!inp[0][0])
-		return -5;
+		return e_invalid_func;
 
 	struct vari *tmp = NULL;
 	err_ret err = cpy_var(var, &tmp);
@@ -500,7 +500,7 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 			--(out[0]->elements[i]);
 			//check that the inp is within bound
 			if((uint64_t)out[0]->elements[i] >= tmp->value[var_ind]->len) {
-				err = -11;
+				err = e_bound;
 				free_mat(*out);
 				goto err_ret;
 			}
@@ -510,7 +510,7 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 	} else if(dim == tmp->value[var_ind]->dim) {
 		uint16_t *loc = malloc((dim + 1) * sizeof(*loc));
 		if(!loc) {
-			err = -6;
+			err = e_malloc;
 			goto err_ret;
 		}
 
@@ -523,7 +523,7 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 
 			//check that the inp is one dimensional
 			if(tmp->ans->dim != 1) {
-				err = -10;
+				err = e_size_mismatch;
 				free(loc);
 				goto err_ret;
 			}
@@ -534,7 +534,7 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 
 			//check that each sublocation is also within bounds
 			if(loc[i] >= tmp->value[var_ind]->size[i]) {
-				err = -11;
+				err = e_bound;
 				free(loc);
 				goto err_ret;
 			}
@@ -550,7 +550,7 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 		err = ind < tmp->value[var_ind]->len ?
 			init_scalar(ind, out) : -11;
 	} else {
-		err  = -11;
+		err = e_bound;
 	}
 
  err_ret:
@@ -608,11 +608,11 @@ err_ret chk_var(char *buffer, char *inp, int *iter, struct vari *var, struct sta
 			if(k == -1) {
 				k = 0;
 
-			} else if(k == -2) {
+			} else if(k == e_func_args) {
 				k = var->count + 1;
 
 			} else {
-				err = -5;
+				err = e_invalid_func;
 			}
 			//if assignment goes wrong, the variable name gets malloc'd
 			//but doesn't get assigned to, this ensures that if another
@@ -627,13 +627,13 @@ err_ret chk_var(char *buffer, char *inp, int *iter, struct vari *var, struct sta
 
 			var->name[k] = malloc((len + 1) * sizeof(*var->name[k]));
 			if(!var->name[k])
-				return -6;
+				return e_malloc;
 
 			strcpy(var->name[k], buffer);
 
 			var->value[k] = malloc(sizeof(*var->value[k]));
 			if(!var->value[k])
-				return -6;
+				return e_malloc;
 
 			var->value[k]->var = 1;
 			var->value[k]->size = NULL;
@@ -641,11 +641,11 @@ err_ret chk_var(char *buffer, char *inp, int *iter, struct vari *var, struct sta
 
 			push(num, var->value[k]);
 		} else {
-			err = -5;
+			err = e_invalid_expr;
 			var->f_assign = 0;
 		}
 
-		if(err == -5) {
+		if(err == e_invalid_func) {
 			//buffer includes the '(', if it's there, replace with 0
 			if(buffer[len - 1] == '(') {
 				separatedString = sep_str(inp, "()[]", ",", iter, &err);
@@ -744,7 +744,7 @@ err_ret printLine(char **inp, struct vari *var) {
 				}
 			} else {
 				//if there's no second quote to match
-				err = -9;
+				err = e_mismatched_quotes;
 			}
 		} else { //no quotes, just a variable or expression
 
@@ -757,10 +757,8 @@ err_ret printLine(char **inp, struct vari *var) {
 
 	free_var(tmp);
 	if(!err)
-		err = -1;
+		err = e_next;
 
-
-	//-1 is the error code for no output from sya
 	return err;
 }
 

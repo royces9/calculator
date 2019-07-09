@@ -10,8 +10,9 @@
 		return 0;                       \
 	}
 
+#include "error.h"
+
 //put simple type defs here
-typedef int8_t err_ret;
 typedef double ele;
 
 #define BUFF_SIZE 1024

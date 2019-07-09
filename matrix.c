@@ -8,7 +8,7 @@
 err_ret init_mat(uint16_t *size, uint8_t dim, struct matrix **out) {
 	*out = malloc(sizeof(**out));
 	if(!*out) {
-		return -6;
+		return e_malloc;
 	}
 
 	//dim of the matrix
@@ -32,13 +32,13 @@ err_ret init_mat(uint16_t *size, uint8_t dim, struct matrix **out) {
 
 	//if there is a 0 element in size
 	if(!out[0]->len)
-		return -10;
+		return e_size_mismatch;
 
 	out[0]->elements = calloc(out[0]->len, sizeof(*(out[0]->elements)));
 	if(!out[0]->elements) {
 		free(out[0]->size);
 		free(*out);
-		return -6;
+		return e_malloc;
 	}
 
 	return 0;
@@ -51,19 +51,19 @@ err_ret init_mat(uint16_t *size, uint8_t dim, struct matrix **out) {
 err_ret init_scalar(ele e, struct matrix **out) {
 	*out = malloc(sizeof(**out));
 	if(!(*out))
-		return -6;
+		return e_malloc;
 
 	out[0]->dim = 1;
 	out[0]->len = 1;
 
 	if( !(out[0]->size = malloc(2 * sizeof(*(out[0]->size)))) )
-		return -6;
+		return e_malloc;
 
 	out[0]->size[0] = 1;
 	out[0]->size[1] = 0;
 
 	if( !(out[0]->elements = malloc(sizeof(*(out[0]->elements)))) )
-		return -6;
+		return e_malloc;
 
 	out[0]->elements[0] = e;
 
@@ -75,24 +75,24 @@ err_ret init_scalar(ele e, struct matrix **out) {
 
 err_ret cpy_mat(struct matrix const *const src, struct matrix **out) {
 	if(!src)
-		return -6;
+		return e_malloc;
 
 	struct matrix *dest = malloc(sizeof(*dest));
 	if( !dest )
-		return -6;
+		return e_malloc;
 
 	dest->dim = src->dim;
 	dest->len = src->len;
 	dest->var = 0;
 
 	if( !(dest->elements = malloc(dest->len * sizeof(*dest->elements))) )
-		return -6;
+		return e_malloc;
 
 	dest->elements = memcpy(dest->elements, src->elements,
 				dest->len * sizeof(*dest->elements));
 
 	if( !(dest->size = malloc((dest->dim + 1) * sizeof(*dest->size))) )
-		return -6;
+		return e_malloc;
 
 	dest->size = memcpy(dest->size, src->size,
 			    (dest->dim + 1) * sizeof(*dest->size));
@@ -148,11 +148,11 @@ err_ret cat_mat(struct matrix const *const a, struct matrix const *const b, uint
 
 		uint16_t *sizeA = malloc(sizeof(*sizeA) * (a->dim + 1));
 		if(!sizeA)
-			return -6;
+			return e_malloc;
 
 		uint16_t *sizeB = malloc(sizeof(*sizeB) * (b->dim + 1));
 		if(!sizeB)
-			return -6;
+			return e_malloc;
 
 		sizeA[a->dim] = 0;
 		sizeB[b->dim] = 0;
@@ -168,11 +168,11 @@ err_ret cat_mat(struct matrix const *const a, struct matrix const *const b, uint
 		}
 
 		if(!cmp_size(sizeA, sizeB, a->dim - 1, b->dim - 1))
-			return -15;
+			return e_size_mismatch;
 
 		size = malloc(sizeof(*size) * (a->dim + 1));
 		if(!size)
-			return -6;
+			return e_malloc;
 
 		size[a->dim] = 0;
 			
@@ -211,7 +211,7 @@ err_ret cat_mat(struct matrix const *const a, struct matrix const *const b, uint
 		//check that the matrix is a vector, only vectors can be
 		//concatenated with scalars
 		if(!is_vec(tempVector))
-			return -15;
+			return e_size_mismatch;
 
 		//new size vector
 		size = fixed_size;
@@ -248,7 +248,7 @@ err_ret cat_mat(struct matrix const *const a, struct matrix const *const b, uint
 		} else if(dim == 1){
 			++size[1]; //set newSize to [1, 2]
 		} else{
-			return -13;
+			return e_invalid_assign;
 		}
 
 		if((err = init_mat(size, 2, out)))
@@ -258,7 +258,7 @@ err_ret cat_mat(struct matrix const *const a, struct matrix const *const b, uint
 		out[0]->elements[1] = b->elements[0];
 		break;
 
-	default: return -14; //return error if something else
+	default: return e_fatal; //return error if something else
 	}
 
 	return err;

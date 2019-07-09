@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
 	} 
 
 	//main loop
-	while(err <= 0) {
-		err = 0;
+	while(err != e_exit) {
+		err = e_ok;
 
 		//user input and history
 		input = readline(">>");
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 		if( !input ) {
 			puts("");
 			break;
-		} else if( (*input) ) {
+		} else if( *input ) {
 			//parses string and does all the calculations
 			err = sya(input, var);
 			if(!err) {

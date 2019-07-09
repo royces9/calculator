@@ -8,19 +8,19 @@
 err_ret init_var(int size, struct vari **out) {
 	*out = malloc(sizeof(**out));
 	if(!(*out))
-		return -6;
+		return e_malloc;
 
 	out[0]->value = calloc(size, sizeof(*out[0]->value));
 	if(!out[0]->value) {
 		free(*out);
-		return -6;
+		return e_malloc;
 	}
 
 	out[0]->name = calloc(size, sizeof(*out[0]->name));
 	if(!out[0]->name) {
 		free(out[0]->value);
 		free(*out);
-		return -6;
+		return e_malloc;
 	}
 	
 	out[0]->assign = NULL;
@@ -55,7 +55,7 @@ err_ret cpy_var(struct vari *var, struct vari **out){
 		for(; i < var->count; ++i) {
 			out[0]->name[i] = malloc((strlen(var->name[i]) + 1) * sizeof(*var->name[i]));
 			if(!out[0]->name[i]) {
-				err = -6;
+				err = e_malloc;
 				goto err_ret;
 			}
 
@@ -72,7 +72,7 @@ err_ret cpy_var(struct vari *var, struct vari **out){
 		if((var->value[i] != NULL) && (var->value[i]->size != NULL)) {
 			out[0]->name[i] = malloc((strlen(var->name[i]) + 1) * sizeof(*var->name[i]));
 			if(!out[0]->name[i]) {
-				err = -6;
+				err = e_malloc;
 				goto err_ret;
 			}
 

@@ -12,9 +12,9 @@
 err_ret eye(struct matrix const *const a, struct matrix **out) {
 	err_ret err = 0;
 	if(a->dim != 1) {
-		return -12;
+		return e_invalid_expr;
 	} else if(a->elements[0] < 1) {
-		return -4;
+		return e_invalid_expr;
 	}
 
 	uint16_t newSize[3] = {a->elements[0], a->elements[0], 0};
@@ -51,7 +51,7 @@ err_ret get_size(struct matrix const *const a, struct matrix **out) {
 
 err_ret magnitude(struct matrix const *const a, struct matrix **out) {
 	if(!is_vec(a))
-		return -10;
+		return e_size_mismatch;
 
 	ele mag_a = 0;
 
@@ -97,7 +97,7 @@ err_ret assign(struct matrix *a, struct matrix *b, struct vari *var, struct matr
 
 	if(!a->var) {
 		free_mat(a);
-		return 0;
+		return e_ok;
 	}
 
 	if(!var->assign) {
@@ -119,13 +119,13 @@ err_ret assign(struct matrix *a, struct matrix *b, struct vari *var, struct matr
 
 		a->elements = malloc(a->len * sizeof(*a->elements));
 		if(!a->elements)
-			return -6;
+			return e_malloc;
 
 		memcpy(a->elements, b->elements, a->len * sizeof(*a->elements));
 
 		a->size = malloc((a->dim + 1) * sizeof(*a->size));
 		if(!a->size)
-			return -6;
+			return e_malloc;
 
 		memcpy(a->size, b->size, (a->dim + 1) * sizeof(*a->size));
 
@@ -135,7 +135,7 @@ err_ret assign(struct matrix *a, struct matrix *b, struct vari *var, struct matr
 		    ++i) {
 			int index = var->assign->elements[i];
 			if(index < 0)
-				return -13;
+				return e_invalid_assign;
 
 			a->elements[index] = b->elements[*j];
 		} 
@@ -162,11 +162,11 @@ err_ret div_mat(struct matrix const *const a, struct matrix const *const b, stru
 err_ret mult_mat(struct matrix const *const a, struct matrix const *const b, struct matrix **out) {
 	//matrix multiplication only defined for 2d arrays
 	if((a->dim != 2) || (b->dim != 2))
-		return -10;
+		return e_size_mismatch;
 
 	//check that the inner dimensions match
 	if(a->size[1] != b->size[0])
-		return -10;
+		return e_size_mismatch;
 
 	err_ret err = 0;
 	uint16_t newSize[3] = {a->size[0], b->size[1], 0};
@@ -209,7 +209,7 @@ err_ret exp_mat(struct matrix const *const a, struct matrix const *const b, stru
 	err_ret err = 0;
 	switch(aScalar + bScalar) {
 	case 0: //neither a nor b are scalars
-		return -10;
+		return e_size_mismatch;
 
 	case 1: //one of a or b is a scalar
 		if(aScalar) { //a is the scalar
@@ -233,7 +233,7 @@ err_ret exp_mat(struct matrix const *const a, struct matrix const *const b, stru
 			//really small number
 			if((b->elements[0] - floor(b->elements[0])) > 0.00000000001) {
 				free_mat(tmp);
-				return -10;
+				return e_size_mismatch;
 			}
 
 			int64_t power = b->elements[0];
@@ -260,7 +260,7 @@ err_ret exp_mat(struct matrix const *const a, struct matrix const *const b, stru
 		break;
 
 	default:
-		err = -10;
+		err = e_size_mismatch;
 		break;
 	}
 
@@ -271,7 +271,7 @@ err_ret exp_mat(struct matrix const *const a, struct matrix const *const b, stru
 err_ret t_mat(struct matrix const *const a, struct matrix **out) {
 	//transpose only defined for 2d matrix
 	if(a->dim != 2)
-		return -10;
+		return e_size_mismatch;
 
 	//new transposed size is same as a->size
 	//but the dimensions are swapped

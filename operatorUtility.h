@@ -13,87 +13,87 @@ extern char const *const OPERATOR_LIST[OPERATOR_COUNT + 1];
 extern struct oper O_STRUCT[OPERATOR_COUNT + 1];
 extern struct oper F_STRUCT[FUNCTION_COUNT + 1];
 
-enum functionEnums {
-	eQuit,
-	eClear,
-	eList,
-	eHelp,
+enum fun_enum {
+	       eQuit,
+	       eClear,
+	       eList,
+	       eHelp,
 
-	ePi,
-	eE,
-	eAns,
+	       ePi,
+	       eE,
+	       eAns,
 
-	eSin,
-	eCos,
-	eTan,
-	eLn,
-	eLog,
+	       eSin,
+	       eCos,
+	       eTan,
+	       eLn,
+	       eLog,
 
-	eSqrt,
+	       eSqrt,
 
-	eAsin,
-	eAcos,
-	eAtan,
+	       eAsin,
+	       eAcos,
+	       eAtan,
 
-	eFloor,
-	eCeil,
-	eRound,
-	eMin,
-	eMax,
-	eAvg,
-	eSum,
+	       eFloor,
+	       eCeil,
+	       eRound,
+	       eMin,
+	       eMax,
+	       eAvg,
+	       eSum,
 
-	eFactorial,
+	       eFactorial,
 
-	eDeri,
-	eInte,
-	eSolve,
+	       eDeri,
+	       eInte,
+	       eSolve,
 
-	eZeros,
-	eOnes,
-	eEye,
-	eRand,
-	eSize,
-	eNumel,
-	eMagnitude,
+	       eZeros,
+	       eOnes,
+	       eEye,
+	       eRand,
+	       eSize,
+	       eNumel,
+	       eMagnitude,
 	
-	eTranspose,
-	eLinspace,
+	       eTranspose,
+	       eLinspace,
 
-	eRun,
-	ePrint
+	       eRun,
+	       ePrint
 };
 
 
-enum operatorEnum {
-	eAdd,
-	eSubtract,
-	eMultiply,
-	eDivide,
+enum oper_enum {
+		eAdd,
+		eSubtract,
+		eMultiply,
+		eDivide,
 
-	eExponent,
-	eAssign,
-	eLeftParen,
-	eRightParen,
+		eExponent,
+		eAssign,
+		eLeftParen,
+		eRightParen,
 
-	eMultiplyMatrix,
-	eDivideMatrix,
-	eExponentMatrix,
-	eModulo,
+		eMultiplyMatrix,
+		eDivideMatrix,
+		eExponentMatrix,
+		eModulo,
 
-	eLess,
-	eGreater,
-	eLessEqual,
-	eGreaterEqual,
+		eLess,
+		eGreater,
+		eLessEqual,
+		eGreaterEqual,
 
-	eNotEqual,
-	eEqual,
+		eNotEqual,
+		eEqual,
 
-	eAnd,
-	eOr,
-	eNot,
+		eAnd,
+		eOr,
+		eNot,
 
-	eReference
+		eReference
 };
 
 
