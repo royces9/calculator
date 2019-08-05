@@ -19,7 +19,7 @@ err_ret max(struct matrix const *const m, struct matrix **out);
 err_ret sum(struct matrix const *const m, struct matrix **out);
 err_ret avg(struct matrix const *const m, struct matrix **out);
 
-
+err_ret determinant(struct matrix const *const m, struct matrix **out);
 
 ele _sin(ele a);
 ele _cos(ele a);

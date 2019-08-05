@@ -59,7 +59,7 @@ err_ret chk_conf(char *name, char *cfg, char **out) {
 
 	free(paths);
 
-	return 0;
+	return err;
 }
 
 

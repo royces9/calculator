@@ -62,6 +62,8 @@ char const *const FUNCTION_LIST[FUNCTION_COUNT + 1] = {
 
 	[eRun] = "run(",
 	[ePrint] = "print(",
+
+	[eDet] = "det(",
 	NULL
 };
 
@@ -146,6 +148,8 @@ F_STRUCT[FUNCTION_COUNT + 1] = {
 	[eLinspace] = {.order = 15, .argNo = 1, .fp.mult = &linspace, .mat_op = 0, .m_enum = eLinspace},
 	[eRun] = {.order = 15, .argNo = 1, .fp.p = NULL, .mat_op = 0, .m_enum = eRun},
 	[ePrint] = {.order = 15, .argNo = 1, .fp.p = NULL, .mat_op = 0, .m_enum = ePrint},
+
+	[eDet] =  {.order = 15, .argNo = 1, .fp.m_one = &determinant, .mat_op = 1, .m_enum = eDet},
 	empty_op
 };
 

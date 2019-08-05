@@ -4,7 +4,7 @@
 //file including all the utility
 //enums/constants/etc
 
-#define FUNCTION_COUNT 38
+#define FUNCTION_COUNT 39
 #define OPERATOR_COUNT 22
 
 extern char const *const FUNCTION_LIST[FUNCTION_COUNT + 1];
@@ -61,7 +61,9 @@ enum fun_enum {
 	       eLinspace,
 
 	       eRun,
-	       ePrint
+	       ePrint,
+
+	       eDet,
 };
 
 

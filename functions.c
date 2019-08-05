@@ -371,6 +371,64 @@ err_ret avg(struct matrix const *const m, struct matrix **out) {
 	return err;
 }
 
+void __assign_mat_missing_col(struct matrix const *const a, struct matrix *b, int col) {
+	
+	for(int aa = 0, bb = 0; aa < a->size[0]; ++aa, ++bb) {
+		if(aa == col) {
+			--bb;
+			continue;
+		}
+
+		for(int i = 0; i < b->size[0]; ++i) {
+			b->elements[i + bb * b->size[0]] = a->elements[(i + 1) + aa * a->size[0]];
+		}
+	}
+}
+
+err_ret __recurse_det(struct matrix const *const m, ele *out) {
+	if(m->dim != 2)
+		return e_size_mismatch;
+	
+	if(m->size[0] != m->size[1])
+		return e_size_mismatch;
+
+	if(m->size[0] == 2) {
+		*out = (m->elements[0] * m->elements[3]) - (m->elements[1] * m->elements[2]);
+		return 0;
+	}
+
+	struct matrix *tmp_mat = NULL;
+	uint16_t tmpsize[2] = {m->size[0] - 1, m->size[0] - 1};
+	err_ret err = init_mat(tmpsize, 2, &tmp_mat);
+	if(err)
+		return err;
+
+	int sign[2] = {1, -1};
+	for(int i = 0, ind = 0; i < m->size[0]; ++i, ind = !ind) {
+		ele ans = 0;
+		__assign_mat_missing_col(m, tmp_mat, i);
+		
+		err = __recurse_det((struct matrix const *const)tmp_mat, &ans);
+		if(err)
+			break;
+		*out += ans * sign[ind] * m->elements[i * m->size[0]];
+	}
+
+	free_mat(tmp_mat);
+	return err;
+}
+
+
+err_ret determinant(struct matrix const *const m, struct matrix **out) {
+	ele det = 0;
+	err_ret err = __recurse_det(m, &det);
+	if(err)
+		return err;
+
+	err = init_scalar(det, out);
+	return err;
+}
+
 
 ele _sin(ele a) {
 	return sin(a);

@@ -273,6 +273,7 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 	case eTranspose:
 	case eMagnitude:
 	case eNumel:
+	case eDet:
 		push(ch, &O_STRUCT[eLeftParen]);
 		push(ch, &F_STRUCT[i]);
 		*tok = 0;
