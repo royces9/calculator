@@ -19,7 +19,7 @@ err_ret init_mat(uint16_t *size, uint8_t dim, struct matrix **out) {
 	out[0]->size = malloc((dim + 1) * sizeof(*(out[0]->size)));
 	if(!out[0]->size) {
 		free(out);
-		return 6;
+		return e_malloc;
 	}
 
 	memcpy(out[0]->size, size, (dim + 1) * sizeof(*(out[0]->size)));
