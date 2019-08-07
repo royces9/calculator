@@ -600,15 +600,17 @@ err_ret chk_var(char *buffer, char *inp, int *iter, struct vari *var, struct sta
 
 	} else {
 		k = find_var(var, buffer);
+
 		if(k >= 0) {
 			var->value[k]->var = 1;
 			push(num, var->value[k]);
 		} else if(!var->f_assign) {
 			var->f_assign = 1;
+
 			if(k == -1) {
 				k = 0;
 
-			} else if(k == e_func_args) {
+			} else if(k == -2) {
 				k = var->count + 1;
 
 			} else {
@@ -643,6 +645,7 @@ err_ret chk_var(char *buffer, char *inp, int *iter, struct vari *var, struct sta
 		} else {
 			err = e_invalid_expr;
 			var->f_assign = 0;
+
 		}
 
 		if(err == e_invalid_func) {

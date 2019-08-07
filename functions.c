@@ -386,17 +386,6 @@ void __assign_mat_missing_col(struct matrix const *const a, struct matrix *b, in
 }
 
 err_ret __recurse_det(struct matrix const *const m, ele *out) {
-	if(m->dim != 2)
-		return e_size_mismatch;
-	
-	if(m->size[0] != m->size[1])
-		return e_size_mismatch;
-
-	if(m->size[0] == 2) {
-		*out = (m->elements[0] * m->elements[3]) - (m->elements[1] * m->elements[2]);
-		return 0;
-	}
-
 	struct matrix *tmp_mat = NULL;
 	uint16_t tmpsize[2] = {m->size[0] - 1, m->size[0] - 1};
 	err_ret err = init_mat(tmpsize, 2, &tmp_mat);
@@ -417,13 +406,44 @@ err_ret __recurse_det(struct matrix const *const m, ele *out) {
 	free_mat(tmp_mat);
 	return err;
 }
+/*
+err_ret __efficient_det(struct matrix const *const m, ele *out) {
+	int size = m->size;
+	int sign[2] = {1, -1};
+	int ind = 0;
+	
+	for(int ii = 0; i < (size - 2); ++i, ind != ind) {
+	}
 
+	return 0;
+}
+*/
 
 err_ret determinant(struct matrix const *const m, struct matrix **out) {
+	if(m->dim != 2)
+		return e_size_mismatch;
+	
+	if(m->size[0] != m->size[1])
+		return e_size_mismatch;
+
 	ele det = 0;
-	err_ret err = __recurse_det(m, &det);
-	if(err)
-		return err;
+	ele err = 0;
+	if(m->size[0] == 3) {
+		det = m->elements[0] * m->elements[4] * m->elements[8] +
+			m->elements[3] * m->elements[7] * m->elements[2] +
+			m->elements[6] * m->elements[1] * m->elements[5] -
+			m->elements[6] * m->elements[4] * m->elements[2] -
+			m->elements[0] * m->elements[7] * m->elements[5] -
+			m->elements[3] * m->elements[1] * m->elements[8];
+	} else if(m->size[0] == 2) {
+		det = m->elements[0] * m->elements[3] -
+			m->elements[1] * m->elements[2];
+	} else {
+		//err = __efficient_det(m, &det);
+		err = __recurse_det(m, &det);
+		if(err)
+			return err;
+	}
 
 	err = init_scalar(det, out);
 	return err;
