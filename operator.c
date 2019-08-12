@@ -79,6 +79,8 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 
 	if(out && !err)
 		push(num, out);
+	else
+		free_mat(out);
 
 	return err;
 }
@@ -88,7 +90,7 @@ err_ret mat_one(struct matrix *a, struct oper *ch, struct matrix **out) {
 	err_ret err = 0;
 
 	if(!ch->mat_op) {
-		uint16_t *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
+		int *newSize = malloc(sizeof(*newSize) * (a->dim + 1));
 		if(!newSize)
 			return e_malloc;
 
@@ -100,7 +102,7 @@ err_ret mat_one(struct matrix *a, struct oper *ch, struct matrix **out) {
 		if(err)
 			return err;
 
-		for(uint64_t i = 0; i < out[0]->len; ++i)
+		for(long i = 0; i < out[0]->len; ++i)
 			out[0]->elements[i] = ch->fp.s_one(a->elements[i]);
 
 	} else {
@@ -226,7 +228,8 @@ err_ret find_fun(char *buffer, struct stack *num, struct stack *ch, struct vari 
 		} else {
 			puts("\nNo variables set\n");
 		}
-		return e_exit;
+
+		return e_next;
 
 	case eHelp:
 		help_print();

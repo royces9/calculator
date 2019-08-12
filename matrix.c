@@ -5,7 +5,7 @@
 #include "types.h"
 
 //struct matrix *init_mat(uint16_t *size, uint8_t dim, err_ret *error) {
-err_ret init_mat(uint16_t *size, uint8_t dim, struct matrix **out) {
+err_ret init_mat(int *size, uint8_t dim, struct matrix **out) {
 	*out = malloc(sizeof(**out));
 	if(!*out) {
 		return e_malloc;
@@ -137,8 +137,8 @@ err_ret cat_mat(struct matrix const *const a, struct matrix const *const b, uint
 	int bScalar = is_scalar(b);
 
 	err_ret err = 0;
-	uint16_t *size = NULL;
-	uint16_t fixed_size[3];
+	int *size = NULL;
+	int fixed_size[3];
 	switch(aScalar + bScalar){
 
 	case 0: //a and b are not scalars
@@ -146,11 +146,11 @@ err_ret cat_mat(struct matrix const *const a, struct matrix const *const b, uint
 		if(a->dim != b->dim)
 			break;
 
-		uint16_t *sizeA = malloc(sizeof(*sizeA) * (a->dim + 1));
+		int *sizeA = malloc(sizeof(*sizeA) * (a->dim + 1));
 		if(!sizeA)
 			return e_malloc;
 
-		uint16_t *sizeB = malloc(sizeof(*sizeB) * (b->dim + 1));
+		int *sizeB = malloc(sizeof(*sizeB) * (b->dim + 1));
 		if(!sizeB)
 			return e_malloc;
 
@@ -329,7 +329,7 @@ void print_mat(const struct matrix *m) {
 }
 
 
-uint64_t get_len(uint16_t *size, uint8_t dim) {
+uint64_t get_len(int *size, uint8_t dim) {
 	uint64_t out = 1;
 
 	for(uint8_t i = 0; i < dim; ++i)
@@ -342,7 +342,7 @@ uint64_t get_len(uint16_t *size, uint8_t dim) {
 //functions identically to matlab's sub2ind
 //converts matrix indexing to linear index given the size of the matrix
 //this uses zero indexing
-uint64_t sub2ind(uint16_t *location, uint16_t *size, uint8_t dim) {
+uint64_t sub2ind(int *location, int *size, uint8_t dim) {
 	uint64_t ind = location[0];
 	uint64_t sizeProd = size[0];
 
@@ -367,7 +367,7 @@ err_ret is_vec(struct matrix const *const m) {
 
 //compare two size vectors, return 1 if same
 //0 otherwise
-err_ret cmp_size(uint16_t *a, uint16_t *b, uint8_t dimA, uint8_t dimB) {
+err_ret cmp_size(int *a, int *b, uint8_t dimA, uint8_t dimB) {
 	if(dimA != dimB)
 		return 0;
 

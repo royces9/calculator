@@ -16,7 +16,9 @@ def main():
                   "c = a * b",
                   "c .* b",
                   "a * 5",
-                  "integral(x^x, x, 0, 1, 10000)",
+                  "s = size(a)",
+                  "d = zeros(s)"
+                  
     ];
 
     p = subprocess.Popen(["./calc_d"], shell = True, stdin = subprocess.PIPE);

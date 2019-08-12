@@ -172,22 +172,24 @@ err_ret exec_fun(char *path, char **args, struct vari *var, struct matrix **out)
 		//gets stored in var->ans
 		//use var instead of functionVar because the input
 		//arguments might have variable in them
-		if((err = sya(args[j], var)))
+		err = sya(args[j], var);
+		if(err)
 			goto ret_out;
 
 		struct matrix *tmp_mat = NULL;
-		if((err = cpy_mat(var->ans, &tmp_mat)))
+		err = cpy_mat(var->ans, &tmp_mat);
+		if(err)
 			goto ret_out;
 
 		set_var(fun_var, inputName, tmp_mat, &err);
-
 		if(err)
 			goto ret_out;
 	}
 
 	//run the file
 	//offset by one line
-	if((err = runFile(&path, fun_var, 1)))
+	err = runFile(&path, fun_var, 1);
+	if(err)
 		goto ret_out;
 
 	//check that the out variable exists
@@ -216,20 +218,17 @@ uint8_t chk_name(char *name, char *dir) {
 
 err_ret search_dir(char *name, char *dir_name, char **out) {
 	DIR *dir = opendir(dir_name);
-
 	err_ret err = e_file_dne;
-
 	if(!dir)
 		return err;
 
 	struct dirent *d;
 
-
 	while( (d = readdir(dir)) ) {
 		//checks that function name is the same, and ends in ".cr"
 		if(chk_name(name, d->d_name)) {
-			uint16_t len = strlen(d->d_name);
-			*out = malloc(sizeof(*out) * (len + 1));
+			int len = strlen(d->d_name);
+			*out = malloc((len + 1) * sizeof(*out));
 			if(!(*out))
 				return e_malloc;
 

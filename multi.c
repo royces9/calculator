@@ -295,7 +295,7 @@ err_ret solve(char **inp, struct vari *var, struct matrix **out) {
 
 err_ret zeros(char **inp, struct vari *var, struct matrix **out) {
 	int dim = numberOfArgs(inp);
-	uint16_t *size = NULL;
+	int *size = NULL;
 
 	err_ret err = 0;
 	//only one inp, make a square matrix of that size
@@ -326,27 +326,23 @@ err_ret zeros(char **inp, struct vari *var, struct matrix **out) {
 			size[1] = var->ans->elements[0];
 			size[2] = 0;
 
-		} else if(is_vec(var->ans)) {
-			dim = var->ans->dim;
+		} else {
+			dim = var->ans->len;
 			size = malloc((dim + 1) * sizeof(*size));
+
 			if(!size) {
 				err = e_malloc;
 				break;
 			}
-	
-			uint8_t i = 0;
-			for(; i < var->ans->len; ++i) {
-				if(var->ans->elements[i]) {
+
+			for(int i = 0; i < var->ans->len; ++i) {
+				if(!var->ans->elements[i]) {
 					err = e_bound;
 					break;
 				}
 
 				size[i] = var->ans->elements[i];
 			}
-
-			size[i] = 0;
-		} else {
-			err = e_bound;
 		}
 		break;
 
@@ -357,7 +353,7 @@ err_ret zeros(char **inp, struct vari *var, struct matrix **out) {
 			break;
 		}
 
-		for(uint8_t i = 0; i < dim; ++i) {
+		for(int i = 0; i < dim; ++i) {
 			err = sya(inp[i], var);
 			if(err)
 				break;
@@ -369,6 +365,7 @@ err_ret zeros(char **inp, struct vari *var, struct matrix **out) {
 
 			size[i] = var->ans->elements[0];
 		}
+		break;
 	}
 
 	if(!err) {
@@ -456,7 +453,7 @@ err_ret linspace(char **inp, struct vari *var, struct matrix **out) {
 		goto err_ret;
 	}
 
-	uint16_t size[3] = {len, 1, 0};
+	int size[3] = {len, 1, 0};
 
 	err = init_mat(size, 2, out);
 	if(err)
@@ -464,7 +461,7 @@ err_ret linspace(char **inp, struct vari *var, struct matrix **out) {
 
 	ele step = (b - a) / (len - 1);
 
-	for(uint64_t i = 0; i < out[0]->len; ++i)
+	for(long i = 0; i < out[0]->len; ++i)
 		out[0]->elements[i] = step * (ele) i + a;
 
  err_ret:
@@ -496,10 +493,11 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 
 		//out is a matrix that holds indices
 		for(uint64_t i = 0; i < out[0]->len; ++i) {
-
 			--(out[0]->elements[i]);
+
 			//check that the inp is within bound
-			if((uint64_t)out[0]->elements[i] >= tmp->value[var_ind]->len) {
+			//if(((long)out[0]->elements[i] >= tmp->value[var_ind]->len)  || ((long)out[0]->elements[i] < 0)) {
+			if(((long)out[0]->elements[i] >= tmp->value[var_ind]->len)) {
 				err = e_bound;
 				free_mat(*out);
 				goto err_ret;
@@ -508,7 +506,7 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 
 		//if the number of inps is equal to dimension
 	} else if(dim == tmp->value[var_ind]->dim) {
-		uint16_t *loc = malloc((dim + 1) * sizeof(*loc));
+		int *loc = malloc((dim + 1) * sizeof(*loc));
 		if(!loc) {
 			err = e_malloc;
 			goto err_ret;
@@ -542,7 +540,7 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 
 		loc[dim] = 0;
 
-		uint64_t ind = sub2ind(loc, tmp->value[var_ind]->size,
+		long ind = sub2ind(loc, tmp->value[var_ind]->size,
 				       tmp->value[var_ind]->dim);
 		free(loc);
 

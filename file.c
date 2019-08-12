@@ -249,8 +249,10 @@ err_ret executeTree(fileTree *tree, struct vari *var){
 	free_stk(stk, NULL);
 	free(checkStack);
 
-	if(error)
+	if(error) {
 		printf("Error on line: %d\n", tree->num);
+		printf("%s\n", tree->line);
+	}
 
 	return error;
 }

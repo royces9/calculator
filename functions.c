@@ -17,9 +17,10 @@ err_ret eye(struct matrix const *const a, struct matrix **out) {
 		return e_invalid_expr;
 	}
 
-	uint16_t newSize[3] = {a->elements[0], a->elements[0], 0};
+	int newSize[3] = {a->elements[0], a->elements[0], 0};
 
-	if((err = init_mat(newSize, 2, out)))
+	err = init_mat(newSize, 2, out);
+	if(err)
 		return err;
 
 	for(uint64_t i = 0; i < a->elements[0]; ++i)
@@ -31,7 +32,7 @@ err_ret eye(struct matrix const *const a, struct matrix **out) {
 
 err_ret get_size(struct matrix const *const a, struct matrix **out) {
 	err_ret err = 0;
-	uint16_t newSize[3];
+	int newSize[3];
 
 	//output is a row vector
 	newSize[0] = 1;
@@ -39,7 +40,8 @@ err_ret get_size(struct matrix const *const a, struct matrix **out) {
 	newSize[2] = 0;
   
 
-	if((err = init_mat(newSize, 2, out)))
+	err = init_mat(newSize, 2, out);
+	if(err)
 		return err;
 
 	for(uint64_t i = 0; a->size[i]; ++i)
@@ -55,7 +57,7 @@ err_ret magnitude(struct matrix const *const a, struct matrix **out) {
 
 	ele mag_a = 0;
 
-	for(uint64_t i = 0; i < a->len; ++i)
+	for(long i = 0; i < a->len; ++i)
 		mag_a += (a->elements[i] * a->elements[i]);
 
 	mag_a = sqrt(mag_a);
@@ -85,8 +87,14 @@ err_ret reference(struct matrix const *const a, struct matrix const *const b, st
 	if(err)
 		return err;
 
-	for(uint64_t i = 0; i < b->len; ++i)
-		out[0]->elements[i] = a->elements[(uint64_t) (b->elements[i])];
+	for(long i = 0; i < b->len; ++i) {
+		long ind = b->elements[i];
+		if((ind < 0) || (ind > out[0]->len) ) {
+			err = e_bound;
+			break;
+		}
+		out[0]->elements[i] = a->elements[ind];
+	}
 
 	return err;
 }
@@ -169,12 +177,15 @@ err_ret mult_mat(struct matrix const *const a, struct matrix const *const b, str
 		return e_size_mismatch;
 
 	err_ret err = 0;
-	uint16_t newSize[3] = {a->size[0], b->size[1], 0};
-	if((err = init_mat(newSize, 2, out)))
+	int newSize[3] = {a->size[0], b->size[1], 0};
+	
+	err = init_mat(newSize, 2, out);
+	if(err)
 		return err;
 
 	struct matrix *t_a = NULL;
-	if((err = t_mat(a, &t_a)))
+	err = t_mat(a, &t_a);
+	if(err)
 		return err;
 
 	//generic O(n^3) algorithm
@@ -275,15 +286,15 @@ err_ret t_mat(struct matrix const *const a, struct matrix **out) {
 
 	//new transposed size is same as a->size
 	//but the dimensions are swapped
-	uint16_t newSize[3] = {a->size[1], a->size[0], 0};
+	int newSize[3] = {a->size[1], a->size[0], 0};
 	err_ret err = init_mat(newSize, 2, out);
 	if(err)
 		return err;
 
-	for(uint64_t i = 0; i < out[0]->len; ++i) {
+	for(long i = 0; i < out[0]->len; ++i) {
 		//tmp is an int and gets rounded down
-		uint64_t tmp = i / a->size[0];
-		uint64_t ind = tmp + a->size[1] * (i - tmp * a->size[0]);
+		long tmp = i / a->size[0];
+		long ind = tmp + a->size[1] * (i - tmp * a->size[0]);
 
 		out[0]->elements[ind] = a->elements[i];
 	}
@@ -326,14 +337,14 @@ err_ret sum(struct matrix const *const m, struct matrix **out) {
 			out[0]->elements[0] += m->elements[i];
 
 	} else if(m->dim == 2) {
-		uint16_t new_size[] = {1, m->size[1], 0};
+		int new_size[] = {1, m->size[1], 0};
 
 		if((err = init_mat(new_size, 2, out)))
 			return err;
 
 		for(int i = 0; i < out[0]->len; ++i) {
 			for(int j = 0; j < m->size[m->dim - 2]; ++j) {
-				uint64_t ind = i * m->size[m->dim - 2] + j;
+				long ind = i * m->size[m->dim - 2] + j;
 				out[0]->elements[i] += m->elements[ind];
 			}
 		}
@@ -345,7 +356,7 @@ err_ret sum(struct matrix const *const m, struct matrix **out) {
 
 		for(int i = 0; i < out[0]->len; ++i) {
 			for(int j = 0; j < m->size[m->dim - 1]; ++j) {
-				uint64_t ind = j * out[0]->len + i;
+				long ind = j * out[0]->len + i;
 				out[0]->elements[i] += m->elements[ind];
 			}
 		}
@@ -365,7 +376,7 @@ err_ret avg(struct matrix const *const m, struct matrix **out) {
 	if(err)
 		return err;
 
-	for(uint64_t i = 0; i < out[0]->len; ++i)
+	for(long i = 0; i < out[0]->len; ++i)
 		out[0]->elements[i] /= m->size[m->dim - 1];
 
 	return err;
@@ -385,9 +396,11 @@ void __assign_mat_missing_col(struct matrix const *const a, struct matrix *b, in
 	}
 }
 
+
+//use recursive minor expansion formula
 err_ret __recurse_det(struct matrix const *const m, ele *out) {
 	struct matrix *tmp_mat = NULL;
-	uint16_t tmpsize[2] = {m->size[0] - 1, m->size[0] - 1};
+	int tmpsize[2] = {m->size[0] - 1, m->size[0] - 1};
 	err_ret err = init_mat(tmpsize, 2, &tmp_mat);
 	if(err)
 		return err;
@@ -406,13 +419,21 @@ err_ret __recurse_det(struct matrix const *const m, ele *out) {
 	free_mat(tmp_mat);
 	return err;
 }
+
+
 /*
 err_ret __efficient_det(struct matrix const *const m, ele *out) {
+	int sub_size = m->size[0] - 2;
+	int *ind = malloc(sub_size * sizeof(*ind));
+	
+	for(int i = 0; i < sub_size; ++i)
+		ind[i] = i;
+	
 	int size = m->size;
 	int sign[2] = {1, -1};
 	int ind = 0;
 	
-	for(int ii = 0; i < (size - 2); ++i, ind != ind) {
+	for(int ii = 0; i < (size - 2); ++i, ind = !ind) {
 	}
 
 	return 0;
@@ -420,6 +441,9 @@ err_ret __efficient_det(struct matrix const *const m, ele *out) {
 */
 
 err_ret determinant(struct matrix const *const m, struct matrix **out) {
+	if(is_scalar(m))
+		return init_scalar(m->elements[0], out);
+	
 	if(m->dim != 2)
 		return e_size_mismatch;
 	
@@ -429,15 +453,15 @@ err_ret determinant(struct matrix const *const m, struct matrix **out) {
 	ele det = 0;
 	ele err = 0;
 	if(m->size[0] == 3) {
-		det = m->elements[0] * m->elements[4] * m->elements[8] +
-			m->elements[3] * m->elements[7] * m->elements[2] +
-			m->elements[6] * m->elements[1] * m->elements[5] -
-			m->elements[6] * m->elements[4] * m->elements[2] -
-			m->elements[0] * m->elements[7] * m->elements[5] -
-			m->elements[3] * m->elements[1] * m->elements[8];
+		det = m->elements[0] * m->elements[4] * m->elements[8]
+			+ m->elements[3] * m->elements[7] * m->elements[2]
+			+ m->elements[6] * m->elements[1] * m->elements[5]
+			- m->elements[6] * m->elements[4] * m->elements[2]
+			- m->elements[0] * m->elements[7] * m->elements[5]
+			- m->elements[3] * m->elements[1] * m->elements[8];
 	} else if(m->size[0] == 2) {
-		det = m->elements[0] * m->elements[3] -
-			m->elements[1] * m->elements[2];
+		det = m->elements[0] * m->elements[3]
+			- m->elements[1] * m->elements[2];
 	} else {
 		//err = __efficient_det(m, &det);
 		err = __recurse_det(m, &det);
