@@ -371,10 +371,9 @@ err_ret cmp_size(int *a, int *b, uint8_t dimA, uint8_t dimB) {
 	if(dimA != dimB)
 		return 0;
 
-	for(int i = 0; i < dimA; ++i) {
-		if(*(a+i) != *(b+i))
+	for(int i = 0; i < dimA; ++i)
+		if(a[i] != b[i])
 			return 0;
-	}
 
 	return 1;
 }
