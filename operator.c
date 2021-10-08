@@ -30,7 +30,7 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 	struct matrix *b = NULL;
 	struct matrix *out = NULL;
 	err_ret err = 0;
-	
+
 	switch(ch->argNo) {
 	case 1:
 		a = pop(num);
@@ -77,10 +77,11 @@ err_ret ex_num(struct stack *num, struct vari *var, struct oper *ch) {
 		break;
 	}
 
-	if(out && !err)
+	if(out && !err) {
 		push(num, out);
-	else
+	} else {
 		free_mat(out);
+	}
 
 	return err;
 }

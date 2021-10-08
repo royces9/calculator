@@ -480,7 +480,7 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 	if(err)
 		return err;
 	
-	int dim = numberOfArgs(inp);    
+	int dim = numberOfArgs(inp);
 
 	if(dim == 1) { //if the number of inps is 1
 		err = sya(inp[0], tmp);
@@ -494,16 +494,13 @@ err_ret extractValue(char **inp, int var_ind, struct vari *var, struct matrix **
 		//out is a matrix that holds indices
 		for(uint64_t i = 0; i < out[0]->len; ++i) {
 			--(out[0]->elements[i]);
-
 			//check that the inp is within bound
 			//if(((long)out[0]->elements[i] >= tmp->value[var_ind]->len)  || ((long)out[0]->elements[i] < 0)) {
 			if(((long)out[0]->elements[i] >= tmp->value[var_ind]->len)) {
 				err = e_bound;
-				free_mat(*out);
 				goto err_ret;
 			}
 		}
-
 		//if the number of inps is equal to dimension
 	} else if(dim == tmp->value[var_ind]->dim) {
 		int *loc = malloc((dim + 1) * sizeof(*loc));
@@ -585,7 +582,6 @@ err_ret chk_var(char *buffer, char *inp, int *iter, struct vari *var, struct sta
 
 
 		err = extractValue(separatedString, k, var, out);
-
 		if(!(err < 0)) {
 			push(num, var->value[k]);
 			push(num, *out);

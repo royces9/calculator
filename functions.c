@@ -89,7 +89,7 @@ err_ret reference(struct matrix const *const a, struct matrix const *const b, st
 
 	for(long i = 0; i < b->len; ++i) {
 		long ind = b->elements[i];
-		if((ind < 0) || (ind > out[0]->len) ) {
+		if((ind < 0) || (ind > a->len) ) {
 			err = e_bound;
 			break;
 		}
